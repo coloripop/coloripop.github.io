@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Touch Gesture Reference Cards 2025 — UX/UI Edition</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=DM+Mono:wght@500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #e8e4dc;
+    font-family: 'DM Sans', sans-serif;
+    padding: 20px;
+  }
+
+  h1.doc-title {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 4px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+  .doc-sub {
+    text-align: center;
+    font-size: 10px;
+    color: #999;
+    margin-bottom: 6px;
+  }
+  .flip-hint {
+    text-align: center;
+    font-size: 10px;
+    color: #aaa;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  .flip-hint span {
+    display: inline-block;
+    background: rgba(0,0,0,0.08);
+    border-radius: 20px;
+    padding: 3px 10px;
+  }
+
+  h2.section-title {
+    text-align: center;
+    font-size: 11px;
+    color: #888;
+    margin: 18px 0 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 63mm);
+    gap: 5mm;
+    justify-content: center;
+    margin-bottom: 4mm;
+  }
+
+  /* ── CARD IN GRID ── */
+  .card-flip {
+    width: 63mm;
+    height: 88mm;
+    cursor: pointer;
+    position: relative;
+    border-radius: 4mm;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.22);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .card-flip:hover {
+    transform: translateY(-3px) scale(1.025);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.34);
+  }
+  /* ghost placeholder while card is flying */
+  .card-flip.is-open {
+    visibility: hidden;
+  }
+  .card-flip > .card-front {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    border-radius: 4mm; overflow: hidden;
+  }
+  .card-flip > .card-back { display: none; }
+
+  /* ── BACKDROP ── */
+  #card-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    z-index: 900;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition:
+      background 0.45s ease,
+      backdrop-filter 0.45s ease;
+  }
+  #card-backdrop.visible {
+    display: block;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  /* fade in for backdrop */
+  #card-backdrop.fading-in {
+    display: block;
+    background: rgba(0,0,0,0);
+    backdrop-filter: blur(0px);
+  }
+
+  /* ── FLYING CARD ── */
+  #flying-card {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    border-radius: 4mm;
+    cursor: default;
+    perspective: 1200px;
+  }
+  #flying-card.active { display: block; }
+
+  #flying-inner {
+    width: 100%; height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    border-radius: 4mm;
+    /* transition applied dynamically via JS */
+  }
+
+  /* front/back faces of flying card */
+  #flying-front, #flying-back {
+    position: absolute;
+    width: 100%; height: 100%;
+    border-radius: inherit;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  #flying-back {
+    transform: rotateY(180deg);
+  }
+
+  /* ── CLOSE BUTTON (appears on back face) ── */
+  #modal-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: #fff; font-size: 16px;
+    cursor: pointer; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  #modal-close:hover { background: rgba(255,255,255,0.28); }
+
+  /* ── SCALED TEXT for expanded state ── */
+  .expanded .card-header   { padding: 22px 24px 14px; }
+  .expanded .card-suit     { font-size: 11px; }
+  .expanded .card-title    { font-size: 30px; }
+  .expanded .flip-icon     { display: none; }
+  .expanded .card-art svg  { width: 100%; height: 100%; }
+  .expanded .card-desc     { padding: 14px 24px 22px; }
+  .expanded .card-gesture-name  { font-size: 20px; margin-bottom: 7px; }
+  .expanded .card-gesture-desc  { font-size: 14px; line-height: 1.55; }
+  .expanded .card-rule          { font-size: 12px; margin-top: 8px; padding-top: 8px; }
+
+  .expanded .back-header        { padding: 22px 24px 12px; }
+  .expanded .back-suit          { font-size: 11px; }
+  .expanded .back-title         { font-size: 26px; }
+  .expanded .back-body          { padding: 12px 24px 22px; gap: 14px; overflow-y: auto; }
+  .expanded .back-section-label { font-size: 10px; margin-bottom: 4px; }
+  .expanded .back-text          { font-size: 14px; line-height: 1.6; }
+  .expanded .back-examples      { font-size: 13px; line-height: 1.6; }
+  .expanded .back-tip           { font-size: 12px; line-height: 1.55; padding: 10px 14px; border-radius: 8px; }
+  .expanded .back-video-area    { padding-top: 10px; }
+  .expanded .back-video-label   { font-size: 10px; margin-bottom: 6px; }
+  .expanded .back-video-link    { padding: 10px 14px; border-radius: 8px; gap: 10px; }
+  .expanded .yt-icon            { width: 22px; height: 16px; border-radius: 4px; }
+  .expanded .yt-icon::after     { border-width: 5px 0 5px 10px; margin-left: 2px; }
+  .expanded .back-video-text    { font-size: 13px; }
+
+  /* ── FRONT & BACK (for grid cards, not flying) ── */
+  .card-front, .card-back {
+    border-radius: 4mm;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.22);
+  }
+
+  /* ── FRONT ELEMENTS ── */
+  .card-header {
+    padding: 3.5mm 4mm 2.5mm;
+    display: flex;
+    flex-direction: column;
+    gap: 1mm;
+    position: relative;
+  }
+  .card-suit {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .flip-icon {
+    position: absolute;
+    top: 3mm;
+    right: 3.5mm;
+    font-size: 10px;
+    opacity: 0.35;
+  }
+
+  .card-art {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .card-art svg { width: 100%; height: 100%; }
+
+  .card-desc {
+    background: rgba(0,0,0,0.18);
+    padding: 3mm 4mm 4mm;
+  }
+  .card-gesture-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.5mm;
+    line-height: 1.15;
+  }
+  .card-gesture-desc {
+    font-size: 9px;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.45;
+  }
+  .card-rule {
+    font-size: 8px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+    margin-top: 2mm;
+    padding-top: 2mm;
+    border-top: 0.3mm solid rgba(255,255,255,0.2);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── BACK ELEMENTS ── */
+  .back-header {
+    padding: 3.5mm 4mm 2mm;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5mm;
+  }
+  .back-suit {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+  .back-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+  }
+  .back-body {
+    flex: 1;
+    padding: 2mm 4mm 3mm;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5mm;
+    overflow: hidden;
+  }
+  .back-section-label {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    color: #fff;
+    margin-bottom: 0.5mm;
+  }
+  .back-text {
+    font-size: 8.5px;
+    color: rgba(255,255,255,0.88);
+    line-height: 1.5;
+  }
+  .back-examples {
+    font-size: 8px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+  }
+  .back-tip {
+    font-size: 7.5px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+    padding: 2mm;
+    border-radius: 2mm;
+    background: rgba(255,255,255,0.08);
+    border-left: 1.5px solid rgba(255,255,255,0.25);
+    font-style: italic;
+  }
+  .back-video-area {
+    margin-top: auto;
+    padding-top: 2mm;
+    border-top: 0.3mm solid rgba(255,255,255,0.15);
+  }
+  .back-video-label {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 1.5mm;
+  }
+  .back-video-link {
+    display: flex;
+    align-items: center;
+    gap: 2mm;
+    text-decoration: none;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2mm;
+    padding: 2mm 2.5mm;
+    border: 0.3mm solid rgba(255,255,255,0.18);
+    transition: background 0.2s;
+  }
+  .back-video-link:hover {
+    background: rgba(255,255,255,0.18);
+  }
+  .yt-icon {
+    width: 14px;
+    height: 10px;
+    background: #FF0000;
+    border-radius: 2px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .yt-icon::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 3px 0 3px 6px;
+    border-color: transparent transparent transparent white;
+    margin-left: 1px;
+  }
+  .back-video-text {
+    font-size: 7.5px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.3;
+    font-weight: 500;
+  }
+  .platform-badge {
+    display: inline-block;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.8mm 2mm;
+    border-radius: 20px;
+  }
+  .badge-android { background: #1B5E20; color: #A5D6A7; }
+  .badge-ios     { background: #4A0080; color: #CE93D8; }
+  .badge-both    { background: #1a1a2e; color: #90CAF9; }
+  .badge-new     { background: #B71C1C; color: #FFCDD2; }
+  .badge-dep     { background: #424242; color: #BDBDBD; text-decoration: line-through; }
+
+  /* ── COLOR THEMES ── */
+  .core  .card-front, .core  .card-back  { background: linear-gradient(160deg,#1a1a2e 0%,#0f0f1e 100%); }
+  .core  .card-suit, .core  .card-title  { color: #E8E0FF; }
+  .core  .back-suit  { color: #B4A8F0; }
+  .core  .card-art   { background: rgba(255,255,255,0.04); }
+
+  .sys   .card-front, .sys   .card-back  { background: linear-gradient(160deg,#0D2D4A 0%,#071829 100%); }
+  .sys   .card-suit, .sys   .card-title  { color: #90CAF9; }
+  .sys   .back-suit  { color: #64B5F6; }
+  .sys   .card-art   { background: rgba(255,255,255,0.04); }
+
+  .nav   .card-front, .nav   .card-back  { background: linear-gradient(160deg,#0D4A22 0%,#072B14 100%); }
+  .nav   .card-suit, .nav   .card-title  { color: #A5D6A7; }
+  .nav   .back-suit  { color: #81C784; }
+  .nav   .card-art   { background: rgba(255,255,255,0.04); }
+
+  .obj   .card-front, .obj   .card-back  { background: linear-gradient(160deg,#7D3200 0%,#4D1E00 100%); }
+  .obj   .card-suit, .obj   .card-title  { color: #FFCC99; }
+  .obj   .back-suit  { color: #FFB74D; }
+  .obj   .card-art   { background: rgba(255,255,255,0.04); }
+
+  .and   .card-front, .and   .card-back  { background: linear-gradient(160deg,#1B4D20 0%,#0A2B0F 100%); }
+  .and   .card-suit  { color: #A5D6A7; }
+  .and   .card-title { color: #4ADE80; }
+  .and   .back-suit  { color: #81C784; }
+  .and   .card-art   { background: rgba(0,200,80,0.04); }
+
+  .ios-c .card-front, .ios-c .card-back  { background: linear-gradient(160deg,#2D0050 0%,#1A0030 100%); }
+  .ios-c .card-suit  { color: #CE93D8; }
+  .ios-c .card-title { color: #E0B0FF; }
+  .ios-c .back-suit  { color: #BA68C8; }
+  .ios-c .card-art   { background: rgba(180,0,255,0.04); }
+
+  .obs   .card-front, .obs   .card-back  { background: linear-gradient(160deg,#1a1a1a 0%,#0d0d0d 100%); }
+  .obs   .card-suit  { color: #777; }
+  .obs   .card-title { color: #666; text-decoration: line-through; font-size: 14px; }
+  .obs   .back-suit  { color: #666; }
+
+  @media print {
+    body { background: white; padding: 5mm; }
+    .grid { gap: 3mm; }
+    .card-flip-inner { transform: none !important; }
+    .card-back { display: none; }
+    .card-front { box-shadow: 0 0 0 0.3mm rgba(0,0,0,0.2); }
+    h2.section-title { margin-top: 8mm; }
+    .flip-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<h1 class="doc-title">Touch Gesture Reference Cards · 2025 · UX/UI Edition</h1>
+<p class="doc-sub">Basado en el deck original de Craig Villamor, Dan Willis &amp; Luke Wroblewski (CC BY-SA 3.0) · Actualizado iOS 17–18 · Android 14–15</p>
+<p class="flip-hint"><span>👆 Click en cualquier card para voltearla y ver contexto · Escape para cerrar</span></p>
+
+<!-- ═══════════ CORE GESTURES ═══════════ -->
+<h2 class="section-title">Core Gestures — Los 8 gestos fundamentales</h2>
+<div class="grid" id="grid-core"></div>
+
+<!-- ═══════════ SYSTEM GESTURES ═══════════ -->
+<h2 class="section-title">System Gestures — Gestos del sistema (desde 2018)</h2>
+<div class="grid" id="grid-sys"></div>
+
+<!-- ═══════════ NAVIGATING ═══════════ -->
+<h2 class="section-title">Navigating Actions — Acciones de navegación</h2>
+<div class="grid" id="grid-nav"></div>
+
+<!-- ═══════════ OBJECT ACTIONS ═══════════ -->
+<h2 class="section-title">Object Actions — Acciones sobre elementos</h2>
+<div class="grid" id="grid-obj"></div>
+
+<!-- ═══════════ ANDROID ═══════════ -->
+<h2 class="section-title">Platform — Android 14–15 · Material Design 3</h2>
+<div class="grid" id="grid-and"></div>
+
+<!-- ═══════════ iOS ═══════════ -->
+<h2 class="section-title">Platform — iOS 17–18 · Human Interface Guidelines</h2>
+<div class="grid" id="grid-ios"></div>
+
+<!-- ═══════════ OBSOLETOS ═══════════ -->
+<h2 class="section-title">Gestos obsoletos — No usar en diseños nuevos</h2>
+<div class="grid" id="grid-obs"></div>
+
+<!-- ═══ BACKDROP ═══ -->
+<div id="card-backdrop" onclick="collapseCard({stopPropagation:()=>{}})"></div>
+
+<!-- ═══ FLYING CARD ═══ -->
+<div id="flying-card">
+  <div id="flying-inner">
+    <div id="flying-front" class="card-front"></div>
+    <div id="flying-back"  class="card-back"></div>
+  </div>
+</div>
+
+<p style="text-align:center;font-size:9px;color:#999;margin-top:20px;padding-bottom:20px;">
+  Fuentes: Material Design 3 (m3.material.io) · Apple HIG (developer.apple.com/design) · Google Android gesture guide
+</p>
+
+<script>
+// ─────────────────────────────────────────────
+// CARD DATA
+// ─────────────────────────────────────────────
+const cards = {
+
+  core: [
+    {
+      suit: 'Core Gestures', title: 'Tap',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="45" r="28" fill="none" stroke="#7C6FCD" stroke-width="1" opacity="0.4"/>
+        <circle cx="60" cy="45" r="18" fill="none" stroke="#9B8FE0" stroke-width="1" opacity="0.6"/>
+        <circle cx="60" cy="45" r="9" fill="#B4A8F0" opacity="0.9"/>
+        <rect x="55" y="12" width="10" height="26" rx="5" fill="#E8E0FF" opacity="0.8"/>
+        <rect x="52" y="34" width="16" height="24" rx="8" fill="#E8E0FF" opacity="0.9"/>
+      </svg>`,
+      name: 'Tap / Toque',
+      desc: 'Toca brevemente la pantalla con la yema del dedo.',
+      rule: '↳ Seleccionar · Activar · Navegar · Confirmar',
+      back_what: 'El gesto más fundamental. Un contacto rápido y ligero con la pantalla, similar al clic del mouse en desktop. El sistema lo reconoce al levantar el dedo.',
+      back_when: 'Botones, links, íconos, checkboxes, ítems de lista, cualquier elemento interactivo.',
+      back_tip: 'El área mínima de toque recomendada es 44×44pt (iOS) o 48×48dp (Android). Elementos más pequeños causan errores de toque.',
+      video_label: 'Ver: Touch targets & accessibility',
+      video_url: 'https://www.youtube.com/results?search_query=touch+target+size+mobile+UX+accessibility',
+      video_text: 'Touch targets en mobile UX'
+    },
+    {
+      suit: 'Core Gestures', title: 'Double Tap',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="45" r="14" fill="#B4A8F0" opacity="0.5"/>
+        <circle cx="72" cy="45" r="14" fill="#B4A8F0" opacity="0.5"/>
+        <rect x="45" y="12" width="10" height="22" rx="5" fill="#E8E0FF" opacity="0.7"/>
+        <rect x="42" y="30" width="16" height="20" rx="8" fill="#E8E0FF" opacity="0.85"/>
+        <rect x="65" y="18" width="10" height="22" rx="5" fill="#E8E0FF" opacity="0.7"/>
+        <rect x="62" y="36" width="16" height="20" rx="8" fill="#E8E0FF" opacity="0.85"/>
+        <text x="60" y="78" font-size="9" fill="#9B8FE0" text-anchor="middle" font-family="DM Sans,sans-serif">×2</text>
+      </svg>`,
+      name: 'Double Tap',
+      desc: 'Dos toques rápidos consecutivos con el dedo.',
+      rule: '↳ Zoom in/out en mapas e imágenes',
+      back_what: 'Dos taps rápidos en el mismo punto (dentro de ~300ms). El sistema los distingue del tap único con un pequeño retraso al procesar el primer tap.',
+      back_when: 'Zoom en Google Maps, zoom en fotos, like en Instagram, alternar estados en editores.',
+      back_tip: '⚠ Usar con cuidado: el sistema añade 300ms de retraso al tap único para distinguirlos. Puede hacer la UI sentirse lenta.',
+      video_label: 'Ver demo en acción',
+      video_url: 'https://www.youtube.com/results?search_query=double+tap+gesture+mobile+app+design',
+      video_text: 'Double tap gesture en apps'
+    },
+    {
+      suit: 'Core Gestures', title: 'Long Press',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="50" r="22" fill="#B4A8F0" opacity="0.15"/>
+        <circle cx="60" cy="50" r="14" fill="#B4A8F0" opacity="0.4"/>
+        <circle cx="60" cy="50" r="30" fill="none" stroke="#9B8FE0" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+        <rect x="55" y="14" width="10" height="28" rx="5" fill="#E8E0FF" opacity="0.8"/>
+        <rect x="52" y="38" width="16" height="22" rx="8" fill="#E8E0FF" opacity="0.95"/>
+        <circle cx="88" cy="22" r="7" fill="#3D3570" opacity="0.8"/>
+        <line x1="88" y1="22" x2="88" y2="17" stroke="#B4A8F0" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="88" y1="22" x2="91" y2="22" stroke="#B4A8F0" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>`,
+      name: 'Long Press',
+      desc: 'Mantén el dedo en la pantalla (≥500ms).',
+      rule: '↳ Menú contextual · Modo selección · Haptic Touch (iOS)',
+      back_what: 'Contacto sostenido sin movimiento por al menos 500ms. Activa estados secundarios o modo de edición. En iOS moderno equivale a Haptic Touch (reemplazó 3D Touch).',
+      back_when: 'Menú contextual en fotos, activar modo de reordenamiento, preview de links, selección múltiple en Android.',
+      back_tip: 'Siempre acompañar con feedback visual o háptico al activarse. El usuario necesita saber que el gesto fue reconocido.',
+      video_label: 'Ver: Long press patterns',
+      video_url: 'https://www.youtube.com/results?search_query=long+press+gesture+UX+design+mobile',
+      video_text: 'Long press UX patterns'
+    },
+    {
+      suit: 'Core Gestures', title: 'Swipe',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <path d="M25 45 Q72 45 92 45" stroke="#7C6FCD" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+        <circle cx="25" cy="45" r="4" fill="#7C6FCD" opacity="0.3"/>
+        <circle cx="50" cy="45" r="5" fill="#9B8FE0" opacity="0.5"/>
+        <circle cx="75" cy="45" r="6" fill="#B4A8F0" opacity="0.7"/>
+        <path d="M90 39 L98 45 L90 51" stroke="#E8E0FF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="80" y="20" width="10" height="20" rx="5" fill="#E8E0FF" opacity="0.6"/>
+        <rect x="77" y="36" width="16" height="18" rx="8" fill="#E8E0FF" opacity="0.85"/>
+      </svg>`,
+      name: 'Swipe / Flick',
+      desc: 'Desliza o lanza el dedo en cualquier dirección.',
+      rule: '↳ Scroll · Navegar entre vistas · Acciones en lista',
+      back_what: 'Movimiento rápido del dedo con inercia. "Swipe" implica velocidad moderada con dirección precisa; "flick" es más rápido y genera momentum (scroll inercial).',
+      back_when: 'Scroll de contenido, cambiar entre pantallas (onboarding), eliminar ítems, cambiar de tab, navegar en carousels.',
+      back_tip: 'El swipe horizontal compite con los gestos del sistema (back, edge gestures). Siempre probar en dispositivos reales.',
+      video_label: 'Ver: Swipe gestures en mobile',
+      video_url: 'https://www.youtube.com/results?search_query=swipe+gesture+mobile+UX+design+patterns',
+      video_text: 'Swipe patterns en mobile UX'
+    },
+    {
+      suit: 'Core Gestures', title: 'Drag',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="36" width="30" height="22" rx="4" fill="#3D3570" stroke="#7C6FCD" stroke-width="1" stroke-dasharray="2,2" opacity="0.6"/>
+        <rect x="66" y="32" width="30" height="22" rx="4" fill="#7C6FCD" opacity="0.85"/>
+        <path d="M50 47 Q60 47 64 47" stroke="#B4A8F0" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M62 43 L67 47 L62 51" stroke="#B4A8F0" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="73" y="12" width="10" height="20" rx="5" fill="#E8E0FF" opacity="0.7"/>
+        <rect x="70" y="28" width="16" height="16" rx="8" fill="#E8E0FF" opacity="0.9"/>
+      </svg>`,
+      name: 'Drag & Drop',
+      desc: 'Mantén y mueve el dedo sin levantar.',
+      rule: '↳ Mover elementos · Reordenar listas · Canvas',
+      back_what: 'Long press que continúa con movimiento. El objeto se "adhiere" al dedo y sigue su posición en tiempo real. Se confirma al levantar el dedo.',
+      back_when: 'Reordenar ítems en lista, mover widgets, arrastrar archivos, sliders, mapas, cualquier manipulación directa.',
+      back_tip: 'En iOS se puede activar drag & drop entre apps diferentes. En Android requiere configuración adicional con DragEvent API.',
+      video_label: 'Ver: Drag & drop en mobile',
+      video_url: 'https://www.youtube.com/results?search_query=drag+drop+mobile+iOS+Android+UX',
+      video_text: 'Drag & drop mobile patterns'
+    },
+    {
+      suit: 'Core Gestures', title: 'Pinch / Spread',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="45" r="22" fill="none" stroke="#9B8FE0" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="60" cy="45" r="10" fill="#7C6FCD" opacity="0.3"/>
+        <rect x="28" y="10" width="9" height="22" rx="4.5" fill="#E8E0FF" opacity="0.75" transform="rotate(-25,32,21)"/>
+        <rect x="80" y="10" width="9" height="22" rx="4.5" fill="#E8E0FF" opacity="0.75" transform="rotate(25,85,21)"/>
+        <path d="M42 38 L56 44" stroke="#9B8FE0" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M78 38 L64 44" stroke="#9B8FE0" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <text x="60" y="78" font-size="9" fill="#9B8FE0" text-anchor="middle" font-family="DM Sans,sans-serif">zoom out</text>
+      </svg>`,
+      name: 'Pinch / Spread',
+      desc: 'Dos dedos: acercar = zoom out · alejar = zoom in.',
+      rule: '↳ Zoom en mapas, imágenes, documentos',
+      back_what: '"Pinch" acerca dos dedos (zoom out). "Spread" o "Pinch open" aleja los dedos (zoom in). Es un gesto de dos dedos simultáneos que el sistema procesa como UIPinchGestureRecognizer.',
+      back_when: 'Zoom en mapas, fotos, PDFs, navegador web, editores de imágenes, canvas de diseño.',
+      back_tip: 'Siempre mostrar el nivel de zoom actual. Definir un mínimo y máximo de zoom. El gesto debe sentirse continuo y fluido, no en escalones.',
+      video_label: 'Ver: Pinch to zoom UX',
+      video_url: 'https://www.youtube.com/results?search_query=pinch+to+zoom+mobile+UX+gesture',
+      video_text: 'Pinch to zoom en apps'
+    },
+    {
+      suit: 'Core Gestures', title: 'Rotate',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="45" r="5" fill="#7C6FCD" opacity="0.4"/>
+        <circle cx="60" cy="45" r="26" fill="none" stroke="#9B8FE0" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.55"/>
+        <path d="M84 57 L87 63 L81 63" stroke="#B4A8F0" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="29" y="12" width="9" height="20" rx="4.5" fill="#E8E0FF" opacity="0.85" transform="rotate(30,33,22)"/>
+        <rect x="83" y="16" width="9" height="20" rx="4.5" fill="#E8E0FF" opacity="0.85" transform="rotate(-25,87,26)"/>
+      </svg>`,
+      name: 'Rotate',
+      desc: 'Dos dedos girando en sentido horario o antihorario.',
+      rule: '↳ Rotar imágenes, mapas, objetos en canvas',
+      back_what: 'Dos dedos que giran alrededor de un punto central. El ángulo de rotación se calcula en tiempo real mientras se mueven los dedos.',
+      back_when: 'Rotar imágenes en un editor, orientar el mapa en apps de navegación, manipular objetos en canvas creativo.',
+      back_tip: 'Es uno de los gestos menos usados en apps estándar. Muy útil en apps de diseño, mapas y cámara. Frecuentemente se combina con pinch.',
+      video_label: 'Ver: Rotate gesture demo',
+      video_url: 'https://www.youtube.com/results?search_query=rotate+gesture+iOS+Android+UX+demo',
+      video_text: 'Rotate gesture en apps'
+    },
+    {
+      suit: 'Core Gestures', title: 'Two-Finger Scroll',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <path d="M44 65 L44 25" stroke="#7C6FCD" stroke-width="1.5" fill="none" opacity="0.4" stroke-linecap="round"/>
+        <path d="M64 65 L64 25" stroke="#7C6FCD" stroke-width="1.5" fill="none" opacity="0.4" stroke-linecap="round"/>
+        <path d="M40 28 L44 22 L48 28" stroke="#B4A8F0" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M60 28 L64 22 L68 28" stroke="#B4A8F0" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="39" y="55" width="10" height="22" rx="5" fill="#E8E0FF" opacity="0.85"/>
+        <rect x="59" y="55" width="10" height="22" rx="5" fill="#E8E0FF" opacity="0.85"/>
+      </svg>`,
+      name: 'Two-Finger Scroll',
+      desc: 'Dos dedos juntos, arrastrando en la misma dirección.',
+      rule: '↳ Scroll en iframes · Listas en modales (iOS)',
+      back_what: 'Equivale al scroll con dos dedos del trackpad. Permite scrollear dentro de un elemento mientras el contenedor externo permanece fijo.',
+      back_when: 'Scrollear dentro de un mapa embebido, listas en popovers, textareas en iOS, cualquier zona de scroll anidada.',
+      back_tip: 'iOS requiere este gesto específicamente para scrollear dentro de elementos con overflow. Es un pain point conocido de accesibilidad que debe diseñarse con cuidado.',
+      video_label: 'Ver: iOS scroll behavior',
+      video_url: 'https://www.youtube.com/results?search_query=iOS+two+finger+scroll+overflow+nested',
+      video_text: 'Two-finger scroll en iOS'
+    }
+  ],
+
+  sys: [
+    {
+      suit: 'System Gestures', title: 'Home Gesture',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="32" y="8" width="56" height="72" rx="8" fill="none" stroke="#4A8FBF" stroke-width="1" opacity="0.5"/>
+        <rect x="44" y="72" width="32" height="4" rx="2" fill="#90CAF9" opacity="0.8"/>
+        <path d="M60 62 L60 30" stroke="#90CAF9" stroke-width="2" fill="none" opacity="0.7" stroke-linecap="round"/>
+        <path d="M53 38 L60 30 L67 38" stroke="#90CAF9" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="55" y="60" width="10" height="18" rx="5" fill="#BBDEFB" opacity="0.9"/>
+      </svg>`,
+      name: 'Swipe Up → Home',
+      desc: 'Swipe desde la barra inferior hacia arriba.',
+      rule: '↳ Reemplazó el botón físico Home. Zona reservada.',
+      back_what: 'Gesto del sistema introducido con iPhone X (2017) y Android 10 (2019). Reemplazó el botón físico Home. Es un gesto de sistema: el SO lo captura antes que las apps.',
+      back_when: 'Este gesto está 100% reservado al sistema. Las apps NO deben interceptarlo. Solo reconocerlo como limitación de diseño.',
+      back_tip: '⚠ La zona inferior de la pantalla (home indicator area) está reservada. No colocar controles críticos de la app en esta zona — serán difíciles de alcanzar o conflictivos.',
+      video_label: 'Ver: iPhone X gesture intro (Apple)',
+      video_url: 'https://www.youtube.com/results?search_query=iPhone+X+home+gesture+introduction+apple',
+      video_text: 'iPhone X: nueva navegación gestual'
+    },
+    {
+      suit: 'System Gestures', title: 'App Switcher',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="32" y="8" width="56" height="74" rx="7" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.5"/>
+        <rect x="42" y="20" width="22" height="30" rx="3" fill="#1A4F7A" opacity="0.8"/>
+        <rect x="68" y="20" width="14" height="30" rx="3" fill="#1A4F7A" opacity="0.5"/>
+        <rect x="86" y="20" width="10" height="30" rx="3" fill="#1A4F7A" opacity="0.3"/>
+        <path d="M55 72 Q55 62 65 55" stroke="#90CAF9" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M61 53 L66 55 L64 61" stroke="#90CAF9" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="50" y="70" width="10" height="17" rx="5" fill="#BBDEFB" opacity="0.9"/>
+      </svg>`,
+      name: 'App Switcher',
+      desc: 'Swipe up + pausa (iOS) · Swipe desde borde (Android).',
+      rule: '↳ Ver apps recientes · Gestión de multitarea',
+      back_what: 'iOS: swipe up desde la barra inferior y pausa antes de levantar el dedo. Android 10+: swipe desde el borde lateral o botón de recientes según configuración.',
+      back_when: 'Reservado al sistema. Como diseñador, es contexto relevante: los usuarios pueden cambiar de app en cualquier momento — tu app debe guardar su estado.',
+      back_tip: 'Diseña con "state preservation" en mente. Si el usuario vuelve a tu app 10 minutos después de cambiar, debe encontrar todo exactamente como lo dejó.',
+      video_label: 'Ver: iOS multitasking gestures',
+      video_url: 'https://www.youtube.com/results?search_query=iOS+app+switcher+multitasking+gesture+tutorial',
+      video_text: 'Multitasking en iOS & Android'
+    },
+    {
+      suit: 'System Gestures', title: 'Back Gesture',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="32" y="8" width="56" height="74" rx="8" fill="none" stroke="#4A8FBF" stroke-width="1" opacity="0.5"/>
+        <rect x="32" y="30" width="3" height="28" rx="1.5" fill="#90CAF9" opacity="0.7"/>
+        <path d="M35 44 L72 44" stroke="#90CAF9" stroke-width="2" fill="none" opacity="0.7" stroke-linecap="round"/>
+        <path d="M35 44 L42 38 M35 44 L42 50" stroke="#90CAF9" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="55" y="31" width="10" height="20" rx="5" fill="#BBDEFB" opacity="0.9"/>
+      </svg>`,
+      name: 'Back Gesture',
+      desc: 'Swipe desde el borde izquierdo (o derecho en Android).',
+      rule: '↳ ⚠ Conflicto crítico con Drawer menus en iOS',
+      back_what: 'iOS: swipe desde borde izquierdo, nativo desde iOS 7. Android 10+: desde borde izquierdo O derecho. Ambos sistemas lo capturan a nivel del sistema.',
+      back_when: 'Navegar hacia atrás en el stack de navegación. Es el gesto de navegación más usado en mobile.',
+      back_tip: '⚠ CRÍTICO para diseñadores: el Drawer/Hamburger menu que se abre desde el borde izquierdo CHOCA con este gesto en iOS. Apple recomienda usar Tab Bar en vez de Drawer.',
+      video_label: 'Ver: Navigation patterns iOS vs Android',
+      video_url: 'https://www.youtube.com/results?search_query=iOS+Android+back+gesture+navigation+conflict+drawer',
+      video_text: 'Back gesture & conflictos de nav'
+    },
+    {
+      suit: 'System Gestures', title: 'Notification Center',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="32" y="8" width="56" height="74" rx="8" fill="none" stroke="#4A8FBF" stroke-width="1" opacity="0.5"/>
+        <rect x="44" y="8" width="32" height="3" rx="1.5" fill="#90CAF9" opacity="0.7"/>
+        <path d="M60 11 L60 45" stroke="#90CAF9" stroke-width="2" fill="none" opacity="0.7" stroke-linecap="round"/>
+        <path d="M54 38 L60 46 L66 38" stroke="#90CAF9" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="40" y="50" width="40" height="10" rx="3" fill="#1A4F7A" opacity="0.7"/>
+        <rect x="40" y="63" width="28" height="10" rx="3" fill="#1A4F7A" opacity="0.4"/>
+      </svg>`,
+      name: 'Notification Center',
+      desc: 'Swipe desde el borde superior de la pantalla.',
+      rule: '↳ iOS: borde derecho = Control Center. Zona del sistema.',
+      back_what: 'Swipe hacia abajo desde el borde superior muestra notificaciones. En iOS, desde la esquina superior derecha muestra el Control Center. En Android, ambas funciones están en el mismo panel.',
+      back_when: 'Sistema: zona prohibida para las apps. No colocar interacciones de swipe desde el top — el sistema siempre gana.',
+      back_tip: 'La franja superior de ~20-44px es 100% del sistema. Además, el Dynamic Island/notch en iPhones modernos reduce aún más el espacio útil de la app.',
+      video_label: 'Ver: iOS Control Center & Notifications',
+      video_url: 'https://www.youtube.com/results?search_query=iOS+control+center+notification+center+swipe+gesture',
+      video_text: 'Notification & Control Center iOS'
+    }
+  ],
+
+  nav: [
+    {
+      suit: 'Navigating Actions', title: 'Pull to Refresh',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="28" y="38" width="64" height="7" rx="3" fill="#1E6B3C" opacity="0.5"/>
+        <rect x="28" y="50" width="48" height="7" rx="3" fill="#1E6B3C" opacity="0.4"/>
+        <rect x="28" y="62" width="56" height="7" rx="3" fill="#1E6B3C" opacity="0.3"/>
+        <circle cx="60" cy="22" r="10" fill="none" stroke="#A5D6A7" stroke-width="2" stroke-dasharray="20,12"/>
+        <circle cx="60" cy="22" r="4" fill="#4CAF50" opacity="0.7"/>
+        <path d="M60 12 L60 6" stroke="#A5D6A7" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M56 9 L60 5 L64 9" stroke="#A5D6A7" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+      </svg>`,
+      name: 'Pull to Refresh',
+      desc: 'Arrastra hacia abajo desde el top del contenido.',
+      rule: '↳ Mostrar indicador de carga obligatorio.',
+      back_what: 'Patrón popularizado por Twitter (2010, Loren Brichter). Se activa tirando del contenido hacia abajo cuando ya se está en el top del scroll. Indica al usuario que hay contenido nuevo para cargar.',
+      back_when: 'Feeds de noticias, timelines sociales, listas de emails, cualquier contenido que se actualiza con frecuencia.',
+      back_tip: 'Siempre mostrar un spinner o animación. El tiempo de respuesta esperado es <2s. En Android, Material Design tiene un componente nativo (SwipeRefreshLayout).',
+      video_label: 'Ver: Pull to refresh pattern',
+      video_url: 'https://www.youtube.com/results?search_query=pull+to+refresh+mobile+UX+pattern+design',
+      video_text: 'Pull to refresh UX pattern'
+    },
+    {
+      suit: 'Navigating Actions', title: 'Swipe to Act',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="28" width="100" height="28" rx="4" fill="#1E6B3C" opacity="0.5"/>
+        <rect x="82" y="28" width="28" height="28" rx="4" fill="#B71C1C" opacity="0.85"/>
+        <text x="96" y="47" font-size="10" fill="#fff" text-anchor="middle" font-family="DM Sans,sans-serif">🗑</text>
+        <rect x="10" y="28" width="72" height="28" rx="4" fill="#27AE60" opacity="0.9"/>
+        <text x="46" y="47" font-size="9" fill="#fff" text-anchor="middle" font-family="DM Sans,sans-serif">Mensaje</text>
+        <path d="M78 42 L88 42" stroke="#A5D6A7" stroke-width="1.5" fill="none"/>
+        <path d="M86 39 L90 42 L86 45" stroke="#A5D6A7" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="10" y="60" width="100" height="18" rx="4" fill="#1E6B3C" opacity="0.3"/>
+        <rect x="10" y="10" width="100" height="14" rx="4" fill="#1E6B3C" opacity="0.3"/>
+      </svg>`,
+      name: 'Swipe en Lista',
+      desc: 'Swipe horizontal en un ítem para revelar acciones.',
+      rule: '↳ Izquierda = destructiva · Derecha = positiva (iOS)',
+      back_what: 'Deslizar un ítem de lista horizontalmente revela acciones ocultas. iOS tiene una convención clara: swipe izquierda = acción destructiva (borrar), swipe derecha = acción positiva.',
+      back_when: 'Borrar emails/mensajes, archivar notificaciones, marcar como leído, agregar a favoritos.',
+      back_tip: 'Siempre confirmar antes de acciones destructivas o dar posibilidad de Undo. iOS tiene UISwipeActionsConfiguration como componente nativo. Android usa SwipeDismissBehavior.',
+      video_label: 'Ver: Swipe actions en listas',
+      video_url: 'https://www.youtube.com/results?search_query=swipe+to+delete+list+item+iOS+Android+UX',
+      video_text: 'Swipe actions en listas mobile'
+    },
+    {
+      suit: 'Navigating Actions', title: 'Page Swipe',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="14" y="18" width="44" height="54" rx="5" fill="#1E6B3C" opacity="0.4" transform="rotate(-4,36,45)"/>
+        <rect x="38" y="14" width="44" height="54" rx="5" fill="#27AE60" opacity="0.85"/>
+        <rect x="64" y="18" width="44" height="54" rx="5" fill="#1E6B3C" opacity="0.4" transform="rotate(4,86,45)"/>
+        <circle cx="50" cy="74" r="3" fill="#A5D6A7" opacity="0.5"/>
+        <circle cx="60" cy="74" r="3" fill="#A5D6A7"/>
+        <circle cx="70" cy="74" r="3" fill="#A5D6A7" opacity="0.5"/>
+        <path d="M55 42 L85 42" stroke="#A5D6A7" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M83 38 L87 42 L83 46" stroke="#A5D6A7" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+      name: 'Swipe entre Vistas',
+      desc: 'Desliza horizontalmente para cambiar de pantalla.',
+      rule: '↳ Onboarding · Carousels · Tab content · Galerías',
+      back_what: 'Swipe horizontal que cambia la vista activa con una transición de desplazamiento. Los page indicators (dots) comunican cuántas páginas hay y en cuál estamos.',
+      back_when: 'Pantallas de onboarding, galerías de fotos, tabs con contenido deslizable (tipo Tinder), carousels de productos.',
+      back_tip: 'Máximo 5-7 páginas con dots visibles. Para más páginas, usar scroll horizontal con chips. Siempre indicar que hay más contenido a los lados (peek del siguiente elemento).',
+      video_label: 'Ver: Carousel & pager patterns',
+      video_url: 'https://www.youtube.com/results?search_query=mobile+carousel+page+swipe+UX+onboarding+design',
+      video_text: 'Page swipe & carousel design'
+    },
+    {
+      suit: 'Navigating Actions', title: 'Stop Scroll',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="18" width="80" height="8" rx="3" fill="#1E6B3C" opacity="0.25"/>
+        <rect x="20" y="30" width="60" height="8" rx="3" fill="#27AE60" opacity="0.45"/>
+        <rect x="20" y="42" width="80" height="8" rx="3" fill="#27AE60" opacity="0.65"/>
+        <rect x="20" y="54" width="50" height="8" rx="3" fill="#27AE60" opacity="0.45"/>
+        <circle cx="60" cy="52" r="18" fill="none" stroke="#A5D6A7" stroke-width="1.5" opacity="0.5"/>
+        <circle cx="60" cy="52" r="10" fill="#1E6B3C" opacity="0.8"/>
+        <text x="60" y="56" font-size="11" fill="#A5D6A7" text-anchor="middle" font-family="DM Sans,sans-serif">✕</text>
+      </svg>`,
+      name: 'Tap para detener scroll',
+      desc: 'Un tap detiene el scroll inercial en curso.',
+      rule: '↳ El usuario retoma control sin activar el ítem',
+      back_what: 'Cuando el contenido está scrolleando con inercia, un tap simple detiene el movimiento sin activar el elemento tocado. El segundo tap sí activa el elemento.',
+      back_when: 'Listas largas con scroll rápido. El usuario quiere "frenar" antes de seleccionar un ítem.',
+      back_tip: 'Este comportamiento es automático en iOS UIScrollView y Android RecyclerView. Como diseñador, asegúrate de no colocar acciones críticas donde un tap-para-detener podría ejecutarlas accidentalmente.',
+      video_label: 'Ver: Scroll inertia & UX',
+      video_url: 'https://www.youtube.com/results?search_query=scroll+inertia+mobile+UX+design+patterns',
+      video_text: 'Scroll inertia behavior'
+    }
+  ],
+
+  obj: [
+    {
+      suit: 'Object Actions', title: 'Select',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="22" y="24" width="76" height="44" rx="6" fill="#7D3200" opacity="0.5" stroke="#E67E22" stroke-width="0.8"/>
+        <circle cx="60" cy="46" r="14" fill="#D35400" opacity="0.8"/>
+        <path d="M53 46 L58 52 L68 40" stroke="#FFCC99" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="55" y="10" width="10" height="20" rx="5" fill="#FFE0B2" opacity="0.7"/>
+        <rect x="52" y="26" width="16" height="14" rx="7" fill="#FFE0B2" opacity="0.9"/>
+      </svg>`,
+      name: 'Select / Tap',
+      desc: 'Tap para seleccionar un ítem de una lista.',
+      rule: '↳ Siempre feedback visual inmediato',
+      back_what: 'La acción de selección más básica. Un tap cambia el estado del elemento de "no seleccionado" a "seleccionado", comunicado con un cambio visual claro (check, highlight, color).',
+      back_when: 'Checkbox lists, radio buttons, toggles, selección de opciones en formularios, selección de archivos.',
+      back_tip: 'El feedback visual debe ser inmediato (<100ms). Si la acción tarda, mostrar un loading state. La selección siempre debe ser reversible (tap nuevamente para deseleccionar).',
+      video_label: 'Ver: Selection patterns mobile',
+      video_url: 'https://www.youtube.com/results?search_query=mobile+selection+pattern+checkbox+list+UX',
+      video_text: 'Selection patterns en mobile'
+    },
+    {
+      suit: 'Object Actions', title: 'Multi-Select',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="18" y="14" width="38" height="28" rx="4" fill="#D35400" opacity="0.8"/>
+        <path d="M28 28 L33 34 L43 22" stroke="#FFCC99" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="62" y="14" width="38" height="28" rx="4" fill="#D35400" opacity="0.8"/>
+        <path d="M72 28 L77 34 L87 22" stroke="#FFCC99" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="18" y="46" width="38" height="28" rx="4" fill="#7D3200" opacity="0.5" stroke="#E67E22" stroke-width="0.8"/>
+        <rect x="62" y="46" width="38" height="28" rx="4" fill="#7D3200" opacity="0.5" stroke="#E67E22" stroke-width="0.8"/>
+      </svg>`,
+      name: 'Multi-Select',
+      desc: 'Long press activa modo selección, luego tap en cada ítem.',
+      rule: '↳ Mostrar CAB / barra de acciones al seleccionar',
+      back_what: 'Long press en un ítem activa el "modo selección múltiple". Una vez activo, cada tap adicional agrega/quita ítems de la selección. La cantidad seleccionada se muestra en una barra contextual.',
+      back_when: 'Gestores de archivos, galerías de fotos, email (seleccionar varios mensajes), apps de tareas.',
+      back_tip: 'Android: Contextual Action Bar (CAB) aparece en el top reemplazando la toolbar. iOS: barra en la parte inferior. Siempre incluir "Seleccionar todo" y conteo de selección.',
+      video_label: 'Ver: Multi-select UX patterns',
+      video_url: 'https://www.youtube.com/results?search_query=multi+select+mobile+UX+contextual+action+bar',
+      video_text: 'Multi-select patterns'
+    },
+    {
+      suit: 'Object Actions', title: 'Scale Object',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="44" y="34" width="32" height="24" rx="3" fill="#7D3200" opacity="0.5" stroke-dasharray="2,2" stroke="#E67E22" stroke-width="0.8"/>
+        <rect x="28" y="22" width="64" height="46" rx="5" fill="#D35400" opacity="0.7"/>
+        <rect x="20" y="12" width="8" height="18" rx="4" fill="#FFE0B2" opacity="0.8" transform="rotate(-20,24,21)"/>
+        <rect x="90" y="56" width="8" height="18" rx="4" fill="#FFE0B2" opacity="0.8" transform="rotate(20,94,65)"/>
+        <path d="M30 28 L22 20" stroke="#FFCC99" stroke-width="1" fill="none" opacity="0.6"/>
+        <path d="M90 62 L98 70" stroke="#FFCC99" stroke-width="1" fill="none" opacity="0.6"/>
+      </svg>`,
+      name: 'Scale Object',
+      desc: 'Pinch/Spread sobre un objeto para escalarlo.',
+      rule: '↳ Imágenes editables, stickers, canvas',
+      back_what: 'Pinch/Spread aplicado a un objeto específico (no a la vista completa). Cambia el tamaño del elemento manteniendo su posición central. Se puede combinar con rotación.',
+      back_when: 'Editores de fotos/stickers, apps de diseño, canvas creativos, ajuste de firma en documentos.',
+      back_tip: 'Mostrar handles de selección en las esquinas del objeto para que el usuario sepa que es manipulable. Considerar snap points en tamaños comunes (25%, 50%, 100%, 200%).',
+      video_label: 'Ver: Object manipulation gesture',
+      video_url: 'https://www.youtube.com/results?search_query=pinch+scale+object+mobile+canvas+editor+UX',
+      video_text: 'Scale object en canvas mobile'
+    },
+    {
+      suit: 'Object Actions', title: 'Delete',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="68" y="30" width="52" height="28" rx="5" fill="#7D3200" opacity="0.3"/>
+        <rect x="30" y="30" width="60" height="28" rx="5" fill="#D35400" opacity="0.8"/>
+        <text x="60" y="49" font-size="9" fill="#FFE0B2" text-anchor="middle" font-family="DM Sans,sans-serif">Elemento</text>
+        <path d="M30 44 L18 44" stroke="#E67E22" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-dasharray="3,2"/>
+        <circle cx="96" cy="44" r="10" fill="#B71C1C" opacity="0.8"/>
+        <path d="M91 39 L101 49 M101 39 L91 49" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>`,
+      name: 'Delete / Dismiss',
+      desc: 'Swipe completo fuera de la pantalla para eliminar.',
+      rule: '↳ Siempre ofrecer Undo. Confirmar si es irreversible.',
+      back_what: 'Swipe horizontal que desplaza el ítem completamente fuera de la pantalla, eliminándolo o descartándolo. Diferente del "swipe to reveal actions": este es el swipe completo hasta el borde.',
+      back_when: 'Descartar notificaciones, eliminar tareas, cerrar tarjetas en carousels, limpiar ítems de un feed.',
+      back_tip: '⚠ Para acciones destructivas irreversibles, siempre un Snackbar con "Deshacer". Para acciones menores (dismiss de notif), el gesto solo basta. Material Design tiene Snackbar nativo para este patrón.',
+      video_label: 'Ver: Swipe to dismiss pattern',
+      video_url: 'https://www.youtube.com/results?search_query=swipe+to+dismiss+delete+mobile+UX+undo+snackbar',
+      video_text: 'Swipe to dismiss & Undo UX'
+    }
+  ],
+
+  and: [
+    {
+      suit: 'Android · Material Design 3', title: 'Back Gesture',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="32" y="8" width="56" height="74" rx="7" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.6"/>
+        <rect x="32" y="28" width="4" height="32" rx="2" fill="#4CAF50" opacity="0.8"/>
+        <path d="M36 44 L75 44" stroke="#A5D6A7" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M47 38 L36 44 L47 50" stroke="#A5D6A7" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="56" y="31" width="9" height="19" rx="4.5" fill="#C8E6C9" opacity="0.9"/>
+      </svg>`,
+      name: 'Back Gesture Android',
+      desc: 'Swipe desde borde izquierdo o derecho.',
+      rule: '↳ Android 10+. Reemplazó botón ◀. Predictive back en Android 13+.',
+      back_what: 'Desde Android 10 (2019) los dispositivos usan navegación por gestos. El swipe desde cualquier borde horizontal navega "atrás". Android 13+ añade "Predictive Back": muestra una preview de la pantalla anterior.',
+      back_when: 'Reservado al sistema. Como diseñador: asegúrate de que tu back stack tenga sentido y que la pantalla anterior sea la esperada.',
+      back_tip: 'Android 13+ requiere que las apps soporten explícitamente Predictive Back con OnBackPressedCallback. Vale la pena implementarlo — mejora significativamente la percepción de fluidez.',
+      video_label: 'Ver: Android Predictive Back',
+      video_url: 'https://www.youtube.com/results?search_query=android+predictive+back+gesture+navigation+2023',
+      video_text: 'Android Predictive Back gesture'
+    },
+    {
+      suit: 'Android · Material Design 3', title: 'Bottom Sheet',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="28" y="8" width="64" height="82" rx="8" fill="#0D4A22" opacity="0.4"/>
+        <rect x="28" y="44" width="64" height="48" rx="8" fill="#1B5E20" opacity="0.9"/>
+        <rect x="52" y="50" width="16" height="3" rx="1.5" fill="#A5D6A7" opacity="0.7"/>
+        <rect x="36" y="58" width="48" height="6" rx="2" fill="#2E7D32" opacity="0.7"/>
+        <rect x="36" y="68" width="36" height="6" rx="2" fill="#2E7D32" opacity="0.5"/>
+        <path d="M60 44 L60 34" stroke="#A5D6A7" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M56 37 L60 33 L64 37" stroke="#A5D6A7" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+      name: 'Bottom Sheet',
+      desc: 'Swipe up para expandir, swipe down para cerrar.',
+      rule: '↳ Drag handle obligatorio si hay scroll interno.',
+      back_what: 'Panel que aparece desde la parte inferior de la pantalla. Puede ser "modal" (bloquea la pantalla principal) o "persistente" (coexiste con el contenido). En Material Design 3 es un componente estándar.',
+      back_when: 'Compartir contenido, filtros de búsqueda, información adicional, acciones sobre un elemento seleccionado, Maps usa un sheet persistente para resultados.',
+      back_tip: 'Siempre incluir el drag handle (pill gris). Si el sheet tiene contenido scrolleable, el drag handle es OBLIGATORIO para que el usuario pueda distinguir entre scrollear dentro del sheet y cerrarlo.',
+      video_label: 'Ver: Bottom Sheet Material Design',
+      video_url: 'https://www.youtube.com/results?search_query=material+design+bottom+sheet+android+UX+tutorial',
+      video_text: 'Bottom Sheet en Material Design 3'
+    },
+    {
+      suit: 'Android · Material Design 3', title: 'Selection Mode',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="16" y="16" width="88" height="16" rx="4" fill="#1B5E20" opacity="0.85"/>
+        <circle cx="26" cy="24" r="6" fill="#4CAF50" opacity="0.9"/>
+        <path d="M22 24 L25 27 L31 21" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="16" y="36" width="88" height="16" rx="4" fill="#1B5E20" opacity="0.55"/>
+        <circle cx="26" cy="44" r="6" fill="#2E7D32" opacity="0.4" stroke="#A5D6A7" stroke-width="0.8"/>
+        <rect x="16" y="56" width="88" height="16" rx="4" fill="#1B5E20" opacity="0.85"/>
+        <circle cx="26" cy="64" r="6" fill="#4CAF50" opacity="0.9"/>
+        <path d="M22 64 L25 67 L31 61" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="16" y="4" width="88" height="10" rx="3" fill="#0D4A22" opacity="0.9"/>
+        <text x="95" y="12" font-size="7" fill="#A5D6A7" text-anchor="end" font-family="DM Sans,sans-serif">2 · 🗑 ⋮</text>
+      </svg>`,
+      name: 'Contextual Selection',
+      desc: 'Long press activa modo selección múltiple.',
+      rule: '↳ CAB (Contextual Action Bar) aparece en el top.',
+      back_what: 'Long press en Android activa el modo de selección múltiple. La toolbar principal se reemplaza con la Contextual Action Bar (CAB) que muestra acciones relevantes para los ítems seleccionados.',
+      back_when: 'Gestor de archivos, galería, Gmail (seleccionar mensajes), Drive, cualquier lista con operaciones sobre múltiples ítems.',
+      back_tip: 'La CAB debe mostrar: número de ítems seleccionados, acciones contextualmente relevantes, y siempre el botón X para salir del modo selección. Botón atrás del sistema también debe salir del modo.',
+      video_label: 'Ver: Android Contextual Action Bar',
+      video_url: 'https://www.youtube.com/results?search_query=android+contextual+action+bar+multi+select+material',
+      video_text: 'Contextual Action Bar Android'
+    },
+    {
+      suit: 'Android · Material Design 3', title: 'Swipe to Dismiss',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="20" width="100" height="22" rx="5" fill="#1B5E20" opacity="0.85"/>
+        <text x="60" y="36" font-size="8" fill="#A5D6A7" text-anchor="middle" font-family="DM Sans,sans-serif">Notificación recibida</text>
+        <rect x="52" y="46" width="88" height="22" rx="5" fill="#1B5E20" opacity="0.4"/>
+        <path d="M10 57 L50 57" stroke="#4CAF50" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M46 53 L51 57 L46 61" stroke="#A5D6A7" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="10" y="72" width="100" height="12" rx="4" fill="#0D4A22" opacity="0.7"/>
+        <text x="60" y="81" font-size="7" fill="#A5D6A7" text-anchor="middle" font-family="DM Sans,sans-serif">DESHACER</text>
+      </svg>`,
+      name: 'Swipe to Dismiss',
+      desc: 'Swipe horizontal completo para descartar un ítem.',
+      rule: '↳ Snackbar con "Deshacer" para acciones reversibles.',
+      back_what: 'En Android, el swipe to dismiss es el patrón estándar para descartar notificaciones, snackbars, y ítems de listas. Material Design lo documenta como patrón fundamental.',
+      back_when: 'Descartar notificaciones del panel, eliminar ítems de lista, cerrar snackbars, descartar tarjetas de recomendación.',
+      back_tip: 'Material Design requiere un Snackbar con acción "Deshacer" para cualquier eliminación de datos. El Snackbar debe durar mínimo 4s. Es un error de UX no ofrecer esta opción.',
+      video_label: 'Ver: Material Design Snackbar + Undo',
+      video_url: 'https://www.youtube.com/results?search_query=material+design+snackbar+undo+dismiss+android',
+      video_text: 'Snackbar & Undo en Material Design'
+    }
+  ],
+
+  ios: [
+    {
+      suit: 'iOS · HIG 2024–25', title: 'Edge Swipe Back',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="12" y="8" width="40" height="74" rx="7" fill="#2D0050" opacity="0.6"/>
+        <rect x="44" y="8" width="64" height="74" rx="7" fill="#4A0080" opacity="0.85"/>
+        <defs><linearGradient id="sh2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#000" stop-opacity="0.4"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></linearGradient></defs>
+        <rect x="42" y="8" width="6" height="74" fill="url(#sh2)" opacity="0.5"/>
+        <path d="M36 44 L56 44" stroke="#CE93D8" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M38 40 L33 44 L38 48" stroke="#CE93D8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+      name: 'Edge Swipe → Atrás',
+      desc: 'Swipe desde el borde izquierdo. Nativo desde iOS 7.',
+      rule: '↳ No reimplementar — viene gratis con NavigationStack.',
+      back_what: 'El gesto de navegación más importante en iOS. Un swipe desde el borde izquierdo de la pantalla navega hacia la pantalla anterior en el navigation stack, con una transición interactiva que sigue el dedo.',
+      back_when: 'Cualquier app con NavigationController/NavigationStack. El usuario puede cancelar el gesto a mitad si lo desliza de vuelta.',
+      back_tip: 'Si usas NavigationStack en SwiftUI o UINavigationController en UIKit, este gesto es AUTOMÁTICO y gratuito. No lo reimplementes con gesture recognizers custom — interferirás con la implementación nativa.',
+      video_label: 'Ver: iOS Navigation gestures HIG',
+      video_url: 'https://www.youtube.com/results?search_query=iOS+navigation+swipe+back+gesture+HIG+SwiftUI',
+      video_text: 'iOS Navigation: edge swipe back'
+    },
+    {
+      suit: 'iOS · HIG 2024–25', title: 'Haptic Touch',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="35" y="20" width="50" height="50" rx="12" fill="#4A0080" opacity="0.8"/>
+        <text x="60" y="52" font-size="22" text-anchor="middle" font-family="DM Sans,sans-serif">📸</text>
+        <rect x="20" y="46" width="44" height="34" rx="5" fill="#2D0050" opacity="0.95" stroke="#7B1FA2" stroke-width="0.5"/>
+        <text x="42" y="59" font-size="7.5" fill="#CE93D8" text-anchor="middle" font-family="DM Sans,sans-serif">Tomar foto</text>
+        <line x1="22" y1="64" x2="62" y2="64" stroke="#7B1FA2" stroke-width="0.4"/>
+        <text x="42" y="72" font-size="7.5" fill="#CE93D8" text-anchor="middle" font-family="DM Sans,sans-serif">Compartir</text>
+        <path d="M78 42 Q82 46 78 50" stroke="#CE93D8" stroke-width="1.2" fill="none" opacity="0.6"/>
+        <path d="M82 38 Q88 46 82 54" stroke="#CE93D8" stroke-width="1" fill="none" opacity="0.4"/>
+      </svg>`,
+      name: 'Haptic Touch',
+      desc: 'Long press con feedback háptico abre menú contextual.',
+      rule: '↳ iOS 13+. Reemplaza 3D Touch (eliminado en iPhone 11).',
+      back_what: 'Long press que activa feedback háptico y muestra un menú contextual o una preview. Reemplaza completamente 3D Touch (Force Touch) desde iOS 13/iPhone 11. Funciona en TODOS los iPhones modernos.',
+      back_when: 'Menú contextual de apps en Home Screen, previews de links en Safari, acciones rápidas en fotos, peek de notificaciones.',
+      back_tip: '⚠ Si tu app usaba 3D Touch APIs (UIPreviewInteractionDelegate), actualiza a UIContextMenuInteraction para Haptic Touch. El 3D Touch ya no está disponible en ningún iPhone nuevo desde 2019.',
+      video_label: 'Ver: Haptic Touch vs 3D Touch',
+      video_url: 'https://www.youtube.com/results?search_query=haptic+touch+vs+3d+touch+iOS+context+menu',
+      video_text: 'Haptic Touch en iOS moderno'
+    },
+    {
+      suit: 'iOS · HIG 2024–25', title: 'Dismiss Sheet',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="14" y="8" width="92" height="82" rx="7" fill="#1A0030" opacity="0.6"/>
+        <rect x="14" y="30" width="92" height="60" rx="8" fill="#4A0080" opacity="0.9"/>
+        <rect x="52" y="36" width="16" height="3" rx="1.5" fill="#CE93D8" opacity="0.6"/>
+        <rect x="22" y="44" width="76" height="8" rx="3" fill="#2D0050" opacity="0.7"/>
+        <rect x="22" y="56" width="56" height="8" rx="3" fill="#2D0050" opacity="0.5"/>
+        <path d="M60 22 L60 30" stroke="#CE93D8" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M56 27 L60 31 L64 27" stroke="#CE93D8" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+      name: 'Dismiss Sheet',
+      desc: 'Swipe down en una sheet modal para cerrarla.',
+      rule: '↳ Drag handle obligatorio si hay scroll interno.',
+      back_what: 'Las presentaciones modales en iOS (sheet presentadas con .sheet() o pageSheet) se pueden descartar deslizando hacia abajo. iOS 15+ introdujo presentaciones de sheet de tamaño personalizable (detents).',
+      back_when: 'Cualquier modal/sheet en iOS: formularios, selección de opciones, compartir, filtros, confirmaciones.',
+      back_tip: 'iOS 16+ permite múltiples detents: .medium y .large. El usuario puede arrastrar entre tamaños. Si la sheet tiene contenido scrolleable, el drag handle permite diferenciar el gesto de cerrar del scroll.',
+      video_label: 'Ver: iOS Sheet & detents (WWDC)',
+      video_url: 'https://www.youtube.com/results?search_query=iOS+sheet+presentation+detents+SwiftUI+WWDC',
+      video_text: 'iOS Sheet presentaion & detents'
+    },
+    {
+      suit: 'iOS · HIG 2024–25', title: 'Shake to Undo',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="38" y="10" width="44" height="70" rx="8" fill="#4A0080" opacity="0.7"/>
+        <path d="M38 45 Q28 38 38 45 Q28 52 38 45" stroke="#CE93D8" stroke-width="1.5" fill="none" opacity="0.6"/>
+        <path d="M82 45 Q92 38 82 45 Q92 52 82 45" stroke="#CE93D8" stroke-width="1.5" fill="none" opacity="0.6"/>
+        <text x="60" y="52" font-size="22" text-anchor="middle" font-family="DM Sans,sans-serif">↩</text>
+        <path d="M30 30 L38 32 M30 60 L38 58" stroke="#CE93D8" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="2,2"/>
+        <path d="M90 30 L82 32 M90 60 L82 58" stroke="#CE93D8" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="2,2"/>
+      </svg>`,
+      name: 'Shake to Undo',
+      desc: 'Agitar el dispositivo para deshacer la última acción.',
+      rule: '↳ iOS nativo. Cuidado: poco descubrible y accidental.',
+      back_what: 'Sacudir físicamente el iPhone activa el diálogo de "Deshacer escritura" (o la acción de undo más reciente). Es un gesto del sistema disponible en iOS desde hace años, especialmente en campos de texto.',
+      back_when: 'Campo de texto (undo de escritura), algunas apps lo implementan para undo de acciones propias.',
+      back_tip: '⚠ Es un gesto muy poco descubrible — los usuarios no saben que existe. Además genera falsos positivos (sacudir accidentalmente). Apple recomienda también proveer un botón Undo visible. En iOS 13+ hay también Undo con 3 dedos.',
+      video_label: 'Ver: iOS Undo gestures',
+      video_url: 'https://www.youtube.com/results?search_query=iOS+shake+to+undo+three+finger+swipe+undo',
+      video_text: 'iOS: Shake to undo & undo gestures'
+    }
+  ],
+
+  obs: [
+    {
+      suit: 'Obsoleto', title: '3D Touch',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="45" r="28" fill="#333" opacity="0.4"/>
+        <text x="60" y="52" font-size="32" text-anchor="middle" font-family="DM Sans,sans-serif" fill="#555">✗</text>
+        <line x1="28" y1="20" x2="92" y2="70" stroke="#555" stroke-width="2"/>
+      </svg>`,
+      name: '3D Touch / Force Touch',
+      desc: 'Presión diferenciada por fuerza. iPhone 6S–XS.',
+      rule: '↳ Eliminado en iPhone 11 (2019). Reemplazar con Long Press.',
+      back_what: 'Hardware especial que detectaba distintos niveles de presión del dedo. Introducido en iPhone 6S (2015), eliminado en iPhone 11 (2019) para simplificar la pantalla y reducir costos.',
+      back_when: 'Ya no aplica. Todos los iPhones desde 2019 no tienen 3D Touch.',
+      back_tip: '⚠ Si encuentras código que usa UIPreviewInteractionDelegate, 3DTouch APIs, o Peek & Pop del antiguo 3D Touch: ACTUALIZAR a UIContextMenuInteraction (Haptic Touch). No hay excepciones.',
+      video_label: 'Ver: migración a Haptic Touch',
+      video_url: 'https://www.youtube.com/results?search_query=migrate+3d+touch+to+haptic+touch+iOS+context+menu',
+      video_text: '3D Touch → Haptic Touch migration'
+    },
+    {
+      suit: 'Obsoleto', title: 'Windows Phone 7',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <text x="60" y="52" font-size="32" text-anchor="middle" font-family="DM Sans,sans-serif" fill="#333">🪟</text>
+        <line x1="28" y1="20" x2="92" y2="70" stroke="#444" stroke-width="2"/>
+        <line x1="92" y1="20" x2="28" y2="70" stroke="#444" stroke-width="2"/>
+      </svg>`,
+      name: 'Windows Phone 7',
+      desc: 'Plataforma descontinuada en 2019.',
+      rule: '↳ Fin de vida 2019. Market share &lt;0.01%.',
+      back_what: 'La plataforma de Microsoft para smartphones. Tenía gestos propios como el pan "panorama" horizontal y un sistema de tiles vivas. Fin de soporte: diciembre 2019.',
+      back_when: 'No aplica. No diseñar para esta plataforma.',
+      back_tip: 'Si eres diseñador joven: Windows Phone fue un intento innovador de Microsoft con una UI basada en tipografía (Metro Design) que influyó en el diseño plano moderno. Pero murió por falta de apps.',
+      video_label: 'Ver: historia del diseño móvil',
+      video_url: 'https://www.youtube.com/results?search_query=history+mobile+UI+design+iOS+Android+Windows+Phone',
+      video_text: 'Historia del diseño mobile'
+    },
+    {
+      suit: 'Obsoleto', title: 'Botón Menú Android',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="10" width="60" height="55" rx="6" fill="#222" stroke="#333" stroke-width="1"/>
+        <rect x="36" y="68" width="14" height="8" rx="3" fill="#333"/>
+        <rect x="53" y="68" width="14" height="8" rx="3" fill="#444"/>
+        <rect x="70" y="68" width="14" height="8" rx="3" fill="#333"/>
+        <line x1="28" y1="20" x2="92" y2="70" stroke="#444" stroke-width="1.5"/>
+      </svg>`,
+      name: 'Botón Menú (Hardware)',
+      desc: 'Botón físico de menú en Android 2.x–4.x.',
+      rule: '↳ Eliminado en Android 3+. Reemplazar con ⋮ overflow menu.',
+      back_what: 'Los primeros Android tenían 4 botones físicos: Atrás, Inicio, Menú y Buscar. El botón Menú mostraba las opciones contextuales de la app actual. Eliminado en Android 3.0 (Honeycomb, 2011).',
+      back_when: 'Ya no aplica en ningún dispositivo moderno.',
+      back_tip: 'Hoy las opciones de menú contextual van en: la barra superior como íconos (actions visibles), o en el ⋮ overflow menu (kebab menu). Nunca escondas acciones importantes detrás de un solo menú no visible.',
+      video_label: 'Ver: Android navigation history',
+      video_url: 'https://www.youtube.com/results?search_query=android+navigation+history+hardware+buttons+to+gestures',
+      video_text: 'Evolución nav en Android'
+    },
+    {
+      suit: 'Obsoleto', title: 'Corner Tap',
+      art: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="10" width="80" height="70" rx="8" fill="#222" stroke="#333" stroke-width="1"/>
+        <circle cx="28" cy="18" r="6" fill="#333"/>
+        <text x="28" y="22" font-size="7" fill="#555" text-anchor="middle" font-family="DM Sans,sans-serif">?</text>
+        <line x1="28" y1="20" x2="92" y2="70" stroke="#444" stroke-width="1.5"/>
+        <line x1="92" y1="20" x2="28" y2="70" stroke="#444" stroke-width="1.5"/>
+      </svg>`,
+      name: 'Corner Tap',
+      desc: 'Toque en una esquina específica para disparar acción.',
+      rule: '↳ Nunca fue estándar. Los usuarios no lo descubren.',
+      back_what: 'Propuesta de interacción donde tocar una esquina específica de la pantalla dispara una acción. Apareció en algunos libros de UX de 2010-2012 como posible patrón. Nunca fue adoptado.',
+      back_when: 'No usar. Nunca fue implementado como estándar por ninguna plataforma.',
+      back_tip: '⚠ Regla general: los gestos deben ser DESCUBRIBLES. Un corner tap no tiene affordance — el usuario no sabe que existe. Toda acción importante debe tener un elemento visual que indique que se puede interactuar.',
+      video_label: 'Ver: Gesture discoverability',
+      video_url: 'https://www.youtube.com/results?search_query=gesture+discoverability+mobile+UX+hidden+gestures',
+      video_text: 'Gesture discoverability en UX'
+    }
+  ]
+};
+
+// ─────────────────────────────────────────────
+// RENDER ENGINE
+// ─────────────────────────────────────────────
+function buildCard(card, theme) {
+  const d = encodeURIComponent(JSON.stringify(card));
+  return `
+  <div class="card-flip ${theme}" onclick="launchCard(this)" data-card="${d}" data-theme="${theme}">
+    <div class="card-front">
+      <div class="card-header">
+        <span class="card-suit">${card.suit}</span>
+        <span class="card-title">${card.title}</span>
+        <span class="flip-icon">↩</span>
+      </div>
+      <div class="card-art">${card.art}</div>
+      <div class="card-desc">
+        <div class="card-gesture-name">${card.name}</div>
+        <div class="card-gesture-desc">${card.desc}</div>
+        <div class="card-rule">${card.rule}</div>
+      </div>
+    </div>
+    <div class="card-back"></div>
+  </div>`;
+}
+
+// ─── FLYING CARD SYSTEM ───────────────────────────────────────
+let activeCardEl = null;
+
+function launchCard(el) {
+  if (activeCardEl) return; // already open
+
+  const card  = JSON.parse(decodeURIComponent(el.dataset.card));
+  const theme = el.dataset.theme || 'core';
+
+  // 1. Measure origin rect
+  const rect = el.getBoundingClientRect();
+
+  // 2. Compute target: centered, bigger
+  const TW = Math.min(430, window.innerWidth  * 0.90);
+  const TH = Math.min(600, window.innerHeight * 0.86);
+  const TX = (window.innerWidth  - TW) / 2;
+  const TY = (window.innerHeight - TH) / 2;
+
+  // 3. Populate flying card faces
+  const front = document.getElementById('flying-front');
+  const back  = document.getElementById('flying-back');
+  const inner = document.getElementById('flying-inner');
+  const flying = document.getElementById('flying-card');
+
+  front.className = 'card-front ' + theme;
+  front.innerHTML = `
+    <div class="card-header">
+      <span class="card-suit">${card.suit}</span>
+      <span class="card-title">${card.title}</span>
+      <span class="flip-icon">↩</span>
+    </div>
+    <div class="card-art">${card.art}</div>
+    <div class="card-desc">
+      <div class="card-gesture-name">${card.name}</div>
+      <div class="card-gesture-desc">${card.desc}</div>
+      <div class="card-rule">${card.rule}</div>
+    </div>`;
+
+  back.className = 'card-back ' + theme;
+  back.innerHTML = `
+    <button id="modal-close" onclick="collapseCard(event)">×</button>
+    <div class="back-header">
+      <span class="back-suit">${card.suit}</span>
+      <span class="back-title">${card.title}</span>
+    </div>
+    <div class="back-body">
+      <div>
+        <div class="back-section-label">¿Qué es?</div>
+        <div class="back-text">${card.back_what}</div>
+      </div>
+      <div>
+        <div class="back-section-label">¿Cuándo usarlo?</div>
+        <div class="back-examples">${card.back_when}</div>
+      </div>
+      <div class="back-tip">${card.back_tip}</div>
+      <div class="back-video-area">
+        <div class="back-video-label">▶ Recurso</div>
+        <a class="back-video-link" href="${card.video_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+          <div class="yt-icon"></div>
+          <span class="back-video-text">${card.video_text}</span>
+        </a>
+      </div>
+    </div>`;
+
+  // 4. Place flying card at origin, no transition yet
+  // Set inner bg matching theme — prevents transparent gap during 3D flip
+  const themeBg = {
+    'core':  'linear-gradient(160deg,#1a1a2e,#0f0f1e)',
+    'sys':   'linear-gradient(160deg,#0D2D4A,#071829)',
+    'nav':   'linear-gradient(160deg,#0D4A22,#072B14)',
+    'obj':   'linear-gradient(160deg,#7D3200,#4D1E00)',
+    'and':   'linear-gradient(160deg,#1B4D20,#0A2B0F)',
+    'ios-c': 'linear-gradient(160deg,#2D0050,#1A0030)',
+    'obs':   'linear-gradient(160deg,#1a1a1a,#0d0d0d)',
+  };
+  inner.style.background = themeBg[theme] || themeBg['core'];
+  inner.style.transition = 'none';
+  inner.style.transform  = 'rotateY(0deg)';
+  inner.classList.remove('expanded');
+  flying.style.cssText = `
+    display: block;
+    left:   ${rect.left}px;
+    top:    ${rect.top}px;
+    width:  ${rect.width}px;
+    height: ${rect.height}px;
+    border-radius: 4mm;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.22);
+  `;
+
+  // 5. Hide origin card
+  el.classList.add('is-open');
+  activeCardEl = el;
+
+  // 6. Show backdrop (fade in)
+  const backdrop = document.getElementById('card-backdrop');
+  backdrop.classList.remove('visible');
+  backdrop.classList.add('fading-in');
+  backdrop.style.display = 'block';
+
+  // 7. Next frame: animate to center + flip
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // Smooth backdrop
+      backdrop.classList.remove('fading-in');
+      backdrop.classList.add('visible');
+
+      // Move + grow
+      flying.style.transition = 'left 0.55s cubic-bezier(0.4,0,0.2,1), top 0.55s cubic-bezier(0.4,0,0.2,1), width 0.55s cubic-bezier(0.4,0,0.2,1), height 0.55s cubic-bezier(0.4,0,0.2,1), border-radius 0.55s ease, box-shadow 0.55s ease';
+      flying.style.left        = TX + 'px';
+      flying.style.top         = TY + 'px';
+      flying.style.width       = TW + 'px';
+      flying.style.height      = TH + 'px';
+      flying.style.borderRadius = '16px';
+      flying.style.boxShadow   = '0 28px 64px rgba(0,0,0,0.55)';
+
+      // Flip after slight delay so move starts first
+      setTimeout(() => {
+        inner.style.transition = 'transform 0.6s cubic-bezier(0.4,0,0.2,1)';
+        inner.style.transform  = 'rotateY(180deg)';
+        inner.classList.add('expanded');
+        flying.style.cursor    = 'default';
+      }, 180);
+    });
+  });
+}
+
+function collapseCard(e) {
+  e.stopPropagation();
+  if (!activeCardEl) return;
+
+  const el     = activeCardEl;
+  const rect   = el.getBoundingClientRect();
+  const flying = document.getElementById('flying-card');
+  const inner  = document.getElementById('flying-inner');
+
+  // 1. Flip back to front first
+  inner.style.transition = 'transform 0.5s cubic-bezier(0.4,0,0.2,1)';
+  inner.style.transform  = 'rotateY(0deg)';
+  inner.classList.remove('expanded');
+
+  // 2. After flip, shrink back to origin
+  setTimeout(() => {
+    flying.style.transition = 'left 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1), width 0.5s cubic-bezier(0.4,0,0.2,1), height 0.5s cubic-bezier(0.4,0,0.2,1), border-radius 0.5s ease, box-shadow 0.5s ease';
+    flying.style.left        = rect.left   + 'px';
+    flying.style.top         = rect.top    + 'px';
+    flying.style.width       = rect.width  + 'px';
+    flying.style.height      = rect.height + 'px';
+    flying.style.borderRadius = '4mm';
+    flying.style.boxShadow   = '0 3px 12px rgba(0,0,0,0.22)';
+
+    // Fade backdrop
+    document.getElementById('card-backdrop').classList.remove('visible');
+  }, 160);
+
+  // 3. After shrink completes, restore origin card and hide flying
+  setTimeout(() => {
+    flying.style.display = 'none';
+    el.classList.remove('is-open');
+    activeCardEl = null;
+    document.getElementById('card-backdrop').style.display = 'none';
+  }, 700);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && activeCardEl) {
+    collapseCard({ stopPropagation: () => {} });
+  }
+});
+
+function renderGrid(gridId, cardsArr, theme) {
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = cardsArr.map(c => buildCard(c, theme)).join('');
+}
+
+renderGrid('grid-core', cards.core, 'core');
+renderGrid('grid-sys',  cards.sys,  'sys');
+renderGrid('grid-nav',  cards.nav,  'nav');
+renderGrid('grid-obj',  cards.obj,  'obj');
+renderGrid('grid-and',  cards.and,  'and');
+renderGrid('grid-ios',  cards.ios,  'ios-c');
+renderGrid('grid-obs',  cards.obs,  'obs');
+</script>
+
+</body>
+</html>
