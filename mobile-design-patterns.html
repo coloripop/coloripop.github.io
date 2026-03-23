@@ -501,6 +501,8 @@ footer {
       <div class="nt-line">O'Reilly Media · 2013</div>
       <div class="nt-divider"></div>
       <div class="nt-line" data-i18n="ttUpdated">Updated &amp; extended 2025 with patterns from Material Design 3, Apple HIG 2024, and industry research.</div>
+      <div class="nt-divider"></div>
+      <div class="nt-line" data-i18n="ttRamotion">Action patterns based on Ramotion's Mobile App Design Patterns taxonomy (ramotion.com, 2022).</div>
     </div>
   </div>
   <button class="lang-toggle" id="langToggle">
@@ -517,6 +519,7 @@ footer {
   <p class="hero-sub" data-i18n="heroSub">An updated reference guide for interaction designers. Covers pages, components, widgets, input methods, and the new patterns that emerged between 2013 and 2025. Click any pattern for full detail.</p>
   <div class="hero-stats">
     <div class="hstat"><span class="hstat-n">4</span><span class="hstat-l" data-i18n="statSections">Sections</span></div>
+    <div class="hstat"><span class="hstat-n">1</span><span class="hstat-l" data-i18n="statGuidelines">Guideline</span></div>
     <div class="hstat"><span class="hstat-n">80+</span><span class="hstat-l" data-i18n="statPatterns">Patterns</span></div>
     <div class="hstat"><span class="hstat-n">22</span><span class="hstat-l" data-i18n="statNew">New since 2013</span></div>
     <div class="hstat"><span class="hstat-n">8</span><span class="hstat-l" data-i18n="statDepr">Deprecated</span></div>
@@ -638,7 +641,7 @@ footer {
   <div class="section-header">
     <div class="section-icon-wrap">📏</div>
     <div class="section-meta">
-      <div class="section-num" data-i18n="s5num">Guidelines</div>
+      <div class="section-num" data-i18n="s5num">05 — Guidelines</div>
       <div class="section-title" data-i18n="s5title">Guidelines 2025</div>
       <div class="section-desc" data-i18n="s5desc">Principles grounded in human factors, physiology, and ergonomics — unique to mobile due to screen size, portability, connectivity, and touch interaction. Covers visual acuity, touch target science, and cognitive load. Updated to include modern safe areas, device sizes, and platform conventions from iOS and Android.</div>
     </div>
@@ -925,6 +928,37 @@ const patterns = {
         <rect x="48" y="61" width="24" height="2" rx="1" fill="#1e1e30"/>
         <rect x="46" y="67" width="28" height="5" rx="2.5" fill="#5b8dee" opacity=".7"/>`)
     },
+    { id:'likeupvote', name:'Like & Upvote', desc:'A quick reaction that lets users express approval or boost content visibility, typically a single tap on an icon.',
+      when:['Social feeds','Comments','Product reviews','Community content'], apps:['Instagram','Reddit','Twitter/X','TikTok'], anti:['No visual feedback on tap','Showing exact counts to new users with 0 likes'],
+      svg: svgPhone(`${[0,1,2].map(i=>`
+        <rect x="40" y="${22+i*16}" width="40" height="13" rx="3" fill="#161625"/>
+        <rect x="42" y="${25+i*16}" width="22" height="2" rx="1" fill="#252538"/>
+        <rect x="42" y="${29+i*16}" width="16" height="1.5" rx=".75" fill="#1a1a28"/>
+        <text x="${72}" y="${31+i*16}" font-size="9" text-anchor="middle" fill="${i===0?'#ff6b9d':'#3a3a5a'}">${i===0?'♥':'♡'}</text>
+        <text x="${72}" y="${27+i*16}" font-size="5" text-anchor="middle" fill="${i===0?'#ff6b9d':'#3a3a5a'}">${i===0?'142':i===1?'38':'7'}</text>
+      `).join('')}`)
+    },
+    { id:'followsubscribe', name:'Follow & Subscribe', desc:'Allows users to opt into updates from another user, channel, or topic, creating a persistent relationship.',
+      when:['Social platforms','Content creators','Newsletters','Interest feeds'], apps:['Instagram','YouTube','Twitter/X','Substack'], anti:['No clear unfollow path','Ambiguous "Following" vs "Follow" button states'],
+      svg: svgPhone(`<circle cx="52" cy="34" r="10" fill="#1e1e30" stroke="#252538"/>
+        <text x="52" y="38" font-size="9" text-anchor="middle" fill="#7a7a9a">JA</text>
+        <rect x="42" y="48" width="16" height="3" rx="1.5" fill="#252538"/>
+        <rect x="42" y="54" width="12" height="2" rx="1" fill="#1a1a28"/>
+        <rect x="66" y="30" width="14" height="7" rx="3.5" fill="#4ecdc4"/>
+        <text x="73" y="35.5" font-size="6" fill="#0a0a14" text-anchor="middle">+ Seguir</text>
+        <circle cx="76" cy="55" r="6" fill="#1e1e30" stroke="#252538"/>
+        <text x="76" y="58" font-size="7" text-anchor="middle" fill="#4ecdc4">✓</text>`)
+    },
+    { id:'flagreport', name:'Flag, Report & Block', desc:'Safety actions that let users signal problematic content to moderators or prevent interactions with specific users.',
+      when:['Social platforms','Comment sections','Marketplaces','Community apps'], apps:['Instagram','Reddit','Twitter/X','Airbnb'], anti:['No confirmation that the report was received','Report option too hidden to find'],
+      svg: svgPhone(`<rect x="37" y="16" width="46" height="58" rx="3" fill="#0a0a10" opacity=".5"/>
+        <rect x="42" y="28" width="36" height="32" rx="5" fill="#1e1e30" stroke="#252538"/>
+        <text x="60" y="40" font-size="9" text-anchor="middle" fill="#ff6b9d">⚑ Reportar</text>
+        <rect x="44" y="44" width="32" height="5" rx="2.5" fill="#161625"/>
+        <text x="60" y="48.5" font-size="6" text-anchor="middle" fill="#7a7a9a">🚫 Bloquear usuario</text>
+        <rect x="44" y="51" width="32" height="5" rx="2.5" fill="#161625"/>
+        <text x="60" y="55.5" font-size="6" text-anchor="middle" fill="#7a7a9a">✕ Cancelar</text>`)
+    },
   ],
 
   // ─── COMPONENTS: CONTROL ──────────────────
@@ -996,6 +1030,44 @@ const patterns = {
         <rect x="41" y="59" width="26" height="2" rx="1" fill="#252538"/>
         <rect x="71" y="59" width="8" height="4" rx="2" fill="#4ecdc4" opacity=".8"/>
         <text x="75" y="63" font-size="5" fill="#0a0a14" text-anchor="middle">Undo</text>`)
+    },
+    { id:'edit', name:'Edit', desc:'Allows the user to modify existing content inline or in a dedicated editing mode.',
+      when:['Text fields','Profile info','Notes and documents'], apps:['Google Docs','Apple Notes','Instagram bio'], anti:['Entering edit mode without visual feedback','Losing unsaved changes without warning'],
+      svg: svgPhone(`<rect x="40" y="22" width="40" height="22" rx="3" fill="#1e1e30" stroke="#4ecdc4" stroke-width="1"/>
+        <rect x="42" y="26" width="28" height="2" rx="1" fill="#4ecdc4" opacity=".6"/>
+        <rect x="42" y="31" width="22" height="2" rx="1" fill="#252538"/>
+        <rect x="42" y="36" width="26" height="2" rx="1" fill="#252538"/>
+        <rect x="68" y="20" width="12" height="10" rx="2" fill="#4ecdc4" opacity=".15" stroke="#4ecdc4" stroke-width=".8"/>
+        <text x="74" y="27" font-size="9" fill="#4ecdc4" text-anchor="middle">✎</text>
+        <rect x="40" y="52" width="18" height="7" rx="3.5" fill="#4ecdc4"/>
+        <rect x="62" y="52" width="18" height="7" rx="3.5" fill="#161625" stroke="#252538"/>
+        <text x="49" y="57" font-size="6" fill="#0a0a14" text-anchor="middle">Guardar</text>
+        <text x="71" y="57" font-size="6" fill="#7a7a9a" text-anchor="middle">Cancelar</text>`)
+    },
+    { id:'delete', name:'Delete', desc:'Permanently removes content from the app, either for the user only or for all users.',
+      when:['Messages','Files','Posts','Account data'], apps:['WhatsApp','Google Drive','Instagram'], anti:['Deleting without confirmation for irreversible actions','No distinction between archive and permanent delete'],
+      svg: svgPhone(`<rect x="40" y="22" width="40" height="32" rx="3" fill="#161625"/>
+        <rect x="42" y="26" width="28" height="2" rx="1" fill="#252538"/>
+        <rect x="42" y="31" width="22" height="2" rx="1" fill="#1e1e30"/>
+        <rect x="37" y="16" width="46" height="58" rx="3" fill="#0a0a10" opacity=".5"/>
+        <rect x="42" y="30" width="36" height="28" rx="5" fill="#1e1e30" stroke="#ff6b9d" stroke-width="1"/>
+        <text x="60" y="44" font-size="10" text-anchor="middle" fill="#ff6b9d">🗑</text>
+        <rect x="44" y="50" width="30" height="2" rx="1" fill="#252538"/>
+        <rect x="46" y="55" width="12" height="5" rx="2.5" fill="#ff6b9d"/>
+        <rect x="62" y="55" width="12" height="5" rx="2.5" fill="#252538"/>`)
+    },
+    { id:'uploaddownload', name:'Upload & Download', desc:'Enables users to transfer files between the app and external sources, with progress feedback.',
+      when:['File sharing','Photo import/export','Document management'], apps:['Google Drive','Dropbox','WeTransfer'], anti:['No progress indicator during transfer','No error state if transfer fails'],
+      svg: svgPhone(`<rect x="40" y="22" width="40" height="8" rx="4" fill="#1e1e30" stroke="#252538"/>
+        <rect x="41" y="24" width="22" height="2" rx="1" fill="#252538"/>
+        <circle cx="73" cy="26" r="4" fill="#5b8dee" opacity=".2" stroke="#5b8dee" stroke-width=".8"/>
+        <text x="73" y="28.5" font-size="7" fill="#5b8dee" text-anchor="middle">↑</text>
+        <rect x="40" y="36" width="40" height="5" rx="2" fill="#1e1e30" stroke="#252538"/>
+        <rect x="41" y="37" width="28" height="3" rx="1.5" fill="#5b8dee"/>
+        <rect x="40" y="46" width="40" height="5" rx="2" fill="#1e1e30" stroke="#252538"/>
+        <rect x="41" y="47" width="14" height="3" rx="1.5" fill="#4ecdc4"/>
+        <text x="42" y="60" font-size="6" fill="#5b8dee">↑ CV_diseño.pdf</text>
+        <text x="42" y="67" font-size="6" fill="#4ecdc4">↓ brief_cliente.pdf</text>`)
     },
   ],
 
@@ -1177,6 +1249,27 @@ const patterns = {
         <polygon points="54,56 58,56 56,52" fill="#ffd166"/>
         <rect x="42" y="59" width="22" height="2" rx="1" fill="#0a0a14" opacity=".6"/>
         <rect x="42" y="63" width="16" height="1.5" rx=".75" fill="#0a0a14" opacity=".4"/>`)
+    },
+    { id:'movereorder', name:'Move & Reorder', desc:'Allows users to change the position or hierarchy of elements within a list or layout via drag and hold.',
+      when:['Playlists','Task lists','Home screen apps','Photo albums'], apps:['Spotify','Todoist','iOS Home Screen','Apple Photos'], anti:['No visual handle to indicate draggability','Accidental reorder without confirmation option'],
+      svg: svgPhone(`${[0,1,2,3].map(i=>`
+        <rect x="40" y="${22+i*12}" width="40" height="10" rx="2" fill="${i===1?'#1e1e30':'#161625'}" stroke="${i===1?'#ff6b9d':'#252538'}" stroke-width="${i===1?'1':'0.5'}"/>
+        <rect x="42" y="${26+i*12}" width="22" height="2" rx="1" fill="#252538"/>
+        <text x="76" y="${28.5+i*12}" font-size="8" fill="${i===1?'#ff6b9d':'#3a3a5a'}" text-anchor="middle">⠿</text>
+      `).join('')}
+      <text x="60" y="72" font-size="6" fill="#ff6b9d" text-anchor="middle" opacity=".7">mantén para mover</text>`)
+    },
+    { id:'drawannotate', name:'Draw & Annotate', desc:'Lets users draw, sketch, or add handwritten notes directly on the screen or over images and documents.',
+      when:['Document markup','Screenshot annotation','Creative apps','Signature capture'], apps:['Apple Markup','Samsung Notes','Notion','Adobe Acrobat'], anti:['No undo option','Draw mode not clearly indicated to the user'],
+      svg: svgPhone(`<rect x="40" y="20" width="40" height="38" rx="3" fill="#161625" stroke="#252538"/>
+        <path d="M 44 50 Q 52 36 58 44 Q 64 52 70 36" fill="none" stroke="#ff6b9d" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M 44 42 L 48 38" fill="none" stroke="#5b8dee" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="44" cy="42" r="2" fill="#5b8dee"/>
+        <rect x="40" y="62" width="8" height="8" rx="2" fill="#ff6b9d" opacity=".8"/>
+        <rect x="51" y="62" width="8" height="8" rx="2" fill="#5b8dee" opacity=".8"/>
+        <rect x="62" y="62" width="8" height="8" rx="2" fill="#ffd166" opacity=".8"/>
+        <rect x="73" y="62" width="8" height="8" rx="2" fill="#1e1e30" stroke="#252538"/>
+        <text x="77" y="68" font-size="7" fill="#7a7a9a" text-anchor="middle">✕</text>`)
     },
   ],
 
@@ -1685,6 +1778,7 @@ const i18n = {
     heroTitle:   'Mobile Design<br><em>Patterns</em> 2025',
     heroSub:     'An updated reference guide for interaction designers. Covers pages, components, widgets, input methods, and the new patterns that emerged between 2013 and 2025. Click any pattern for full detail.',
     statSections:'Sections',
+    statGuidelines:'Guideline',
     statPatterns:'Patterns',
     statNew:     'New since 2013',
     statDepr:    'Deprecated',
@@ -1728,6 +1822,7 @@ const i18n = {
     // TOOLTIP
     ttTitle:'Designing Mobile Interfaces',
     ttUpdated:'Updated & extended 2025 with patterns from Material Design 3, Apple HIG 2024, and industry research.',
+    ttRamotion:'Action patterns based on Ramotion\'s Mobile App Design Patterns taxonomy (ramotion.com, 2022).',
   },
   es: {
     navNew: 'Nuevos 2020–25',
@@ -1736,6 +1831,7 @@ const i18n = {
     heroTitle:   'Patrones de Diseño<br><em>Mobile</em> 2025',
     heroSub:     'Guía de referencia actualizada para diseñadores de interacción. Cubre páginas, componentes, widgets, métodos de entrada y los nuevos patrones surgidos entre 2013 y 2025. Haz clic en cualquier patrón para ver el detalle completo.',
     statSections:'Secciones',
+    statGuidelines:'Guía',
     statPatterns:'Patrones',
     statNew:     'Nuevos desde 2013',
     statDepr:    'Deprecados',
@@ -1773,6 +1869,7 @@ const i18n = {
     // TOOLTIP
     ttTitle:'Designing Mobile Interfaces',
     ttUpdated:'Actualizado y extendido en 2025 con patrones de Material Design 3, Apple HIG 2024 e investigación de la industria.',
+    ttRamotion:'Patrones de acción basados en la taxonomía Mobile App Design Patterns de Ramotion (ramotion.com, 2022).',
   }
 };
 
@@ -1863,6 +1960,15 @@ const patternTranslations = {
     biometricauth:{ name:'Autenticación Biométrica', desc:'Face ID, Touch ID y escáner de huellas como método de autenticación y confirmación de pago.' },
     otp:          { name:'OTP / 2FA', desc:'Entrada de contraseña de un solo uso con detección automática de SMS y campos segmentados.' },
     passkey:      { name:'Passkeys', desc:'Autenticación sin contraseña resistente al phishing usando biometría del dispositivo y claves criptográficas.' },
+    // Ramotion Action Patterns
+    edit:          { name:'Editar', desc:'Permite al usuario modificar contenido existente inline o en un modo de edición dedicado.' },
+    delete:        { name:'Eliminar', desc:'Elimina permanentemente contenido de la app, solo para el usuario o para todos los usuarios.' },
+    uploaddownload:{ name:'Subir y Descargar', desc:'Permite transferir archivos entre la app y fuentes externas, con feedback de progreso.' },
+    movereorder:   { name:'Mover y Reordenar', desc:'Permite cambiar la posición o jerarquía de elementos mediante arrastre y mantener presionado.' },
+    drawannotate:  { name:'Dibujar y Anotar', desc:'Permite dibujar, esbozar o agregar notas escritas directamente sobre la pantalla o documentos.' },
+    likeupvote:    { name:'Like y Upvote', desc:'Reacción rápida que permite a los usuarios expresar aprobación o impulsar visibilidad del contenido.' },
+    followsubscribe:{ name:'Seguir y Suscribirse', desc:'Permite optar por actualizaciones de otro usuario, canal o tema, creando una relación persistente.' },
+    flagreport:    { name:'Reportar y Bloquear', desc:'Acciones de seguridad para señalar contenido problemático a moderadores o bloquear interacciones.' },
   }
 };
 
