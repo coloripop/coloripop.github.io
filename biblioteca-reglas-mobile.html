@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca de Reglas Mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #4A3AFF;
+    --navy: #211F54;
+    --pink: #FE81E7;
+    --lavender: #B5AFFF;
+    --lavender-light: #E2E0FF;
+    --white: #FFFFFF;
+    --gray-50: #F8F7FF;
+    --gray-100: #EFEFFD;
+    --gray-300: #C8C5F0;
+    --gray-500: #7B78B0;
+    --gray-700: #3D3B70;
+    --error: #FF3B5C;
+    --warning-bg: #FFF0F3;
+    --sidebar-w: 240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-50);
+    color: var(--navy);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    background: var(--navy);
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 10px;
+    flex-shrink: 0;
+    border-bottom: 2px solid var(--purple);
+  }
+  .topbar-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--white);
+    letter-spacing: -0.3px;
+  }
+  .topbar-logo span { color: var(--pink); }
+  .topbar-sub {
+    font-size: 11px;
+    color: var(--lavender);
+    font-weight: 300;
+    margin-left: 4px;
+    letter-spacing: 0.5px;
+  }
+  .topbar-badge {
+    margin-left: auto;
+    background: var(--purple);
+    color: var(--lavender-light);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+
+  /* ─── LAYOUT ─── */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--navy);
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 20px 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .sidebar-section {
+    padding: 0 16px 8px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--lavender);
+    opacity: 0.6;
+    margin-top: 8px;
+  }
+  .pattern-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.18s ease;
+    border-left: 3px solid transparent;
+    font-size: 13.5px;
+    font-weight: 400;
+    color: var(--gray-300);
+    position: relative;
+  }
+  .pattern-item:hover {
+    background: rgba(180, 175, 255, 0.08);
+    color: var(--lavender-light);
+    border-left-color: var(--lavender);
+  }
+  .pattern-item.active {
+    background: rgba(74, 58, 255, 0.25);
+    color: var(--white);
+    border-left-color: var(--pink);
+    font-weight: 500;
+  }
+  .pattern-item .icon {
+    font-size: 15px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .pattern-item .count {
+    margin-left: auto;
+    font-size: 10px;
+    background: rgba(181,175,255,0.15);
+    color: var(--lavender);
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+  .pattern-item.active .count {
+    background: var(--purple);
+    color: var(--white);
+  }
+
+  /* rule sub-items */
+  .rule-list {
+    display: none;
+    flex-direction: column;
+    padding: 0 0 4px 0;
+    background: rgba(0,0,0,0.2);
+  }
+  .rule-list.open { display: flex; }
+  .rule-item-sidebar {
+    padding: 7px 20px 7px 50px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--gray-500);
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+  .rule-item-sidebar:hover { color: var(--lavender-light); background: rgba(180,175,255,0.06); }
+  .rule-item-sidebar.active { color: var(--pink); border-left-color: var(--pink); font-weight: 500; }
+
+  /* ─── MAIN CONTENT ─── */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+  .breadcrumb span { color: var(--purple); font-weight: 600; }
+  .breadcrumb .sep { color: var(--gray-300); }
+
+  .rule-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .rule-number {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--pink);
+  }
+  .rule-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+    max-width: 600px;
+  }
+  .rule-desc {
+    font-size: 14px;
+    color: var(--gray-700);
+    line-height: 1.65;
+    max-width: 620px;
+    margin-top: 4px;
+  }
+
+  /* ─── MAIN CARD ─── */
+  .demo-card {
+    background: var(--white);
+    border-radius: 20px;
+    border: 1.5px solid var(--gray-100);
+    padding: 32px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: start;
+    box-shadow: 0 4px 24px rgba(33,31,84,0.06);
+  }
+
+  .demo-left { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+
+  /* BAD label */
+  .verdict-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    width: fit-content;
+  }
+  .verdict-bad { background: #FFE8ED; color: #D0003B; }
+  .verdict-bad::before { content: '✕'; font-size: 12px; }
+
+  .demo-explanation {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .demo-explanation h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .problem-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .problem-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--warning-bg);
+    border-radius: 10px;
+    border-left: 3px solid var(--error);
+    font-size: 13px;
+    color: var(--navy);
+    line-height: 1.4;
+  }
+  .problem-item .pi { flex-shrink: 0; font-size: 15px; }
+
+  .good-box {
+    background: #F0FFF4;
+    border: 1.5px solid #A8EABB;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 13px;
+    color: #1A5C33;
+    line-height: 1.5;
+  }
+  .good-box .gi { font-size: 18px; flex-shrink: 0; }
+
+  /* rule nav buttons */
+  .rule-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .rule-nav-btn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--gray-300);
+    background: var(--white);
+    color: var(--gray-700);
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .rule-nav-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .rule-nav-btn.active {
+    background: var(--purple);
+    color: var(--white);
+    border-color: var(--purple);
+  }
+
+  /* ─── IPHONE MOCKUP ─── */
+  .phone-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    transform: scale(1.25);
+    transform-origin: top center;
+    margin-bottom: 108px;
+  }
+  .phone-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+  }
+
+  .iphone {
+    width: 200px;
+    height: 432px;
+    background: #0A0A0A;
+    border-radius: 40px;
+    padding: 3px;
+    box-shadow:
+      0 0 0 1px #3a3a3a,
+      0 20px 60px rgba(0,0,0,0.35),
+      0 4px 12px rgba(0,0,0,0.25),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+    position: relative;
+  }
+
+  /* side buttons */
+  .iphone::before {
+    content: '';
+    position: absolute;
+    left: -3.5px;
+    top: 72px;
+    width: 3px;
+    height: 28px;
+    background: #2a2a2a;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 34px 0 #2a2a2a, 0 68px 0 #2a2a2a;
+  }
+  .iphone::after {
+    content: '';
+    position: absolute;
+    right: -3.5px;
+    top: 100px;
+    width: 3px;
+    height: 52px;
+    background: #2a2a2a;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .iphone-inner {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 37px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* status bar */
+  .status-bar {
+    height: 40px;
+    background: #fff;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 16px 6px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .status-time {
+    font-size: 10px;
+    font-weight: 600;
+    color: #000;
+    font-family: -apple-system, sans-serif;
+  }
+  .status-icons {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .status-icons svg { width: 12px; height: 12px; fill: #000; }
+
+  /* dynamic island */
+  .dynamic-island {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 72px;
+    height: 22px;
+    background: #000;
+    border-radius: 20px;
+  }
+
+  /* screen content */
+  .screen-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* home indicator */
+  .home-indicator {
+    height: 20px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .home-indicator-bar {
+    width: 50px;
+    height: 4px;
+    background: #000;
+    border-radius: 10px;
+    opacity: 0.2;
+  }
+
+  /* ─── MOCKUP: TABS OVERFLOW (MAL USO) ─── */
+  .mock-tabs-overflow {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .mock-app-bar {
+    background: #3A5BD9;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .mock-app-title {
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: sans-serif;
+    letter-spacing: 0.3px;
+  }
+
+  .mock-tabs-bar {
+    background: #2D47B0;
+    display: flex;
+    padding: 0;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+  }
+
+  .mock-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 1px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    min-width: 0;
+    gap: 1px;
+    transition: background 0.15s;
+  }
+
+  .mock-tab.active-tab {
+    background: rgba(255,255,255,0.15);
+    border-bottom: 2px solid #fff;
+  }
+
+  .mock-tab-icon {
+    font-size: 8px;
+    line-height: 1;
+  }
+
+  .mock-tab-label {
+    font-size: 5.5px;
+    color: rgba(255,255,255,0.7);
+    font-family: sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  .mock-tab.active-tab .mock-tab-label { color: #fff; }
+
+  .mock-body {
+    flex: 1;
+    background: #F5F7FA;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    overflow: hidden;
+  }
+
+  .mock-content-block {
+    background: #fff;
+    border-radius: 5px;
+    height: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 6px;
+  }
+  .mock-avatar { width: 16px; height: 16px; border-radius: 50%; background: #C8D0E0; flex-shrink: 0; }
+  .mock-line { height: 5px; border-radius: 3px; background: #E0E5EF; }
+  .mock-line.short { width: 40%; }
+  .mock-line.long { width: 65%; }
+  .mock-content-block.tall { height: 52px; align-items: flex-start; padding: 8px; flex-direction: column; gap: 4px; }
+
+  /* annotation arrow & warning */
+  .annotation-overlay {
+    position: relative;
+  }
+  .annotation-overlay .ann-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #D0003B;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: sans-serif;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  /* ─── MOCKUP FOR OTHER PATTERNS (placeholder) ─── */
+  .mock-placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-50);
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mock-placeholder-icon { font-size: 28px; opacity: 0.3; }
+  .mock-placeholder-text { font-size: 10px; color: var(--gray-500); font-family: sans-serif; text-align: center; padding: 0 16px; }
+
+  /* ─── MOCKUP BOTTOM NAV (MAL USO: muchos íconos sin label) ─── */
+  .mock-bottom-nav {
+    background: #fff;
+    border-top: 1px solid #E0E5EF;
+    display: flex;
+    padding: 4px 0 2px;
+    flex-shrink: 0;
+  }
+  .mock-bnav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 3px 1px;
+  }
+  .mock-bnav-icon { font-size: 13px; }
+  .mock-bnav-label { font-size: 6px; font-family: sans-serif; color: #888; }
+  .mock-bnav-item.act .mock-bnav-icon { filter: drop-shadow(0 0 3px #3A5BD9); }
+  .mock-bnav-item.act .mock-bnav-label { color: #3A5BD9; font-weight: 700; }
+
+  /* ─── PAGINATION MOCKUP ─── */
+  .mock-pagination {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #F9F4EE;
+  }
+  .mock-page-header {
+    background: #5C3A1E;
+    padding: 8px 10px;
+    color: #F5E6CC;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: sans-serif;
+    flex-shrink: 0;
+  }
+  .mock-page-body {
+    flex: 1;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow: hidden;
+  }
+  .mock-page-body .mock-line { background: #C8B99A; }
+  .mock-page-body .mock-line.md { width: 55%; }
+  .mock-page-num-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px 0 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .mock-page-btn {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background: #E0D5C6;
+    font-size: 6px;
+    font-family: sans-serif;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5C3A1E;
+  }
+  .mock-page-btn.active-pg { background: #5C3A1E; color: #fff; }
+
+  /* ─── LOCATION WITHIN MOCKUP ─── */
+  .mock-location {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+  }
+  .mock-loc-header {
+    background: #1A1A2E;
+    padding: 8px 10px;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: sans-serif;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .mock-back { font-size: 10px; opacity: 0.6; }
+  .mock-loc-body {
+    flex: 1;
+    padding: 10px;
+    background: #F5F7FF;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow: hidden;
+  }
+  .mock-loc-body .mock-line { background: #C5C9E0; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    color: var(--gray-500);
+  }
+  .empty-icon { font-size: 48px; opacity: 0.3; }
+  .empty-text { font-size: 14px; text-align: center; }
+
+  /* scrollbar */
+  .sidebar::-webkit-scrollbar, .main::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(181,175,255,0.3); border-radius: 4px; }
+  .main::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
+
+  /* footer */
+  .footer-bar {
+    height: 32px;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--lavender);
+    opacity: 0.7;
+    flex-shrink: 0;
+    gap: 6px;
+    letter-spacing: 0.5px;
+  }
+  .footer-bar span { color: var(--pink); }
+
+  /* Tooltip badge */
+  .coming-soon {
+    font-size: 9px;
+    background: rgba(254,129,231,0.15);
+    color: var(--pink);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div style="display:flex;align-items:center;height:36px;flex-shrink:0;">
+    <svg width="108" height="36" viewBox="0 0 216 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M48.2769 44.068C48.2762 44.066 48.2755 44.064 51.7573 42.877C55.239 41.6901 55.2383 41.6881 55.2377 41.6863L55.2365 41.6826L55.2341 41.6758L55.23 41.6641L55.2243 41.648C55.2226 41.6434 55.2218 41.6412 55.2218 41.6412C55.2218 41.6412 55.2222 41.6421 55.2229 41.6439C55.2265 41.6534 55.2392 41.686 55.2619 41.7386C55.3076 41.8443 55.3918 42.0265 55.5208 42.2599C55.7816 42.7314 56.2076 43.3796 56.8412 44.0279C58.043 45.2577 60.125 46.6424 63.7688 46.6424C67.4127 46.6424 69.4947 45.2577 70.6965 44.0279C71.3301 43.3796 71.7561 42.7314 72.0168 42.2599C72.1459 42.0265 72.2301 41.8443 72.2758 41.7386C72.2985 41.686 72.3112 41.6534 72.3148 41.6439C72.3155 41.6421 72.3159 41.6412 72.3159 41.6412C72.3159 41.6412 72.315 41.6434 72.3134 41.648L72.3077 41.6641L72.3036 41.6758L72.3012 41.6826L72.3 41.6863C72.2993 41.6881 72.2987 41.6901 75.7804 42.877C79.2622 44.064 79.2615 44.066 79.2608 44.068L79.2594 44.0721L79.2564 44.081L79.2495 44.1008L79.2323 44.1488C79.2194 44.1845 79.2035 44.2275 79.1844 44.2773C79.1462 44.3769 79.0952 44.5042 79.03 44.6552C78.8998 44.9566 78.7118 45.3559 78.4549 45.8204C77.9438 46.7446 77.1432 47.9574 75.9582 49.17C73.5227 51.6621 69.5988 53.9994 63.7688 53.9994C57.9389 53.9994 54.015 51.6621 51.5795 49.17C50.3945 47.9574 49.5939 46.7446 49.0828 45.8204C48.8259 45.3559 48.6379 44.9566 48.5077 44.6552C48.4425 44.5042 48.3915 44.3769 48.3533 44.2773C48.3342 44.2275 48.3183 44.1845 48.3054 44.1488L48.2882 44.1008L48.2813 44.081L48.2783 44.0721L48.2769 44.068Z" fill="#FE81E7"/>
+      <path d="M197.406 18.1998C203.586 18.1998 208 22.9671 208 29.7209C208 36.4746 203.586 41.3303 197.406 41.3303C195.022 41.3303 193.124 40.5798 191.756 39.2997V48.7461H184.163V18.7295H191.094V21.0249C192.462 19.1709 194.581 18.1998 197.406 18.1998ZM195.905 34.4441C198.112 34.4441 200.231 32.855 200.231 29.765C200.231 26.6751 198.156 25.0859 195.905 25.0859C193.786 25.0859 191.623 26.4985 191.623 29.7209C191.623 32.8991 193.742 34.4441 195.905 34.4441Z" fill="#FE81E7"/>
+      <path d="M168.254 18.1998C174.875 18.1998 180.304 23.1878 180.304 29.765C180.304 36.3422 174.875 41.3303 168.254 41.3303C161.588 41.3303 156.247 36.3422 156.247 29.765C156.247 23.1878 161.588 18.1998 168.254 18.1998ZM168.298 25.1742C165.737 25.1742 164.016 27.0723 164.016 29.765C164.016 32.5018 165.737 34.3558 168.298 34.3558C170.681 34.3558 172.535 32.5018 172.535 29.765C172.535 27.0723 170.681 25.1742 168.298 25.1742Z" fill="#FE81E7"/>
+      <path d="M142.918 18.1998C149.098 18.1998 153.512 22.9671 153.512 29.7209C153.512 36.4746 149.098 41.3303 142.918 41.3303C140.534 41.3303 138.636 40.5798 137.268 39.2997V48.7461H129.675V18.7295H136.606V21.0249C137.974 19.1709 140.093 18.1998 142.918 18.1998ZM141.417 34.4441C143.624 34.4441 145.743 32.855 145.743 29.765C145.743 26.6751 143.668 25.0859 141.417 25.0859C139.298 25.0859 137.135 26.4985 137.135 29.7209C137.135 32.8991 139.254 34.4441 141.417 34.4441Z" fill="#FE81E7"/>
+      <path d="M120.883 8C123.443 8 125.562 9.94226 125.562 12.5025C125.562 15.0186 123.443 16.9609 120.883 16.9609C118.323 16.9609 116.248 15.0186 116.248 12.5025C116.248 9.94226 118.323 8 120.883 8ZM124.723 18.7295V40.8005H117.131V18.7295H124.723Z" fill="white"/>
+      <path d="M111.734 18.3763C112.572 18.3763 113.279 18.5088 113.897 18.7295V25.4391H112.087C108.732 25.4391 106.834 26.8958 106.834 30.7361V40.8006H99.2413V18.7295H106.172V21.069C107.54 19.3475 109.482 18.3763 111.734 18.3763Z" fill="white"/>
+      <path d="M83.3317 18.1998C89.953 18.1998 95.3825 23.1878 95.3825 29.765C95.3825 36.3422 89.953 41.3303 83.3317 41.3303C76.6662 41.3303 71.325 36.3422 71.325 29.765C71.325 23.1878 76.6662 18.1998 83.3317 18.1998ZM83.3758 25.1742C80.8156 25.1742 79.094 27.0723 79.094 29.765C79.094 32.5018 80.8156 34.3558 83.3758 34.3558C85.7595 34.3558 87.6135 32.5018 87.6135 29.765C87.6135 27.0723 85.7595 25.1742 83.3758 25.1742Z" fill="white"/>
+      <path d="M67.4765 12.0618V40.8005H59.8841V12.0618H67.4765Z" fill="white"/>
+      <path d="M43.9744 18.1998C50.5958 18.1998 56.0252 23.1878 56.0252 29.765C56.0252 36.3422 50.5958 41.3303 43.9744 41.3303C37.309 41.3303 31.9678 36.3422 31.9678 29.765C31.9678 23.1878 37.309 18.1998 43.9744 18.1998ZM44.0186 25.1742C41.4583 25.1742 39.7368 27.0723 39.7368 29.765C39.7368 32.5018 41.4583 34.3558 44.0186 34.3558C46.4023 34.3558 48.2562 32.5018 48.2562 29.765C48.2562 27.0723 46.4023 25.1742 44.0186 25.1742Z" fill="white"/>
+      <path d="M20.0508 18.1998C24.6857 18.1998 28.173 20.5393 29.9386 24.1148L24.6857 28.1318C23.6263 26.4985 22.3021 25.1742 20.1391 25.1742C17.4464 25.1742 15.769 27.0723 15.769 29.765C15.769 32.4577 17.4464 34.3558 20.1391 34.3558C22.3021 34.3558 23.6263 33.0757 24.6857 31.4424L29.9386 35.4152C28.173 38.9907 24.6857 41.3303 20.0508 41.3303C13.3412 41.3303 8 36.3422 8 29.765C8 23.1878 13.3412 18.1998 20.0508 18.1998Z" fill="white"/>
+      <path d="M200.544 63.5832V54.1287H204.275C204.989 54.1287 205.598 54.2564 206.103 54.5118C206.61 54.7642 206.997 55.1227 207.261 55.5875C207.529 56.0491 207.663 56.5923 207.663 57.2171C207.663 57.8449 207.528 58.3851 207.257 58.8375C206.986 59.2868 206.594 59.6315 206.08 59.8716C205.569 60.1116 204.95 60.2316 204.224 60.2316H201.726V58.6251H203.901C204.282 58.6251 204.599 58.5728 204.852 58.4682C205.104 58.3635 205.292 58.2066 205.415 57.9973C205.541 57.788 205.604 57.5279 205.604 57.2171C205.604 56.9032 205.541 56.6385 205.415 56.4231C205.292 56.2076 205.102 56.0445 204.847 55.9337C204.595 55.8198 204.276 55.7629 203.891 55.7629H202.543V63.5832H200.544ZM205.65 59.2807L208 63.5832H205.793L203.494 59.2807H205.65Z" fill="white"/>
+      <path d="M189.412 63.5832V54.1287H195.783V55.7767H191.411V58.0296H195.455V59.6777H191.411V61.9351H195.801V63.5832H189.412Z" fill="white"/>
+      <path d="M184.588 54.1287V63.5832H182.862L178.748 57.6326H178.679V63.5832H176.68V54.1287H178.434L182.515 60.0747H182.598V54.1287H184.588Z" fill="white"/>
+      <path d="M169.887 57.1848C169.823 56.9601 169.732 56.7616 169.615 56.5892C169.498 56.4138 169.355 56.2661 169.186 56.1461C169.019 56.0229 168.829 55.9291 168.613 55.8644C168.401 55.7998 168.165 55.7675 167.907 55.7675C167.424 55.7675 166.999 55.8875 166.633 56.1276C166.27 56.3676 165.986 56.717 165.783 57.1755C165.58 57.631 165.479 58.1881 165.479 58.8467C165.479 59.5053 165.579 60.0654 165.779 60.5271C165.979 60.9887 166.262 61.3411 166.628 61.5843C166.994 61.8243 167.427 61.9443 167.925 61.9443C168.378 61.9443 168.764 61.8643 169.084 61.7043C169.407 61.5412 169.653 61.3119 169.823 61.0164C169.995 60.721 170.081 60.3717 170.081 59.9685L170.487 60.0285H168.05V58.5235H172.006V59.7146C172.006 60.5456 171.831 61.2596 171.48 61.8566C171.129 62.4506 170.646 62.9092 170.03 63.2323C169.415 63.5524 168.71 63.7125 167.916 63.7125C167.03 63.7125 166.251 63.517 165.58 63.1262C164.909 62.7322 164.386 62.1736 164.011 61.4504C163.638 60.7241 163.452 59.8623 163.452 58.8652C163.452 58.0988 163.563 57.4156 163.784 56.8154C164.009 56.2122 164.323 55.7013 164.726 55.2828C165.129 54.8642 165.599 54.5457 166.134 54.3272C166.67 54.1086 167.25 53.9994 167.875 53.9994C168.41 53.9994 168.909 54.0779 169.37 54.2348C169.832 54.3887 170.241 54.6072 170.598 54.8904C170.958 55.1735 171.252 55.5105 171.48 55.9014C171.708 56.2892 171.854 56.717 171.919 57.1848H169.887Z" fill="white"/>
+      <path d="M158.801 54.1287V63.5832H156.802V54.1287H158.801Z" fill="white"/>
+      <path d="M150.24 56.8478C150.203 56.4754 150.045 56.1861 149.765 55.9799C149.485 55.7737 149.105 55.6706 148.624 55.6706C148.298 55.6706 148.023 55.7167 147.798 55.809C147.573 55.8983 147.401 56.0229 147.281 56.183C147.164 56.343 147.106 56.5246 147.106 56.7277C147.099 56.897 147.135 57.0447 147.212 57.1709C147.292 57.2971 147.401 57.4063 147.54 57.4987C147.678 57.5879 147.838 57.6664 148.02 57.7341C148.201 57.7988 148.395 57.8541 148.601 57.9003L149.451 58.1034C149.863 58.1958 150.242 58.3189 150.586 58.4728C150.931 58.6266 151.23 58.8159 151.482 59.0406C151.734 59.2653 151.93 59.5299 152.068 59.8346C152.21 60.1393 152.282 60.4886 152.285 60.8826C152.282 61.4612 152.134 61.9628 151.842 62.3875C151.553 62.8092 151.134 63.1369 150.586 63.3708C150.042 63.6017 149.385 63.7171 148.615 63.7171C147.852 63.7171 147.187 63.6001 146.621 63.3662C146.058 63.1323 145.618 62.7861 145.301 62.3275C144.987 61.8659 144.822 61.295 144.807 60.6148H146.741C146.762 60.9318 146.853 61.1965 147.013 61.4088C147.176 61.6181 147.393 61.7766 147.664 61.8843C147.938 61.989 148.247 62.0413 148.592 62.0413C148.931 62.0413 149.225 61.9921 149.474 61.8936C149.726 61.7951 149.922 61.6581 150.06 61.4827C150.199 61.3073 150.268 61.1057 150.268 60.8779C150.268 60.6656 150.205 60.4871 150.079 60.3424C149.955 60.1978 149.774 60.0747 149.534 59.9731C149.297 59.8715 149.006 59.7792 148.661 59.6961L147.632 59.4376C146.835 59.2437 146.205 58.9406 145.744 58.5282C145.282 58.1157 145.053 57.5602 145.056 56.8616C145.053 56.2892 145.205 55.789 145.513 55.3613C145.824 54.9335 146.25 54.5995 146.792 54.3595C147.333 54.1194 147.949 53.9994 148.638 53.9994C149.34 53.9994 149.952 54.1194 150.476 54.3595C151.002 54.5995 151.411 54.9335 151.704 55.3613C151.996 55.789 152.147 56.2845 152.156 56.8478H150.24Z" fill="white"/>
+      <path d="M133.979 63.5832V54.1287H140.35V55.7767H135.978V58.0296H140.022V59.6777H135.978V61.9351H140.368V63.5832H133.979Z" fill="white"/>
+      <path d="M124.7 63.5832H121.349V54.1287H124.728C125.679 54.1287 126.497 54.3179 127.184 54.6965C127.87 55.072 128.398 55.6121 128.767 56.3169C129.14 57.0217 129.326 57.8649 129.326 58.8467C129.326 59.8316 129.14 60.6779 128.767 61.3858C128.398 62.0936 127.867 62.6368 127.175 63.0154C126.485 63.3939 125.66 63.5832 124.7 63.5832ZM123.348 61.8705H124.617C125.208 61.8705 125.705 61.7659 126.108 61.5566C126.514 61.3442 126.819 61.0164 127.022 60.5733C127.228 60.127 127.332 59.5515 127.332 58.8467C127.332 58.1481 127.228 57.5772 127.022 57.134C126.819 56.6908 126.516 56.3646 126.113 56.1553C125.71 55.946 125.213 55.8414 124.622 55.8414H123.348V61.8705Z" fill="white"/>
+      <path d="M104.576 54.1287L106.483 57.351H106.557L108.473 54.1287H110.73L107.845 58.8559L110.795 63.5832H108.496L106.557 60.3563H106.483L104.544 63.5832H102.254L105.213 58.8559L102.31 54.1287H104.576Z" fill="white"/>
+      <path d="M95.8861 54.1287H97.885V60.2686C97.885 60.958 97.7204 61.5612 97.3911 62.0782C97.0648 62.5953 96.6078 62.9985 96.02 63.2878C95.4322 63.574 94.7474 63.7171 93.9657 63.7171C93.1809 63.7171 92.4945 63.574 91.9067 63.2878C91.3189 62.9985 90.8618 62.5953 90.5356 62.0782C90.2094 61.5612 90.0463 60.958 90.0463 60.2686V54.1287H92.0452V60.0978C92.0452 60.4579 92.1237 60.7779 92.2806 61.058C92.4407 61.3381 92.6653 61.5581 92.9546 61.7182C93.2439 61.8782 93.5809 61.9582 93.9657 61.9582C94.3534 61.9582 94.6904 61.8782 94.9767 61.7182C95.266 61.5581 95.4891 61.3381 95.6461 61.058C95.8061 60.7779 95.8861 60.4579 95.8861 60.0978V54.1287Z" fill="white"/>
+    </svg>
+  </div>
+  <div class="topbar-sub">Biblioteca de Reglas Mobile</div>
+  <div class="topbar-badge">v1.0 · ES</div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">Patrones de Navegación</div>
+
+    <!-- TABS -->
+    <div class="pattern-item active" id="nav-tabs" onclick="selectPattern('tabs')">
+      <span class="icon">▭</span>
+      <span>Tabs</span>
+      <span class="count">4</span>
+    </div>
+    <div class="rule-list open" id="rules-tabs">
+      <div class="rule-item-sidebar active" id="sr-tabs-1" onclick="selectRule('tabs',1)">R1 · Cantidad de ítems</div>
+      <div class="rule-item-sidebar" id="sr-tabs-2" onclick="selectRule('tabs',2)">R2 · Jerarquía plana</div>
+      <div class="rule-item-sidebar" id="sr-tabs-3" onclick="selectRule('tabs',3)">R3 · Horizontalidad</div>
+      <div class="rule-item-sidebar" id="sr-tabs-4" onclick="selectRule('tabs',4)">R4 · Sin mezclar niveles</div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="pattern-item" id="nav-bottomnav" onclick="selectPattern('bottomnav')">
+      <span class="icon">▬</span>
+      <span>Bottom Nav Bar</span>
+      <span class="count">4</span>
+    </div>
+    <div class="rule-list" id="rules-bottomnav">
+      <div class="rule-item-sidebar" id="sr-bn-1" onclick="selectRule('bottomnav',1)">R1 · Cantidad de ítems</div>
+      <div class="rule-item-sidebar" id="sr-bn-2" onclick="selectRule('bottomnav',2)">R2 · Persistencia total</div>
+      <div class="rule-item-sidebar" id="sr-bn-3" onclick="selectRule('bottomnav',3)">R3 · Jerarquía equivalente</div>
+      <div class="rule-item-sidebar" id="sr-bn-4" onclick="selectRule('bottomnav',4)">R4 · Consistencia de íconos</div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pattern-item" id="nav-pagination" onclick="selectPattern('pagination')">
+      <span class="icon">◈</span>
+      <span>Pagination</span>
+      <span class="count">4</span>
+    </div>
+    <div class="rule-list" id="rules-pagination">
+      <div class="rule-item-sidebar" id="sr-pg-1" onclick="selectRule('pagination',1)">R1 · Controles esenciales</div>
+      <div class="rule-item-sidebar" id="sr-pg-2" onclick="selectRule('pagination',2)">R2 · Delineación visual</div>
+      <div class="rule-item-sidebar" id="sr-pg-3" onclick="selectRule('pagination',3)">R3 · Ubicación consistente</div>
+      <div class="rule-item-sidebar" id="sr-pg-4" onclick="selectRule('pagination',4)">R4 · Solo páginas existentes</div>
+    </div>
+
+    <!-- LOCATION WITHIN -->
+    <div class="pattern-item" id="nav-location" onclick="selectPattern('location')">
+      <span class="icon">⊕</span>
+      <span>Location Within</span>
+      <span class="count">3</span>
+    </div>
+    <div class="rule-list" id="rules-location">
+      <div class="rule-item-sidebar" id="sr-lw-1" onclick="selectRule('location',1)">R1 · Jerarquía plana</div>
+      <div class="rule-item-sidebar" id="sr-lw-2" onclick="selectRule('location',2)">R2 · No reemplaza tabs</div>
+      <div class="rule-item-sidebar" id="sr-lw-3" onclick="selectRule('location',3)">R3 · Visibilidad en scroll</div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="main-content">
+    <!-- Injected by JS -->
+  </main>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar">
+  coloripop | Product Designer &nbsp;·&nbsp; <span>Biblioteca de Reglas Mobile</span> &nbsp;·&nbsp; Uso exclusivo educativo
+</div>
+
+<script>
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+const DATA = {
+  tabs: {
+    name: 'Tabs',
+    rules: [
+      {
+        num: 1,
+        title: 'Cantidad de ítems',
+        short: 'Entre 3 y 8 elementos (5 en fixed, hasta 8 con scroll).',
+        desc: 'Con solo 2 tabs es difícil distinguir cuál está seleccionada. Con demasiadas, se satura el espacio y el usuario no puede leerlas de un vistazo.',
+        badLabel: 'Mal uso: 8 tabs fijos sin scroll, apretados y sin espacio',
+        problems: [
+          { icon: '👁', text: 'El usuario no puede leer las etiquetas de un solo vistazo.' },
+          { icon: '👆', text: 'El área táctil por tab es demasiado pequeña para dedos normales.' },
+          { icon: '🔤', text: 'Los textos se truncan o desaparecen por falta de espacio.' },
+        ],
+        good: 'Usa entre 3 y 5 tabs fijas. Si necesitas más destinos, considera usar scroll horizontal o un menú alternativo.',
+        mockup: 'tabs-overflow'
+      },
+      {
+        num: 2,
+        title: 'Jerarquía plana',
+        short: 'No se deben usar dos filas de pestañas en una misma pantalla.',
+        desc: 'La segunda fila siempre se percibirá como subsidiaria de la primera, causando confusión en el modelo mental del usuario. El cerebro no puede sostener dos jerarquías de navegación simultáneas al mismo nivel.',
+        badLabel: 'Mal uso: dos filas de tabs superpuestas, la segunda parece sub-nav de la primera',
+        problems: [
+          { icon: '🧠', text: 'El usuario no entiende si las filas son independientes o jerárquicas entre sí.' },
+          { icon: '📐', text: 'Ambas filas consumen demasiado espacio vertical, reduciendo el área de contenido.' },
+          { icon: '🔀', text: 'Al tocar un tab de la fila 1, el usuario no sabe si la fila 2 cambia también.' },
+        ],
+        good: 'Usa una sola fila de tabs. Si necesitas sub-navegación, usa un patrón diferente dentro del contenido (chips, segmented control, filtros).',
+        mockup: 'tabs-double-row'
+      },
+      {
+        num: 3,
+        title: 'Horizontalidad',
+        short: 'Las pestañas solo funcionan bien en disposición horizontal.',
+        desc: 'Las pestañas verticales raramente se entienden como tales en interfaces móviles. El usuario las confunde con un menú lateral, una lista o un acordeón, rompiendo el patrón cognitivo establecido por el patrón Tabs.',
+        badLabel: 'Mal uso: tabs verticales apiladas a la derecha, contenido a la izquierda',
+        problems: [
+          { icon: '🔄', text: 'El usuario no reconoce visualmente las tabs verticales como un mecanismo de navegación entre secciones.' },
+          { icon: '📱', text: 'En pantallas angostas la columna de tabs roba espacio crítico al contenido.' },
+          { icon: '👆', text: 'La lectura vertical de etiquetas es más lenta y genera mayor carga cognitiva.' },
+        ],
+        good: 'Mantén siempre los tabs en disposición horizontal. Si el espacio horizontal es insuficiente, usa scroll horizontal en los tabs.',
+        mockup: 'tabs-vertical'
+      },
+      {
+        num: 4,
+        title: 'Sin mezclar niveles',
+        short: 'No mezclar tabs de navegación global con tabs de navegación interna en la misma pantalla.',
+        desc: 'Usar el patrón Tabs a nivel global (top) y también como Bottom Nav Bar en la misma pantalla genera una colisión de modelos mentales. El usuario no distingue qué nivel de jerarquía controla cada barra.',
+        badLabel: 'Mal uso: tabs fijos en el top + bottom nav bar como tabs en la misma pantalla',
+        problems: [
+          { icon: '🌀', text: 'Dos sistemas de tabs sin diferenciación extrema generan desorientación severa.' },
+          { icon: '🎨', text: 'Sin contraste visual radical entre niveles, el usuario no sabe cuál tiene prioridad.' },
+          { icon: '📐', text: 'Ambas barras de navegación juntas consumen más del 25% del espacio de pantalla.' },
+        ],
+        good: 'Elige un solo patrón de tabs por nivel jerárquico. Si necesitas ambos, diferéncialos visualmente de forma extrema (color, forma, posición opuesta) y úsalos para jerarquías claramente distintas.',
+        mockup: 'tabs-mixed-levels'
+      },
+    ]
+  },
+  bottomnav: {
+    name: 'Bottom Nav Bar',
+    rules: [
+      {
+        num: 1,
+        title: 'Cantidad de ítems',
+        short: 'Entre 2 y 5 destinos. Menos de 2 no justifica la barra. Más de 5 satura el espacio táctil.',
+        desc: 'La Bottom Nav Bar está diseñada exclusivamente para los destinos principales de nivel 1. Con 6 o más ítems, el área táctil de cada elemento cae por debajo del mínimo recomendado y el usuario pierde la capacidad de distinguir qué es prioritario.',
+        badLabel: 'Mal uso: 7 ítems en la barra, íconos y etiquetas microscópicos, área táctil insuficiente',
+        problems: [
+          { icon: '🔬', text: 'Con 7 ítems el ancho táctil de cada elemento es menor a 44px, incumpliendo las guías de iOS y Material.' },
+          { icon: '🧩', text: 'El usuario no puede identificar de un vistazo cuáles son los destinos prioritarios de la app.' },
+          { icon: '🏷', text: 'Las etiquetas se truncan o desaparecen, eliminando el contexto textual del ícono.' },
+        ],
+        good: 'Limita a 3–5 destinos de nivel 1. Los destinos secundarios deben vivir dentro de cada sección, no en la barra principal.',
+        mockup: 'bn-overflow'
+      },
+      {
+        num: 2,
+        title: 'Persistencia total',
+        short: 'La barra debe ser permanente en casi todas las pantallas, excepto modales o pantalla completa.',
+        desc: 'Ocultar la Bottom Nav al profundizar en el contenido rompe la navegación global. El usuario queda "atrapado" en la sub-pantalla sin forma de cambiar de sección sin retroceder manualmente.',
+        badLabel: 'Mal uso: la barra desaparece al entrar a una pantalla de detalle (nivel 2)',
+        problems: [
+          { icon: '🚪', text: 'En pantallas de nivel 2 la barra desaparece: el usuario pierde el acceso a la navegación global.' },
+          { icon: '🔄', text: 'Para cambiar de sección debe retroceder primero al nivel 1, generando pasos innecesarios.' },
+          { icon: '🧭', text: 'El modelo mental de la app se rompe: el usuario siente que "salió" de la navegación principal.' },
+        ],
+        good: 'Mantén la Bottom Nav visible en todos los niveles de profundidad excepto en modales, overlays y reproductores a pantalla completa.',
+        mockup: 'bn-persistence'
+      },
+      {
+        num: 3,
+        title: 'Jerarquía equivalente',
+        short: 'Los elementos deben tener importancia equivalente. Sustantivos, no verbos (salvo CTA central).',
+        desc: 'Mezclar destinos de alto nivel (Inicio, Perfil) con acciones (Publicar, Comprar) en la misma barra rompe la coherencia jerárquica. Las etiquetas deben ser sustantivos que nombran secciones, no verbos que implican acciones.',
+        badLabel: 'Mal uso: ítems de distinta jerarquía mezclados — secciones y acciones en la misma barra',
+        problems: [
+          { icon: '⚖️', text: 'Mezclar "Inicio" (sección) con "Publicar" (acción) genera un modelo mental inconsistente.' },
+          { icon: '🏷', text: 'Verbos como "Comprar" o "Enviar" implican consecuencias inmediatas, no navegación.' },
+          { icon: '😵', text: 'El usuario no sabe si tocar un ítem lo lleva a una sección o ejecuta una acción irreversible.' },
+        ],
+        good: 'Usa sustantivos para todos los destinos (Inicio, Buscar, Perfil, Pedidos). Si necesitas un CTA de acción, úsalo como botón central flotante (FAB) diferenciado visualmente.',
+        mockup: 'bn-hierarchy'
+      },
+      {
+        num: 4,
+        title: 'Consistencia de íconos',
+        short: 'No cambiar íconos ni etiquetas al navegar entre secciones. El usuario debe reconocerla siempre igual.',
+        desc: 'Cambiar los íconos, etiquetas o el orden de los ítems de la barra según la sección activa genera desorientación. La Bottom Nav debe ser un ancla visual constante e inmutable en toda la app.',
+        badLabel: 'Mal uso: los íconos y etiquetas de la barra cambian según la sección visitada',
+        problems: [
+          { icon: '🔀', text: 'Íconos que cambian al navegar impiden que el usuario forme un modelo mental estable.' },
+          { icon: '🏷', text: 'Etiquetas que se renombran según el contexto generan confusión sobre el destino real.' },
+          { icon: '📍', text: 'Si el orden de los ítems varía, el usuario pierde la memoria muscular de la navegación.' },
+        ],
+        good: 'Los íconos, etiquetas y orden de la Bottom Nav son inmutables. Solo el estado activo/inactivo cambia. Nunca reemplaces ítems según el contexto.',
+        mockup: 'bn-consistency'
+      },
+    ]
+  },
+  pagination: {
+    name: 'Pagination',
+    rules: [
+      {
+        num: 1,
+        title: 'Priorizar controles esenciales',
+        short: 'Solo adelante/atrás y saltos cercanos. Menos controles = menos fricción cognitiva.',
+        desc: 'Incluir todos los controles posibles — dropdowns de página, salto a primera/última, selector de ítems por página y número directo — en una sola línea satura la interfaz y paraliza al usuario. La paginación debe ser casi invisible.',
+        badLabel: 'Mal uso: barra de paginación con dropdown, saltos, selector y numeración todo en una línea',
+        problems: [
+          { icon: '🧠', text: 'Demasiados controles generan fricción cognitiva: el usuario no sabe qué tocar primero.' },
+          { icon: '👆', text: 'La línea llena de controles reduce el área táctil de cada elemento a tamaños inaccesibles.' },
+          { icon: '🎯', text: 'El usuario solo necesita ir al siguiente o anterior. Todo lo demás es ruido.' },
+        ],
+        good: 'Ofrece solo ‹ y › para movimiento inmediato, y el número de página actual. Los saltos avanzados son opcionales y deben estar ocultos por defecto.',
+        mockup: 'pg-controls'
+      },
+      {
+        num: 2,
+        title: 'Delineación visual clara',
+        short: 'Separación nítida entre el componente de paginación y el contenido de la lista.',
+        desc: 'Si el widget de paginación no está claramente diferenciado del contenido, el usuario lo confunde con un ítem más de la lista. La separación visual debe ser inequívoca: fondo, borde, espacio o combinación de ambos.',
+        badLabel: 'Mal uso: la paginación se mezcla visualmente con las tarjetas de la lista, parece un ítem más',
+        problems: [
+          { icon: '👁', text: 'El usuario no distingue visualmente dónde termina el contenido y dónde empieza la nav.' },
+          { icon: '👆', text: 'Al confundirse con una tarjeta, el usuario puede ignorarla o tocarla por error.' },
+          { icon: '🔀', text: 'La jerarquía visual se rompe: contenido y navegación compiten en el mismo nivel.' },
+        ],
+        good: 'Separa el widget con fondo diferenciado, borde superior visible y espacio generoso (mínimo 16px) respecto al último ítem de la lista.',
+        mockup: 'pg-delineation'
+      },
+      {
+        num: 3,
+        title: 'Ubicación consistente',
+        short: 'Siempre arriba o debajo del contenido, o anclada en barra fija. Nunca en medio.',
+        desc: 'Colocar la paginación en medio de una lista rompe completamente el modelo mental del usuario. La paginación debe predecirse: el usuario no debería tener que buscarla en cada pantalla.',
+        badLabel: 'Mal uso: la paginación aparece en medio de la lista, interrumpiendo el flujo de contenido',
+        problems: [
+          { icon: '🧭', text: 'El usuario no puede predecir dónde está la paginación: la busca en cada pantalla.' },
+          { icon: '🔀', text: 'Interrumpe el flujo de lectura de la lista, generando confusión sobre qué es contenido y qué es nav.' },
+          { icon: '📍', text: 'La inconsistencia de posición destruye la memoria muscular del usuario.' },
+        ],
+        good: 'Coloca la paginación siempre inmediatamente después del último ítem visible, o anclada como barra fija en el bottom. Nunca entre ítems de contenido.',
+        mockup: 'pg-position'
+      },
+      {
+        num: 4,
+        title: 'Solo páginas existentes',
+        short: 'Nunca mostrar ni permitir acceso a páginas vacías o inexistentes.',
+        desc: 'Mostrar botones de página que al tocarse devuelven contenido vacío rompe la confianza del usuario en el sistema. Cada página mostrada en el widget debe tener contenido real detrás.',
+        badLabel: 'Mal uso: la paginación muestra páginas que al tocarse están vacías sin contenido',
+        problems: [
+          { icon: '🕳', text: 'El usuario toca una página y encuentra contenido vacío: siente que el sistema está roto.' },
+          { icon: '🔁', text: 'Intenta volver pero ya perdió su posición anterior en la navegación.' },
+          { icon: '💔', text: 'La confianza en la interfaz se rompe: ¿qué otras páginas estarán vacías?' },
+        ],
+        good: 'Calcula dinámicamente el número real de páginas según el total de resultados. Deshabilita o elimina visualmente los botones de páginas sin contenido.',
+        mockup: 'pg-empty'
+      },
+    ]
+  },
+  location: {
+    name: 'Location Within',
+    rules: [
+      {
+        num: 1,
+        title: 'Jerarquía plana',
+        short: 'Solo para contenido del mismo nivel jerárquico. No funciona con niveles de profundidad distintos.',
+        desc: 'Location Within asume que todos los ítems que indica son equivalentes en jerarquía. Usarlo para señalar posición dentro de un carrusel que a su vez contiene otro carrusel rompe el modelo: el usuario pierde la referencia de a qué nivel pertenece el indicador.',
+        badLabel: 'Mal uso: carrusel principal con dots que también contiene un sub-carrusel dentro de uno de sus ítems',
+        problems: [
+          { icon: '🪆', text: 'El indicador de posición del carrusel externo no puede representar también la posición dentro del interno.' },
+          { icon: '🧠', text: 'El usuario no sabe si los dots corresponden al carrusel exterior o al interior.' },
+          { icon: '🔀', text: 'La arquitectura de información tiene profundidad distinta entre ítems, invalidando el patrón.' },
+        ],
+        good: 'Usa Location Within solo cuando todos los ítems son del mismo nivel. Para contenido anidado, diseña una arquitectura plana o usa patrones de navegación jerárquica explícita.',
+        mockup: 'lw-nested'
+      },
+      {
+        num: 2,
+        title: 'No reemplaza a las pestañas',
+        short: 'No usar para indicar cuántas pestañas hay. Las tabs tienen sus propios métodos de acceso.',
+        desc: 'Sustituir el patrón Tabs por un carrusel con dots de Location Within elimina la riqueza de interacción de las tabs: el acceso directo, la visibilidad simultánea de opciones y el estado activo claro. El usuario no puede saltar libremente entre secciones.',
+        badLabel: 'Mal uso: carrusel con dots usado como sustituto de tabs — clic en ítem navega a pantalla completa',
+        problems: [
+          { icon: '🎯', text: 'El usuario no puede acceder directamente a una sección sin hacer swipe por todas las anteriores.' },
+          { icon: '👁', text: 'No hay visibilidad simultánea de las opciones disponibles como en las tabs reales.' },
+          { icon: '🔄', text: 'Al tocar un ítem navega a otra pantalla, rompiendo la expectativa del patrón carrusel.' },
+        ],
+        good: 'Si el contenido requiere acceso directo entre secciones equivalentes, usa el patrón Tabs. Location Within es orientativo, no navegacional.',
+        mockup: 'lw-tabs-replace'
+      },
+      {
+        num: 3,
+        title: 'Visibilidad durante scroll',
+        short: 'El indicador debe permanecer visible durante el swipe. No ocultarlo en la transición.',
+        desc: 'Si los dots o el indicador desaparecen mientras el usuario hace swipe entre ítems, se pierde el contexto de posición exactamente cuando más se necesita: durante el movimiento. El indicador debe ser visible en todo momento.',
+        badLabel: 'Mal uso: los dots del carrusel desaparecen durante el swipe y solo vuelven al detenerse',
+        problems: [
+          { icon: '👻', text: 'El indicador desaparece durante la transición: el usuario no sabe en qué posición está mientras se mueve.' },
+          { icon: '😵', text: 'Sin referencia visual durante el swipe, el usuario puede sobrepasar el ítem que buscaba.' },
+          { icon: '🎭', text: 'La desaparición del indicador hace que el patrón Location Within pierda su función principal.' },
+        ],
+        good: 'Mantén el indicador visible con opacidad completa durante toda la transición. Actualiza el dot activo en tiempo real mientras el usuario arrastra.',
+        mockup: 'lw-scroll-hide'
+      },
+      {
+        num: 4,
+        title: 'Diferencia con Pagination',
+        short: 'Indicador estático = Location Within. Indicador tocable que cambia de página = Pagination.',
+        desc: 'La distinción entre ambos patrones es funcional: si el usuario solo ve su posición, es Location Within. Si puede tocar el indicador para navegar, se convierte en Pagination con todas sus implicaciones de accesibilidad y área táctil. Mezclar ambos sin diferenciación visual genera confusión de expectativas.',
+        badLabel: 'Mal uso: dots que parecen estáticos (Location Within) pero algunos son tocables y otros no',
+        problems: [
+          { icon: '🤔', text: 'El usuario no sabe cuáles dots son tocables y cuáles son solo informativos.' },
+          { icon: '👆', text: 'Si algunos dots son Pagination, necesitan área táctil mínima de 44×44px — imposible con dots pequeños.' },
+          { icon: '♿', text: 'La inconsistencia entre dots tocables y no tocables viola principios de consistencia y accesibilidad.' },
+        ],
+        good: 'Define claramente: si son solo indicadores, hazlos visualmente pequeños y no interactivos. Si son navegación, agrándala, diferénciala y cumple los requisitos de Pagination.',
+        mockup: 'lw-vs-pagination'
+      },
+    ]
+  }
+};
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let currentPattern = 'tabs';
+let currentRule = 1;
+
+// ════════════════════════════════════════
+// MOCKUPS HTML
+// ════════════════════════════════════════
+function getMockup(type) {
+  if (type === 'tabs-overflow') {
+    const tabs = ['Inicio','Buscar','Perfil','Notif','Config','Ayuda','Tienda','Más'];
+    return `
+      <div class="mock-tabs-overflow">
+        <div class="mock-app-bar"><span class="mock-app-title">MiApp</span></div>
+        <div class="mock-tabs-bar">
+          ${tabs.map((t,i) => `
+            <div class="mock-tab ${i===0?'active-tab':''}">
+              <div class="mock-tab-icon">${['🏠','🔍','👤','🔔','⚙️','❓','🛍','⋯'][i]}</div>
+              <div class="mock-tab-label">${t}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="mock-body">
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line long"></div></div>
+          <div class="mock-content-block tall"><div class="mock-line long"></div><div class="mock-line short"></div></div>
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line" style="width:50%"></div></div>
+          <div class="mock-content-block"><div class="mock-line long"></div></div>
+        </div>
+      </div>`;
+  }
+
+  // ── BN-R1: 7 ítems saturados ──
+  if (type === 'bn-overflow') {
+    const items = [
+      {ic:'🏠',lb:'Inicio'},{ic:'🔍',lb:'Buscar'},{ic:'❤️',lb:'Favoritos'},
+      {ic:'🛒',lb:'Carrito'},{ic:'💬',lb:'Chats'},{ic:'📦',lb:'Pedidos'},{ic:'👤',lb:'Perfil'}
+    ];
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#F5F7FA;">
+        <div style="background:#E53935;padding:8px 10px;color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;flex-shrink:0;">SuperTienda</div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line long"></div></div>
+          <div class="mock-content-block tall"><div class="mock-line long"></div><div class="mock-line short"></div></div>
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line" style="width:50%"></div></div>
+          <div class="mock-content-block"><div class="mock-line long"></div></div>
+        </div>
+        <div style="background:#fff;border-top:2px solid #FFCDD2;display:flex;padding:3px 0 2px;flex-shrink:0;">
+          ${items.map((it,i)=>`
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0;min-width:0;">
+              <div style="font-size:9px;">${it.ic}</div>
+              <div style="font-size:4.5px;font-family:sans-serif;color:${i===0?'#E53935':'#9E9E9E'};font-weight:${i===0?'700':'400'};white-space:nowrap;overflow:hidden;width:100%;text-align:center;text-overflow:ellipsis;">${it.lb}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  // ── BN-R2: Persistencia — clic en Buscar navega a pantalla sin bottom nav ──
+  if (type === 'bn-persistence') {
+
+    const screen1 = `
+      <div style="display:flex;flex-direction:column;height:100%;background:#F5F7FF;">
+        <div style="background:#3949AB;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Noticias</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#C5CAE9;width:80%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#C5CAE9;width:60%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#C5CAE9;width:70%;"></div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);display:flex;align-items:center;gap:6px;">
+            <div style="width:20px;height:20px;border-radius:4px;background:#C5CAE9;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="height:5px;border-radius:3px;background:#C5CAE9;width:70%;margin-bottom:3px;"></div>
+              <div style="height:5px;border-radius:3px;background:#C5CAE9;width:45%;"></div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#C5CAE9;width:55%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#C5CAE9;width:75%;"></div>
+          </div>
+        </div>
+        <!-- BOTTOM NAV visible en pantalla 1 -->
+        <div style="background:#fff;border-top:2px solid #E8EAF6;display:flex;padding:5px 0 4px;flex-shrink:0;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">🏠</div>
+            <div style="font-size:6px;font-family:sans-serif;color:#3949AB;font-weight:700;">Inicio</div>
+          </div>
+          <div onclick="bnR2Navigate()" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;">
+            <div style="font-size:13px;">🔍</div>
+            <div style="font-size:6px;font-family:sans-serif;color:#BDBDBD;">Buscar</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">🔔</div>
+            <div style="font-size:6px;font-family:sans-serif;color:#BDBDBD;">Alertas</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">👤</div>
+            <div style="font-size:6px;font-family:sans-serif;color:#BDBDBD;">Perfil</div>
+          </div>
+        </div>
+      </div>`;
+
+    const screen2 = `
+      <div style="display:flex;flex-direction:column;height:100%;background:#ECEFF1;">
+        <div style="background:#546E7A;padding:8px 10px;flex-shrink:0;display:flex;align-items:center;gap:6px;">
+          <div style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1;">‹</div>
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Buscar</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);display:flex;align-items:center;gap:6px;">
+            <div style="font-size:10px;">🔍</div>
+            <div style="flex:1;height:7px;border-radius:10px;background:#ECEFF1;"></div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#B0BEC5;width:90%;margin-bottom:5px;"></div>
+            <div style="height:5px;border-radius:3px;background:#CFD8DC;width:75%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#CFD8DC;width:60%;"></div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#CFD8DC;width:70%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#CFD8DC;width:50%;"></div>
+          </div>
+        </div>
+        <!-- Sin bottom nav — espacio vacío donde debería estar -->
+        <div style="background:#ECEFF1;height:36px;flex-shrink:0;border-top:1px dashed #B0BEC5;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:5.5px;font-family:sans-serif;color:#90A4AE;letter-spacing:0.5px;">— bottom nav ausente —</div>
+        </div>
+      </div>`;
+
+    return `
+      <div style="height:100%;position:relative;">
+        <div id="bn-s1" style="height:100%;">${screen1}</div>
+        <div id="bn-s2" style="height:100%;display:none;">${screen2}</div>
+      </div>`;
+  }
+
+  // ── BN-R3: Jerarquía rota — mezcla secciones y verbos de acción ──
+  if (type === 'bn-hierarchy') {
+    const items = [
+      {ic:'🏠',lb:'Inicio', type:'section'},
+      {ic:'📤',lb:'Publicar', type:'action'},
+      {ic:'🛒',lb:'Comprar', type:'action'},
+      {ic:'👤',lb:'Perfil', type:'section'},
+    ];
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#F5F7FA;">
+        <div style="background:#00695C;padding:8px 10px;color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;flex-shrink:0;">MiRed</div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div class="mock-content-block"><div class="mock-avatar" style="background:#B2DFDB;"></div><div class="mock-line" style="width:65%;background:#B2DFDB;"></div></div>
+          <div class="mock-content-block tall" style="border:1.5px solid #B2DFDB;"><div class="mock-line" style="width:80%;background:#B2DFDB;"></div><div class="mock-line" style="width:50%;background:#B2DFDB;"></div></div>
+          <div class="mock-content-block"><div class="mock-avatar" style="background:#B2DFDB;"></div><div class="mock-line" style="width:45%;background:#B2DFDB;"></div></div>
+        </div>
+        <div style="background:#fff;border-top:2px solid #E0F2F1;display:flex;padding:5px 0 4px;flex-shrink:0;">
+          ${items.map((it,i)=>`
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 2px;position:relative;">
+              ${it.type==='action' ? `<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#E53935;color:#fff;font-size:4px;font-family:sans-serif;padding:1px 4px;border-radius:5px;white-space:nowrap;font-weight:700;">¡ACCIÓN!</div>` : ''}
+              <div style="font-size:13px;">${it.ic}</div>
+              <div style="font-size:6px;font-family:sans-serif;color:${i===0?'#00695C':it.type==='action'?'#E53935':'#9E9E9E'};font-weight:${i===0||it.type==='action'?'700':'400'};">${it.lb}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  // ── BN-R4: Inconsistencia — mismas secciones, íconos distintos al navegar ──
+  if (type === 'bn-consistency') {
+
+    // Pantalla Inicio
+    const screen1 = `
+      <div style="display:flex;flex-direction:column;height:100%;background:#F3E5F5;">
+        <div style="background:#5E35B1;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Inicio</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#CE93D8;width:80%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#CE93D8;width:55%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#CE93D8;width:70%;"></div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+            <div style="width:20px;height:20px;border-radius:4px;background:#CE93D8;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="height:5px;border-radius:3px;background:#CE93D8;width:65%;margin-bottom:3px;"></div>
+              <div style="height:5px;border-radius:3px;background:#CE93D8;width:40%;"></div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#CE93D8;width:60%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#CE93D8;width:75%;"></div>
+          </div>
+        </div>
+        <!-- BOTTOM NAV: Pantalla 1 — íconos "originales" -->
+        <div style="background:#fff;border-top:2px solid #E8EAF6;display:flex;padding:5px 0 4px;flex-shrink:0;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">🏠</div>
+            <div style="font-size:5.5px;font-family:sans-serif;color:#5E35B1;font-weight:700;">Inicio</div>
+          </div>
+          <div onclick="bnR4Navigate()" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;">
+            <div style="font-size:13px;">🔍</div>
+            <div style="font-size:5.5px;font-family:sans-serif;color:#BDBDBD;">Explorar</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">🛒</div>
+            <div style="font-size:5.5px;font-family:sans-serif;color:#BDBDBD;">Tienda</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">👤</div>
+            <div style="font-size:5.5px;font-family:sans-serif;color:#BDBDBD;">Perfil</div>
+          </div>
+        </div>
+      </div>`;
+
+    // Pantalla Explorar — misma sección, íconos distintos en la barra
+    const screen2 = `
+      <div style="display:flex;flex-direction:column;height:100%;background:#EDE7F6;">
+        <div style="background:#4527A0;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Explorar</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#B39DDB;width:75%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#B39DDB;width:60%;margin-bottom:4px;"></div>
+            <div style="height:5px;border-radius:3px;background:#B39DDB;width:80%;"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+            <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+              <div style="height:24px;border-radius:4px;background:#D1C4E9;margin-bottom:4px;"></div>
+              <div style="height:4px;border-radius:3px;background:#B39DDB;width:80%;"></div>
+            </div>
+            <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+              <div style="height:24px;border-radius:4px;background:#D1C4E9;margin-bottom:4px;"></div>
+              <div style="height:4px;border-radius:3px;background:#B39DDB;width:65%;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- BOTTOM NAV: Pantalla 2 — mismas secciones, ÍCONOS DISTINTOS (mal uso) -->
+        <div style="background:#fff;border-top:2px solid #FFCDD2;display:flex;padding:5px 0 4px;flex-shrink:0;">
+          <div onclick="bnR4Navigate()" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;">
+            <div style="font-size:13px;">🏡</div>
+            <div style="font-size:5.5px;font-family:sans-serif;color:#BDBDBD;">Inicio</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">🧭</div>
+            <div style="font-size:5.5px;font-family:sans-serif;color:#4527A0;font-weight:700;">Explorar</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">🏪</div>
+            <div style="font-size:5.5px;font-family:sans-serif;color:#BDBDBD;">Tienda</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <div style="font-size:13px;">👁</div>
+            <div style="font-size:5.5px;font-family:sans-serif;color:#BDBDBD;">Perfil</div>
+          </div>
+        </div>
+      </div>`;
+
+    return `
+      <div style="height:100%;position:relative;">
+        <div id="bn-c1" style="height:100%;">${screen1}</div>
+        <div id="bn-c2" style="height:100%;display:none;">${screen2}</div>
+      </div>`;
+  }
+
+  // ── Bottomnav overflow antiguo (ya no se usa, se mantiene por si acaso) ──
+  if (type === 'bottomnav-overflow') {
+    const items = ['🏠','🔍','❤️','🛒','💬','📦','👤'];
+    const labels = ['Inicio','Buscar','Favs','Carrito','Chat','Pedidos','Perfil'];
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#F5F7FA;">
+        <div style="background:#1A237E;padding:8px 10px;color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;flex-shrink:0;">MegaStore</div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line long"></div></div>
+          <div class="mock-content-block tall"><div class="mock-line long"></div><div class="mock-line short"></div></div>
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line" style="width:50%"></div></div>
+        </div>
+        <div style="background:#fff;border-top:1px solid #E0E5EF;display:flex;padding:4px 0 2px;flex-shrink:0;">
+          ${items.map((ic,i)=>`
+            <div class="mock-bnav-item${i===0?' act':''}">
+              <div class="mock-bnav-icon">${ic}</div>
+              <div class="mock-bnav-label" style="font-size:5px;">${labels[i]}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  // ── PG-R1: Demasiados controles en una línea ──
+  if (type === 'pg-controls') {
+    const card = (w1, w2) => `
+      <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,0.07);display:flex;align-items:center;gap:6px;">
+        <div style="width:18px;height:18px;border-radius:4px;background:#BBDEFB;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div style="height:5px;border-radius:3px;background:#BBDEFB;width:${w1}%;margin-bottom:3px;"></div>
+          <div style="height:4px;border-radius:3px;background:#E3F2FD;width:${w2}%;"></div>
+        </div>
+      </div>`;
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#E3F2FD;">
+        <div style="background:#1565C0;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Resultados</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          ${card(75,50)}${card(60,45)}${card(80,55)}
+        </div>
+        <!-- PAGINACIÓN SATURADA: dropdown + saltos + selector + números -->
+        <div style="background:#fff;border-top:2px solid #BBDEFB;padding:5px 4px;flex-shrink:0;">
+          <!-- Fila 1: dropdown de página + selector de ítems -->
+          <div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;">
+            <div style="font-size:5px;color:#666;font-family:sans-serif;white-space:nowrap;">Ir a:</div>
+            <div style="border:1px solid #BBDEFB;border-radius:3px;padding:2px 4px;font-size:5px;font-family:sans-serif;color:#1565C0;background:#E3F2FD;display:flex;align-items:center;gap:2px;">pág 3 <span style="font-size:4px;">▾</span></div>
+            <div style="font-size:5px;color:#666;font-family:sans-serif;white-space:nowrap;">Mostrar:</div>
+            <div style="border:1px solid #BBDEFB;border-radius:3px;padding:2px 4px;font-size:5px;font-family:sans-serif;color:#1565C0;background:#E3F2FD;display:flex;align-items:center;gap:2px;">10/pág <span style="font-size:4px;">▾</span></div>
+            <div style="border:1px solid #BBDEFB;border-radius:3px;padding:2px 5px;font-size:5px;font-family:sans-serif;color:#fff;background:#1565C0;">OK</div>
+          </div>
+          <!-- Fila 2: primera + prev + números + next + última -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:2px;">
+            <div style="border:1px solid #BBDEFB;border-radius:3px;padding:2px 4px;font-size:5px;font-family:sans-serif;color:#1565C0;">«</div>
+            <div style="border:1px solid #BBDEFB;border-radius:3px;padding:2px 4px;font-size:5px;font-family:sans-serif;color:#1565C0;">‹</div>
+            ${[1,2,3,4,5,6,7].map(n=>`<div style="border:1px solid ${n===3?'#1565C0':'#BBDEFB'};border-radius:3px;padding:2px 4px;font-size:5px;font-family:sans-serif;color:${n===3?'#fff':'#1565C0'};background:${n===3?'#1565C0':'transparent'};">${n}</div>`).join('')}
+            <div style="border:1px solid #BBDEFB;border-radius:3px;padding:2px 4px;font-size:5px;font-family:sans-serif;color:#1565C0;">›</div>
+            <div style="border:1px solid #BBDEFB;border-radius:3px;padding:2px 4px;font-size:5px;font-family:sans-serif;color:#1565C0;">»</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── PG-R2: Paginación sin delineación, se mezcla con la lista ──
+  if (type === 'pg-delineation') {
+    const card = (w1, w2, isNav=false) => isNav
+      ? `<div style="background:#fff;border-radius:6px;padding:7px 8px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:8px;color:#90A4AE;">‹</div>
+          <div style="font-size:6px;font-family:sans-serif;color:#546E7A;">Página 2 de 8</div>
+          <div style="font-size:8px;color:#546E7A;">›</div>
+        </div>`
+      : `<div style="background:#fff;border-radius:6px;padding:8px;display:flex;align-items:center;gap:6px;">
+          <div style="width:18px;height:18px;border-radius:4px;background:#CFD8DC;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="height:5px;border-radius:3px;background:#CFD8DC;width:${w1}%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#ECEFF1;width:${w2}%;"></div>
+          </div>
+          <div style="font-size:7px;color:#90A4AE;">›</div>
+        </div>`;
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#ECEFF1;">
+        <div style="background:#546E7A;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Artículos</div>
+        </div>
+        <!-- Lista donde la paginación se mezcla visualmente con los ítems -->
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          ${card(75,50)}
+          ${card(60,45)}
+          ${card(0,0,true)}
+          ${card(70,40)}
+          ${card(55,60)}
+        </div>
+      </div>`;
+  }
+
+  // ── PG-R3: Paginación en medio de la lista ──
+  if (type === 'pg-position') {
+    const item = (w1,w2) => `
+      <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,0.07);display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <div style="width:18px;height:18px;border-radius:50%;background:#C8E6C9;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div style="height:5px;border-radius:3px;background:#C8E6C9;width:${w1}%;margin-bottom:3px;"></div>
+          <div style="height:4px;border-radius:3px;background:#E8F5E9;width:${w2}%;"></div>
+        </div>
+      </div>`;
+    const pgNav = `
+      <div style="background:#fff;border:2px solid #A5D6A7;border-radius:6px;padding:6px 8px;display:flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;">
+        <div style="font-size:8px;color:#2E7D32;">‹</div>
+        ${[1,2,3,4,5].map(n=>`<div style="width:14px;height:14px;border-radius:3px;background:${n===3?'#2E7D32':'#E8F5E9'};display:flex;align-items:center;justify-content:center;"><span style="font-size:5.5px;font-family:sans-serif;color:${n===3?'#fff':'#2E7D32'};">${n}</span></div>`).join('')}
+        <div style="font-size:8px;color:#2E7D32;">›</div>
+      </div>`;
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#E8F5E9;">
+        <div style="background:#2E7D32;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Noticias</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          ${item(75,50)}
+          ${item(60,45)}
+          <!-- PAGINACIÓN EN MEDIO DE LA LISTA — mal uso -->
+          ${pgNav}
+          ${item(70,55)}
+          ${item(55,40)}
+        </div>
+      </div>`;
+  }
+
+  // ── PG-R4: Páginas vacías al hacer clic ── (interactivo)
+  if (type === 'pg-empty') {
+    const item = (w1,w2) => `
+      <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,0.07);display:flex;align-items:center;gap:6px;">
+        <div style="width:18px;height:18px;border-radius:4px;background:#FFCCBC;flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div style="height:5px;border-radius:3px;background:#FFCCBC;width:${w1}%;margin-bottom:3px;"></div>
+          <div style="height:4px;border-radius:3px;background:#FBE9E7;width:${w2}%;"></div>
+        </div>
+      </div>`;
+    const contentA = `${item(75,50)}${item(60,45)}${item(80,55)}`;
+    const contentB = `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px;">
+        <div style="font-size:22px;opacity:0.25;">📭</div>
+        <div style="font-size:7px;font-family:sans-serif;color:#BDBDBD;text-align:center;line-height:1.4;">No hay contenido<br/>en esta página</div>
+      </div>`;
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#FBE9E7;">
+        <div style="background:#BF360C;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Catálogo</div>
+        </div>
+        <div id="pg-empty-content" style="flex:1;display:flex;flex-direction:column;gap:5px;padding:8px;overflow:hidden;">
+          ${contentA}${item(65,40)}${item(70,50)}${item(55,65)}
+        </div>
+        <!-- PAGINACIÓN con páginas fantasma -->
+        <div style="background:#fff;border-top:2px solid #FFCCBC;padding:6px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:3px;">
+          <div style="font-size:9px;color:#BF360C;">‹</div>
+          ${[1,2,3,4,5,6,7].map(n=>`
+            <div onclick="pgEmptyClick(${n})" style="width:16px;height:16px;border-radius:3px;border:1px solid #FFCCBC;background:${n===2?'#BF360C':'transparent'};display:flex;align-items:center;justify-content:center;cursor:pointer;" id="pg-btn-${n}">
+              <span style="font-size:5.5px;font-family:sans-serif;color:${n===2?'#fff':'#BF360C'};">${n}</span>
+            </div>`).join('')}
+          <div style="font-size:9px;color:#BF360C;">›</div>
+        </div>
+      </div>`;
+  }
+
+  if (type === 'pagination-bad') {
+    const pages = Array.from({length:12},(_,i)=>i+1);
+    return `
+      <div class="mock-pagination">
+        <div class="mock-page-header">📚 Resultados de búsqueda</div>
+        <div class="mock-page-body">
+          ${[70,50,60,45,55,65].map(w=>`<div class="mock-line" style="height:5px;width:${w}%;margin-bottom:4px;"></div>`).join('')}
+        </div>
+        <div class="mock-page-num-row">
+          ${pages.map(p=>`<div class="mock-page-btn${p===1?' active-pg':''}">${p}</div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  // ── LW-R1: Carrusel anidado — jerarquía no plana ──
+  if (type === 'lw-nested') {
+    const dots = (n, active, color='#1565C0') => Array.from({length:n},(_,i)=>
+      `<div style="width:${i===active?8:6}px;height:${i===active?8:6}px;border-radius:50%;background:${i===active?color:'#fff'};border:1.5px solid ${i===active?color:'#90A4AE'};transition:all 0.2s;flex-shrink:0;box-sizing:border-box;"></div>`
+    ).join('');
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#E3F2FD;">
+        <div style="background:#1565C0;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Destacados</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+          <!-- Carrusel EXTERNO con dots -->
+          <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.1);flex-shrink:0;">
+            <div style="background:#BBDEFB;height:60px;display:flex;align-items:center;justify-content:center;position:relative;">
+              <div style="font-size:8px;font-family:sans-serif;font-weight:700;color:#1565C0;">Ítem 2 del carrusel externo</div>
+            </div>
+            <!-- SUB-CARRUSEL dentro del ítem — el antipatrón -->
+            <div style="padding:6px 8px;background:#F5F9FF;">
+              <div style="font-size:6px;font-family:sans-serif;color:#90A4AE;margin-bottom:4px;">Sub-galería del ítem:</div>
+              <div style="display:flex;gap:4px;margin-bottom:4px;">
+                <div style="flex:1;height:20px;border-radius:4px;background:#BBDEFB;"></div>
+                <div style="flex:1;height:20px;border-radius:4px;background:#90CAF9;"></div>
+                <div style="flex:1;height:20px;border-radius:4px;background:#BBDEFB;opacity:0.5;"></div>
+              </div>
+              <!-- dots del sub-carrusel -->
+              <div style="display:flex;justify-content:center;gap:3px;">
+                ${dots(3,0,'#42A5F5')}
+              </div>
+            </div>
+            <!-- dots del carrusel EXTERNO -->
+            <div style="padding:5px;display:flex;justify-content:center;gap:4px;background:#fff;">
+              ${dots(4,1,'#1565C0')}
+            </div>
+          </div>
+          <!-- Label de error -->
+          <div style="background:#FFF3E0;border-left:3px solid #FF9800;border-radius:4px;padding:5px 8px;">
+            <div style="font-size:6px;font-family:sans-serif;color:#E65100;font-weight:700;line-height:1.4;">¿A qué nivel pertenecen los dots de abajo?<br/>¿Al carrusel externo o al interno?</div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:7px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#BBDEFB;width:70%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#E3F2FD;width:50%;"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── LW-R2: Carrusel sustituyendo tabs — clic navega a pantalla ──
+  if (type === 'lw-tabs-replace') {
+    const sections = ['Noticias','Deportes','Cultura','Tecnología'];
+    const colors = ['#E8F5E9','#FFF3E0','#F3E5F5','#E3F2FD'];
+    const accents = ['#2E7D32','#E65100','#6A1B9A','#1565C0'];
+
+    const screen1 = `
+      <div style="display:flex;flex-direction:column;height:100%;background:#F5F5F5;">
+        <div style="background:#263238;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Inicio</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+          <div style="font-size:7px;font-family:sans-serif;color:#546E7A;font-weight:600;">Secciones — desliza para ver más</div>
+          <!-- Carrusel de secciones con dots — el antipatrón de reemplazar tabs -->
+          <div style="display:flex;gap:6px;overflow:hidden;flex-shrink:0;">
+            ${sections.map((s,i)=>`
+              <div onclick="lwR2Navigate(${i})" style="min-width:70px;background:${colors[i]};border-radius:8px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:2px solid ${i===0?accents[i]:'transparent'};">
+                <div style="font-size:14px;">${['📰','⚽','🎭','💻'][i]}</div>
+                <div style="font-size:6px;font-family:sans-serif;font-weight:700;color:${accents[i]};text-align:center;">${s}</div>
+              </div>`).join('')}
+          </div>
+          <!-- dots como si fuera Location Within -->
+          <div style="display:flex;justify-content:center;gap:4px;">
+            ${sections.map((_,i)=>`<div style="width:${i===0?8:6}px;height:${i===0?8:6}px;border-radius:50%;background:${i===0?'#263238':'#fff'};border:1.5px solid ${i===0?'#263238':'#90A4AE'};box-sizing:border-box;"></div>`).join('')}
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#CFD8DC;width:75%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#ECEFF1;width:55%;"></div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#CFD8DC;width:60%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#ECEFF1;width:40%;"></div>
+          </div>
+        </div>
+      </div>`;
+
+    const screens = sections.map((s,i)=>`
+      <div style="display:flex;flex-direction:column;height:100%;background:${colors[i]};">
+        <div style="background:${accents[i]};padding:8px 10px;flex-shrink:0;display:flex;align-items:center;gap:6px;">
+          <div style="color:rgba(255,255,255,0.8);font-size:14px;line-height:1;cursor:pointer;" onclick="lwR2Back()">‹</div>
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">${s}</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div style="background:#fff;border-radius:6px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+            <div style="font-size:14px;margin-bottom:4px;">${['📰','⚽','🎭','💻'][i]}</div>
+            <div style="height:5px;border-radius:3px;background:#E0E0E0;width:80%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#EEEEEE;width:60%;"></div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:8px;">
+            <div style="height:5px;border-radius:3px;background:#E0E0E0;width:70%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#EEEEEE;width:50%;"></div>
+          </div>
+          <div style="background:#FFEBEE;border-left:3px solid #E53935;border-radius:4px;padding:5px 8px;">
+            <div style="font-size:6px;font-family:sans-serif;color:#C62828;font-weight:700;line-height:1.4;">El carrusel navegó a otra pantalla.<br/>Las tabs permiten acceso directo sin navegar.</div>
+          </div>
+        </div>
+      </div>`);
+
+    return `
+      <div style="height:100%;position:relative;">
+        <div id="lw2-s0" style="height:100%;">${screen1}</div>
+        ${screens.map((s,i)=>`<div id="lw2-s${i+1}" style="height:100%;display:none;">${s}</div>`).join('')}
+      </div>`;
+  }
+
+  // ── LW-R3: Dots dentro del primer ítem — se van con el scroll ──
+  if (type === 'lw-scroll-hide') {
+    const cards = [
+      {bg:'#E8EAF6',accent:'#3949AB',title:'Introducción al Diseño',icon:'🎨'},
+      {bg:'#F3E5F5',accent:'#7B1FA2',title:'Sistemas de Color',icon:'🖌'},
+      {bg:'#E0F2F1',accent:'#00695C',title:'Tipografía Mobile',icon:'✍️'},
+    ];
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#FAFAFA;">
+        <div style="background:#37474F;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Cursos</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+          <!-- Carrusel: overflow hidden, dots DENTRO del primer card -->
+          <div style="overflow:hidden;border-radius:8px;flex-shrink:0;">
+            <div id="lw3-track" style="display:flex;transition:transform 0.35s ease;will-change:transform;">
+              ${cards.map((c,i)=>`
+                <div style="min-width:100%;background:${c.bg};border-radius:8px;padding:12px;box-sizing:border-box;flex-shrink:0;">
+                  <div style="font-size:16px;margin-bottom:4px;">${c.icon}</div>
+                  <div style="font-size:8px;font-family:sans-serif;font-weight:700;color:${c.accent};margin-bottom:3px;">${c.title}</div>
+                  <div style="height:4px;border-radius:3px;background:rgba(0,0,0,0.1);width:70%;margin-bottom:2px;"></div>
+                  <div style="height:4px;border-radius:3px;background:rgba(0,0,0,0.07);width:50%;margin-bottom:8px;"></div>
+                  ${i===0 ? `
+                  <div style="display:flex;gap:4px;">
+                    ${cards.map((_,j)=>`<div style="width:${j===0?8:6}px;height:${j===0?8:6}px;border-radius:50%;background:${j===0?'#37474F':'#fff'};border:1.5px solid #90A4AE;box-sizing:border-box;"></div>`).join('')}
+                  </div>` : `<div style="height:8px;"></div>`}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:7px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#E0E0E0;width:65%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#EEEEEE;width:45%;"></div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:7px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#E0E0E0;width:75%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#EEEEEE;width:55%;"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── LW-R4: Dots mixtos — algunos tocables, otros no ──
+  if (type === 'lw-vs-pagination') {
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#FFF8E1;">
+        <div style="background:#F57F17;padding:8px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">Ofertas</div>
+        </div>
+        <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+          <!-- Carrusel con dots inconsistentes -->
+          <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.1);flex-shrink:0;">
+            <div style="background:#FFE0B2;height:55px;display:flex;align-items:center;justify-content:center;">
+              <div style="font-size:8px;font-family:sans-serif;font-weight:700;color:#E65100;" id="lw4-label">🛍 Oferta del día — Ítem 1</div>
+            </div>
+            <!-- Dots: algunos tocables (pagination), algunos no (location within) — mal uso -->
+            <div style="padding:5px 8px;display:flex;align-items:center;justify-content:center;gap:4px;background:#fff;">
+              <!-- dot 1: tocable -->
+              <div onclick="lw4Click(0)" style="width:8px;height:8px;border-radius:50%;background:#F57F17;cursor:pointer;" id="lw4-d0" title="tocable"></div>
+              <!-- dot 2: tocable -->
+              <div onclick="lw4Click(1)" style="width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,0.2);cursor:pointer;" id="lw4-d1" title="tocable"></div>
+              <!-- dot 3: NO tocable (solo visual) -->
+              <div style="width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,0.15);" id="lw4-d2" title="no tocable"></div>
+              <!-- dot 4: NO tocable -->
+              <div style="width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,0.15);" id="lw4-d3" title="no tocable"></div>
+              <!-- dot 5: tocable de nuevo -->
+              <div onclick="lw4Click(4)" style="width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,0.2);cursor:pointer;" id="lw4-d4" title="tocable"></div>
+            </div>
+          </div>
+          <!-- Leyenda explicativa -->
+          <div style="display:flex;gap:6px;">
+            <div style="flex:1;background:#E8F5E9;border-radius:6px;padding:6px 7px;">
+              <div style="font-size:5.5px;font-family:sans-serif;font-weight:700;color:#2E7D32;margin-bottom:2px;">● Dots grandes</div>
+              <div style="font-size:5px;font-family:sans-serif;color:#388E3C;line-height:1.3;">Tocables → Pagination<br/>Necesitan 44×44px</div>
+            </div>
+            <div style="flex:1;background:#FFF3E0;border-radius:6px;padding:6px 7px;">
+              <div style="font-size:5.5px;font-family:sans-serif;font-weight:700;color:#E65100;margin-bottom:2px;">● Dots pequeños</div>
+              <div style="font-size:5px;font-family:sans-serif;color:#F57C00;line-height:1.3;">Solo visual → Location Within<br/>No responden al toque</div>
+            </div>
+          </div>
+          <div style="background:#FFEBEE;border-left:3px solid #E53935;border-radius:4px;padding:5px 8px;">
+            <div style="font-size:6px;font-family:sans-serif;color:#C62828;font-weight:700;line-height:1.4;">Mezcla de patrones: el usuario no sabe<br/>qué dots responden y cuáles no.</div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:7px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">
+            <div style="height:5px;border-radius:3px;background:#FFE0B2;width:70%;margin-bottom:3px;"></div>
+            <div style="height:4px;border-radius:3px;background:#FFF3E0;width:50%;"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (type === 'location-bad') {
+    return `
+      <div class="mock-location">
+        <div class="mock-loc-header"><span class="mock-back">‹</span><span>Paso 3</span></div>
+        <div class="mock-loc-body">
+          <div style="background:#fff;border-radius:5px;padding:8px;margin-bottom:4px;">
+            <div style="font-size:8px;font-weight:700;font-family:sans-serif;color:#1A1A2E;margin-bottom:5px;">Datos de pago</div>
+            <div class="mock-line" style="width:80%;margin-bottom:4px;background:#C5C9E0;"></div>
+            <div class="mock-line" style="width:60%;background:#C5C9E0;"></div>
+          </div>
+          <div style="background:#fff;border-radius:5px;padding:8px;">
+            <div class="mock-line" style="width:70%;margin-bottom:4px;background:#C5C9E0;"></div>
+            <div class="mock-line" style="width:45%;background:#C5C9E0;"></div>
+          </div>
+        </div>
+        <div style="padding:6px 10px;background:#fff;border-top:1px solid #eee;flex-shrink:0;display:flex;justify-content:center;">
+          <div style="background:#1A1A2E;color:#fff;font-size:8px;font-family:sans-serif;font-weight:700;padding:5px 20px;border-radius:20px;">Continuar</div>
+        </div>
+      </div>`;
+  }
+
+  // ── R2: Doble fila de tabs ──
+  if (type === 'tabs-double-row') {
+    const row1 = ['Inicio','Feed','Explore','Perfil'];
+    const row2 = ['Reciente','Popular','Guardado','Trending'];
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#fff;">
+        <div style="background:#1565C0;padding:7px 10px;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;">NewsApp</div>
+        </div>
+        <!-- FILA 1 de tabs -->
+        <div style="background:#1565C0;display:flex;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.15);">
+          ${row1.map((t,i)=>`
+            <div style="flex:1;padding:5px 2px;text-align:center;border-bottom:2px solid ${i===0?'#fff':'transparent'};">
+              <div style="font-size:6px;color:${i===0?'#fff':'rgba(255,255,255,0.55)'};font-family:sans-serif;font-weight:${i===0?'700':'400'};">${t}</div>
+            </div>
+          `).join('')}
+        </div>
+        <!-- FILA 2 de tabs — la "subsidiaria" -->
+        <div style="background:#1976D2;display:flex;flex-shrink:0;border-bottom:2px solid rgba(255,255,255,0.1);">
+          ${row2.map((t,i)=>`
+            <div style="flex:1;padding:4px 1px;text-align:center;border-bottom:2px solid ${i===0?'#90CAF9':'transparent'};">
+              <div style="font-size:5.5px;color:${i===0?'#fff':'rgba(255,255,255,0.45)'};font-family:sans-serif;font-weight:${i===0?'700':'400'};">${t}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="flex:1;padding:8px;background:#F5F7FA;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line long"></div></div>
+          <div class="mock-content-block tall"><div class="mock-line long"></div><div class="mock-line short"></div></div>
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line" style="width:50%"></div></div>
+        </div>
+      </div>`;
+  }
+
+  // ── R3: Tabs verticales ──
+  if (type === 'tabs-vertical') {
+    const vtabs = ['Info','Fotos','Mapa','Reviews','Horario'];
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#fff;">
+        <div style="background:#4E342E;padding:8px 10px;flex-shrink:0;display:flex;align-items:center;gap:5px;">
+          <div style="color:#EFEBE9;font-size:9px;font-weight:700;font-family:sans-serif;">Restaurante El Patio</div>
+        </div>
+        <div style="flex:1;display:flex;overflow:hidden;">
+          <!-- Contenido principal izquierda -->
+          <div style="flex:1;padding:8px;background:#FAF7F5;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+            <div style="font-size:7px;font-weight:700;color:#4E342E;font-family:sans-serif;margin-bottom:2px;">Información general</div>
+            <div class="mock-line" style="width:80%;background:#D7CCC8;"></div>
+            <div class="mock-line" style="width:65%;background:#D7CCC8;"></div>
+            <div class="mock-line" style="width:75%;background:#D7CCC8;"></div>
+            <div style="margin-top:4px;background:#fff;border-radius:4px;padding:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+              <div class="mock-line" style="width:60%;background:#D7CCC8;margin-bottom:3px;"></div>
+              <div class="mock-line" style="width:45%;background:#D7CCC8;"></div>
+            </div>
+          </div>
+          <!-- Tabs VERTICALES a la derecha — el mal uso -->
+          <div style="width:38px;background:#3E2723;display:flex;flex-direction:column;flex-shrink:0;border-left:1px solid rgba(255,255,255,0.1);">
+            ${vtabs.map((t,i)=>`
+              <div style="padding:6px 3px;display:flex;align-items:center;justify-content:center;background:${i===0?'rgba(255,255,255,0.18)':'transparent'};border-left:2px solid ${i===0?'#FFCC80':'transparent'};">
+                <div style="color:${i===0?'#fff':'rgba(255,255,255,0.45)'};font-size:5.5px;font-family:sans-serif;writing-mode:vertical-rl;text-orientation:mixed;font-weight:${i===0?'700':'400'};letter-spacing:0.3px;">${t}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── R4: Mezcla de niveles (tabs top + bottom nav como tabs) ──
+  if (type === 'tabs-mixed-levels') {
+    const topTabs = ['Inicio','Tienda','Blog','Soporte'];
+    const botTabs = [
+      {icon:'🏠',label:'Inicio'}, {icon:'🛒',label:'Tienda'},
+      {icon:'📝',label:'Blog'}, {icon:'💬',label:'Soporte'}, {icon:'👤',label:'Cuenta'}
+    ];
+    return `
+      <div style="display:flex;flex-direction:column;height:100%;background:#fff;">
+        <!-- TOP TABS (nivel global) -->
+        <div style="background:#7B1FA2;padding:6px 10px 0;flex-shrink:0;">
+          <div style="color:#fff;font-size:9px;font-weight:700;font-family:sans-serif;padding-bottom:5px;">MiApp</div>
+          <div style="display:flex;">
+            ${topTabs.map((t,i)=>`
+              <div style="flex:1;padding:4px 2px;text-align:center;border-bottom:2px solid ${i===0?'#EA80FC':'transparent'};">
+                <div style="font-size:6px;color:${i===0?'#fff':'rgba(255,255,255,0.5)'};font-family:sans-serif;font-weight:${i===0?'700':'400'};">${t}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <!-- BODY -->
+        <div style="flex:1;padding:8px;background:#F9F4FF;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+          <div class="mock-content-block"><div class="mock-avatar"></div><div class="mock-line long"></div></div>
+          <div class="mock-content-block tall"><div class="mock-line long"></div><div class="mock-line short"></div></div>
+          <div class="mock-content-block"><div class="mock-avatar" style="background:#D7B8F3;"></div><div class="mock-line" style="width:50%;background:#D7B8F3;"></div></div>
+        </div>
+        <!-- BOTTOM NAV actuando como segunda capa de tabs -->
+        <div style="background:#fff;border-top:2px solid #E1BEE7;display:flex;padding:4px 0 3px;flex-shrink:0;">
+          ${botTabs.map((item,i)=>`
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 1px;border-top:2px solid ${i===0?'#7B1FA2':'transparent'};">
+              <div style="font-size:11px;">${item.icon}</div>
+              <div style="font-size:5.5px;font-family:sans-serif;color:${i===0?'#7B1FA2':'#9E9E9E'};font-weight:${i===0?'700':'400'};">${item.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  // generic bad placeholder
+  return `
+    <div class="mock-placeholder">
+      <div class="mock-placeholder-icon">📐</div>
+      <div class="mock-placeholder-text">Mal uso ilustrado según la regla seleccionada</div>
+    </div>`;
+}
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+function render() {
+  const pattern = DATA[currentPattern];
+  const rule = pattern.rules[currentRule - 1];
+  const main = document.getElementById('main-content');
+
+  main.innerHTML = `
+    <div class="breadcrumb">
+      Patrones
+      <span class="sep">›</span>
+      ${pattern.name}
+      <span class="sep">›</span>
+      <span>Regla ${rule.num}: ${rule.title}</span>
+    </div>
+
+    <div class="rule-header">
+      <div class="rule-number">Regla ${rule.num} · ${pattern.name}</div>
+      <div class="rule-title">${rule.title}</div>
+      <div class="rule-desc">${rule.short} ${rule.desc}</div>
+    </div>
+
+    <div class="rule-nav">
+      ${pattern.rules.map(r => `
+        <button class="rule-nav-btn ${r.num === currentRule ? 'active' : ''}"
+          onclick="selectRule('${currentPattern}', ${r.num})">
+          R${r.num} · ${r.title}
+        </button>
+      `).join('')}
+    </div>
+
+    <div class="demo-card">
+      <div class="demo-left">
+        <div class="verdict-badge verdict-bad">Mal uso</div>
+        <div style="font-size:13px;color:var(--gray-700);font-style:italic;margin-top:-8px;">${rule.badLabel}</div>
+
+        <div class="demo-explanation">
+          <h3>Problemas identificados</h3>
+          <div class="problem-list">
+            ${rule.problems.map(p => `
+              <div class="problem-item">
+                <span class="pi">${p.icon}</span>
+                <span>${p.text}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="good-box">
+          <span class="gi">✅</span>
+          <div><strong>Buena práctica:</strong> ${rule.good}</div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="phone-label">Prototipo · mal uso</div>
+        <div class="iphone">
+          <div class="iphone-inner">
+            <div class="status-bar">
+              <span class="status-time">12:00</span>
+              <div class="dynamic-island"></div>
+              <div class="status-icons">
+                <svg viewBox="0 0 24 24"><rect x="2" y="8" width="3" height="13" rx="1"/><rect x="7" y="5" width="3" height="16" rx="1"/><rect x="12" y="2" width="3" height="19" rx="1"/></svg>
+                <svg viewBox="0 0 24 24"><rect x="1" y="7" width="18" height="11" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="3" y="9" width="10" height="7" rx="1"/><rect x="20" y="10" width="3" height="5" rx="1.5"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M1.5 8.5a14 14 0 0 1 21 0M5 12a11 11 0 0 1 14 0M8.5 15.5a7 7 0 0 1 7 0"/><circle cx="12" cy="19" r="1" fill="#000"/></svg>
+              </div>
+            </div>
+            <div class="screen-content">
+              ${getMockup(rule.mockup)}
+            </div>
+            <div class="home-indicator"><div class="home-indicator-bar"></div></div>
+          </div>
+        </div>
+        ${rule.mockup === 'bn-persistence' ? `
+          <div style="margin-top:6px;font-size:10px;color:var(--gray-500);font-style:italic;text-align:center;">
+            Toca <strong style="color:var(--purple);">Buscar</strong> en la barra para navegar
+          </div>
+          <button id="bn-persist-toggle" onclick="toggleScreen('bn-persist-toggle','bn-s1','bn-s2','← Volver','← Volver')"
+            style="margin-top:6px;background:var(--navy);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.3px;display:none;">
+            ← Volver
+          </button>` : ''}
+        ${rule.mockup === 'bn-consistency' ? `
+          <div style="margin-top:6px;font-size:10px;color:var(--gray-500);font-style:italic;text-align:center;">
+            Toca <strong style="color:var(--purple);">Explorar</strong> en la barra para navegar
+          </div>` : ''}
+        ${rule.mockup === 'lw-scroll-hide' ? `
+          <div style="display:flex;gap:8px;margin-top:8px;justify-content:center;">
+            <button onclick="lw3Prev()" style="background:var(--gray-500);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">← Volver</button>
+            <button onclick="lw3Next()" style="background:var(--purple);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Swipe →</button>
+          </div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ── Location Within interacciones ──
+window.lwR2Navigate = function(i) {
+  document.getElementById('lw2-s0').style.display = 'none';
+  for(var k=1;k<=4;k++) {
+    var el = document.getElementById('lw2-s'+k);
+    if(el) el.style.display = 'none';
+  }
+  var target = document.getElementById('lw2-s'+(i+1));
+  if(target) target.style.display = '';
+}
+window.lwR2Back = function() {
+  for(var k=1;k<=4;k++) {
+    var el = document.getElementById('lw2-s'+k);
+    if(el) el.style.display = 'none';
+  }
+  var s0 = document.getElementById('lw2-s0');
+  if(s0) s0.style.display = '';
+}
+
+var _lw3Current = 0;
+window.lw3Next = function() {
+  var track = document.getElementById('lw3-track');
+  if (!track) return;
+  _lw3Current = Math.min(_lw3Current + 1, 2);
+  track.style.transform = 'translateX(-' + (_lw3Current * 100) + '%)';
+}
+window.lw3Prev = function() {
+  var track = document.getElementById('lw3-track');
+  if (!track) return;
+  _lw3Current = Math.max(_lw3Current - 1, 0);
+  track.style.transform = 'translateX(-' + (_lw3Current * 100) + '%)';
+}
+
+var _lw4Items = ['🛍 Oferta del día — Ítem 1','⚡ Flash Sale — Ítem 2','💎 Premium — Ítem 5'];
+window.lw4Click = function(idx) {
+  var label = document.getElementById('lw4-label');
+  if(label) label.textContent = _lw4Items[idx===0?0:idx===1?1:2] || '?';
+  [0,1,4].forEach(function(d,i){
+    var el = document.getElementById('lw4-d'+d);
+    if(el) el.style.background = d===idx ? '#F57F17' : 'rgba(0,0,0,0.2)';
+  });
+}
+
+window.pgEmptyClick = function(n) {
+  var content = document.getElementById('pg-empty-content');
+  if (!content) return;
+  var realPages = [1, 2, 3];
+  var hasContent = realPages.indexOf(n) !== -1;
+  var itemHtml = function(w1, w2) {
+    return '<div style="background:#fff;border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,0.07);display:flex;align-items:center;gap:6px;">' +
+      '<div style="width:18px;height:18px;border-radius:4px;background:#FFCCBC;flex-shrink:0;"></div>' +
+      '<div style="flex:1;">' +
+        '<div style="height:5px;border-radius:3px;background:#FFCCBC;width:' + w1 + '%;margin-bottom:3px;"></div>' +
+        '<div style="height:4px;border-radius:3px;background:#FBE9E7;width:' + w2 + '%;"></div>' +
+      '</div></div>';
+  };
+  if (hasContent) {
+    content.innerHTML = itemHtml(75,50) + itemHtml(60,45) + itemHtml(80,55) + itemHtml(65,40) + itemHtml(70,50) + itemHtml(55,65);
+  } else {
+    content.innerHTML =
+      '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px;height:100%;">' +
+        '<div style="font-size:22px;opacity:0.25;">📭</div>' +
+        '<div style="font-size:7px;font-family:sans-serif;color:#BDBDBD;text-align:center;line-height:1.4;">No hay contenido<br/>en esta página</div>' +
+      '</div>';
+  }
+  for (var i = 1; i <= 7; i++) {
+    var btn = document.getElementById('pg-btn-' + i);
+    if (!btn) continue;
+    btn.style.background = i === n ? '#BF360C' : 'transparent';
+    btn.querySelector('span').style.color = i === n ? '#fff' : '#BF360C';
+  }
+}
+
+window.bnR2Navigate = function() {
+  var s1 = document.getElementById('bn-s1');
+  var s2 = document.getElementById('bn-s2');
+  var btn = document.getElementById('bn-persist-toggle');
+  if (!s1 || !s2) return;
+  s1.style.display = 'none';
+  s2.style.display = '';
+  if (btn) { btn.style.display = ''; btn.textContent = '← Volver'; }
+}
+
+window.bnR4Navigate = function() {
+  var c1 = document.getElementById('bn-c1');
+  var c2 = document.getElementById('bn-c2');
+  if (!c1 || !c2) return;
+  if (c1.style.display !== 'none') {
+    c1.style.display = 'none'; c2.style.display = '';
+  } else {
+    c2.style.display = 'none'; c1.style.display = '';
+  }
+}
+
+window.toggleScreen = function(btnId, idA, idB) {
+  var a = document.getElementById(idA);
+  var b = document.getElementById(idB);
+  var btn = document.getElementById(btnId);
+  if (!a || !b) return;
+  // siempre vuelve a pantalla 1 y se oculta el botón
+  b.style.display = 'none'; a.style.display = '';
+  if (btn) btn.style.display = 'none';
+}
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+window.selectPattern = function(pattern) {
+  currentPattern = pattern;
+  currentRule = 1;
+  updateSidebar();
+  render();
+}
+
+window.selectRule = function(pattern, ruleNum) {
+  currentPattern = pattern;
+  currentRule = ruleNum;
+  updateSidebar();
+  render();
+}
+
+function updateSidebar() {
+  // Pattern items
+  document.querySelectorAll('.pattern-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.rule-list').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.rule-item-sidebar').forEach(el => el.classList.remove('active'));
+
+  const navEl = document.getElementById(`nav-${currentPattern === 'bottomnav' ? 'bottomnav' : currentPattern === 'location' ? 'location' : currentPattern}`);
+  if (navEl) navEl.classList.add('active');
+
+  const ruleListMap = { tabs: 'rules-tabs', bottomnav: 'rules-bottomnav', pagination: 'rules-pagination', location: 'rules-location' };
+  const ruleKeyMap = { tabs: 'tabs', bottomnav: 'bn', pagination: 'pg', location: 'lw' };
+  const listEl = document.getElementById(ruleListMap[currentPattern]);
+  if (listEl) listEl.classList.add('open');
+
+  const srKey = ruleKeyMap[currentPattern];
+  const srEl = document.getElementById(`sr-${srKey}-${currentRule}`);
+  if (srEl) srEl.classList.add('active');
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+updateSidebar();
+render();
+</script>
+</body>
+</html>
