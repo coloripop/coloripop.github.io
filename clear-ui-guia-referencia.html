@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>C.L.E.A.R. UI — Guía de Referencia · coloripop</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#211F54;--purple:#4A3AFF;--pink:#FE81E7;--lav:#B5AFFF;--lav-lt:#E2E0FF;
+  --c-copy:#4A3AFF;--c-layout:#7B5EA7;--c-emphasis:#FE81E7;--c-access:#1D9E75;--c-reward:#E8850A;
+  --bg:#F5F4FF;--white:#ffffff;--border:#dddcf0;--text:#211F54;--muted:#6b68a0;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:32px 16px 48px;}
+.page{max-width:760px;margin:0 auto;}
+
+/* HEADER */
+.hd{background:var(--navy);border-radius:16px;padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.hd svg{height:38px;width:auto;flex-shrink:0;}
+.hd-right{text-align:right;}
+.hd-tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.13em;text-transform:uppercase;color:var(--lav);font-weight:700;}
+.hd-title{font-size:18px;font-weight:700;color:#fff;margin-top:4px;}
+.hd-sub{font-size:12px;color:var(--lav-lt);margin-top:2px;}
+
+/* INTRO BANNER */
+.intro{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;gap:20px;align-items:center;}
+.intro-q{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--purple);flex-shrink:0;line-height:1;}
+.intro-text h2{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.intro-text p{font-size:13px;color:var(--muted);line-height:1.6;}
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.pill{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:0.05em;}
+
+/* PILLAR SECTIONS */
+.section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:14px;border-left:4px solid var(--border);}
+.section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+.section-letter{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;line-height:1;}
+.section-title{font-size:16px;font-weight:700;color:var(--navy);}
+.section-question{font-size:12px;color:var(--muted);font-style:italic;margin-top:1px;}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+@media(max-width:560px){.cols,.cols-3{grid-template-columns:1fr;}}
+
+.card{background:var(--bg);border-radius:9px;padding:13px 15px;}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;}
+.card ul{padding-left:14px;}
+.card li{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:2px;}
+.card li strong{color:var(--text);font-weight:500;}
+
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.tag{font-size:11px;padding:3px 9px;border-radius:6px;font-weight:500;}
+
+/* mistake row */
+.mistake-row{display:flex;flex-direction:column;gap:6px;}
+.mistake{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;background:var(--bg);border-radius:8px;}
+.mistake-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.mistake-label{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px;}
+.mistake-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+
+/* test box */
+.test-box{border-radius:9px;padding:13px 15px;margin-top:10px;}
+.test-box .test-title{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;}
+.test-box p{font-size:12px;line-height:1.6;}
+
+/* reward trifecta */
+.trifecta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px;}
+@media(max-width:560px){.trifecta{grid-template-columns:1fr;}}
+.trifecta-item{border-radius:9px;padding:12px 14px;text-align:center;}
+.trifecta-icon{font-size:20px;margin-bottom:6px;}
+.trifecta-name{font-size:12px;font-weight:700;margin-bottom:3px;}
+.trifecta-desc{font-size:11px;opacity:0.85;line-height:1.4;}
+
+/* scorecard mini */
+.sc-mini{background:var(--navy);border-radius:12px;padding:18px 20px;margin-top:20px;color:#fff;}
+.sc-mini-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--lav);margin-bottom:12px;}
+.sc-rows{display:flex;flex-direction:column;gap:7px;}
+.sc-row{display:flex;align-items:center;gap:10px;}
+.sc-row-letter{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;width:18px;flex-shrink:0;}
+.sc-row-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.12);border-radius:3px;overflow:hidden;}
+.sc-row-bar{height:100%;border-radius:3px;}
+.sc-row-label{font-size:11px;color:var(--lav-lt);min-width:80px;}
+.sc-scale{display:flex;justify-content:space-between;margin-top:8px;padding:0 2px;}
+.sc-scale span{font-size:10px;color:var(--lav);font-family:'Space Mono',monospace;}
+
+/* vs Nielsen */
+.vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:500px){.vs-grid{grid-template-columns:1fr;}}
+.vs-card{border-radius:9px;padding:13px 15px;}
+.vs-card h3{font-size:12px;font-weight:700;margin-bottom:8px;}
+.vs-card li{font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:2px;}
+.vs-card li strong{color:var(--text);}
+
+/* FOOTER */
+.footer{margin-top:24px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.footer-left{font-size:11px;color:var(--muted);}
+.footer-left a{color:var(--purple);text-decoration:none;font-weight:500;}
+.footer-right{font-size:10px;color:var(--lav);font-family:'Space Mono',monospace;}
+
+@media print{
+  body{background:#fff;padding:0;}
+  .page{max-width:100%;}
+  .hd,.trifecta-item,.sc-mini{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{margin:12mm;size:A4;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hd">
+    <svg viewBox="0 0 216 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M48.2769 44.068C48.2762 44.066 48.2755 44.064 51.7573 42.877C55.239 41.6901 55.2383 41.6881 55.2377 41.6863L55.2365 41.6826L55.2341 41.6758L55.23 41.6641L55.2243 41.648C55.2226 41.6434 55.2218 41.6412 55.2218 41.6412C55.2218 41.6412 55.2222 41.6421 55.2229 41.6439C55.2265 41.6534 55.2392 41.686 55.2619 41.7386C55.3076 41.8443 55.3918 42.0265 55.5208 42.2599C55.7816 42.7314 56.2076 43.3796 56.8412 44.0279C58.043 45.2577 60.125 46.6424 63.7688 46.6424C67.4127 46.6424 69.4947 45.2577 70.6965 44.0279C71.3301 43.3796 71.7561 42.7314 72.0168 42.2599C72.1459 42.0265 72.2301 41.8443 72.2758 41.7386C72.2985 41.686 72.3112 41.6534 72.3148 41.6439C72.3155 41.6421 72.3159 41.6412 72.3159 41.6412C72.3159 41.6412 72.315 41.6434 72.3134 41.648L72.3077 41.6641L72.3036 41.6758L72.3012 41.6826L72.3 41.6863C72.2993 41.6881 72.2987 41.6901 75.7804 42.877C79.2622 44.064 79.2615 44.066 79.2608 44.068L79.2594 44.0721L79.2564 44.081L79.2495 44.1008L79.2323 44.1488C79.2194 44.1845 79.2035 44.2275 79.1844 44.2773C79.1462 44.3769 79.0952 44.5042 79.03 44.6552C78.8998 44.9566 78.7118 45.3559 78.4549 45.8204C77.9438 46.7446 77.1432 47.9574 75.9582 49.17C73.5227 51.6621 69.5988 53.9994 63.7688 53.9994C57.9389 53.9994 54.015 51.6621 51.5795 49.17C50.3945 47.9574 49.5939 46.7446 49.0828 45.8204C48.8259 45.3559 48.6379 44.9566 48.5077 44.6552C48.4425 44.5042 48.3915 44.3769 48.3533 44.2773C48.3342 44.2275 48.3183 44.1845 48.3054 44.1488L48.2882 44.1008L48.2813 44.081L48.2783 44.0721L48.2769 44.068Z" fill="#FE81E7"/>
+      <path d="M197.406 18.2C203.586 18.2 208 22.967 208 29.721C208 36.475 203.586 41.33 197.406 41.33C195.022 41.33 193.124 40.58 191.756 39.3V48.746H184.163V18.73H191.094V21.025C192.462 19.171 194.581 18.2 197.406 18.2ZM195.905 34.444C198.112 34.444 200.231 32.855 200.231 29.765C200.231 26.675 198.156 25.086 195.905 25.086C193.786 25.086 191.623 26.499 191.623 29.721C191.623 32.899 193.742 34.444 195.905 34.444Z" fill="#FE81E7"/>
+      <path d="M168.254 18.2C174.875 18.2 180.304 23.188 180.304 29.765C180.304 36.342 174.875 41.33 168.254 41.33C161.588 41.33 156.247 36.342 156.247 29.765C156.247 23.188 161.588 18.2 168.254 18.2ZM168.298 25.174C165.737 25.174 164.016 27.072 164.016 29.765C164.016 32.502 165.737 34.356 168.298 34.356C170.681 34.356 172.535 32.502 172.535 29.765C172.535 27.072 170.681 25.174 168.298 25.174Z" fill="#FE81E7"/>
+      <path d="M142.918 18.2C149.098 18.2 153.512 22.967 153.512 29.721C153.512 36.475 149.098 41.33 142.918 41.33C140.534 41.33 138.636 40.58 137.268 39.3V48.746H129.675V18.73H136.606V21.025C137.974 19.171 140.093 18.2 142.918 18.2ZM141.417 34.444C143.624 34.444 145.743 32.855 145.743 29.765C145.743 26.675 143.668 25.086 141.417 25.086C139.298 25.086 137.135 26.499 137.135 29.721C137.135 32.899 139.254 34.444 141.417 34.444Z" fill="#FE81E7"/>
+      <path d="M120.883 8C123.443 8 125.562 9.942 125.562 12.503C125.562 15.019 123.443 16.961 120.883 16.961C118.323 16.961 116.248 15.019 116.248 12.503C116.248 9.942 118.323 8 120.883 8ZM124.723 18.73V40.8H117.131V18.73H124.723Z" fill="#F4F3FF"/>
+      <path d="M111.734 18.376C112.572 18.376 113.279 18.509 113.897 18.73V25.439H112.087C108.732 25.439 106.834 26.896 106.834 30.736V40.801H99.241V18.73H106.172V21.069C107.54 19.348 109.482 18.376 111.734 18.376Z" fill="#F4F3FF"/>
+      <path d="M83.332 18.2C89.953 18.2 95.383 23.188 95.383 29.765C95.383 36.342 89.953 41.33 83.332 41.33C76.666 41.33 71.325 36.342 71.325 29.765C71.325 23.188 76.666 18.2 83.332 18.2ZM83.376 25.174C80.816 25.174 79.094 27.072 79.094 29.765C79.094 32.502 80.816 34.356 83.376 34.356C85.76 34.356 87.614 32.502 87.614 29.765C87.614 27.072 85.76 25.174 83.376 25.174Z" fill="#F4F3FF"/>
+      <path d="M67.477 12.062V40.8H59.884V12.062H67.477Z" fill="#F4F3FF"/>
+      <path d="M43.975 18.2C50.596 18.2 56.025 23.188 56.025 29.765C56.025 36.342 50.596 41.33 43.975 41.33C37.309 41.33 31.968 36.342 31.968 29.765C31.968 23.188 37.309 18.2 43.975 18.2ZM44.019 25.174C41.458 25.174 39.737 27.072 39.737 29.765C39.737 32.502 41.458 34.356 44.019 34.356C46.402 34.356 48.256 32.502 48.256 29.765C48.256 27.072 46.402 25.174 44.019 25.174Z" fill="#F4F3FF"/>
+      <path d="M20.051 18.2C24.686 18.2 28.173 20.539 29.939 24.115L24.686 28.132C23.626 26.499 22.302 25.174 20.139 25.174C17.446 25.174 15.769 27.072 15.769 29.765C15.769 32.458 17.446 34.356 20.139 34.356C22.302 34.356 23.626 33.076 24.686 31.442L29.939 35.415C28.173 38.991 24.686 41.33 20.051 41.33C13.341 41.33 8 36.342 8 29.765C8 23.188 13.341 18.2 20.051 18.2Z" fill="#F4F3FF"/>
+    </svg>
+    <div class="hd-right">
+      <div class="hd-tag">Guía de referencia</div>
+      <div class="hd-title">C.L.E.A.R. UI Framework</div>
+      <div class="hd-sub">Basado en el curso de Growth.Design</div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <div class="intro-q">?</div>
+    <div class="intro-text">
+      <h2>¿Qué es C.L.E.A.R.?</h2>
+      <p>Un framework de 5 pasos para diagnosticar y mejorar cualquier pantalla. No reemplaza a Nielsen — lo complementa. Nielsen detecta errores de usabilidad; C.L.E.A.R. te da un lenguaje de iteración para mejorar la experiencia paso a paso.</p>
+      <div class="pill-row">
+        <span class="pill" style="background:#EEF0FF;color:#4A3AFF;">C · Copywriting</span>
+        <span class="pill" style="background:#F0ECF8;color:#7B5EA7;">L · Layout</span>
+        <span class="pill" style="background:#FFF0FB;color:#c4559d;">E · Emphasis</span>
+        <span class="pill" style="background:#E6F7F2;color:#1D9E75;">A · Accessibility</span>
+        <span class="pill" style="background:#FEF4E6;color:#E8850A;">R · Reward</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="section" style="border-left-color:#4A3AFF;">
+    <div class="section-head">
+      <div class="section-letter" style="color:#4A3AFF;">C</div>
+      <div>
+        <div class="section-title">Copywriting</div>
+        <div class="section-question">¿Por qué debería importarme? ¿Qué hago? ¿Qué pasará?</div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <div class="card-title" style="color:#4A3AFF;">3 errores comunes</div>
+        <div class="mistake-row">
+          <div class="mistake"><div class="mistake-icon">📝</div><div><div class="mistake-label">Texto muy largo</div><div class="mistake-desc">Bloques de 3+ líneas se saltean. Escribir menos cuesta más esfuerzo.</div></div></div>
+          <div class="mistake"><div class="mistake-icon">💬</div><div><div class="mistake-label">Copy genérico</div><div class="mistake-desc">Si tu competidor puede usar las mismas palabras, es demasiado vago.</div></div></div>
+          <div class="mistake"><div class="mistake-icon">🔁</div><div><div class="mistake-label">Innecesario y duplicado</div><div class="mistake-desc">Frases repetidas ocultan lo importante y generan confusión.</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#4A3AFF;">4 tips prácticos</div>
+        <ul>
+          <li><strong>Énfasis en el beneficio:</strong> ¿Qué gana el usuario?</li>
+          <li><strong>Tranquiliza:</strong> "Puedes cambiarlo después" desbloquea dudas.</li>
+          <li><strong>Palabras específicas:</strong> verbos claros, resultados concretos.</li>
+          <li><strong>Habla como persona real:</strong> si suena raro al leerlo en voz alta, reescríbelo.</li>
+        </ul>
+        <div class="test-box" style="background:#EEF0FF;margin-top:10px;">
+          <div class="test-title" style="color:#4A3AFF;">Copy Swap Test</div>
+          <p style="color:#4A3AFF;">¿Podría otra empresa usar exactamente estas mismas palabras? Si sí → demasiado genérico.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- L -->
+  <div class="section" style="border-left-color:#7B5EA7;">
+    <div class="section-head">
+      <div class="section-letter" style="color:#7B5EA7;">L</div>
+      <div>
+        <div class="section-title">Layout</div>
+        <div class="section-question">¿La estructura hace la pantalla fácil de entender a primera vista?</div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <div class="card-title" style="color:#7B5EA7;">6 principios Gestalt</div>
+        <ul>
+          <li><strong>Proximidad:</strong> lo cercano se percibe junto.</li>
+          <li><strong>Similitud:</strong> mismo rol → mismo aspecto.</li>
+          <li><strong>Simplicidad:</strong> menos elementos → menos carga.</li>
+          <li><strong>Alineación:</strong> bordes alineados = orden percibido.</li>
+          <li><strong>Región común:</strong> agrupar con fondo sutil, no bordes.</li>
+          <li><strong>Continuidad:</strong> diseña un camino visual obvio.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#7B5EA7;">3 errores a evitar</div>
+        <div class="mistake-row">
+          <div class="mistake"><div class="mistake-icon">📐</div><div><div class="mistake-label">Sloppy Spacing</div><div class="mistake-desc">Espaciado inconsistente. Empieza con demasiado padding y ajusta.</div></div></div>
+          <div class="mistake"><div class="mistake-icon">🔲</div><div><div class="mistake-label">Border Bloat</div><div class="mistake-desc">Abuso de bordes. Usa colores de fondo sutiles para agrupar.</div></div></div>
+          <div class="mistake"><div class="mistake-icon">📦</div><div><div class="mistake-label">Content Cramming</div><div class="mistake-desc">Demasiado en una sola vista. Usa progressive disclosure.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E -->
+  <div class="section" style="border-left-color:#FE81E7;">
+    <div class="section-head">
+      <div class="section-letter" style="color:#FE81E7;">E</div>
+      <div>
+        <div class="section-title">Emphasis</div>
+        <div class="section-question">¿Lo más importante es imposible de ignorar?</div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <div class="card-title" style="color:#c4559d;">6 dials de énfasis</div>
+        <div class="tag-row">
+          <span class="tag" style="background:#FFF0FB;color:#c4559d;">Tamaño</span>
+          <span class="tag" style="background:#FFF0FB;color:#c4559d;">Color</span>
+          <span class="tag" style="background:#FFF0FB;color:#c4559d;">Espacio</span>
+          <span class="tag" style="background:#FFF0FB;color:#c4559d;">Posición</span>
+          <span class="tag" style="background:#FFF0FB;color:#c4559d;">Visualización</span>
+          <span class="tag" style="background:#FFF0FB;color:#c4559d;">Movimiento</span>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;">Son <em>dials</em>, no switches. Ajusta uno o dos — no todos al máximo. Si todo grita, nada destaca.</p>
+        <div class="test-box" style="background:#FFF0FB;margin-top:8px;">
+          <div class="test-title" style="color:#c4559d;">Foggy Glasses Test</div>
+          <p style="color:#c4559d;">Desenfoca la pantalla. ¿Qué sobrevive? Lo más importante debería seguir visible.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#c4559d;">3 errores comunes</div>
+        <div class="mistake-row">
+          <div class="mistake"><div class="mistake-icon">🎛️</div><div><div class="mistake-label">Dial equivocado</div><div class="mistake-desc">Cambias color cuando el problema es posición o espacio.</div></div></div>
+          <div class="mistake"><div class="mistake-icon">🔇</div><div><div class="mistake-label">Dial demasiado suave</div><div class="mistake-desc">Ajustes tan sutiles que nadie los nota.</div></div></div>
+          <div class="mistake"><div class="mistake-icon">📢</div><div><div class="mistake-label">Screaming Dial</div><div class="mistake-desc">Todos los dials al máximo a la vez. Agresivo y agotador.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A -->
+  <div class="section" style="border-left-color:#1D9E75;">
+    <div class="section-head">
+      <div class="section-letter" style="color:#1D9E75;">A</div>
+      <div>
+        <div class="section-title">Accessibility</div>
+        <div class="section-question">¿Funciona para personas en distintas situaciones y capacidades?</div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="card">
+        <div class="card-title" style="color:#1D9E75;">3 principios clave</div>
+        <div class="mistake-row">
+          <div class="mistake"><div class="mistake-icon">👁️</div><div><div class="mistake-label">Visible sin buscar</div><div class="mistake-desc">¿Se ve la acción principal sin hacer scroll ni adivinar?</div></div></div>
+          <div class="mistake"><div class="mistake-icon">👆</div><div><div class="mistake-label">Operable sin precisión</div><div class="mistake-desc">¿Se puede activar con pulgar, con fatiga, con movimiento reducido?</div></div></div>
+          <div class="mistake"><div class="mistake-icon">🎯</div><div><div class="mistake-label">Accionable sin adivinar</div><div class="mistake-desc">¿Los elementos que parecen botones actúan como botones?</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#1D9E75;">7 errores frecuentes</div>
+        <ul>
+          <li>Targets pequeños o muy juntos</li>
+          <li>Texto con bajo contraste</li>
+          <li>Acciones que no parecen clickeables</li>
+          <li>Acciones clave ocultas (sin pistas)</li>
+          <li>Solo color para transmitir significado</li>
+          <li>Demasiados patrones en una vista</li>
+          <li>Asumir conocimiento previo del usuario</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- R -->
+  <div class="section" style="border-left-color:#E8850A;">
+    <div class="section-head">
+      <div class="section-letter" style="color:#E8850A;">R</div>
+      <div>
+        <div class="section-title">Reward</div>
+        <div class="section-question">¿La interacción hace sentir bien al usuario?</div>
+      </div>
+    </div>
+    <div class="trifecta">
+      <div class="trifecta-item" style="background:#EEF0FF;">
+        <div class="trifecta-icon">🛡️</div>
+        <div class="trifecta-name" style="color:#4A3AFF;">Control</div>
+        <div class="trifecta-desc" style="color:#5a56a0;">Sentirse seguro, cierto y en control. Confirmaciones, estados, "puedes deshacer esto".</div>
+      </div>
+      <div class="trifecta-item" style="background:#E6F7F2;">
+        <div class="trifecta-icon">🪴</div>
+        <div class="trifecta-name" style="color:#1D9E75;">Competencia</div>
+        <div class="trifecta-desc" style="color:#176b50;">Sentirse capaz y en progreso. Barras, checkmarks, "¡listo!", milestones.</div>
+      </div>
+      <div class="trifecta-item" style="background:#FEF4E6;">
+        <div class="trifecta-icon">🤝</div>
+        <div class="trifecta-name" style="color:#E8850A;">Reconocimiento</div>
+        <div class="trifecta-desc" style="color:#9a5a08;">Sentirse visto y valorado. Badges, elogios contextuales, pertenecer.</div>
+      </div>
+    </div>
+    <div class="test-box" style="background:#FEF4E6;margin-top:10px;">
+      <div class="test-title" style="color:#E8850A;">30-Second Reward Test</div>
+      <p style="color:#9a5a08;">¿Tu pantalla responde al menos una de estas preguntas silenciosas del usuario? <br>
+      "¿Estoy seguro?" (Control) · "¿Lo estoy haciendo bien?" (Competencia) · "¿Me ven?" (Reconocimiento)</p>
+    </div>
+  </div>
+
+  <!-- SCORECARD MINI -->
+  <div class="sc-mini">
+    <div class="sc-mini-title">User Interface Scorecard · 0–5 por pilar · Total /25</div>
+    <div class="sc-rows">
+      <div class="sc-row"><div class="sc-row-letter" style="color:#4A3AFF;">C</div><div class="sc-row-bar-wrap"><div class="sc-row-bar" style="width:60%;background:#4A3AFF;"></div></div><div class="sc-row-label">Copywriting</div></div>
+      <div class="sc-row"><div class="sc-row-letter" style="color:#B5AFFF;">L</div><div class="sc-row-bar-wrap"><div class="sc-row-bar" style="width:80%;background:#B5AFFF;"></div></div><div class="sc-row-label">Layout</div></div>
+      <div class="sc-row"><div class="sc-row-letter" style="color:#FE81E7;">E</div><div class="sc-row-bar-wrap"><div class="sc-row-bar" style="width:40%;background:#FE81E7;"></div></div><div class="sc-row-label">Emphasis</div></div>
+      <div class="sc-row"><div class="sc-row-letter" style="color:#1D9E75;">A</div><div class="sc-row-bar-wrap"><div class="sc-row-bar" style="width:60%;background:#1D9E75;"></div></div><div class="sc-row-label">Accessibility</div></div>
+      <div class="sc-row"><div class="sc-row-letter" style="color:#E8850A;">R</div><div class="sc-row-bar-wrap"><div class="sc-row-bar" style="width:40%;background:#E8850A;"></div></div><div class="sc-row-label">Reward</div></div>
+    </div>
+    <div class="sc-scale"><span>0 — Ausente</span><span>1-2 — Débil</span><span>3 — Funcional</span><span>4 — Bueno</span><span>5 — Excepcional</span></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">Creado por <a href="https://coloripop.com" target="_blank">coloripop.com</a> · Basado en Growth.Design C.L.E.A.R. UI Course</div>
+    <div class="footer-right">© 2025 · Uso educativo</div>
+  </div>
+
+</div>
+</body>
+</html>

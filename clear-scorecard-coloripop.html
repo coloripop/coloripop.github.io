@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>C.L.E.A.R. Scorecard · coloripop</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f0eff8;font-family:'DM Sans',sans-serif;padding:24px 16px 32px;}
+.wrap{max-width:640px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(33,31,84,0.13);}
+
+/* HEADER */
+.sc-header{background:#211F54;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.sc-header svg{height:32px;width:auto;flex-shrink:0;}
+.sc-header-right{text-align:right;flex-shrink:0;}
+.sc-header-tag{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#B5AFFF;font-weight:700;white-space:nowrap;}
+.sc-header-sub{font-size:11px;color:#E2E0FF;margin-top:2px;white-space:nowrap;}
+
+/* BODY */
+.sc-body{background:#ffffff;border-left:1px solid #e0dff5;border-right:1px solid #e0dff5;padding:16px 20px 12px;}
+
+/* TOP ROW */
+.sc-top-row{display:flex;align-items:flex-end;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.sc-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px;}
+.sc-field-sm{flex:0 1 180px;min-width:120px;}
+.sc-label{font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:#7b78a8;white-space:nowrap;}
+.sc-screen-input{font-family:'DM Sans',sans-serif;font-size:13px;background:#f5f4ff;border:1px solid #d0ceee;border-radius:8px;padding:7px 11px;color:#211F54;width:100%;}
+.sc-screen-input::placeholder{color:transparent;}
+.sc-total-block{display:flex;align-items:baseline;gap:3px;flex-shrink:0;padding-bottom:2px;}
+.sc-total-num{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:#4A3AFF;transition:color 0.35s;min-width:38px;text-align:right;}
+.sc-total-denom{font-size:13px;color:#7b78a8;}
+
+/* PILLAR CARDS */
+.sc-pillar{background:#fafafa;border:1px solid #e8e7f5;border-radius:10px;padding:10px 13px;margin-bottom:6px;}
+.sc-pillar-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.sc-letter{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;width:24px;text-align:center;flex-shrink:0;}
+.sc-pillar-info{flex:1;}
+.sc-pillar-name{font-size:13px;font-weight:500;color:#211F54;}
+.sc-pillar-desc{font-size:11px;color:#6b68a0;margin-top:1px;line-height:1.4;}
+.sc-score-disp{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;min-width:16px;text-align:right;transition:color 0.3s;color:#c0bedc;}
+
+.sc-dots{display:flex;gap:5px;margin-bottom:5px;}
+.sc-dot{width:24px;height:24px;border-radius:50%;border:1.5px solid #c8c6e8;cursor:pointer;background:transparent;transition:background 0.18s,transform 0.1s;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#9b98c8;display:flex;align-items:center;justify-content:center;}
+.sc-dot:hover{transform:scale(1.13);}
+.sc-dot.active{border-color:transparent;color:#fff;}
+
+.sc-bar-wrap{height:3px;background:#ece9f8;border-radius:2px;margin-bottom:6px;overflow:hidden;}
+.sc-bar{height:100%;border-radius:2px;transition:width 0.4s cubic-bezier(.4,0,.2,1),background 0.4s;width:0%;}
+
+.sc-notes{width:100%;font-family:'DM Sans',sans-serif;font-size:11px;background:#f0eff8;border:1px solid #dddcf0;border-radius:7px;padding:5px 9px;color:#211F54;resize:none;height:30px;transition:height 0.2s;line-height:1.5;}
+.sc-notes:focus{height:50px;outline:none;border-color:#4A3AFF;}
+.sc-notes::placeholder{color:#a09ec0;}
+
+/* VERDICT */
+.sc-verdict{margin-top:10px;background:#f5f4ff;border:1px solid #dddcf0;border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:12px;}
+.sc-verdict-score{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;line-height:1;transition:color 0.4s;min-width:56px;color:#c0bedc;}
+.sc-verdict-label{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#7b78a8;margin-bottom:2px;}
+.sc-verdict-desc{font-size:12px;color:#211F54;line-height:1.5;}
+
+.sc-weakest{margin-top:7px;font-size:11px;color:#6b68a0;padding:6px 10px;background:#fff0fb;border-radius:7px;border-left:3px solid #FE81E7;}
+
+/* ACTIONS */
+.sc-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.sc-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;border:1px solid #c8c6e8;border-radius:7px;background:#fff;color:#211F54;padding:6px 13px;cursor:pointer;transition:background 0.15s;}
+.sc-btn:hover{background:#f0eff8;}
+.sc-btn.primary{background:#4A3AFF;color:#fff;border-color:#4A3AFF;}
+.sc-btn.primary:hover{background:#3c2fd4;}
+.sc-btn.pink{background:#FE81E7;color:#211F54;border-color:#FE81E7;}
+.sc-btn.pink:hover{background:#fc6add;}
+.sc-status{font-size:11px;color:#6b68a0;opacity:0;transition:opacity 0.3s;align-self:center;}
+.sc-status.show{opacity:1;}
+
+/* FOOTER */
+.sc-footer{background:#F5F4FF;border:1px solid #dddcf0;border-top:none;border-radius:0 0 14px 14px;padding:9px 24px;display:flex;align-items:center;justify-content:space-between;}
+.sc-footer-left{font-size:11px;color:#7B5EA7;}
+.sc-footer-left a{color:#4A3AFF;text-decoration:none;font-weight:500;}
+.sc-footer-right{font-size:10px;color:#B5AFFF;letter-spacing:0.05em;}
+
+/* PRINT */
+@media print{
+  body{background:#fff;padding:0;}
+  .sc-actions{display:none!important;}
+  .wrap{box-shadow:none;border-radius:0;}
+  .sc-header,.sc-dot.active,.sc-bar,.sc-weakest,.sc-verdict,.sc-footer{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  @page{margin:12mm;size:A4;}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="scorecard-root">
+
+  <div class="sc-header">
+    <svg viewBox="0 0 216 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M48.2769 44.068C48.2762 44.066 48.2755 44.064 51.7573 42.877C55.239 41.6901 55.2383 41.6881 55.2377 41.6863L55.2365 41.6826L55.2341 41.6758L55.23 41.6641L55.2243 41.648C55.2226 41.6434 55.2218 41.6412 55.2218 41.6412C55.2218 41.6412 55.2222 41.6421 55.2229 41.6439C55.2265 41.6534 55.2392 41.686 55.2619 41.7386C55.3076 41.8443 55.3918 42.0265 55.5208 42.2599C55.7816 42.7314 56.2076 43.3796 56.8412 44.0279C58.043 45.2577 60.125 46.6424 63.7688 46.6424C67.4127 46.6424 69.4947 45.2577 70.6965 44.0279C71.3301 43.3796 71.7561 42.7314 72.0168 42.2599C72.1459 42.0265 72.2301 41.8443 72.2758 41.7386C72.2985 41.686 72.3112 41.6534 72.3148 41.6439C72.3155 41.6421 72.3159 41.6412 72.3159 41.6412C72.3159 41.6412 72.315 41.6434 72.3134 41.648L72.3077 41.6641L72.3036 41.6758L72.3012 41.6826L72.3 41.6863C72.2993 41.6881 72.2987 41.6901 75.7804 42.877C79.2622 44.064 79.2615 44.066 79.2608 44.068L79.2594 44.0721L79.2564 44.081L79.2495 44.1008L79.2323 44.1488C79.2194 44.1845 79.2035 44.2275 79.1844 44.2773C79.1462 44.3769 79.0952 44.5042 79.03 44.6552C78.8998 44.9566 78.7118 45.3559 78.4549 45.8204C77.9438 46.7446 77.1432 47.9574 75.9582 49.17C73.5227 51.6621 69.5988 53.9994 63.7688 53.9994C57.9389 53.9994 54.015 51.6621 51.5795 49.17C50.3945 47.9574 49.5939 46.7446 49.0828 45.8204C48.8259 45.3559 48.6379 44.9566 48.5077 44.6552C48.4425 44.5042 48.3915 44.3769 48.3533 44.2773C48.3342 44.2275 48.3183 44.1845 48.3054 44.1488L48.2882 44.1008L48.2813 44.081L48.2783 44.0721L48.2769 44.068Z" fill="#FE81E7"/>
+      <path d="M197.406 18.1998C203.586 18.1998 208 22.9671 208 29.7209C208 36.4746 203.586 41.3303 197.406 41.3303C195.022 41.3303 193.124 40.5798 191.756 39.2997V48.7461H184.163V18.7295H191.094V21.0249C192.462 19.1709 194.581 18.1998 197.406 18.1998ZM195.905 34.4441C198.112 34.4441 200.231 32.855 200.231 29.765C200.231 26.6751 198.156 25.0859 195.905 25.0859C193.786 25.0859 191.623 26.4985 191.623 29.7209C191.623 32.8991 193.742 34.4441 195.905 34.4441Z" fill="#FE81E7"/>
+      <path d="M168.254 18.1998C174.875 18.1998 180.304 23.1878 180.304 29.765C180.304 36.3422 174.875 41.3303 168.254 41.3303C161.588 41.3303 156.247 36.3422 156.247 29.765C156.247 23.1878 161.588 18.1998 168.254 18.1998ZM168.298 25.1742C165.737 25.1742 164.016 27.0723 164.016 29.765C164.016 32.5018 165.737 34.3558 168.298 34.3558C170.681 34.3558 172.535 32.5018 172.535 29.765C172.535 27.0723 170.681 25.1742 168.298 25.1742Z" fill="#FE81E7"/>
+      <path d="M142.918 18.1998C149.098 18.1998 153.512 22.9671 153.512 29.7209C153.512 36.4746 149.098 41.3303 142.918 41.3303C140.534 41.3303 138.636 40.5798 137.268 39.2997V48.7461H129.675V18.7295H136.606V21.0249C137.974 19.1709 140.093 18.1998 142.918 18.1998ZM141.417 34.4441C143.624 34.4441 145.743 32.855 145.743 29.765C145.743 26.6751 143.668 25.0859 141.417 25.0859C139.298 25.0859 137.135 26.4985 137.135 29.7209C137.135 32.8991 139.254 34.4441 141.417 34.4441Z" fill="#FE81E7"/>
+      <path d="M120.883 8C123.443 8 125.562 9.94226 125.562 12.5025C125.562 15.0186 123.443 16.9609 120.883 16.9609C118.323 16.9609 116.248 15.0186 116.248 12.5025C116.248 9.94226 118.323 8 120.883 8ZM124.723 18.7295V40.8005H117.131V18.7295H124.723Z" fill="#F4F3FF"/>
+      <path d="M111.734 18.3763C112.572 18.3763 113.279 18.5088 113.897 18.7295V25.4391H112.087C108.732 25.4391 106.834 26.8958 106.834 30.7361V40.8006H99.2414V18.7295H106.172V21.069C107.54 19.3475 109.482 18.3763 111.734 18.3763Z" fill="#F4F3FF"/>
+      <path d="M83.3317 18.1998C89.953 18.1998 95.3825 23.1878 95.3825 29.765C95.3825 36.3422 89.953 41.3303 83.3317 41.3303C76.6662 41.3303 71.325 36.3422 71.325 29.765C71.325 23.1878 76.6662 18.1998 83.3317 18.1998ZM83.3758 25.1742C80.8156 25.1742 79.094 27.0723 79.094 29.765C79.094 32.5018 80.8156 34.3558 83.3758 34.3558C85.7595 34.3558 87.6135 32.5018 87.6135 29.765C87.6135 27.0723 85.7595 25.1742 83.3758 25.1742Z" fill="#F4F3FF"/>
+      <path d="M67.4765 12.0618V40.8005H59.8841V12.0618H67.4765Z" fill="#F4F3FF"/>
+      <path d="M43.9745 18.1998C50.5958 18.1998 56.0253 23.1878 56.0253 29.765C56.0253 36.3422 50.5958 41.3303 43.9745 41.3303C37.309 41.3303 31.9678 36.3422 31.9678 29.765C31.9678 23.1878 37.309 18.1998 43.9745 18.1998ZM44.0186 25.1742C41.4584 25.1742 39.7368 27.0723 39.7368 29.765C39.7368 32.5018 41.4584 34.3558 44.0186 34.3558C46.4023 34.3558 48.2563 32.5018 48.2563 29.765C48.2563 27.0723 46.4023 25.1742 44.0186 25.1742Z" fill="#F4F3FF"/>
+      <path d="M20.0508 18.1998C24.6857 18.1998 28.173 20.5393 29.9386 24.1148L24.6857 28.1318C23.6263 26.4985 22.3021 25.1742 20.1391 25.1742C17.4464 25.1742 15.769 27.0723 15.769 29.765C15.769 32.4577 17.4464 34.3558 20.1391 34.3558C22.3021 34.3558 23.6263 33.0757 24.6857 31.4424L29.9386 35.4152C28.173 38.9907 24.6857 41.3303 20.0508 41.3303C13.3412 41.3303 8 36.3422 8 29.765C8 23.1878 13.3412 18.1998 20.0508 18.1998Z" fill="#F4F3FF"/>
+      <path d="M200.544 63.5832V54.1287H204.275C204.989 54.1287 205.598 54.2564 206.103 54.5118C206.61 54.7642 206.997 55.1227 207.261 55.5875C207.529 56.0491 207.663 56.5923 207.663 57.2171C207.663 57.8449 207.528 58.3851 207.257 58.8375C206.986 59.2868 206.594 59.6315 206.08 59.8716C205.569 60.1116 204.95 60.2316 204.224 60.2316H201.726V58.6251H203.901C204.282 58.6251 204.599 58.5728 204.852 58.4682C205.104 58.3635 205.292 58.2066 205.415 57.9973C205.541 57.788 205.604 57.5279 205.604 57.2171C205.604 56.9032 205.541 56.6385 205.415 56.4231C205.292 56.2076 205.102 56.0445 204.847 55.9337C204.595 55.8198 204.276 55.7629 203.891 55.7629H202.543V63.5832H200.544ZM205.65 59.2807L208 63.5832H205.793L203.494 59.2807H205.65Z" fill="#F4F3FF"/>
+      <path d="M189.412 63.5832V54.1287H195.783V55.7767H191.411V58.0296H195.455V59.6777H191.411V61.9351H195.801V63.5832H189.412Z" fill="#F4F3FF"/>
+      <path d="M184.588 54.1287V63.5832H182.862L178.748 57.6326H178.679V63.5832H176.68V54.1287H178.434L182.515 60.0747H182.598V54.1287H184.588Z" fill="#F4F3FF"/>
+      <path d="M169.887 57.1848C169.823 56.9601 169.732 56.7616 169.615 56.5892C169.498 56.4138 169.355 56.2661 169.186 56.1461C169.019 56.0229 168.829 55.9291 168.613 55.8644C168.401 55.7998 168.165 55.7675 167.907 55.7675C167.424 55.7675 166.999 55.8875 166.633 56.1276C166.27 56.3676 165.986 56.717 165.783 57.1755C165.58 57.631 165.479 58.1881 165.479 58.8467C165.479 59.5053 165.579 60.0654 165.779 60.5271C165.979 60.9887 166.262 61.3411 166.628 61.5843C166.994 61.8243 167.427 61.9443 167.925 61.9443C168.378 61.9443 168.764 61.8643 169.084 61.7043C169.407 61.5412 169.653 61.3119 169.823 61.0164C169.995 60.721 170.081 60.3717 170.081 59.9685L170.487 60.0285H168.05V58.5235H172.006V59.7146C172.006 60.5456 171.831 61.2596 171.48 61.8566C171.129 62.4506 170.646 62.9092 170.03 63.2323C169.415 63.5524 168.71 63.7125 167.916 63.7125C167.03 63.7125 166.251 63.517 165.58 63.1262C164.909 62.7322 164.386 62.1736 164.011 61.4504C163.638 60.7241 163.452 59.8623 163.452 58.8652C163.452 58.0988 163.563 57.4156 163.784 56.8154C164.009 56.2122 164.323 55.7013 164.726 55.2828C165.129 54.8642 165.599 54.5457 166.134 54.3272C166.67 54.1086 167.25 53.9994 167.875 53.9994C168.41 53.9994 168.909 54.0779 169.37 54.2348C169.832 54.3887 170.241 54.6072 170.598 54.8904C170.958 55.1735 171.252 55.5105 171.48 55.9014C171.708 56.2892 171.854 56.717 171.919 57.1848H169.887Z" fill="#F4F3FF"/>
+      <path d="M158.801 54.1287V63.5832H156.802V54.1287H158.801Z" fill="#F4F3FF"/>
+      <path d="M150.24 56.8478C150.203 56.4754 150.045 56.1861 149.765 55.9799C149.485 55.7737 149.105 55.6706 148.624 55.6706C148.298 55.6706 148.023 55.7167 147.798 55.809C147.573 55.8983 147.401 56.0229 147.281 56.183C147.164 56.343 147.106 56.5246 147.106 56.7277C147.099 56.897 147.135 57.0447 147.212 57.1709C147.292 57.2971 147.401 57.4063 147.54 57.4987C147.678 57.5879 147.838 57.6664 148.02 57.7341C148.201 57.7988 148.395 57.8541 148.601 57.9003L149.451 58.1034C149.863 58.1958 150.242 58.3189 150.586 58.4728C150.931 58.6266 151.23 58.8159 151.482 59.0406C151.734 59.2653 151.93 59.5299 152.068 59.8346C152.21 60.1393 152.282 60.4886 152.285 60.8826C152.282 61.4612 152.134 61.9628 151.842 62.3875C151.553 62.8092 151.134 63.1369 150.586 63.3708C150.042 63.6017 149.385 63.7171 148.615 63.7171C147.852 63.7171 147.187 63.6001 146.621 63.3662C146.058 63.1323 145.618 62.7861 145.301 62.3275C144.987 61.8659 144.822 61.295 144.807 60.6148H146.741C146.762 60.9318 146.853 61.1965 147.013 61.4088C147.176 61.6181 147.393 61.7766 147.664 61.8843C147.938 61.989 148.247 62.0413 148.592 62.0413C148.931 62.0413 149.225 61.9921 149.474 61.8936C149.726 61.7951 149.922 61.6581 150.06 61.4827C150.199 61.3073 150.268 61.1057 150.268 60.8779C150.268 60.6656 150.205 60.4871 150.079 60.3424C149.955 60.1978 149.774 60.0747 149.534 59.9731C149.297 59.8715 149.006 59.7792 148.661 59.6961L147.632 59.4376C146.835 59.2437 146.205 58.9406 145.744 58.5282C145.282 58.1157 145.053 57.5602 145.056 56.8616C145.053 56.2892 145.205 55.789 145.513 55.3613C145.824 54.9335 146.25 54.5995 146.792 54.3595C147.333 54.1194 147.949 53.9994 148.638 53.9994C149.34 53.9994 149.952 54.1194 150.476 54.3595C151.002 54.5995 151.411 54.9335 151.704 55.3613C151.996 55.789 152.147 56.2845 152.156 56.8478H150.24Z" fill="#F4F3FF"/>
+      <path d="M133.979 63.5832V54.1287H140.35V55.7767H135.978V58.0296H140.022V59.6777H135.978V61.9351H140.368V63.5832H133.979Z" fill="#F4F3FF"/>
+      <path d="M124.7 63.5832H121.349V54.1287H124.728C125.679 54.1287 126.497 54.3179 127.184 54.6965C127.87 55.072 128.398 55.6121 128.767 56.3169C129.14 57.0217 129.326 57.8649 129.326 58.8467C129.326 59.8316 129.14 60.6779 128.767 61.3858C128.398 62.0936 127.867 62.6368 127.175 63.0154C126.485 63.3939 125.66 63.5832 124.7 63.5832ZM123.348 61.8705H124.617C125.208 61.8705 125.705 61.7659 126.108 61.5566C126.514 61.3442 126.819 61.0164 127.022 60.5733C127.228 60.127 127.332 59.5515 127.332 58.8467C127.332 58.1481 127.228 57.5772 127.022 57.134C126.819 56.6908 126.516 56.3646 126.113 56.1553C125.71 55.946 125.213 55.8414 124.622 55.8414H123.348V61.8705Z" fill="#F4F3FF"/>
+      <path d="M104.576 54.1287L106.483 57.351H106.557L108.473 54.1287H110.73L107.845 58.8559L110.795 63.5832H108.496L106.557 60.3563H106.483L104.544 63.5832H102.254L105.213 58.8559L102.31 54.1287H104.576Z" fill="#F4F3FF"/>
+      <path d="M95.8861 54.1287H97.885V60.2686C97.885 60.958 97.7204 61.5612 97.3911 62.0782C97.0648 62.5953 96.6078 62.9985 96.02 63.2878C95.4322 63.574 94.7474 63.7171 93.9657 63.7171C93.1809 63.7171 92.4945 63.574 91.9067 63.2878C91.3189 62.9985 90.8618 62.5953 90.5356 62.0782C90.2094 61.5612 90.0463 60.958 90.0463 60.2686V54.1287H92.0452V60.0978C92.0452 60.4579 92.1237 60.7779 92.2806 61.058C92.4407 61.3381 92.6653 61.5581 92.9546 61.7182C93.2439 61.8782 93.5809 61.9582 93.9657 61.9582C94.3534 61.9582 94.6904 61.8782 94.9767 61.7182C95.266 61.5581 95.4891 61.3381 95.6461 61.058C95.8061 60.7779 95.8861 60.4579 95.8861 60.0978V54.1287Z" fill="#F4F3FF"/>
+    </svg>
+    <div class="sc-header-right">
+      <div class="sc-header-tag">C.L.E.A.R. UI Framework</div>
+      <div class="sc-header-sub">Scorecard de evaluación</div>
+    </div>
+  </div>
+
+  <div class="sc-body">
+    <div class="sc-top-row">
+      <div class="sc-field sc-field-sm">
+        <label class="sc-label" for="evaluator-name">Nombre del evaluador</label>
+        <input class="sc-screen-input" type="text" id="evaluator-name" placeholder=""/>
+      </div>
+      <div class="sc-field">
+        <label class="sc-label" for="screen-name">Pantalla / App evaluada</label>
+        <input class="sc-screen-input" type="text" id="screen-name" placeholder=""/>
+      </div>
+      <div class="sc-total-block">
+        <span class="sc-total-num" id="total-top">0</span>
+        <span class="sc-total-denom">/25</span>
+      </div>
+    </div>
+    <div id="pillars"></div>
+    <div class="sc-verdict">
+      <div class="sc-verdict-score" id="verdict-score">0</div>
+      <div>
+        <div class="sc-verdict-label">Diagnóstico</div>
+        <div class="sc-verdict-desc" id="verdict-desc">Asigna puntajes para ver el diagnóstico.</div>
+      </div>
+    </div>
+    <div id="weakest-wrap"></div>
+    <div class="sc-actions">
+      <button class="sc-btn primary" onclick="copyResults()">Copiar resultados</button>
+      <button class="sc-btn pink" onclick="window.print()">Imprimir / PDF</button>
+      <button class="sc-btn" onclick="resetAll()">Reiniciar</button>
+      <span class="sc-status" id="sc-status"></span>
+    </div>
+  </div>
+
+  <div class="sc-footer">
+    <div class="sc-footer-left">Creado por <a href="https://coloripop.com" target="_blank">coloripop.com</a> · Basado en Growth.Design C.L.E.A.R.</div>
+    <div class="sc-footer-right">© 2025</div>
+  </div>
+
+</div>
+
+<script>
+const PILLARS=[
+  {key:'C',color:'#4A3AFF',name:'Copywriting',desc:'¿El texto es claro, específico y habla como una persona real?'},
+  {key:'L',color:'#7B5EA7',name:'Layout',desc:'¿La estructura hace la pantalla fácil de entender a primera vista?'},
+  {key:'E',color:'#FE81E7',name:'Emphasis',desc:'¿Lo más importante es imposible de ignorar?'},
+  {key:'A',color:'#B5AFFF',name:'Accessibility',desc:'¿Es visible, operable y accionable sin adivinar?'},
+  {key:'R',color:'#211F54',name:'Reward',desc:'¿La interacción hace sentir Control, Competencia o Reconocimiento?'}
+];
+const scores={C:0,L:0,E:0,A:0,R:0};
+const notes={C:'',L:'',E:'',A:'',R:''};
+function getVerdict(t){
+  if(t===0)return{label:'Sin evaluar',desc:'Asigna puntajes para ver el diagnóstico.',color:'#c0bedc'};
+  if(t<=8)return{label:'Necesita revisión profunda',desc:'Problemas fundamentales en múltiples pilares. Prioriza los más bajos.',color:'#E24B4A'};
+  if(t<=14)return{label:'Funcional, pero mejorable',desc:'Hay base sólida, pero al menos un pilar lastima la experiencia.',color:'#EF9F27'};
+  if(t<=19)return{label:'Buena experiencia',desc:'Funciona bien. Ajustes menores en los pilares bajos marcarán la diferencia.',color:'#1D9E75'};
+  if(t<=23)return{label:'Muy buena UI',desc:'Diseño sólido y considerado. Pulir los pilares con menor puntaje.',color:'#4A3AFF'};
+  return{label:'UI excepcional',desc:'¡Cada pilar bien trabajado! Úsala como referencia.',color:'#FE81E7'};
+}
+function bc(s){return s<=1?'#E24B4A':s<=3?'#EF9F27':s<=4?'#1D9E75':'#4A3AFF';}
+function updateTotal(){
+  const t=Object.values(scores).reduce((a,b)=>a+b,0);
+  const v=getVerdict(t);
+  document.getElementById('total-top').textContent=t;
+  document.getElementById('total-top').style.color=v.color;
+  document.getElementById('verdict-score').textContent=t;
+  document.getElementById('verdict-score').style.color=v.color;
+  document.getElementById('verdict-desc').textContent=v.desc;
+  const minV=Math.min(...Object.values(scores));
+  const wrap=document.getElementById('weakest-wrap');
+  if(t>0){
+    const wk=PILLARS.filter(p=>scores[p.key]===minV).map(p=>p.name).join(', ');
+    wrap.innerHTML=`<div class="sc-weakest">Pilar más débil: <strong>${wk}</strong> (${minV}/5) — ¿cómo lo subirías 1 punto?</div>`;
+  }else{wrap.innerHTML='';}
+}
+function setScore(key,val){
+  scores[key]=val;
+  document.querySelectorAll(`.dot-${key}`).forEach((d,i)=>{
+    if(i<val){d.classList.add('active');d.style.background=bc(val);}
+    else{d.classList.remove('active');d.style.background='';}
+  });
+  document.getElementById(`bar-${key}`).style.width=(val/5*100)+'%';
+  document.getElementById(`bar-${key}`).style.background=bc(val);
+  document.getElementById(`disp-${key}`).textContent=val;
+  document.getElementById(`disp-${key}`).style.color=bc(val);
+  updateTotal();
+}
+function renderPillars(){
+  const c=document.getElementById('pillars');
+  PILLARS.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='sc-pillar';
+    el.innerHTML=`
+      <div class="sc-pillar-top">
+        <div class="sc-letter" style="color:${p.color}">${p.key}</div>
+        <div class="sc-pillar-info">
+          <div class="sc-pillar-name">${p.name}</div>
+          <div class="sc-pillar-desc">${p.desc}</div>
+        </div>
+        <div class="sc-score-disp" id="disp-${p.key}">0</div>
+      </div>
+      <div class="sc-dots">${[1,2,3,4,5].map(n=>`<button class="sc-dot dot-${p.key}" data-key="${p.key}" data-val="${n}">${n}</button>`).join('')}</div>
+      <div class="sc-bar-wrap"><div class="sc-bar" id="bar-${p.key}"></div></div>
+      <textarea class="sc-notes" placeholder="Observaciones para ${p.name.toLowerCase()}..." data-key="${p.key}"></textarea>`;
+    c.appendChild(el);
+  });
+  document.querySelectorAll('.sc-dot').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const k=btn.dataset.key,v=parseInt(btn.dataset.val);
+      setScore(k,scores[k]===v?0:v);
+    });
+  });
+  document.querySelectorAll('.sc-notes').forEach(ta=>{
+    ta.addEventListener('input',e=>{notes[e.target.dataset.key]=e.target.value;});
+  });
+}
+function showStatus(msg){
+  const s=document.getElementById('sc-status');
+  s.textContent=msg;s.classList.add('show');
+  setTimeout(()=>s.classList.remove('show'),2500);
+}
+function copyResults(){
+  const name=document.getElementById('screen-name').value||'Pantalla sin nombre';
+  const evaluator=document.getElementById('evaluator-name').value||'—';
+  const t=Object.values(scores).reduce((a,b)=>a+b,0);
+  const v=getVerdict(t);
+  let txt=`C.L.E.A.R. Scorecard — ${name}\nEvaluador: ${evaluator}\n${'─'.repeat(38)}\n`;
+  PILLARS.forEach(p=>{txt+=`${p.key}  ${p.name.padEnd(14)} ${scores[p.key]}/5${notes[p.key]?' → '+notes[p.key]:''}\n`;});
+  txt+=`${'─'.repeat(38)}\nTotal: ${t}/25 — ${v.label}\ncoloripop.com`;
+  navigator.clipboard.writeText(txt).then(()=>showStatus('¡Copiado!'));
+}
+function resetAll(){
+  PILLARS.forEach(p=>setScore(p.key,0));
+  document.getElementById('screen-name').value='';
+  document.querySelectorAll('.sc-notes').forEach(ta=>{ta.value='';notes[ta.dataset.key]='';});
+  updateTotal();
+}
+renderPillars();
+updateTotal();
+</script>
+</body>
+</html>
