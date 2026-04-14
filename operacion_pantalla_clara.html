@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OPERACIÓN: PANTALLA CLARA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0c0f;
+  --bg2: #0f1318;
+  --bg3: #141920;
+  --border: #1e2830;
+  --border2: #2a3540;
+  --green: #00ff88;
+  --green2: #00cc6a;
+  --green-dim: rgba(0,255,136,0.08);
+  --amber: #ffb300;
+  --amber-dim: rgba(255,179,0,0.08);
+  --red: #ff4444;
+  --red-dim: rgba(255,68,68,0.08);
+  --blue: #00aaff;
+  --blue-dim: rgba(0,170,255,0.08);
+  --purple: #aa55ff;
+  --text: #c8d4dc;
+  --text-dim: #6a7f8a;
+  --text-bright: #e8f0f4;
+  --mono: 'Share Tech Mono', monospace;
+  --cond: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay */
+body::before {
+  content:'';
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* Grid bg */
+body::after {
+  content:'';
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  background-image: linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+
+#root { position: relative; z-index:1; }
+
+/* ─── TYPOGRAPHY ─── */
+.mono { font-family: var(--mono); }
+.cond { font-family: var(--cond); }
+
+/* ─── TOP BAR ─── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 12px 24px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top:0; z-index:100;
+}
+.topbar-logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--green);
+  display:flex; align-items:center; gap:10px;
+}
+.topbar-logo .dot {
+  width:8px; height:8px;
+  border-radius:50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
+  50% { opacity:0.6; box-shadow: 0 0 0 6px rgba(0,255,136,0); }
+}
+.topbar-right {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  display:flex; align-items:center; gap:16px;
+}
+.status-pill {
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.status-green { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
+.status-amber { background: rgba(255,179,0,0.15); color: var(--amber); border: 1px solid rgba(255,179,0,0.3); }
+.status-red { background: rgba(255,68,68,0.15); color: var(--red); border: 1px solid rgba(255,68,68,0.3); }
+
+/* ─── LAYOUT ─── */
+.app-layout {
+  display:grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 49px);
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+}
+.sidebar-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  padding: 0 20px 8px;
+  margin-top: 8px;
+}
+.sidebar-item {
+  display:flex; align-items:center; gap:10px;
+  padding: 10px 20px;
+  cursor:pointer;
+  transition: all 0.15s;
+  font-family: var(--cond);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  border-left: 2px solid transparent;
+}
+.sidebar-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+.sidebar-item.active {
+  background: rgba(0,255,136,0.05);
+  color: var(--green);
+  border-left: 2px solid var(--green);
+}
+.sidebar-item .phase-badge {
+  width:24px; height:24px;
+  border-radius:2px;
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight:700;
+  flex-shrink:0;
+}
+.sidebar-item .check { font-size: 11px; margin-left:auto; color: var(--green); }
+
+/* ─── MAIN CONTENT ─── */
+.main { padding: 32px; overflow-y:auto; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-header {
+  display:flex; align-items:flex-start; gap:16px;
+  margin-bottom: 20px;
+}
+.card-icon {
+  width:48px; height:48px;
+  border-radius:2px;
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight:700;
+  flex-shrink:0;
+}
+.card-title {
+  font-family: var(--cond);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+.card-subtitle {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+/* ─── BRIEFING BOX ─── */
+.briefing {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--amber);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.briefing-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* ─── FORM ELEMENTS ─── */
+.field-group { margin-bottom: 20px; }
+.field-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display:block;
+}
+.field-question {
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--text-bright);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+textarea, input[type="text"] {
+  width:100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  padding: 12px 14px;
+  color: var(--text-bright);
+  font-family: var(--body);
+  font-size: 14px;
+  resize: vertical;
+  outline:none;
+  transition: border-color 0.15s;
+}
+textarea:focus, input[type="text"]:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 1px rgba(0,255,136,0.1);
+}
+textarea { min-height: 80px; }
+
+/* ─── UPLOAD ZONE ─── */
+.upload-zone {
+  border: 2px dashed var(--border2);
+  border-radius: 2px;
+  padding: 32px;
+  text-align:center;
+  cursor:pointer;
+  transition: all 0.15s;
+  background: var(--bg3);
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--green);
+  background: var(--green-dim);
+}
+.upload-zone-icon { font-size: 32px; margin-bottom: 8px; opacity:0.5; }
+.upload-zone-text {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.upload-preview {
+  width:100%;
+  border-radius:2px;
+  border: 1px solid var(--border2);
+  max-height: 300px;
+  object-fit:contain;
+}
+
+/* ─── BUTTONS ─── */
+.btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 10px 20px;
+  border-radius:2px;
+  border:none;
+  cursor:pointer;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight:700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.btn-primary {
+  background: var(--green);
+  color: var(--bg);
+}
+.btn-primary:hover { background: var(--green2); transform:translateY(-1px); }
+.btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border2);
+}
+.btn-secondary:hover { border-color: var(--text-dim); color: var(--text-bright); }
+.btn-danger {
+  background: var(--red-dim);
+  color: var(--red);
+  border: 1px solid rgba(255,68,68,0.3);
+}
+.btn-amber {
+  background: var(--amber-dim);
+  color: var(--amber);
+  border: 1px solid rgba(255,179,0,0.3);
+}
+
+/* ─── PROGRESS PHASES ─── */
+.phases-bar {
+  display:flex; gap:4px;
+  margin-bottom: 32px;
+}
+.phase-step {
+  flex:1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border2);
+  transition: all 0.3s;
+}
+.phase-step.done { background: var(--green); }
+.phase-step.active { background: var(--amber); }
+
+/* ─── MISSION HEADER ─── */
+.mission-header {
+  margin-bottom: 28px;
+}
+.mission-codename {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.mission-title {
+  font-family: var(--cond);
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--text-bright);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.mission-title span { color: var(--green); }
+
+/* ─── INTEL BOX ─── */
+.intel-grid {
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:12px;
+  margin-bottom: 24px;
+}
+.intel-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 14px;
+  border-radius:2px;
+}
+.intel-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.intel-value {
+  font-family: var(--cond);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+/* ─── LOGIN SCREEN ─── */
+.login-screen {
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:0;
+  position:relative;
+  overflow:hidden;
+}
+.login-bg {
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,255,136,0.05) 0%, transparent 70%);
+  pointer-events:none;
+}
+.login-card {
+  width:440px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius:2px;
+  padding: 40px;
+  position:relative;
+  z-index:1;
+}
+.login-top-stripe {
+  height: 3px;
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  margin: -40px -40px 32px;
+  border-radius: 2px 2px 0 0;
+}
+.login-logo {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.login-title {
+  font-family: var(--cond);
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.login-title .accent { color: var(--green); }
+.login-subtitle {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+.login-divider {
+  height:1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+.role-select {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.role-btn {
+  padding: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius:2px;
+  cursor:pointer;
+  text-align:center;
+  transition:all 0.15s;
+  font-family: var(--mono);
+  font-size:11px;
+  color: var(--text-dim);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.role-btn:hover { border-color: var(--text-dim); color: var(--text); }
+.role-btn.selected { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+
+/* ─── ADMIN PANEL ─── */
+.admin-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap:12px;
+}
+.student-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius:2px;
+  padding: 16px;
+}
+.student-card-name {
+  font-family: var(--cond);
+  font-size:18px;
+  font-weight:700;
+  color: var(--text-bright);
+  margin-bottom:8px;
+}
+.phase-dots { display:flex; gap:4px; margin-bottom:12px; }
+.phase-dot {
+  width:28px; height:28px;
+  border-radius:2px;
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--mono);
+  font-size:10px;
+  font-weight:700;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  background: var(--bg2);
+}
+.phase-dot.done { background: rgba(0,255,136,0.15); border-color: var(--green); color: var(--green); }
+
+/* ─── PEER REVIEW ─── */
+.review-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--purple);
+  padding: 20px;
+  border-radius:2px;
+  margin-bottom:16px;
+}
+
+/* ─── TOAST ─── */
+.toast {
+  position:fixed;
+  bottom:24px; right:24px;
+  background: var(--bg2);
+  border: 1px solid var(--green);
+  border-radius:2px;
+  padding: 12px 20px;
+  font-family: var(--mono);
+  font-size:12px;
+  color: var(--green);
+  z-index:9998;
+  animation: slideIn 0.3s ease;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.toast.error { border-color: var(--red); color: var(--red); }
+@keyframes slideIn {
+  from { transform:translateX(100%); opacity:0; }
+  to { transform:translateX(0); opacity:1; }
+}
+
+/* ─── SECTION DIVIDER ─── */
+.section-divider {
+  display:flex; align-items:center; gap:12px;
+  margin: 24px 0 16px;
+}
+.section-divider-line { flex:1; height:1px; background: var(--border); }
+.section-divider-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing:2px;
+  color: var(--text-dim);
+  text-transform:uppercase;
+}
+
+/* ─── LOADING ─── */
+.loading {
+  display:flex; align-items:center; justify-content:center;
+  height: 200px;
+  font-family: var(--mono);
+  font-size:13px;
+  color: var(--text-dim);
+  letter-spacing:2px;
+}
+.loading::after {
+  content:'...';
+  animation: dots 1.5s infinite;
+}
+@keyframes dots {
+  0%,20% { content:''; }
+  40% { content:'.'; }
+  60% { content:'..'; }
+  80%,100% { content:'...'; }
+}
+
+/* ─── COMPLETE BANNER ─── */
+.complete-banner {
+  background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,170,255,0.05));
+  border: 1px solid rgba(0,255,136,0.3);
+  border-radius:2px;
+  padding:32px;
+  text-align:center;
+  margin-bottom:24px;
+}
+.complete-icon { font-size:48px; margin-bottom:12px; }
+.complete-title {
+  font-family: var(--cond);
+  font-size:28px;
+  font-weight:900;
+  color: var(--green);
+  text-transform:uppercase;
+  letter-spacing:2px;
+}
+
+input[type="file"] { display:none; }
+
+@media(max-width:768px) {
+  .app-layout { grid-template-columns:1fr; }
+  .sidebar { display:none; }
+  .intel-grid { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { createClient } = supabase;
+const { useState, useEffect, useRef, useCallback } = React;
+
+const SUPABASE_URL = 'https://arczgjwprqqddbtrsvse.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyY3pnandwcnFxZGRidHJzdnNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMjIzMjIsImV4cCI6MjA5MTY5ODMyMn0.nPGh6PBvoJttmtbuakxFw8PnL0mnN5olqPXal-meULQ';
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const ADMIN_CODE = 'COMANDANTE';
+
+const PHASES = [
+  {
+    id: 'C',
+    name: 'COPY',
+    subtitle: 'ORDEN DE MISIÓN',
+    color: '#00ff88',
+    colorDim: 'rgba(0,255,136,0.12)',
+    objective: 'Definir la intención de la pantalla. El copy es la voz de la operación.',
+    briefing: 'Agente, antes de diseñar un solo píxel, debes saber exactamente qué quieres que el usuario haga, entienda y sienta. Una pantalla sin copy claro es como una orden de misión sin objetivo.',
+    questions: [
+      { key: 'main_action', label: '// ACCIÓN PRINCIPAL', prompt: '¿Cuál es la UNA acción que el usuario debe realizar en esta pantalla? Sé específico/a.' },
+      { key: 'user_understanding', label: '// INTEL DEL USUARIO', prompt: '¿Qué debe entender el usuario en los primeros 3 segundos de ver esta pantalla?' },
+      { key: 'failure_scenario', label: '// ESCENARIO DE FALLA', prompt: '¿Qué NO debe pasar? Describe el peor escenario si el copy falla.' },
+    ]
+  },
+  {
+    id: 'L',
+    name: 'LAYOUT',
+    subtitle: 'DISTRIBUCIÓN DE FUERZAS',
+    color: '#00aaff',
+    colorDim: 'rgba(0,170,255,0.12)',
+    objective: 'Organizar la estructura usando principios Gestalt.',
+    briefing: 'Ahora que tienes la orden, debes distribuir tus fuerzas estratégicamente. Cada elemento en pantalla ocupa territorio. Usa la psicología visual para que el usuario no tenga que buscar — que simplemente siga las señales.',
+    questions: [
+      { key: 'zones', label: '// ZONAS DEFINIDAS', prompt: '¿Cómo dividiste las zonas de la pantalla? Describe las áreas principales.' },
+      { key: 'gestalt', label: '// PRINCIPIO GESTALT', prompt: '¿Qué principio Gestalt aplicaste (proximidad, similitud, región común, continuidad)? ¿Por qué ese?' },
+      { key: 'grouping', label: '// AGRUPACIÓN TÁCTICA', prompt: '¿Cómo agrupaste y separaste el contenido? ¿Qué va junto y qué va separado?' },
+    ]
+  },
+  {
+    id: 'E',
+    name: 'EMPHASIS',
+    subtitle: 'FOCO DE ATAQUE',
+    color: '#ffb300',
+    colorDim: 'rgba(255,179,0,0.12)',
+    objective: 'Definir jerarquía visual. Un elemento debe dominar.',
+    briefing: 'Toda operación tiene un objetivo primario. Tu pantalla también. Si todo grita, nadie escucha. Debes decidir qué elemento gana la batalla visual — y asegurarte de que sea imposible de ignorar.',
+    questions: [
+      { key: 'dominant', label: '// OBJETIVO PRIMARIO', prompt: '¿Qué elemento domina visualmente tu pantalla? ¿Qué se ve primero?' },
+      { key: 'dial', label: '// DIAL UTILIZADO', prompt: '¿Cuál de los 6 diales usaste (tamaño, color, espacio, posición, visualización, movimiento)? ¿Por qué ese?' },
+      { key: 'hierarchy', label: '// JUSTIFICACIÓN TÁCTICA', prompt: '¿Por qué ese elemento merece ser el primero en notarse? Justifica la decisión.' },
+    ]
+  },
+  {
+    id: 'A',
+    name: 'ACCESSIBILITY',
+    subtitle: 'PRUEBA DE CAMPO',
+    color: '#ff6b6b',
+    colorDim: 'rgba(255,107,107,0.12)',
+    objective: 'Validar en condiciones reales de combate.',
+    briefing: 'Las condiciones ideales no existen en el campo. Tu pantalla debe funcionar cuando el usuario está cansado, apurado, usando una sola mano o bajo luz intensa. Si falla en condiciones extremas, la misión fracasa.',
+    questions: [
+      { key: 'simulation', label: '// SIMULACIÓN DE CAMPO', prompt: '¿Qué problema encontraste al simular uso con una sola mano, rápido o con distracción?' },
+      { key: 'fix', label: '// CORRECCIÓN TÁCTICA', prompt: '¿Cómo lo resolviste? ¿Qué cambiaste para que sea accesible en condiciones extremas?' },
+      { key: 'validation', label: '// VALIDACIÓN FOGGY', prompt: '¿Pasó el test de las gafas empañadas? ¿El elemento principal sigue siendo obvio al desenfocar?' },
+    ]
+  },
+  {
+    id: 'R',
+    name: 'REWARD',
+    subtitle: 'CONFIRMACIÓN DE MISIÓN',
+    color: '#aa55ff',
+    colorDim: 'rgba(170,85,255,0.12)',
+    objective: 'Diseñar el feedback emocional. Cerrar el ciclo.',
+    briefing: 'El usuario completó la acción. ¿Qué siente ahora? Una misión sin confirmación deja al agente en la oscuridad. El reward no es decoración — es la señal de que todo salió bien.',
+    questions: [
+      { key: 'feedback', label: '// SEÑAL DE ÉXITO', prompt: '¿Qué feedback recibe el usuario al completar la acción? ¿Cómo lo comunicaste?' },
+      { key: 'emotion', label: '// RESULTADO EMOCIONAL', prompt: '¿Qué emoción buscas generar? ¿Control, competencia o reconocimiento? ¿Por qué?' },
+      { key: 'trifecta', label: '// TRIFECTA CHECK', prompt: '¿Tu reward responde alguna de estas preguntas silenciosas: "¿Estoy a salvo?", "¿Lo hice bien?", "¿Me ven?"?' },
+    ]
+  }
+];
+
+// ─── TOAST ───
+function Toast({ msg, type, onDone }) {
+  useEffect(() => { const t = setTimeout(onDone, 3000); return () => clearTimeout(t); }, []);
+  return <div className={`toast ${type === 'error' ? 'error' : ''}`}>{msg}</div>;
+}
+
+// ─── LOGIN ───
+function LoginScreen({ onLogin }) {
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('student');
+  const [adminCode, setAdminCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleEnter = async () => {
+    if (!name.trim()) { setError('Ingresa tu nombre de agente'); return; }
+    if (role === 'admin' && adminCode !== ADMIN_CODE) { setError('Código de comandante incorrecto'); return; }
+    setLoading(true);
+
+    if (role === 'admin') {
+      onLogin({ id: 'admin', name: name.trim(), role: 'admin' });
+      return;
+    }
+
+    // Create or find student
+    const { data: existing } = await sb.from('students').select('*').eq('name', name.trim()).limit(1);
+    if (existing && existing.length > 0) {
+      onLogin({ ...existing[0], role: 'student' });
+    } else {
+      const { data, error: err } = await sb.from('students').insert({ name: name.trim() }).select().single();
+      if (err) { setError('Error al registrar agente. Verifica la conexión.'); setLoading(false); return; }
+      onLogin({ ...data, role: 'student' });
+    }
+  };
+
+  return (
+    <div className="login-screen">
+      <div className="login-bg"/>
+      <div style={{ fontFamily:'Share Tech Mono', fontSize:10, color:'var(--text-dim)', letterSpacing:4, marginBottom:24, textAlign:'center' }}>
+        ◈ SISTEMA TÁCTICO DE DISEÑO ◈
+      </div>
+      <div className="login-card">
+        <div className="login-top-stripe"/>
+        <div className="login-logo">// OPERACIÓN</div>
+        <div className="login-title">PANTALLA <span className="accent">CLARA</span></div>
+        <div className="login-subtitle" style={{marginTop:8}}>
+          Una pantalla. Una decisión.<br/>Si el usuario duda, la misión fracasa.
+        </div>
+        <div className="login-divider"/>
+        <div style={{marginBottom:12}}>
+          <span className="field-label">// SELECCIONA TU ROL</span>
+          <div className="role-select">
+            <div className={`role-btn ${role==='student'?'selected':''}`} onClick={()=>setRole('student')}>◈ AGENTE</div>
+            <div className={`role-btn ${role==='admin'?'selected':''}`} onClick={()=>setRole('admin')}>⬡ COMANDANTE</div>
+          </div>
+        </div>
+        <div className="field-group">
+          <label className="field-label">// NOMBRE DE AGENTE</label>
+          <input type="text" value={name} onChange={e=>setName(e.target.value)}
+            placeholder="Tu nombre completo" onKeyDown={e=>e.key==='Enter'&&handleEnter()}/>
+        </div>
+        {role === 'admin' && (
+          <div className="field-group">
+            <label className="field-label">// CÓDIGO DE COMANDANTE</label>
+            <input type="text" value={adminCode} onChange={e=>setAdminCode(e.target.value)}
+              placeholder="Código de acceso" onKeyDown={e=>e.key==='Enter'&&handleEnter()}/>
+          </div>
+        )}
+        {error && <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--red)',marginBottom:12}}>⚠ {error}</div>}
+        <button className="btn btn-primary" style={{width:'100%',justifyContent:'center'}}
+          onClick={handleEnter} disabled={loading}>
+          {loading ? 'VERIFICANDO...' : '→ INGRESAR A LA OPERACIÓN'}
+        </button>
+      </div>
+      <div style={{fontFamily:'Share Tech Mono',fontSize:9,color:'var(--text-dim)',letterSpacing:2,marginTop:20,textAlign:'center'}}>
+        MÉTODO C.L.E.A.R. // COLORIPOP
+      </div>
+    </div>
+  );
+}
+
+// ─── IMAGE UPLOAD ───
+function ImageUpload({ studentId, phase, missionId, existingUrl, onUploaded }) {
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState(existingUrl || null);
+  const [dragOver, setDragOver] = useState(false);
+  const inputRef = useRef();
+
+  const handleFile = async (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `${missionId}/${studentId}/${phase}.${ext}`;
+    const { error } = await sb.storage.from('submissions').upload(path, file, { upsert: true });
+    if (error) { alert('Error subiendo imagen. ¿El bucket "submissions" existe en Supabase Storage?'); setUploading(false); return; }
+    const { data } = sb.storage.from('submissions').getPublicUrl(path);
+    setPreview(data.publicUrl);
+    onUploaded(data.publicUrl);
+    setUploading(false);
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault(); setDragOver(false);
+    handleFile(e.dataTransfer.files[0]);
+  };
+
+  return (
+    <div>
+      {preview ? (
+        <div>
+          <img src={preview} alt="submission" className="upload-preview" style={{marginBottom:8}}/>
+          <button className="btn btn-secondary" style={{fontSize:10}} onClick={()=>inputRef.current.click()}>
+            ↑ REEMPLAZAR IMAGEN
+          </button>
+        </div>
+      ) : (
+        <div className={`upload-zone ${dragOver?'drag-over':''}`}
+          onClick={()=>inputRef.current.click()}
+          onDrop={onDrop}
+          onDragOver={e=>{e.preventDefault();setDragOver(true);}}
+          onDragLeave={()=>setDragOver(false)}>
+          <div className="upload-zone-icon">📡</div>
+          <div className="upload-zone-text">
+            {uploading ? 'TRANSMITIENDO...' : 'SOLTAR IMAGEN AQUÍ O HACER CLIC PARA CARGAR'}
+          </div>
+          <div style={{fontFamily:'var(--mono)',fontSize:9,color:'var(--text-dim)',marginTop:4}}>
+            PNG, JPG, WEBP — captura de pantalla o prototipo
+          </div>
+        </div>
+      )}
+      <input type="file" ref={inputRef} accept="image/*" onChange={e=>handleFile(e.target.files[0])}/>
+    </div>
+  );
+}
+
+// ─── PHASE VIEW (Student) ───
+function PhaseView({ phase, student, missionId, onSubmitted }) {
+  const [answers, setAnswers] = useState({});
+  const [imageUrl, setImageUrl] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [existing, setExisting] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await sb.from('submissions')
+        .select('*')
+        .eq('student_id', student.id)
+        .eq('mission_id', missionId)
+        .eq('phase', phase.id)
+        .single();
+      if (data) { setExisting(data); setAnswers(data.answers || {}); setImageUrl(data.image_url || ''); }
+      setLoading(false);
+    };
+    load();
+  }, [phase.id, student.id, missionId]);
+
+  const setAnswer = (key, val) => setAnswers(prev => ({...prev, [key]: val}));
+
+  const handleSubmit = async () => {
+    const allAnswered = phase.questions.every(q => (answers[q.key]||'').trim().length > 5);
+    if (!allAnswered) { alert('Completa todas las respuestas antes de transmitir.'); return; }
+    setSaving(true);
+    const payload = {
+      student_id: student.id,
+      student_name: student.name,
+      mission_id: missionId,
+      phase: phase.id,
+      image_url: imageUrl || null,
+      answers,
+    };
+    if (existing) {
+      await sb.from('submissions').update(payload).eq('id', existing.id);
+    } else {
+      await sb.from('submissions').insert(payload);
+    }
+    setSaving(false);
+    onSubmitted(phase.id);
+  };
+
+  if (loading) return <div className="loading">CARGANDO FASE</div>;
+
+  return (
+    <div>
+      <div className="mission-header">
+        <div className="mission-codename">// OPERACIÓN PANTALLA CLARA // MISIÓN {missionId}</div>
+        <div className="mission-title">
+          FASE {phase.id}: <span>{phase.name}</span>
+        </div>
+        <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--text-dim)',marginTop:4,letterSpacing:1}}>
+          {phase.subtitle}
+        </div>
+      </div>
+
+      <div className="briefing">
+        <div className="briefing-label">◈ BRIEFING TÁCTICO</div>
+        {phase.briefing}
+      </div>
+
+      <div className="intel-grid">
+        <div className="intel-box">
+          <div className="intel-label">OBJETIVO</div>
+          <div style={{fontFamily:'var(--body)',fontSize:13,color:'var(--text)',lineHeight:1.5}}>{phase.objective}</div>
+        </div>
+        <div className="intel-box">
+          <div className="intel-label">FASE</div>
+          <div className="intel-value" style={{color:phase.color}}>{phase.id} — {phase.name}</div>
+        </div>
+        <div className="intel-box">
+          <div className="intel-label">ESTADO</div>
+          <div className="intel-value" style={{color: existing ? 'var(--green)' : 'var(--amber)', fontSize:14}}>
+            {existing ? '✓ TRANSMITIDO' : '⬡ PENDIENTE'}
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="section-divider">
+          <div className="section-divider-line"/>
+          <div className="section-divider-label">EVIDENCIA VISUAL</div>
+          <div className="section-divider-line"/>
+        </div>
+        <div style={{marginBottom:8}}>
+          <div className="field-question">Sube una captura de tu pantalla o prototipo para esta fase.</div>
+          <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--text-dim)',marginBottom:12}}>
+            Puede ser un wireframe, sketch, captura de Figma o foto.
+          </div>
+        </div>
+        <ImageUpload
+          studentId={student.id}
+          phase={phase.id}
+          missionId={missionId}
+          existingUrl={imageUrl}
+          onUploaded={setImageUrl}
+        />
+      </div>
+
+      <div className="card">
+        <div className="section-divider">
+          <div className="section-divider-line"/>
+          <div className="section-divider-label">INFORME DE CAMPO</div>
+          <div className="section-divider-line"/>
+        </div>
+        {phase.questions.map(q => (
+          <div key={q.key} className="field-group">
+            <label className="field-label" style={{color:phase.color}}>{q.label}</label>
+            <div className="field-question">{q.prompt}</div>
+            <textarea
+              value={answers[q.key]||''}
+              onChange={e=>setAnswer(q.key, e.target.value)}
+              placeholder="Escribe tu respuesta aquí..."
+              rows={3}
+            />
+          </div>
+        ))}
+
+        <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
+          {saving ? 'TRANSMITIENDO...' : `→ TRANSMITIR FASE ${phase.id}`}
+        </button>
+        {existing && (
+          <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--green)',marginLeft:12}}>
+            ✓ Última transmisión guardada
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── STUDENT APP ───
+function StudentApp({ student, onLogout }) {
+  const [activePhase, setActivePhase] = useState('C');
+  const [completedPhases, setCompletedPhases] = useState(new Set());
+  const [missionId] = useState('01');
+  const [peerReview, setPeerReview] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await sb.from('submissions')
+        .select('phase')
+        .eq('student_id', student.id)
+        .eq('mission_id', missionId);
+      if (data) setCompletedPhases(new Set(data.map(d => d.phase)));
+
+      const { data: pr } = await sb.from('peer_reviews')
+        .select('*, reviewee:reviewee_id(name)')
+        .eq('reviewer_id', student.id)
+        .eq('mission_id', missionId)
+        .single();
+      if (pr) setPeerReview(pr);
+    };
+    load();
+  }, [student.id, missionId]);
+
+  const handleSubmitted = (phaseId) => {
+    setCompletedPhases(prev => new Set([...prev, phaseId]));
+    setToast({ msg: `FASE ${phaseId} TRANSMITIDA EXITOSAMENTE`, type: 'success' });
+    // Auto-advance to next phase
+    const idx = PHASES.findIndex(p => p.id === phaseId);
+    if (idx < PHASES.length - 1) {
+      setTimeout(() => setActivePhase(PHASES[idx+1].id), 800);
+    }
+  };
+
+  const allDone = PHASES.every(p => completedPhases.has(p.id));
+  const currentPhase = PHASES.find(p => p.id === activePhase);
+
+  return (
+    <div>
+      <div className="topbar">
+        <div className="topbar-logo">
+          <div className="dot"/>
+          OP. PANTALLA CLARA
+        </div>
+        <div className="topbar-right">
+          <span>AGENTE: {student.name.toUpperCase()}</span>
+          <span className={`status-pill ${allDone?'status-green':'status-amber'}`}>
+            {completedPhases.size}/5 FASES
+          </span>
+          <button className="btn btn-secondary" style={{padding:'4px 10px',fontSize:10}} onClick={onLogout}>
+            SALIR
+          </button>
+        </div>
+      </div>
+
+      <div className="app-layout">
+        <div className="sidebar">
+          <div className="sidebar-section-label">FASES DE OPERACIÓN</div>
+          {PHASES.map((phase, idx) => {
+            const done = completedPhases.has(phase.id);
+            const active = activePhase === phase.id;
+            return (
+              <div key={phase.id}
+                className={`sidebar-item ${active?'active':''}`}
+                onClick={() => setActivePhase(phase.id)}
+                style={active ? {borderLeftColor: phase.color, color: phase.color, background: phase.colorDim} : {}}>
+                <div className="phase-badge" style={{
+                  background: done ? phase.colorDim : 'var(--bg3)',
+                  border: `1px solid ${done ? phase.color : 'var(--border2)'}`,
+                  color: done ? phase.color : 'var(--text-dim)'
+                }}>{phase.id}</div>
+                {phase.name}
+                {done && <span className="check">✓</span>}
+              </div>
+            );
+          })}
+
+          {allDone && peerReview && (
+            <>
+              <div className="sidebar-section-label" style={{marginTop:16}}>PEER REVIEW</div>
+              <div className="sidebar-item" onClick={()=>setActivePhase('REVIEW')}
+                style={activePhase==='REVIEW'?{borderLeftColor:'var(--purple)',color:'var(--purple)',background:'rgba(170,85,255,0.08)'}:{}}>
+                <div className="phase-badge" style={{background:'rgba(170,85,255,0.1)',border:'1px solid var(--purple)',color:'var(--purple)'}}>★</div>
+                EVALUACIÓN
+              </div>
+            </>
+          )}
+
+          <div style={{padding:'20px 20px 0',marginTop:'auto'}}>
+            <div className="phases-bar">
+              {PHASES.map(p => (
+                <div key={p.id} className={`phase-step ${completedPhases.has(p.id)?'done':activePhase===p.id?'active':''}`}
+                  style={completedPhases.has(p.id)?{background:p.color}:{}}/>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="main">
+          {activePhase === 'REVIEW' && peerReview ? (
+            <PeerReviewForm review={peerReview} student={student} missionId={missionId} onToast={setToast}/>
+          ) : allDone && activePhase !== 'REVIEW' && !PHASES.find(p=>p.id===activePhase) ? (
+            <div className="complete-banner">
+              <div className="complete-icon">🎯</div>
+              <div className="complete-title">MISIÓN COMPLETADA</div>
+              <div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--text-dim)',marginTop:8}}>
+                Una pantalla clara no se diseña, se ejecuta estratégicamente.
+              </div>
+            </div>
+          ) : (
+            <PhaseView
+              key={activePhase}
+              phase={currentPhase}
+              student={student}
+              missionId={missionId}
+              onSubmitted={handleSubmitted}
+            />
+          )}
+
+          {allDone && !peerReview && (
+            <div className="complete-banner">
+              <div className="complete-icon">⏳</div>
+              <div className="complete-title">ESPERANDO ASIGNACIÓN</div>
+              <div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--text-dim)',marginTop:8}}>
+                El comandante activará la asignación de peer review en breve.
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {toast && <Toast msg={toast.msg} type={toast.type} onDone={()=>setToast(null)}/>}
+    </div>
+  );
+}
+
+// ─── PEER REVIEW FORM ───
+function PeerReviewForm({ review, student, missionId, onToast }) {
+  const [feedback, setFeedback] = useState(review.feedback || '');
+  const [rating, setRating] = useState(review.rating || 0);
+  const [revieweeSubmissions, setRevieweeSubmissions] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [done, setDone] = useState(!!review.completed_at);
+
+  useEffect(() => {
+    sb.from('submissions')
+      .select('*')
+      .eq('student_id', review.reviewee_id)
+      .eq('mission_id', missionId)
+      .then(({data}) => { if(data) setRevieweeSubmissions(data); });
+  }, [review.reviewee_id, missionId]);
+
+  const handleSubmit = async () => {
+    if (!feedback.trim() || rating === 0) { alert('Completa el feedback y la puntuación.'); return; }
+    setSaving(true);
+    await sb.from('peer_reviews').update({
+      feedback, rating, completed_at: new Date().toISOString()
+    }).eq('id', review.id);
+    setSaving(false);
+    setDone(true);
+    onToast({ msg: 'EVALUACIÓN TRANSMITIDA', type: 'success' });
+  };
+
+  return (
+    <div>
+      <div className="mission-header">
+        <div className="mission-codename">// PEER REVIEW // MISIÓN {missionId}</div>
+        <div className="mission-title">EVALUACIÓN DE <span>{review.reviewee?.name?.toUpperCase()}</span></div>
+      </div>
+
+      <div className="briefing">
+        <div className="briefing-label">◈ INSTRUCCIONES</div>
+        Revisa el trabajo de tu compañero/a. Tu evaluación debe ser constructiva y específica.
+        Basa tu feedback en los 5 pilares C.L.E.A.R. que aplicaron durante la misión.
+      </div>
+
+      {revieweeSubmissions.map(sub => (
+        <div key={sub.phase} className="review-card">
+          <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--purple)',letterSpacing:2,marginBottom:8}}>
+            FASE {sub.phase} — {PHASES.find(p=>p.id===sub.phase)?.name}
+          </div>
+          {sub.image_url && <img src={sub.image_url} alt={`fase ${sub.phase}`}
+            style={{width:'100%',borderRadius:2,marginBottom:12,border:'1px solid var(--border2)'}}/>}
+          {Object.entries(sub.answers||{}).map(([key, val]) => {
+            const q = PHASES.find(p=>p.id===sub.phase)?.questions.find(q=>q.key===key);
+            return (
+              <div key={key} style={{marginBottom:8}}>
+                <div style={{fontFamily:'var(--mono)',fontSize:9,color:'var(--text-dim)',letterSpacing:1}}>{q?.label}</div>
+                <div style={{fontFamily:'var(--body)',fontSize:13,color:'var(--text)',lineHeight:1.5}}>{val}</div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {!done ? (
+        <div className="card">
+          <div className="field-group">
+            <label className="field-label">// PUNTUACIÓN GENERAL (1-5)</label>
+            <div style={{display:'flex',gap:8,marginBottom:16}}>
+              {[1,2,3,4,5].map(n => (
+                <div key={n} onClick={()=>setRating(n)}
+                  style={{
+                    width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',
+                    background: n<=rating ? 'rgba(170,85,255,0.2)' : 'var(--bg3)',
+                    border: `1px solid ${n<=rating ? 'var(--purple)' : 'var(--border2)'}`,
+                    borderRadius:2,cursor:'pointer',
+                    fontFamily:'var(--mono)',fontSize:16,color:n<=rating?'var(--purple)':'var(--text-dim)'
+                  }}>
+                  {n}
+                </div>
+              ))}
+            </div>
+            <label className="field-label">// FEEDBACK DETALLADO</label>
+            <div className="field-question">¿Qué funcionó bien? ¿Qué mejorarías? Sé específico/a con los pilares C.L.E.A.R.</div>
+            <textarea value={feedback} onChange={e=>setFeedback(e.target.value)} rows={5}
+              placeholder="Tu evaluación constructiva..."/>
+          </div>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
+            {saving ? 'TRANSMITIENDO...' : '→ ENVIAR EVALUACIÓN'}
+          </button>
+        </div>
+      ) : (
+        <div className="complete-banner">
+          <div className="complete-icon">⭐</div>
+          <div className="complete-title">EVALUACIÓN COMPLETADA</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── ADMIN PANEL ───
+function AdminPanel({ admin, onLogout }) {
+  const [students, setStudents] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [missionId] = useState('01');
+  const [loading, setLoading] = useState(true);
+  const [assigning, setAssigning] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [view, setView] = useState('dashboard'); // dashboard | student-detail
+
+  const load = async () => {
+    const [{ data: s }, { data: sub }, { data: r }] = await Promise.all([
+      sb.from('students').select('*').order('created_at'),
+      sb.from('submissions').select('*').eq('mission_id', missionId),
+      sb.from('peer_reviews').select('*').eq('mission_id', missionId),
+    ]);
+    setStudents(s||[]);
+    setSubmissions(sub||[]);
+    setReviews(r||[]);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); const int = setInterval(load, 15000); return ()=>clearInterval(int); }, []);
+
+  const getStudentPhases = (studentId) =>
+    new Set(submissions.filter(s=>s.student_id===studentId).map(s=>s.phase));
+
+  const assignPeerReview = async () => {
+    const eligible = students.filter(s => getStudentPhases(s.id).size === 5);
+    if (eligible.length < 2) { alert('Necesitas al menos 2 agentes con todas las fases completas.'); return; }
+    setAssigning(true);
+
+    // Shuffle and pair
+    const shuffled = [...eligible].sort(() => Math.random() - 0.5);
+    const pairs = [];
+    for (let i = 0; i < shuffled.length; i++) {
+      const reviewer = shuffled[i];
+      const reviewee = shuffled[(i+1) % shuffled.length];
+      pairs.push({ reviewer_id: reviewer.id, reviewee_id: reviewee.id, mission_id: missionId });
+    }
+
+    // Upsert (ignore duplicates)
+    for (const pair of pairs) {
+      const exists = reviews.find(r => r.reviewer_id === pair.reviewer_id && r.mission_id === missionId);
+      if (!exists) {
+        await sb.from('peer_reviews').insert(pair);
+      }
+    }
+
+    await load();
+    setAssigning(false);
+    setToast({ msg: `${pairs.length} ASIGNACIONES CREADAS`, type: 'success' });
+  };
+
+  const openStudent = (student) => {
+    setSelectedStudent(student);
+    setView('student-detail');
+  };
+
+  if (loading) return <div><div className="topbar"><div className="topbar-logo"><div className="dot"/>COMANDANTE</div></div><div className="loading">CARGANDO INTEL</div></div>;
+
+  const totalSubmissions = submissions.length;
+  const completedStudents = students.filter(s => getStudentPhases(s.id).size === 5).length;
+  const completedReviews = reviews.filter(r => r.completed_at).length;
+
+  return (
+    <div>
+      <div className="topbar">
+        <div className="topbar-logo">
+          <div className="dot"/>
+          PANEL DE COMANDANTE — OP. PANTALLA CLARA
+        </div>
+        <div className="topbar-right">
+          <span>{admin.name.toUpperCase()}</span>
+          <span className="status-pill status-green">EN VIVO</span>
+          <button className="btn btn-secondary" style={{padding:'4px 10px',fontSize:10}} onClick={onLogout}>SALIR</button>
+        </div>
+      </div>
+
+      <div className="main">
+        {view === 'student-detail' && selectedStudent ? (
+          <StudentDetail
+            student={selectedStudent}
+            submissions={submissions.filter(s=>s.student_id===selectedStudent.id)}
+            review={reviews.find(r=>r.reviewer_id===selectedStudent.id || r.reviewee_id===selectedStudent.id)}
+            onBack={()=>setView('dashboard')}
+          />
+        ) : (
+          <>
+            <div className="mission-header">
+              <div className="mission-codename">// PANEL DE CONTROL // MISIÓN {missionId}</div>
+              <div className="mission-title">INTEL <span>GENERAL</span></div>
+            </div>
+
+            <div className="intel-grid" style={{gridTemplateColumns:'repeat(4,1fr)',marginBottom:24}}>
+              <div className="intel-box">
+                <div className="intel-label">AGENTES ACTIVOS</div>
+                <div className="intel-value">{students.length}</div>
+              </div>
+              <div className="intel-box">
+                <div className="intel-label">TRANSMISIONES</div>
+                <div className="intel-value" style={{color:'var(--blue)'}}>{totalSubmissions}</div>
+              </div>
+              <div className="intel-box">
+                <div className="intel-label">MISIONES COMPLETAS</div>
+                <div className="intel-value" style={{color:'var(--green)'}}>{completedStudents}</div>
+              </div>
+              <div className="intel-box">
+                <div className="intel-label">REVIEWS COMPLETOS</div>
+                <div className="intel-value" style={{color:'var(--purple)'}}>{completedReviews}/{reviews.length}</div>
+              </div>
+            </div>
+
+            <div style={{display:'flex',gap:12,marginBottom:24}}>
+              <button className="btn btn-amber" onClick={assignPeerReview} disabled={assigning}>
+                {assigning ? 'ASIGNANDO...' : '⬡ ASIGNAR PEER REVIEW RANDOM'}
+              </button>
+              <button className="btn btn-secondary" onClick={load}>↻ ACTUALIZAR</button>
+            </div>
+
+            <div className="section-divider">
+              <div className="section-divider-line"/>
+              <div className="section-divider-label">ESTADO POR AGENTE</div>
+              <div className="section-divider-line"/>
+            </div>
+
+            <div className="admin-grid">
+              {students.map(student => {
+                const phases = getStudentPhases(student.id);
+                const review = reviews.find(r=>r.reviewer_id===student.id);
+                return (
+                  <div key={student.id} className="student-card" style={{cursor:'pointer'}} onClick={()=>openStudent(student)}>
+                    <div className="student-card-name">{student.name}</div>
+                    <div className="phase-dots">
+                      {PHASES.map(p => (
+                        <div key={p.id} className={`phase-dot ${phases.has(p.id)?'done':''}`}
+                          style={phases.has(p.id)?{background:`${p.colorDim}`,borderColor:p.color,color:p.color}:{}}>
+                          {p.id}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--text-dim)'}}>
+                        {phases.size}/5 fases
+                      </span>
+                      {review && (
+                        <span className={`status-pill ${review.completed_at?'status-green':'status-amber'}`}>
+                          {review.completed_at?'REVIEW ✓':'REVIEW PENDIENTE'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              {students.length === 0 && (
+                <div style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--text-dim)',padding:20}}>
+                  Esperando agentes...
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+      {toast && <Toast msg={toast.msg} type={toast.type} onDone={()=>setToast(null)}/>}
+    </div>
+  );
+}
+
+// ─── STUDENT DETAIL (Admin view) ───
+function StudentDetail({ student, submissions, review, onBack }) {
+  return (
+    <div>
+      <button className="btn btn-secondary" style={{marginBottom:20}} onClick={onBack}>← VOLVER</button>
+      <div className="mission-header">
+        <div className="mission-codename">// INFORME DE AGENTE</div>
+        <div className="mission-title">{student.name.toUpperCase()}</div>
+      </div>
+      {PHASES.map(phase => {
+        const sub = submissions.find(s=>s.phase===phase.id);
+        return (
+          <div key={phase.id} className="card" style={{borderLeft:`3px solid ${sub?phase.color:'var(--border2)'}`}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:sub?phase.color:'var(--text-dim)',letterSpacing:2,marginBottom:12}}>
+              FASE {phase.id} — {phase.name} {sub?'// TRANSMITIDO':'// PENDIENTE'}
+            </div>
+            {sub ? (
+              <>
+                {sub.image_url && <img src={sub.image_url} alt={`${phase.id}`}
+                  style={{width:'100%',maxHeight:280,objectFit:'contain',borderRadius:2,marginBottom:12,border:'1px solid var(--border2)'}}/>}
+                {phase.questions.map(q => (
+                  <div key={q.key} style={{marginBottom:12}}>
+                    <div style={{fontFamily:'var(--mono)',fontSize:9,color:'var(--text-dim)',letterSpacing:1,marginBottom:4}}>{q.label}</div>
+                    <div style={{fontFamily:'var(--body)',fontSize:13,color:'var(--text)',lineHeight:1.5,background:'var(--bg3)',padding:'8px 12px',borderRadius:2}}>
+                      {sub.answers?.[q.key] || '—'}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--text-dim)'}}>Sin transmisión aún.</div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── APP ROOT ───
+function App() {
+  const [user, setUser] = useState(null);
+
+  const handleLogin = (u) => setUser(u);
+  const handleLogout = () => setUser(null);
+
+  if (!user) return <LoginScreen onLogin={handleLogin}/>;
+  if (user.role === 'admin') return <AdminPanel admin={user} onLogout={handleLogout}/>;
+  return <StudentApp student={user} onLogout={handleLogout}/>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
