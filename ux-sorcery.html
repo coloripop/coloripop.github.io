@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspiración de Interfaces · coloripop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #211F54;
+    --purple: #4A3AFF;
+    --purple-light: #7B6FFF;
+    --pink: #FE81E7;
+    --lavender: #B5AFFF;
+    --lavender-light: #E2E0FF;
+
+    /* Light mode tokens */
+    --bg-page: #F8F7FF;
+    --bg-card: #FFFFFF;
+    --bg-bar: #FFFFFF;
+    --border-default: #EDEDF8;
+    --text-primary: #1A1838;
+    --text-secondary: #5A5878;
+    --text-muted: #9895B0;
+    --shadow-bar: rgba(33,31,84,0.06);
+    --shadow-card: rgba(74,58,255,0.1);
+
+    --cat-mobile-bg: #EEEDFE;  --cat-mobile-text: #3C3489;
+    --cat-web-bg: #E6F1FB;     --cat-web-text: #0C447C;
+    --cat-saas-bg: #E1F5EE;    --cat-saas-text: #085041;
+    --cat-awards-bg: #FAEEDA;  --cat-awards-text: #633806;
+    --cat-content-bg: #FBEAF0; --cat-content-text: #72243E;
+
+    --access-free-bg: #EAF3DE;    --access-free-text: #27500A;
+    --access-freemium-bg: #FAEEDA; --access-freemium-text: #633806;
+    --access-paid-bg: #FCEBEB;    --access-paid-text: #791F1F;
+    --access-account-bg: #F1EFE8; --access-account-text: #444441;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+  }
+
+  [data-theme="dark"] {
+    --bg-page: #0F0E1A;
+    --bg-card: #1A1830;
+    --bg-bar: #13122A;
+    --border-default: #2A2850;
+    --text-primary: #EDE9FF;
+    --text-secondary: #9F9CC0;
+    --text-muted: #6663888;
+    --shadow-bar: rgba(0,0,0,0.4);
+    --shadow-card: rgba(74,58,255,0.2);
+
+    --cat-mobile-bg: #26215C;  --cat-mobile-text: #B5AFFF;
+    --cat-web-bg: #042C53;     --cat-web-text: #85B7EB;
+    --cat-saas-bg: #04342C;    --cat-saas-text: #5DCAA5;
+    --cat-awards-bg: #412402;  --cat-awards-text: #FAC775;
+    --cat-content-bg: #4B1528; --cat-content-text: #ED93B1;
+
+    --access-free-bg: #173404;    --access-free-text: #C0DD97;
+    --access-freemium-bg: #412402; --access-freemium-text: #FAC775;
+    --access-paid-bg: #501313;    --access-paid-text: #F09595;
+    --access-account-bg: #2C2C2A; --access-account-text: #B4B2A9;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+    padding: 48px 24px 40px;
+  }
+
+  #star-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .site-header::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,58,255,0.4) 0%, transparent 65%);
+    top: -160px;
+    right: -100px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .site-header::after {
+    content: '';
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(254,129,231,0.22) 0%, transparent 65%);
+    bottom: -120px;
+    left: 8%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .logo-block { display: flex; flex-direction: column; gap: 2px; }
+
+  .logo-eyebrow {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #B5AFFF;
+  }
+
+  .logo-name {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .logo-name span { color: var(--pink); }
+
+  .lang-toggle {
+    display: flex;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 99px;
+    padding: 3px;
+    gap: 2px;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  .lang-btn {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 5px 12px;
+    border-radius: 99px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .lang-btn.active {
+    background: var(--purple);
+    color: #FFFFFF;
+  }
+
+  .header-title {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: clamp(48px, 9vw, 88px);
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 1.0;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .header-title .accent { color: var(--pink); }
+
+  .header-sub {
+    font-size: 15px;
+    color: #B5AFFF;
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .stat-num {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: #B5AFFF;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: rgba(255,255,255,0.12);
+    height: 36px;
+    align-self: center;
+  }
+
+  /* ── CONTROLS ── */
+  .controls-bar {
+    background: var(--bg-bar);
+    border-bottom: 1px solid var(--border-default);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px var(--shadow-bar);
+    transition: background 0.25s, border-color 0.25s;
+  }
+
+  .controls-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .filters-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex: 1;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .chip {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 13px;
+    border-radius: 99px;
+    border: 1.5px solid var(--border-default);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .chip:hover {
+    border-color: var(--purple-light);
+    color: var(--purple);
+  }
+
+  .chip.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+  }
+
+  .sort-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .sort-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .sort-select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 30px 5px 10px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border-default);
+    background: var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239895B0'/%3E%3C/svg%3E") no-repeat right 10px center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+    transition: background-color 0.25s, border-color 0.25s, color 0.25s;
+  }
+
+  .sort-select:focus { border-color: var(--purple); }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 24px 64px;
+  }
+
+  .results-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .results-count {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .results-count strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-free { background: #639922; }
+  .dot-freemium { background: #BA7517; }
+  .dot-paid { background: #E24B4A; }
+  .dot-account { background: #888780; }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s, background 0.25s;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .card:hover {
+    border-color: var(--purple-light);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px var(--shadow-card);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .card-name {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  .cat-badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .cat-mobile { background: var(--cat-mobile-bg); color: var(--cat-mobile-text); }
+  .cat-web { background: var(--cat-web-bg); color: var(--cat-web-text); }
+  .cat-saas { background: var(--cat-saas-bg); color: var(--cat-saas-text); }
+  .cat-awards { background: var(--cat-awards-bg); color: var(--cat-awards-text); }
+  .cat-content { background: var(--cat-content-bg); color: var(--cat-content-text); }
+
+  .card-desc {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .access-badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  .access-free { background: var(--access-free-bg); color: var(--access-free-text); }
+  .access-freemium { background: var(--access-freemium-bg); color: var(--access-freemium-text); }
+  .access-paid { background: var(--access-paid-bg); color: var(--access-paid-text); }
+  .access-account { background: var(--access-account-bg); color: var(--access-account-text); }
+
+  .arrow-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--lavender-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .card:hover .arrow-icon {
+    background: var(--purple);
+  }
+
+  .arrow-icon svg { width: 13px; height: 13px; }
+  .arrow-icon svg path { stroke: var(--purple); transition: stroke 0.15s; }
+  .card:hover .arrow-icon svg path { stroke: white; }
+
+  /* ── EMPTY ── */
+  .empty {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--text-muted);
+    grid-column: 1 / -1;
+  }
+
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    background: var(--navy);
+    padding: 24px;
+    text-align: center;
+  }
+
+  .footer-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .footer-brand {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .footer-brand span { color: var(--pink); }
+
+  .footer-note {
+    font-size: 12px;
+    color: var(--lavender);
+  }
+
+  /* ── THEME TOGGLE ── */
+  .theme-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+  }
+
+  .theme-btn:hover {
+    background: rgba(255,255,255,0.16);
+    transform: rotate(15deg);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .site-header { padding: 32px 16px 28px; }
+    .header-top { flex-direction: column; }
+    .lang-toggle { align-self: flex-start; }
+    .controls-inner { padding: 10px 16px; gap: 8px; }
+    .main { padding: 16px 16px 48px; }
+    .grid { grid-template-columns: 1fr; }
+    .filters-group { gap: 5px; }
+    .chip { font-size: 11px; padding: 4px 10px; }
+    .header-stats { gap: 16px; }
+    .stat-divider { display: none; }
+    .sort-group { width: 100%; }
+    .sort-select { flex: 1; }
+    .legend { gap: 10px; }
+    .footer-inner { flex-direction: column; text-align: center; }
+  }
+
+  @media (min-width: 601px) and (max-width: 800px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <canvas id="star-canvas"></canvas>
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo-block">
+        <svg width="160" height="53" viewBox="0 0 216 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-top:4px;">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M48.2769 44.068C48.2762 44.066 48.2755 44.064 51.7573 42.877C55.239 41.6901 55.2383 41.6881 55.2377 41.6863L55.2365 41.6826L55.2341 41.6758L55.23 41.6641L55.2243 41.648C55.2226 41.6434 55.2218 41.6412 55.2218 41.6412C55.2218 41.6412 55.2222 41.6421 55.2229 41.6439C55.2265 41.6534 55.2392 41.686 55.2619 41.7386C55.3076 41.8443 55.3918 42.0265 55.5208 42.2599C55.7816 42.7314 56.2076 43.3796 56.8412 44.0279C58.043 45.2577 60.125 46.6424 63.7688 46.6424C67.4127 46.6424 69.4947 45.2577 70.6965 44.0279C71.3301 43.3796 71.7561 42.7314 72.0168 42.2599C72.1459 42.0265 72.2301 41.8443 72.2758 41.7386C72.2985 41.686 72.3112 41.6534 72.3148 41.6439C72.3155 41.6421 72.3159 41.6412 72.3159 41.6412C72.3159 41.6412 72.315 41.6434 72.3134 41.648L72.3077 41.6641L72.3036 41.6758L72.3012 41.6826L72.3 41.6863C72.2993 41.6881 72.2987 41.6901 75.7804 42.877C79.2622 44.064 79.2615 44.066 79.2608 44.068L79.2594 44.0721L79.2564 44.081L79.2495 44.1008L79.2323 44.1488C79.2194 44.1845 79.2035 44.2275 79.1844 44.2773C79.1462 44.3769 79.0952 44.5042 79.03 44.6552C78.8998 44.9566 78.7118 45.3559 78.4549 45.8204C77.9438 46.7446 77.1432 47.9574 75.9582 49.17C73.5227 51.6621 69.5988 53.9994 63.7688 53.9994C57.9389 53.9994 54.015 51.6621 51.5795 49.17C50.3945 47.9574 49.5939 46.7446 49.0828 45.8204C48.8259 45.3559 48.6379 44.9566 48.5077 44.6552C48.4425 44.5042 48.3915 44.3769 48.3533 44.2773C48.3342 44.2275 48.3183 44.1845 48.3054 44.1488L48.2882 44.1008L48.2813 44.081L48.2783 44.0721L48.2769 44.068Z" fill="#FE81E7"/>
+<path d="M197.406 18.1998C203.586 18.1998 208 22.9671 208 29.7209C208 36.4746 203.586 41.3303 197.406 41.3303C195.022 41.3303 193.124 40.5798 191.756 39.2997V48.7461H184.163V18.7295H191.094V21.0249C192.462 19.1709 194.581 18.1998 197.406 18.1998ZM195.905 34.4441C198.112 34.4441 200.231 32.855 200.231 29.765C200.231 26.6751 198.156 25.0859 195.905 25.0859C193.786 25.0859 191.623 26.4985 191.623 29.7209C191.623 32.8991 193.742 34.4441 195.905 34.4441Z" fill="#FE81E7"/>
+<path d="M168.254 18.1998C174.875 18.1998 180.304 23.1878 180.304 29.765C180.304 36.3422 174.875 41.3303 168.254 41.3303C161.588 41.3303 156.247 36.3422 156.247 29.765C156.247 23.1878 161.588 18.1998 168.254 18.1998ZM168.298 25.1742C165.737 25.1742 164.016 27.0723 164.016 29.765C164.016 32.5018 165.737 34.3558 168.298 34.3558C170.681 34.3558 172.535 32.5018 172.535 29.765C172.535 27.0723 170.681 25.1742 168.298 25.1742Z" fill="#FE81E7"/>
+<path d="M142.918 18.1998C149.098 18.1998 153.512 22.9671 153.512 29.7209C153.512 36.4746 149.098 41.3303 142.918 41.3303C140.534 41.3303 138.636 40.5798 137.268 39.2997V48.7461H129.675V18.7295H136.606V21.0249C137.974 19.1709 140.093 18.1998 142.918 18.1998ZM141.417 34.4441C143.624 34.4441 145.743 32.855 145.743 29.765C145.743 26.6751 143.668 25.0859 141.417 25.0859C139.298 25.0859 137.135 26.4985 137.135 29.7209C137.135 32.8991 139.254 34.4441 141.417 34.4441Z" fill="#FE81E7"/>
+<path d="M120.883 8C123.443 8 125.562 9.94226 125.562 12.5025C125.562 15.0186 123.443 16.9609 120.883 16.9609C118.323 16.9609 116.248 15.0186 116.248 12.5025C116.248 9.94226 118.323 8 120.883 8ZM124.723 18.7295V40.8005H117.131V18.7295H124.723Z" fill="#F4F3FF"/>
+<path d="M111.734 18.3763C112.572 18.3763 113.279 18.5088 113.897 18.7295V25.4391H112.087C108.732 25.4391 106.834 26.8958 106.834 30.7361V40.8006H99.2414V18.7295H106.172V21.069C107.54 19.3475 109.482 18.3763 111.734 18.3763Z" fill="#F4F3FF"/>
+<path d="M83.3317 18.1998C89.953 18.1998 95.3825 23.1878 95.3825 29.765C95.3825 36.3422 89.953 41.3303 83.3317 41.3303C76.6662 41.3303 71.325 36.3422 71.325 29.765C71.325 23.1878 76.6662 18.1998 83.3317 18.1998ZM83.3758 25.1742C80.8156 25.1742 79.094 27.0723 79.094 29.765C79.094 32.5018 80.8156 34.3558 83.3758 34.3558C85.7595 34.3558 87.6135 32.5018 87.6135 29.765C87.6135 27.0723 85.7595 25.1742 83.3758 25.1742Z" fill="#F4F3FF"/>
+<path d="M67.4765 12.0618V40.8005H59.8841V12.0618H67.4765Z" fill="#F4F3FF"/>
+<path d="M43.9745 18.1998C50.5958 18.1998 56.0253 23.1878 56.0253 29.765C56.0253 36.3422 50.5958 41.3303 43.9745 41.3303C37.309 41.3303 31.9678 36.3422 31.9678 29.765C31.9678 23.1878 37.309 18.1998 43.9745 18.1998ZM44.0186 25.1742C41.4584 25.1742 39.7368 27.0723 39.7368 29.765C39.7368 32.5018 41.4584 34.3558 44.0186 34.3558C46.4023 34.3558 48.2563 32.5018 48.2563 29.765C48.2563 27.0723 46.4023 25.1742 44.0186 25.1742Z" fill="#F4F3FF"/>
+<path d="M20.0508 18.1998C24.6857 18.1998 28.173 20.5393 29.9386 24.1148L24.6857 28.1318C23.6263 26.4985 22.3021 25.1742 20.1391 25.1742C17.4464 25.1742 15.769 27.0723 15.769 29.765C15.769 32.4577 17.4464 34.3558 20.1391 34.3558C22.3021 34.3558 23.6263 33.0757 24.6857 31.4424L29.9386 35.4152C28.173 38.9907 24.6857 41.3303 20.0508 41.3303C13.3412 41.3303 8 36.3422 8 29.765C8 23.1878 13.3412 18.1998 20.0508 18.1998Z" fill="#F4F3FF"/>
+<path d="M200.544 63.5832V54.1287H204.275C204.989 54.1287 205.598 54.2564 206.103 54.5118C206.61 54.7642 206.997 55.1227 207.261 55.5875C207.529 56.0491 207.663 56.5923 207.663 57.2171C207.663 57.8449 207.528 58.3851 207.257 58.8375C206.986 59.2868 206.594 59.6315 206.08 59.8716C205.569 60.1116 204.95 60.2316 204.224 60.2316H201.726V58.6251H203.901C204.282 58.6251 204.599 58.5728 204.852 58.4682C205.104 58.3635 205.292 58.2066 205.415 57.9973C205.541 57.788 205.604 57.5279 205.604 57.2171C205.604 56.9032 205.541 56.6385 205.415 56.4231C205.292 56.2076 205.102 56.0445 204.847 55.9337C204.595 55.8198 204.276 55.7629 203.891 55.7629H202.543V63.5832H200.544ZM205.65 59.2807L208 63.5832H205.793L203.494 59.2807H205.65Z" fill="#F4F3FF"/>
+<path d="M189.412 63.5832V54.1287H195.783V55.7767H191.411V58.0296H195.455V59.6777H191.411V61.9351H195.801V63.5832H189.412Z" fill="#F4F3FF"/>
+<path d="M184.588 54.1287V63.5832H182.862L178.748 57.6326H178.679V63.5832H176.68V54.1287H178.434L182.515 60.0747H182.598V54.1287H184.588Z" fill="#F4F3FF"/>
+<path d="M169.887 57.1848C169.823 56.9601 169.732 56.7616 169.615 56.5892C169.498 56.4138 169.355 56.2661 169.186 56.1461C169.019 56.0229 168.829 55.9291 168.613 55.8644C168.401 55.7998 168.165 55.7675 167.907 55.7675C167.424 55.7675 166.999 55.8875 166.633 56.1276C166.27 56.3676 165.986 56.717 165.783 57.1755C165.58 57.631 165.479 58.1881 165.479 58.8467C165.479 59.5053 165.579 60.0654 165.779 60.5271C165.979 60.9887 166.262 61.3411 166.628 61.5843C166.994 61.8243 167.427 61.9443 167.925 61.9443C168.378 61.9443 168.764 61.8643 169.084 61.7043C169.407 61.5412 169.653 61.3119 169.823 61.0164C169.995 60.721 170.081 60.3717 170.081 59.9685L170.487 60.0285H168.05V58.5235H172.006V59.7146C172.006 60.5456 171.831 61.2596 171.48 61.8566C171.129 62.4506 170.646 62.9092 170.03 63.2323C169.415 63.5524 168.71 63.7125 167.916 63.7125C167.03 63.7125 166.251 63.517 165.58 63.1262C164.909 62.7322 164.386 62.1736 164.011 61.4504C163.638 60.7241 163.452 59.8623 163.452 58.8652C163.452 58.0988 163.563 57.4156 163.784 56.8154C164.009 56.2122 164.323 55.7013 164.726 55.2828C165.129 54.8642 165.599 54.5457 166.134 54.3272C166.67 54.1086 167.25 53.9994 167.875 53.9994C168.41 53.9994 168.909 54.0779 169.37 54.2348C169.832 54.3887 170.241 54.6072 170.598 54.8904C170.958 55.1735 171.252 55.5105 171.48 55.9014C171.708 56.2892 171.854 56.717 171.919 57.1848H169.887Z" fill="#F4F3FF"/>
+<path d="M158.801 54.1287V63.5832H156.802V54.1287H158.801Z" fill="#F4F3FF"/>
+<path d="M150.24 56.8478C150.203 56.4754 150.045 56.1861 149.765 55.9799C149.485 55.7737 149.105 55.6706 148.624 55.6706C148.298 55.6706 148.023 55.7167 147.798 55.809C147.573 55.8983 147.401 56.0229 147.281 56.183C147.164 56.343 147.106 56.5246 147.106 56.7277C147.099 56.897 147.135 57.0447 147.212 57.1709C147.292 57.2971 147.401 57.4063 147.54 57.4987C147.678 57.5879 147.838 57.6664 148.02 57.7341C148.201 57.7988 148.395 57.8541 148.601 57.9003L149.451 58.1034C149.863 58.1958 150.242 58.3189 150.586 58.4728C150.931 58.6266 151.23 58.8159 151.482 59.0406C151.734 59.2653 151.93 59.5299 152.068 59.8346C152.21 60.1393 152.282 60.4886 152.285 60.8826C152.282 61.4612 152.134 61.9628 151.842 62.3875C151.553 62.8092 151.134 63.1369 150.586 63.3708C150.042 63.6017 149.385 63.7171 148.615 63.7171C147.852 63.7171 147.187 63.6001 146.621 63.3662C146.058 63.1323 145.618 62.7861 145.301 62.3275C144.987 61.8659 144.822 61.295 144.807 60.6148H146.741C146.762 60.9318 146.853 61.1965 147.013 61.4088C147.176 61.6181 147.393 61.7766 147.664 61.8843C147.938 61.989 148.247 62.0413 148.592 62.0413C148.931 62.0413 149.225 61.9921 149.474 61.8936C149.726 61.7951 149.922 61.6581 150.06 61.4827C150.199 61.3073 150.268 61.1057 150.268 60.8779C150.268 60.6656 150.205 60.4871 150.079 60.3424C149.955 60.1978 149.774 60.0747 149.534 59.9731C149.297 59.8715 149.006 59.7792 148.661 59.6961L147.632 59.4376C146.835 59.2437 146.205 58.9406 145.744 58.5282C145.282 58.1157 145.053 57.5602 145.056 56.8616C145.053 56.2892 145.205 55.789 145.513 55.3613C145.824 54.9335 146.25 54.5995 146.792 54.3595C147.333 54.1194 147.949 53.9994 148.638 53.9994C149.34 53.9994 149.952 54.1194 150.476 54.3595C151.002 54.5995 151.411 54.9335 151.704 55.3613C151.996 55.789 152.147 56.2845 152.156 56.8478H150.24Z" fill="#F4F3FF"/>
+<path d="M133.979 63.5832V54.1287H140.35V55.7767H135.978V58.0296H140.022V59.6777H135.978V61.9351H140.368V63.5832H133.979Z" fill="#F4F3FF"/>
+<path d="M124.7 63.5832H121.349V54.1287H124.728C125.679 54.1287 126.497 54.3179 127.184 54.6965C127.87 55.072 128.398 55.6121 128.767 56.3169C129.14 57.0217 129.326 57.8649 129.326 58.8467C129.326 59.8316 129.14 60.6779 128.767 61.3858C128.398 62.0936 127.867 62.6368 127.175 63.0154C126.485 63.3939 125.66 63.5832 124.7 63.5832ZM123.348 61.8705H124.617C125.208 61.8705 125.705 61.7659 126.108 61.5566C126.514 61.3442 126.819 61.0164 127.022 60.5733C127.228 60.127 127.332 59.5515 127.332 58.8467C127.332 58.1481 127.228 57.5772 127.022 57.134C126.819 56.6908 126.516 56.3646 126.113 56.1553C125.71 55.946 125.213 55.8414 124.622 55.8414H123.348V61.8705Z" fill="#F4F3FF"/>
+<path d="M104.576 54.1287L106.483 57.351H106.557L108.473 54.1287H110.73L107.845 58.8559L110.795 63.5832H108.496L106.557 60.3563H106.483L104.544 63.5832H102.254L105.213 58.8559L102.31 54.1287H104.576Z" fill="#F4F3FF"/>
+<path d="M95.8861 54.1287H97.885V60.2686C97.885 60.958 97.7204 61.5612 97.3911 62.0782C97.0648 62.5953 96.6078 62.9985 96.02 63.2878C95.4322 63.574 94.7474 63.7171 93.9657 63.7171C93.1809 63.7171 92.4945 63.574 91.9067 63.2878C91.3189 62.9985 90.8618 62.5953 90.5356 62.0782C90.2094 61.5612 90.0463 60.958 90.0463 60.2686V54.1287H92.0452V60.0978C92.0452 60.4579 92.1237 60.7779 92.2806 61.058C92.4407 61.3381 92.6653 61.5581 92.9546 61.7182C93.2439 61.8782 93.5809 61.9582 93.9657 61.9582C94.3534 61.9582 94.6904 61.8782 94.9767 61.7182C95.266 61.5581 95.4891 61.3381 95.6461 61.058C95.8061 60.7779 95.8861 60.4579 95.8861 60.0978V54.1287Z" fill="#F4F3FF"/>
+        </svg>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+        <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <span id="theme-icon">🌙</span>
+        </button>
+        <div class="lang-toggle">
+          <button class="lang-btn active" onclick="setLang('es')" id="btn-es">ES</button>
+          <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <h1 class="header-title">
+      <span id="h-title-1">UX </span><span class="accent" id="h-title-2">Sorcery</span>
+    </h1>
+    <p class="header-sub" id="h-sub">Recursos seleccionados para explorar patrones, flujos y tendencias de diseño de producto.</p>
+
+    <div class="header-stats">
+      <div class="stat">
+        <span class="stat-num">24</span>
+        <span class="stat-label" id="stat-resources">Recursos</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">5</span>
+        <span class="stat-label" id="stat-categories">Categorías</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">18</span>
+        <span class="stat-label" id="stat-free">Gratis o Freemium</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- CONTROLS -->
+<div class="controls-bar">
+  <div class="controls-inner">
+    <div class="filters-group">
+      <span class="filter-label" id="ctrl-filter">Filtrar:</span>
+      <button class="chip active" data-cat="all" onclick="setFilter('all', this)" id="chip-all">Todos</button>
+      <button class="chip" data-cat="Mobile UI" onclick="setFilter('Mobile UI', this)" id="chip-mobile">Mobile UI</button>
+      <button class="chip" data-cat="Web Design" onclick="setFilter('Web Design', this)" id="chip-web">Web Design</button>
+      <button class="chip" data-cat="SaaS" onclick="setFilter('SaaS', this)">SaaS</button>
+      <button class="chip" data-cat="Awards" onclick="setFilter('Awards', this)" id="chip-awards">Awards</button>
+      <button class="chip" data-cat="Contenido" onclick="setFilter('Contenido', this)" id="chip-content">Contenido / UX</button>
+    </div>
+    <div class="sort-group">
+      <span class="sort-label" id="ctrl-sort">Orden:</span>
+      <select class="sort-select" id="sort-select" onchange="setSort(this.value)">
+        <option value="default" id="sort-default">A → Z</option>
+        <option value="access" id="sort-access">Acceso</option>
+        <option value="cat" id="sort-cat">Categoría</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="results-meta">
+    <div class="results-count" id="results-count"></div>
+    <div class="legend">
+      <div class="legend-item"><span class="dot dot-free"></span><span id="leg-free">Gratis</span></div>
+      <div class="legend-item"><span class="dot dot-freemium"></span><span id="leg-freemium">Freemium</span></div>
+      <div class="legend-item"><span class="dot dot-paid"></span><span id="leg-paid">Solo de pago</span></div>
+      <div class="legend-item"><span class="dot dot-account"></span><span id="leg-account">Solo cuenta</span></div>
+      <div class="legend-item"><span style="font-size:9px;">👤</span><span id="leg-reg">Requiere registro</span></div>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <svg width="100" height="33" viewBox="0 0 216 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M48.2769 44.068C48.2762 44.066 48.2755 44.064 51.7573 42.877C55.239 41.6901 55.2383 41.6881 55.2377 41.6863L55.2365 41.6826L55.2341 41.6758L55.23 41.6641L55.2243 41.648C55.2226 41.6434 55.2218 41.6412 55.2218 41.6412C55.2218 41.6412 55.2222 41.6421 55.2229 41.6439C55.2265 41.6534 55.2392 41.686 55.2619 41.7386C55.3076 41.8443 55.3918 42.0265 55.5208 42.2599C55.7816 42.7314 56.2076 43.3796 56.8412 44.0279C58.043 45.2577 60.125 46.6424 63.7688 46.6424C67.4127 46.6424 69.4947 45.2577 70.6965 44.0279C71.3301 43.3796 71.7561 42.7314 72.0168 42.2599C72.1459 42.0265 72.2301 41.8443 72.2758 41.7386C72.2985 41.686 72.3112 41.6534 72.3148 41.6439C72.3155 41.6421 72.3159 41.6412 72.3159 41.6412C72.3159 41.6412 72.315 41.6434 72.3134 41.648L72.3077 41.6641L72.3036 41.6758L72.3012 41.6826L72.3 41.6863C72.2993 41.6881 72.2987 41.6901 75.7804 42.877C79.2622 44.064 79.2615 44.066 79.2608 44.068L79.2594 44.0721L79.2564 44.081L79.2495 44.1008L79.2323 44.1488C79.2194 44.1845 79.2035 44.2275 79.1844 44.2773C79.1462 44.3769 79.0952 44.5042 79.03 44.6552C78.8998 44.9566 78.7118 45.3559 78.4549 45.8204C77.9438 46.7446 77.1432 47.9574 75.9582 49.17C73.5227 51.6621 69.5988 53.9994 63.7688 53.9994C57.9389 53.9994 54.015 51.6621 51.5795 49.17C50.3945 47.9574 49.5939 46.7446 49.0828 45.8204C48.8259 45.3559 48.6379 44.9566 48.5077 44.6552C48.4425 44.5042 48.3915 44.3769 48.3533 44.2773C48.3342 44.2275 48.3183 44.1845 48.3054 44.1488L48.2882 44.1008L48.2813 44.081L48.2783 44.0721L48.2769 44.068Z" fill="#FE81E7"/>
+<path d="M197.406 18.1998C203.586 18.1998 208 22.9671 208 29.7209C208 36.4746 203.586 41.3303 197.406 41.3303C195.022 41.3303 193.124 40.5798 191.756 39.2997V48.7461H184.163V18.7295H191.094V21.0249C192.462 19.1709 194.581 18.1998 197.406 18.1998ZM195.905 34.4441C198.112 34.4441 200.231 32.855 200.231 29.765C200.231 26.6751 198.156 25.0859 195.905 25.0859C193.786 25.0859 191.623 26.4985 191.623 29.7209C191.623 32.8991 193.742 34.4441 195.905 34.4441Z" fill="#FE81E7"/>
+<path d="M168.254 18.1998C174.875 18.1998 180.304 23.1878 180.304 29.765C180.304 36.3422 174.875 41.3303 168.254 41.3303C161.588 41.3303 156.247 36.3422 156.247 29.765C156.247 23.1878 161.588 18.1998 168.254 18.1998ZM168.298 25.1742C165.737 25.1742 164.016 27.0723 164.016 29.765C164.016 32.5018 165.737 34.3558 168.298 34.3558C170.681 34.3558 172.535 32.5018 172.535 29.765C172.535 27.0723 170.681 25.1742 168.298 25.1742Z" fill="#FE81E7"/>
+<path d="M142.918 18.1998C149.098 18.1998 153.512 22.9671 153.512 29.7209C153.512 36.4746 149.098 41.3303 142.918 41.3303C140.534 41.3303 138.636 40.5798 137.268 39.2997V48.7461H129.675V18.7295H136.606V21.0249C137.974 19.1709 140.093 18.1998 142.918 18.1998ZM141.417 34.4441C143.624 34.4441 145.743 32.855 145.743 29.765C145.743 26.6751 143.668 25.0859 141.417 25.0859C139.298 25.0859 137.135 26.4985 137.135 29.7209C137.135 32.8991 139.254 34.4441 141.417 34.4441Z" fill="#FE81E7"/>
+<path d="M120.883 8C123.443 8 125.562 9.94226 125.562 12.5025C125.562 15.0186 123.443 16.9609 120.883 16.9609C118.323 16.9609 116.248 15.0186 116.248 12.5025C116.248 9.94226 118.323 8 120.883 8ZM124.723 18.7295V40.8005H117.131V18.7295H124.723Z" fill="#F4F3FF"/>
+<path d="M111.734 18.3763C112.572 18.3763 113.279 18.5088 113.897 18.7295V25.4391H112.087C108.732 25.4391 106.834 26.8958 106.834 30.7361V40.8006H99.2414V18.7295H106.172V21.069C107.54 19.3475 109.482 18.3763 111.734 18.3763Z" fill="#F4F3FF"/>
+<path d="M83.3317 18.1998C89.953 18.1998 95.3825 23.1878 95.3825 29.765C95.3825 36.3422 89.953 41.3303 83.3317 41.3303C76.6662 41.3303 71.325 36.3422 71.325 29.765C71.325 23.1878 76.6662 18.1998 83.3317 18.1998ZM83.3758 25.1742C80.8156 25.1742 79.094 27.0723 79.094 29.765C79.094 32.5018 80.8156 34.3558 83.3758 34.3558C85.7595 34.3558 87.6135 32.5018 87.6135 29.765C87.6135 27.0723 85.7595 25.1742 83.3758 25.1742Z" fill="#F4F3FF"/>
+<path d="M67.4765 12.0618V40.8005H59.8841V12.0618H67.4765Z" fill="#F4F3FF"/>
+<path d="M43.9745 18.1998C50.5958 18.1998 56.0253 23.1878 56.0253 29.765C56.0253 36.3422 50.5958 41.3303 43.9745 41.3303C37.309 41.3303 31.9678 36.3422 31.9678 29.765C31.9678 23.1878 37.309 18.1998 43.9745 18.1998ZM44.0186 25.1742C41.4584 25.1742 39.7368 27.0723 39.7368 29.765C39.7368 32.5018 41.4584 34.3558 44.0186 34.3558C46.4023 34.3558 48.2563 32.5018 48.2563 29.765C48.2563 27.0723 46.4023 25.1742 44.0186 25.1742Z" fill="#F4F3FF"/>
+<path d="M20.0508 18.1998C24.6857 18.1998 28.173 20.5393 29.9386 24.1148L24.6857 28.1318C23.6263 26.4985 22.3021 25.1742 20.1391 25.1742C17.4464 25.1742 15.769 27.0723 15.769 29.765C15.769 32.4577 17.4464 34.3558 20.1391 34.3558C22.3021 34.3558 23.6263 33.0757 24.6857 31.4424L29.9386 35.4152C28.173 38.9907 24.6857 41.3303 20.0508 41.3303C13.3412 41.3303 8 36.3422 8 29.765C8 23.1878 13.3412 18.1998 20.0508 18.1998Z" fill="#F4F3FF"/>
+    </svg>
+    <div class="footer-note" id="footer-note">Recursos para el curso de Diseño Mobile · 2026</div>
+  </div>
+</footer>
+
+<script>
+const resources = [
+  { name: "Awwwards", url: "https://www.awwwards.com/", cat: "Web Design",
+    desc_es: "Los mejores sitios web del mundo evaluados por expertos. Alto nivel de craft y creatividad.",
+    desc_en: "The world's best websites evaluated by experts. High craft and creativity.",
+    access: "free", needsAccount: false },
+  { name: "Behance", url: "https://www.behance.net/", cat: "Web Design",
+    desc_es: "Plataforma de Adobe con millones de proyectos de diseño UI, branding, ilustración y motion. Ideal para explorar portafolios profesionales.",
+    desc_en: "Adobe's platform with millions of UI, branding, illustration and motion design projects. Great for exploring professional portfolios.",
+    access: "free", needsAccount: true },
+  { name: "Best Awards NZ", url: "https://bestawards.co.nz/", cat: "Awards",
+    desc_es: "Premios de diseño de Nueva Zelanda. Branding, digital y diseño de producto de alto nivel.",
+    desc_en: "New Zealand design awards. High-level branding, digital and product design.",
+    access: "free", needsAccount: false },
+  { name: "Bento Grids", url: "https://bentogrids.com/", cat: "Web Design",
+    desc_es: "La colección definitiva de layouts tipo bento grid. Ideal para portafolios, landings y feature pages.",
+    desc_en: "The definitive collection of bento grid layouts. Ideal for portfolios, landings and feature pages.",
+    access: "free", needsAccount: false },
+  { name: "Built for Mars", url: "https://builtformars.com/ux-bites", cat: "Contenido",
+    desc_es: "Análisis profundo de UX de apps reales. Cada entrada explica el porqué detrás de las decisiones de diseño.",
+    desc_en: "Deep UX analysis of real apps. Each entry explains the reasoning behind design decisions.",
+    access: "free", needsAccount: false },
+  { name: "CSS Design Awards", url: "https://www.cssdesignawards.com/", cat: "Web Design",
+    desc_es: "Reconocimiento para sitios web con excelencia en diseño, usabilidad e innovación.",
+    desc_en: "Recognition for websites with excellence in design, usability and innovation.",
+    access: "free", needsAccount: false },
+  { name: "CSS Line", url: "https://cssline.com/", cat: "Web Design",
+    desc_es: "Galería curada de sitios web con estética CSS-forward. Actualizado regularmente.",
+    desc_en: "Curated gallery of CSS-forward websites. Updated regularly.",
+    access: "free", needsAccount: false },
+  { name: "Collect UI", url: "https://collectui.com/", cat: "Mobile UI",
+    desc_es: "Inspiración diaria de UI organizada por componente: login, onboarding, cards, y más.",
+    desc_en: "Daily UI inspiration organized by component: login, onboarding, cards, and more.",
+    access: "free", needsAccount: false },
+  { name: "Cosmos", url: "https://www.cosmos.so/", cat: "Web Design",
+    desc_es: "Moodboard visual colaborativo. Ideal para coleccionar y organizar referencias de diseño de forma visual.",
+    desc_en: "Visual collaborative moodboard. Great for collecting and organizing design references visually.",
+    access: "account", needsAccount: true },
+  { name: "Design Fuell", url: "https://designfuell.com/", cat: "Web Design",
+    desc_es: "Newsletter y galería de diseño web con selecciones curadas de sitios creativos.",
+    desc_en: "Newsletter and web design gallery with curated selections of creative sites.",
+    access: "free", needsAccount: false },
+  { name: "Dribbble", url: "https://dribbble.com/", cat: "Web Design",
+    desc_es: "La comunidad de diseño más grande del mundo. Miles de shots de UI, ilustración, branding y motion. Referencia visual esencial.",
+    desc_en: "The world's largest design community. Thousands of UI, illustration, branding and motion shots. An essential visual reference.",
+    access: "free", needsAccount: true },
+  { name: "Godly", url: "https://godly.website/", cat: "Web Design",
+    desc_es: "Los sitios web más creativos e innovadores. Especialidad en motion, 3D y web design de frontera.",
+    desc_en: "The most creative and innovative websites. Specializes in motion, 3D and boundary-pushing web design.",
+    access: "free", needsAccount: false },
+  { name: "Mobbin", url: "https://mobbin.com/discover/apps/ios/latest", cat: "Mobile UI",
+    desc_es: "La mayor biblioteca de screenshots y flujos de apps iOS, Android y web. Plan estudiante disponible con descuento.",
+    desc_en: "The largest library of iOS, Android and web app screenshots and flows. Student plan available at a discount.",
+    access: "freemium", needsAccount: true },
+  { name: "Navbar Gallery", url: "https://www.navbar.gallery/", cat: "Web Design",
+    desc_es: "Galería dedicada exclusivamente a navbars y headers. Perfecta para estudiar ese patrón en profundidad.",
+    desc_en: "Gallery dedicated exclusively to navbars and headers. Perfect for studying that pattern in depth.",
+    access: "free", needsAccount: false },
+  { name: "Page Flows", url: "https://pageflows.com/", cat: "Mobile UI",
+    desc_es: "Videograbaciones de flujos reales de UX en apps populares. Ideal para estudiar onboarding y conversión.",
+    desc_en: "Video recordings of real UX flows in popular apps. Great for studying onboarding and conversion.",
+    access: "paid", needsAccount: true },
+  { name: "Pinterest", url: "https://es.pinterest.com/", cat: "Web Design",
+    desc_es: "La referencia clásica. Infinitas imágenes de UI, branding, tipografía y más.",
+    desc_en: "The classic reference. Endless UI, branding, typography and more images.",
+    access: "free", needsAccount: false },
+  { name: "Pttrns", url: "https://www.pttrns.com/", cat: "Mobile UI",
+    desc_es: "Patrones de diseño mobile organizados por categoría. Clásico del toolkit de diseñadores de apps.",
+    desc_en: "Mobile design patterns organized by category. A classic in every app designer's toolkit.",
+    access: "freemium", needsAccount: false },
+  { name: "Refero", url: "https://refero.design/", cat: "Mobile UI",
+    desc_es: "Más de 21,000 pantallas de apps reales (iOS y web). Organizado por secciones y patrones.",
+    desc_en: "21,000+ real app screens (iOS and web). Organized by sections and patterns.",
+    access: "freemium", needsAccount: true },
+  { name: "SaaS Pages", url: "https://saaspages.xyz/", cat: "SaaS",
+    desc_es: "Ejemplos de páginas SaaS organizados por sección: hero, pricing, CTA, testimonials.",
+    desc_en: "SaaS page examples organized by section: hero, pricing, CTA, testimonials.",
+    access: "free", needsAccount: false },
+  { name: "Saaspo", url: "https://saaspo.com/", cat: "SaaS",
+    desc_es: "Colección curada de los mejores sitios SaaS. Filtrá por tipo de página: pricing, landing, features. 100% gratis.",
+    desc_en: "Curated collection of the best SaaS websites. Filter by page type: pricing, landing, features. 100% free.",
+    access: "free", needsAccount: false },
+  { name: "Screens Design", url: "https://screensdesign.com/", cat: "Mobile UI",
+    desc_es: "Biblioteca de patrones de apps iOS reales. Organizada por flujos, componentes y categorías.",
+    desc_en: "Real iOS app pattern library. Organized by flows, components and categories.",
+    access: "paid", needsAccount: true },
+  { name: "Scrnshts", url: "https://scrnshts.club/", cat: "Mobile UI",
+    desc_es: "Colección curada de los mejores screenshots de App Store. Enfocado en íconos y pantallas de presentación.",
+    desc_en: "Curated collection of the finest App Store screenshots. Focused on icons and preview screens.",
+    access: "free", needsAccount: false },
+  { name: "Variant", url: "https://variant.com/", cat: "Contenido",
+    desc_es: "Artículos y recursos sobre diseño de producto, growth y estrategia de UX.",
+    desc_en: "Articles and resources on product design, growth and UX strategy.",
+    access: "free", needsAccount: false },
+  { name: "Webby Awards", url: "https://www.webbyawards.com/", cat: "Awards",
+    desc_es: "Los 'Oscars de Internet'. Ganadores en diseño, UX, mobile y experiencias digitales.",
+    desc_en: "The 'Oscars of the Internet'. Winners in design, UX, mobile and digital experiences.",
+    access: "free", needsAccount: false },
+];
+
+const i18n = {
+  es: {
+    titleLine1: "UX",
+    titleLine2: "Sorcery",
+    subtitle: "Recursos seleccionados para explorar patrones, flujos y tendencias de diseño de producto.",
+    statResources: "Recursos",
+    statCategories: "Categorías",
+    statFree: "Gratis o Freemium",
+    filterLabel: "Filtrar:",
+    sortLabel: "Orden:",
+    chipAll: "Todos",
+    chipMobile: "Mobile UI",
+    chipContent: "Contenido / UX",
+    chipAwards: "Awards",
+    sortDefault: "A → Z",
+    sortAccess: "Acceso",
+    sortCat: "Categoría",
+    showing: (n) => `Mostrando <strong>${n}</strong> recurso${n !== 1 ? 's' : ''}`,
+    legFree: "Gratis",
+    legFreemium: "Freemium",
+    legPaid: "Solo de pago",
+    legAccount: "Solo cuenta",
+    labelAccount: "Requiere registro",
+    accessLabels: {
+      free: "Gratis",
+      freemium: "Freemium",
+      paid: "Solo de pago",
+      account: "Requiere cuenta"
+    },
+    catLabels: {
+      "Mobile UI": "Mobile UI",
+      "Web Design": "Web Design",
+      "SaaS": "SaaS",
+      "Awards": "Awards",
+      "Contenido": "Contenido"
+    },
+    footerNote: "Recursos para el curso de Diseño Mobile · 2026",
+    emptyTitle: "Sin resultados",
+    emptyDesc: "Probá con otro filtro."
+  },
+  en: {
+    titleLine1: "UX",
+    titleLine2: "Sorcery",
+    subtitle: "Handpicked resources to help with inspiration and insights for product design.",
+    statResources: "Resources",
+    statCategories: "Categories",
+    statFree: "Free or Freemium",
+    filterLabel: "Filter:",
+    sortLabel: "Sort:",
+    chipAll: "All",
+    chipMobile: "Mobile UI",
+    chipContent: "Content / UX",
+    chipAwards: "Awards",
+    sortDefault: "A → Z",
+    sortAccess: "Access",
+    sortCat: "Category",
+    showing: (n) => `Showing <strong>${n}</strong> resource${n !== 1 ? 's' : ''}`,
+    legFree: "Free",
+    legFreemium: "Freemium",
+    legPaid: "Paid only",
+    legAccount: "Account only",
+    labelAccount: "Registration required",
+    accessLabels: {
+      free: "Free",
+      freemium: "Freemium",
+      paid: "Paid only",
+      account: "Account required"
+    },
+    catLabels: {
+      "Mobile UI": "Mobile UI",
+      "Web Design": "Web Design",
+      "SaaS": "SaaS",
+      "Awards": "Awards",
+      "Contenido": "Content"
+    },
+    footerNote: "Resources for the Mobile Design Course · 2026",
+    emptyTitle: "No results",
+    emptyDesc: "Try a different filter."
+  }
+};
+
+const accessOrder = { free: 0, freemium: 1, account: 2, paid: 3 };
+
+let currentLang = 'es';
+let currentFilter = 'all';
+let currentSort = 'default';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-es').classList.toggle('active', lang === 'es');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.documentElement.lang = lang;
+  applyTranslations();
+  render();
+}
+
+function applyTranslations() {
+  const t = i18n[currentLang];
+  document.getElementById('h-title-1').textContent = t.titleLine1 + ' ';
+  document.getElementById('h-title-2').textContent = t.titleLine2;
+  document.getElementById('h-sub').textContent = t.subtitle;
+  document.getElementById('stat-resources').textContent = t.statResources;
+  document.getElementById('stat-categories').textContent = t.statCategories;
+  document.getElementById('stat-free').textContent = t.statFree;
+  document.getElementById('ctrl-filter').textContent = t.filterLabel;
+  document.getElementById('ctrl-sort').textContent = t.sortLabel;
+  document.getElementById('chip-all').textContent = t.chipAll;
+  document.getElementById('chip-mobile').textContent = t.chipMobile;
+  document.getElementById('chip-content').textContent = t.chipContent;
+  document.getElementById('chip-awards').textContent = t.chipAwards;
+  document.getElementById('sort-default').textContent = t.sortDefault;
+  document.getElementById('sort-access').textContent = t.sortAccess;
+  document.getElementById('sort-cat').textContent = t.sortCat;
+  document.getElementById('leg-free').textContent = t.legFree;
+  document.getElementById('leg-freemium').textContent = t.legFreemium;
+  document.getElementById('leg-paid').textContent = t.legPaid;
+  document.getElementById('leg-account').textContent = t.legAccount;
+  document.getElementById('leg-reg').textContent = t.labelAccount;
+  document.getElementById('footer-note').textContent = t.footerNote;
+}
+
+function setFilter(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setSort(val) {
+  currentSort = val;
+  render();
+}
+
+function render() {
+  const t = i18n[currentLang];
+  let filtered = currentFilter === 'all'
+    ? [...resources]
+    : resources.filter(r => r.cat === currentFilter || (currentFilter === 'Contenido' && r.cat === 'Contenido'));
+
+  if (currentSort === 'default') {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (currentSort === 'access') {
+    filtered.sort((a, b) => accessOrder[a.access] - accessOrder[b.access]);
+  } else if (currentSort === 'cat') {
+    filtered.sort((a, b) => a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name));
+  }
+
+  document.getElementById('results-count').innerHTML = t.showing(filtered.length);
+
+  const catClass = {
+    "Mobile UI": "cat-mobile",
+    "Web Design": "cat-web",
+    "SaaS": "cat-saas",
+    "Awards": "cat-awards",
+    "Contenido": "cat-content"
+  };
+
+  const grid = document.getElementById('grid');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div>${t.emptyTitle}</div><div style="font-size:13px;margin-top:4px">${t.emptyDesc}</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((r, i) => `
+    <a class="card" href="${r.url}" target="_blank" rel="noopener" style="animation-delay:${i * 0.03}s">
+      <div class="card-head">
+        <div class="card-name">${r.name}</div>
+        <span class="cat-badge ${catClass[r.cat]}">${t.catLabels[r.cat]}</span>
+      </div>
+      <div class="card-desc">${r['desc_' + currentLang]}</div>
+      <div class="card-foot">
+        <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+          <span class="access-badge access-${r.access}">
+            <span class="dot dot-${r.access}"></span>
+            ${t.accessLabels[r.access]}
+          </span>
+          ${r.needsAccount ? `<span class="access-badge access-account" style="opacity:0.85;"><span style="font-size:9px;">👤</span> ${t.labelAccount}</span>` : ''}
+        </div>
+        <div class="arrow-icon">
+          <svg viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.5 10.5L10.5 2.5M10.5 2.5H4.5M10.5 2.5V8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </a>
+  `).join('');
+}
+
+let currentTheme = localStorage.getItem('coloripop-theme') || 'light';
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+  document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('coloripop-theme', theme);
+}
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(currentTheme);
+}
+
+applyTheme(currentTheme);
+render();
+
+// ── STARFIELD ──
+(function() {
+  const canvas = document.getElementById('star-canvas');
+  const ctx = canvas.getContext('2d');
+  const header = canvas.parentElement;
+
+  const COLORS = ['#FFFFFF', '#B5AFFF', '#FE81E7', '#E2E0FF', '#7B6FFF'];
+  const NUM_STARS = 160;
+  const NUM_SHOOTING = 3;
+
+  let stars = [];
+  let shooting = [];
+  let W, H;
+
+  function resize() {
+    W = canvas.width = header.offsetWidth;
+    H = canvas.height = header.offsetHeight;
+  }
+
+  function randRange(a, b) { return a + Math.random() * (b - a); }
+  function randInt(a, b) { return Math.floor(randRange(a, b)); }
+  function pick(arr) { return arr[randInt(0, arr.length)]; }
+
+  function makeStar() {
+    return {
+      x: randRange(0, W),
+      y: randRange(0, H),
+      r: randRange(0.3, 1.8),
+      color: pick(COLORS),
+      alpha: randRange(0.3, 1),
+      alphaDir: Math.random() > 0.5 ? 1 : -1,
+      alphaSpeed: randRange(0.0005, 0.003),
+      twinkleOffset: randRange(0, Math.PI * 2)
+    };
+  }
+
+  function makeShooting() {
+    const angle = randRange(15, 35) * Math.PI / 180;
+    return {
+      x: randRange(W * 0.1, W * 0.9),
+      y: randRange(0, H * 0.5),
+      len: randRange(80, 180),
+      speed: randRange(6, 12),
+      alpha: 0,
+      phase: 'in',
+      angle,
+      dx: Math.cos(angle),
+      dy: Math.sin(angle),
+      trail: [],
+      delay: randRange(0, 300),
+      color: pick(['#FFFFFF', '#E2E0FF', '#B5AFFF'])
+    };
+  }
+
+  function init() {
+    resize();
+    stars = Array.from({ length: NUM_STARS }, makeStar);
+    shooting = Array.from({ length: NUM_SHOOTING }, makeShooting);
+  }
+
+  function drawStars(t) {
+    stars.forEach(s => {
+      const twinkle = 0.5 + 0.5 * Math.sin(t * s.alphaSpeed * 60 + s.twinkleOffset);
+      const a = 0.3 + twinkle * 0.7;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = a;
+      ctx.fill();
+    });
+  }
+
+  function drawShooting() {
+    shooting.forEach((s, i) => {
+      if (s.delay > 0) { s.delay--; return; }
+
+      if (s.phase === 'in') {
+        s.alpha = Math.min(1, s.alpha + 0.06);
+        if (s.alpha >= 1) s.phase = 'move';
+      } else if (s.phase === 'out') {
+        s.alpha = Math.max(0, s.alpha - 0.05);
+        if (s.alpha <= 0) { shooting[i] = makeShooting(); return; }
+      }
+
+      s.trail.push({ x: s.x, y: s.y });
+      if (s.trail.length > 18) s.trail.shift();
+
+      if (s.phase === 'move') {
+        s.x += s.dx * s.speed;
+        s.y += s.dy * s.speed;
+        if (s.x > W + 50 || s.y > H + 50) s.phase = 'out';
+      }
+
+      for (let j = 0; j < s.trail.length; j++) {
+        const ratio = j / s.trail.length;
+        ctx.beginPath();
+        ctx.arc(s.trail[j].x, s.trail[j].y, 0.8 * ratio, 0, Math.PI * 2);
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = s.alpha * ratio * 0.8;
+        ctx.fill();
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(s.x - s.dx * s.len, s.y - s.dy * s.len);
+      const grad = ctx.createLinearGradient(s.x, s.y, s.x - s.dx * s.len, s.y - s.dy * s.len);
+      grad.addColorStop(0, s.color);
+      grad.addColorStop(1, 'transparent');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.2;
+      ctx.globalAlpha = s.alpha * 0.9;
+      ctx.stroke();
+    });
+  }
+
+  let frame = 0;
+  function loop() {
+    frame++;
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+    drawStars(frame);
+    ctx.globalAlpha = 1;
+    drawShooting();
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', () => { resize(); stars = Array.from({ length: NUM_STARS }, makeStar); });
+  init();
+  loop();
+})();
+</script>
+</body>
+</html>
