@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Sorcery · coloripop Grimoire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#211F54; --purple:#4A3AFF; --purple-light:#7B6FFF; --pink:#FE81E7;
+  --lavender:#B5AFFF; --lavender-light:#E2E0FF;
+  --bg-page:#F8F7FF; --bg-card:#FFFFFF; --bg-bar:#FFFFFF; --border-default:#EDEDF8;
+  --text-primary:#1A1838; --text-secondary:#5A5878; --text-muted:#9895B0;
+  --shadow-bar:rgba(33,31,84,0.06); --shadow-card:rgba(74,58,255,0.1);
+  --cat-mobile-bg:#EEEDFE; --cat-mobile-text:#3C3489;
+  --cat-web-bg:#E6F1FB; --cat-web-text:#0C447C;
+  --cat-saas-bg:#E1F5EE; --cat-saas-text:#085041;
+  --cat-awards-bg:#FAEEDA; --cat-awards-text:#633806;
+  --cat-content-bg:#FBEAF0; --cat-content-text:#72243E;
+  --access-free-bg:#EAF3DE; --access-free-text:#27500A;
+  --access-freemium-bg:#FAEEDA; --access-freemium-text:#633806;
+  --access-paid-bg:#FCEBEB; --access-paid-text:#791F1F;
+  --access-account-bg:#F1EFE8; --access-account-text:#444441;
+  --radius-sm:6px; --radius-md:10px; --radius-lg:16px;
+}
+[data-theme="dark"] {
+  --bg-page:#0F0E1A; --bg-card:#1A1830; --bg-bar:#13122A; --border-default:#2A2850;
+  --text-primary:#EDE9FF; --text-secondary:#9F9CC0; --text-muted:#66638A;
+  --shadow-bar:rgba(0,0,0,0.4); --shadow-card:rgba(74,58,255,0.2);
+  --cat-mobile-bg:#26215C; --cat-mobile-text:#B5AFFF;
+  --cat-web-bg:#042C53; --cat-web-text:#85B7EB;
+  --cat-saas-bg:#04342C; --cat-saas-text:#5DCAA5;
+  --cat-awards-bg:#412402; --cat-awards-text:#FAC775;
+  --cat-content-bg:#4B1528; --cat-content-text:#ED93B1;
+  --access-free-bg:#173404; --access-free-text:#C0DD97;
+  --access-freemium-bg:#412402; --access-freemium-text:#FAC775;
+  --access-paid-bg:#501313; --access-paid-text:#F09595;
+  --access-account-bg:#2C2C2A; --access-account-text:#B4B2A9;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg-page);color:var(--text-primary);min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s;}
+
+/* HEADER */
+.site-header{background:var(--navy);position:relative;overflow:hidden;padding:48px 24px 44px;transition:background 0.8s;}
+[data-theme="light"] .site-header{background:linear-gradient(180deg,#4B1D6E 0%,#7B2D6B 10%,#C94E6E 22%,#E8765A 36%,#F5A86A 50%,#FAC98A 62%,#F5D4C0 74%,#DFD0E8 84%,#7BA7D4 92%,#4A7FC1 100%);}
+#star-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.site-header::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(74,58,255,0.4) 0%,transparent 65%);top:-160px;right:-100px;pointer-events:none;z-index:1;transition:opacity 0.6s;}
+.site-header::after{content:'';position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(254,129,231,0.22) 0%,transparent 65%);bottom:-120px;left:8%;pointer-events:none;z-index:1;}
+[data-theme="light"] .site-header::before{opacity:0;}
+[data-theme="light"] .site-header::after{opacity:0;}
+[data-theme="light"] .header-title{color:#2A0A3A;}
+[data-theme="light"] .header-title .accent{color:#8B2500;}
+[data-theme="light"] .header-sub{color:#2A0A3A;}
+[data-theme="light"] .stat-num{color:#2A0A3A;}
+[data-theme="light"] .stat-label{color:rgba(42,10,58,0.75);}
+[data-theme="light"] .stat-divider{background:rgba(42,10,58,0.25);}
+[data-theme="light"] .lang-toggle{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);}
+[data-theme="light"] .lang-btn{color:rgba(255,255,255,0.8);}
+[data-theme="light"] .lang-btn.active{background:rgba(255,255,255,0.3);color:#fff;}
+[data-theme="light"] .theme-btn{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);}
+.header-inner{max-width:1000px;margin:0 auto;position:relative;z-index:2;}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:32px;flex-wrap:wrap;}
+.lang-toggle{display:flex;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:99px;padding:3px;gap:2px;flex-shrink:0;}
+.lang-btn{font-family:'DM Sans',sans-serif;font-style:normal;font-size:11px;font-weight:600;letter-spacing:0.08em;padding:5px 12px;border-radius:99px;border:none;background:transparent;color:rgba(255,255,255,0.75);cursor:pointer;transition:all .2s;}
+.lang-btn.active{background:var(--purple);color:#fff;}
+.theme-btn{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:background .2s,transform .15s;flex-shrink:0;}
+.theme-btn:hover{background:rgba(255,255,255,0.16);transform:rotate(15deg);}
+.header-title{font-family:'Fraunces',serif;font-style:italic;font-size:clamp(48px,9vw,88px);font-weight:400;color:#fff;line-height:1.0;margin-bottom:16px;letter-spacing:-0.02em;}
+.header-title .accent{color:var(--pink);}
+.header-sub{font-size:15px;color:#B5AFFF;line-height:1.6;max-width:520px;}
+.header-stats{display:flex;gap:24px;margin-top:28px;flex-wrap:wrap;}
+.stat{display:flex;flex-direction:column;gap:1px;}
+.stat-num{font-family:'Fraunces',serif;font-style:italic;font-size:22px;font-weight:700;color:#fff;}
+.stat-label{font-size:11px;color:#B5AFFF;font-weight:400;letter-spacing:0.05em;}
+.stat-divider{width:1px;background:rgba(255,255,255,0.12);height:36px;align-self:center;}
+
+/* VIEWS */
+.view{display:none;} .view.active{display:block;}
+
+/* HOME */
+.home-main{max-width:1000px;margin:0 auto;padding:40px 24px 64px;}
+.home-intro{margin-bottom:32px;}
+.home-intro-label{font-family:'Fraunces',serif;font-style:italic;font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
+.home-intro-title{font-family:'Fraunces',serif;font-style:italic;font-size:28px;font-weight:400;color:var(--text-primary);margin-bottom:6px;}
+.home-intro-sub{font-size:14px;color:var(--text-secondary);}
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+
+/* CATEGORY CARDS */
+.cat-card{position:relative;border-radius:20px;overflow:hidden;cursor:pointer;aspect-ratio:3/4;transition:transform .22s,box-shadow .22s;border:1px solid rgba(255,255,255,0.06);}
+.cat-card:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 20px 48px rgba(0,0,0,0.28);}
+.cat-card[data-cat="spellbook"]{background:linear-gradient(145deg,#1a0533 0%,#2d1060 40%,#4A3AFF 100%);}
+.cat-card[data-cat="artifacts"]{background:linear-gradient(145deg,#0d1f3c 0%,#1a2d5a 40%,#211F54 80%,#4A3AFF 100%);}
+.cat-card[data-cat="rituals"]{background:linear-gradient(145deg,#1a0533 0%,#3d0a6b 50%,#7B10C0 100%);}
+.cat-card[data-cat="enchant"]{background:linear-gradient(145deg,#200038 0%,#4A0080 50%,#8B00C8 100%);}
+.cat-card[data-cat="alchemy"]{background:linear-gradient(145deg,#0a1a2e 0%,#211F54 50%,#4A3AFF 100%);}
+.cat-card-orb{position:absolute;border-radius:50%;pointer-events:none;}
+.cat-card[data-cat="spellbook"] .cat-card-orb{width:200px;height:200px;bottom:-40px;right:-40px;background:radial-gradient(circle,rgba(254,129,231,0.5) 0%,transparent 70%);}
+.cat-card[data-cat="artifacts"] .cat-card-orb{width:220px;height:220px;bottom:-30px;right:-50px;background:radial-gradient(circle,rgba(74,58,255,0.6) 0%,transparent 70%);}
+.cat-card[data-cat="rituals"] .cat-card-orb{width:200px;height:200px;bottom:-40px;left:-40px;background:radial-gradient(circle,rgba(181,175,255,0.4) 0%,transparent 70%);}
+.cat-card[data-cat="enchant"] .cat-card-orb{width:240px;height:240px;top:-60px;right:-60px;background:radial-gradient(circle,rgba(254,129,231,0.35) 0%,transparent 70%);}
+.cat-card[data-cat="alchemy"] .cat-card-orb{width:200px;height:200px;bottom:-40px;right:-30px;background:radial-gradient(circle,rgba(123,111,255,0.5) 0%,transparent 70%);}
+.cat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.07) 0%,transparent 50%);pointer-events:none;z-index:1;}
+.cat-card-inner{position:relative;z-index:2;padding:24px;height:100%;display:flex;flex-direction:column;justify-content:space-between;}
+.cat-card-top{display:flex;flex-direction:column;gap:10px;}
+.cat-card-icon{font-size:28px;line-height:1;}
+.cat-card-name{font-family:'Fraunces',serif;font-style:italic;font-size:22px;font-weight:400;color:#fff;line-height:1.15;letter-spacing:-0.01em;}
+.cat-card-tagline{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5;}
+.cat-card-subs{display:flex;flex-direction:column;gap:5px;margin-top:4px;}
+.cat-card-sub{font-size:11px;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:6px;}
+.cat-card-sub::before{content:'';width:4px;height:4px;border-radius:50%;background:rgba(254,129,231,0.7);flex-shrink:0;}
+.cat-card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:16px;}
+.cat-card-cta{font-family:'Fraunces',serif;font-style:italic;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:6px;transition:color .2s;}
+.cat-card:hover .cat-card-cta{color:#FE81E7;}
+.cat-card-arrow{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);transition:background .2s,border-color .2s;}
+.cat-card:hover .cat-card-arrow{background:rgba(254,129,231,0.2);border-color:rgba(254,129,231,0.5);}
+.cat-card-arrow svg{width:13px;height:13px;stroke:white;}
+.cat-card.wide{aspect-ratio:auto;min-height:180px;}
+
+/* CATEGORY CARDS LIGHT MODE */
+.cat-card[data-cat="runas"]{background:linear-gradient(145deg,#0d2b1a 0%,#1a4a2e 45%,#2E7A50 100%);}
+.cat-card[data-cat="runas"] .cat-card-orb{width:210px;height:210px;bottom:-35px;left:-35px;background:radial-gradient(circle,rgba(46,122,80,0.6) 0%,transparent 70%);}
+[data-theme="light"] .cat-card[data-cat="runas"]{background:linear-gradient(145deg,#C8F0D8 0%,#8FD8AD 45%,#4FAF7A 100%);}
+[data-theme="light"] .cat-card[data-cat="runas"] .cat-card-orb{background:radial-gradient(circle,rgba(79,175,122,0.5) 0%,transparent 70%);}
+
+/* Runas card — special rune icon font style */
+.cat-card[data-cat="runas"] .cat-card-icon{font-family:'Georgia',serif;font-size:36px;color:#7DFFC0;line-height:1;}
+[data-theme="light"] .cat-card[data-cat="spellbook"]{background:linear-gradient(145deg,#E8E0FF 0%,#C9B8FF 40%,#A990FF 100%);}
+[data-theme="light"] .cat-card[data-cat="artifacts"]{background:linear-gradient(145deg,#D4E8FF 0%,#A8CEFF 40%,#7EB0F5 100%);}
+[data-theme="light"] .cat-card[data-cat="rituals"]{background:linear-gradient(145deg,#EDD5F5 0%,#D4A8E8 45%,#B87FD4 100%);}
+[data-theme="light"] .cat-card[data-cat="enchant"]{background:linear-gradient(145deg,#F5D4F0 0%,#E8A8DC 45%,#D070C0 100%);}
+[data-theme="light"] .cat-card[data-cat="alchemy"]{background:linear-gradient(145deg,#D4E4FF 0%,#A8C4F5 45%,#6A9EE8 100%);}
+
+[data-theme="light"] .cat-card[data-cat="spellbook"] .cat-card-orb{background:radial-gradient(circle,rgba(169,144,255,0.6) 0%,transparent 70%);}
+[data-theme="light"] .cat-card[data-cat="artifacts"] .cat-card-orb{background:radial-gradient(circle,rgba(74,130,255,0.45) 0%,transparent 70%);}
+[data-theme="light"] .cat-card[data-cat="rituals"] .cat-card-orb{background:radial-gradient(circle,rgba(184,127,212,0.5) 0%,transparent 70%);}
+[data-theme="light"] .cat-card[data-cat="enchant"] .cat-card-orb{background:radial-gradient(circle,rgba(208,112,192,0.45) 0%,transparent 70%);}
+[data-theme="light"] .cat-card[data-cat="alchemy"] .cat-card-orb{background:radial-gradient(circle,rgba(106,158,232,0.5) 0%,transparent 70%);}
+
+[data-theme="light"] .cat-card-name{color:#1A0840;}
+[data-theme="light"] .cat-card-tagline{color:rgba(26,8,64,0.72);}
+[data-theme="light"] .cat-card-sub{color:rgba(26,8,64,0.6);}
+[data-theme="light"] .cat-card-sub::before{background:rgba(26,8,64,0.45);}
+[data-theme="light"] .cat-card-cta{color:rgba(26,8,64,0.5);}
+[data-theme="light"] .cat-card:hover .cat-card-cta{color:#4A3AFF;}
+[data-theme="light"] .cat-card-arrow{border-color:rgba(26,8,64,0.2);background:rgba(255,255,255,0.3);}
+[data-theme="light"] .cat-card:hover .cat-card-arrow{background:rgba(74,58,255,0.15);border-color:rgba(74,58,255,0.4);}
+[data-theme="light"] .cat-card::before{background:linear-gradient(135deg,rgba(255,255,255,0.35) 0%,transparent 50%);}
+[data-theme="light"] .cat-card-icon{filter:drop-shadow(0 1px 3px rgba(26,8,64,0.2));}
+.inner-header{background:var(--bg-bar);border-bottom:1px solid var(--border-default);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px var(--shadow-bar);transition:background .25s;}
+.inner-header-inner{max-width:1000px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.back-btn{font-family:'Fraunces',serif;font-style:italic;font-size:13px;font-weight:400;color:var(--text-secondary);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0;transition:color .15s;flex-shrink:0;}
+.back-btn:hover{color:var(--purple);}
+.back-btn svg{width:14px;height:14px;stroke:currentColor;}
+.inner-cat-name{font-family:'Fraunces',serif;font-style:italic;font-size:16px;font-weight:400;color:var(--text-primary);flex-shrink:0;}
+.inner-sep{width:1px;height:20px;background:var(--border-default);flex-shrink:0;}
+.inner-filters{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.inner-sort{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sort-label{font-size:11px;font-weight:500;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;}
+.sort-select{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 30px 5px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--border-default);background:var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239895B0'/%3E%3C/svg%3E") no-repeat right 10px center;color:var(--text-secondary);cursor:pointer;appearance:none;outline:none;transition:border-color .2s;}
+.sort-select:focus{border-color:var(--purple);}
+.chip{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 13px;border-radius:99px;border:1.5px solid var(--border-default);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.chip:hover{border-color:var(--purple-light);color:var(--purple);}
+.chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+/* INNER MAIN */
+.inner-main{max-width:1000px;margin:0 auto;padding:28px 24px 64px;}
+.inner-cat-hero{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding:20px 24px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--border-default);}
+.inner-cat-icon{font-size:36px;flex-shrink:0;}
+.inner-cat-title{font-family:'Fraunces',serif;font-style:italic;font-size:22px;font-weight:400;color:var(--text-primary);margin-bottom:2px;}
+.inner-cat-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+.results-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.results-count{font-size:13px;color:var(--text-muted);}
+.results-count strong{color:var(--text-primary);font-weight:500;}
+.legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-free{background:#639922;} .dot-freemium{background:#BA7517;} .dot-paid{background:#E24B4A;} .dot-account{background:#888780;}
+
+/* RESOURCE CARDS */
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.card{background:var(--bg-card);border:1.5px solid var(--border-default);border-radius:var(--radius-lg);padding:18px;display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;transition:border-color .18s,transform .18s,box-shadow .18s,background .25s;animation:fadeUp .3s ease both;}
+.card:hover{border-color:var(--purple-light);transform:translateY(-3px);box-shadow:0 8px 24px var(--shadow-card);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.card-name{font-family:'Fraunces',serif;font-style:italic;font-size:15px;font-weight:400;color:var(--text-primary);line-height:1.2;}
+.cat-badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.cat-mobile{background:var(--cat-mobile-bg);color:var(--cat-mobile-text);}
+.cat-web{background:var(--cat-web-bg);color:var(--cat-web-text);}
+.cat-saas{background:var(--cat-saas-bg);color:var(--cat-saas-text);}
+.cat-awards{background:var(--cat-awards-bg);color:var(--cat-awards-text);}
+.cat-content{background:var(--cat-content-bg);color:var(--cat-content-text);}
+.card-desc{font-size:12.5px;color:var(--text-secondary);line-height:1.6;flex:1;}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;}
+.access-badge{font-size:10px;font-weight:500;padding:3px 9px;border-radius:99px;display:flex;align-items:center;gap:4px;}
+.access-free{background:var(--access-free-bg);color:var(--access-free-text);}
+.access-freemium{background:var(--access-freemium-bg);color:var(--access-freemium-text);}
+.access-paid{background:var(--access-paid-bg);color:var(--access-paid-text);}
+.access-account{background:var(--access-account-bg);color:var(--access-account-text);}
+.arrow-icon{width:28px;height:28px;border-radius:50%;background:var(--lavender-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+.card:hover .arrow-icon{background:var(--purple);}
+.arrow-icon svg{width:13px;height:13px;}
+.arrow-icon svg path{stroke:var(--purple);transition:stroke .15s;}
+.card:hover .arrow-icon svg path{stroke:white;}
+
+/* COMING SOON */
+.coming-soon-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center;gap:16px;}
+.coming-soon-icon{font-size:56px;}
+.coming-soon-title{font-family:'Fraunces',serif;font-style:italic;font-size:28px;font-weight:400;color:var(--text-primary);}
+.coming-soon-sub{font-size:14px;color:var(--text-secondary);line-height:1.6;max-width:380px;}
+.coming-soon-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:99px;border:1.5px solid var(--border-default);background:var(--bg-card);font-size:12px;color:var(--text-muted);font-family:'Fraunces',serif;font-style:italic;}
+.coming-soon-dot{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* FOOTER */
+.site-footer{background:var(--navy);padding:24px;}
+.footer-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.footer-note{font-size:12px;color:#B5AFFF;}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .site-header{padding:32px 16px 28px;}
+  .header-top{flex-direction:column;}
+  .cat-grid{grid-template-columns:1fr;}
+  .cat-card.wide{grid-column:span 1;}
+  .cat-card{aspect-ratio:auto;min-height:280px;}
+  .home-main,.inner-main{padding:20px 16px 48px;}
+  .res-grid{grid-template-columns:1fr;}
+  .inner-header-inner{padding:10px 16px;}
+  .stat-divider{display:none;}
+  .footer-inner{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <canvas id="star-canvas"></canvas>
+  <div class="header-inner">
+    <div class="header-top">
+      <svg width="160" height="53" viewBox="0 0 216 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M48.2769 44.068C48.2762 44.066 48.2755 44.064 51.7573 42.877C55.239 41.6901 55.2383 41.6881 55.2377 41.6863L55.2365 41.6826L55.2341 41.6758L55.23 41.6641L55.2243 41.648C55.2226 41.6434 55.2218 41.6412 55.2218 41.6412C55.2218 41.6412 55.2222 41.6421 55.2229 41.6439C55.2265 41.6534 55.2392 41.686 55.2619 41.7386C55.3076 41.8443 55.3918 42.0265 55.5208 42.2599C55.7816 42.7314 56.2076 43.3796 56.8412 44.0279C58.043 45.2577 60.125 46.6424 63.7688 46.6424C67.4127 46.6424 69.4947 45.2577 70.6965 44.0279C71.3301 43.3796 71.7561 42.7314 72.0168 42.2599C72.1459 42.0265 72.2301 41.8443 72.2758 41.7386C72.2985 41.686 72.3112 41.6534 72.3148 41.6439C72.3155 41.6421 72.3159 41.6412 72.3159 41.6412C72.3159 41.6412 72.315 41.6434 72.3134 41.648L72.3077 41.6641L72.3036 41.6758L72.3012 41.6826L72.3 41.6863C72.2993 41.6881 72.2987 41.6901 75.7804 42.877C79.2622 44.064 79.2615 44.066 79.2608 44.068L79.2594 44.0721L79.2564 44.081L79.2495 44.1008L79.2323 44.1488C79.2194 44.1845 79.2035 44.2275 79.1844 44.2773C79.1462 44.3769 79.0952 44.5042 79.03 44.6552C78.8998 44.9566 78.7118 45.3559 78.4549 45.8204C77.9438 46.7446 77.1432 47.9574 75.9582 49.17C73.5227 51.6621 69.5988 53.9994 63.7688 53.9994C57.9389 53.9994 54.015 51.6621 51.5795 49.17C50.3945 47.9574 49.5939 46.7446 49.0828 45.8204C48.8259 45.3559 48.6379 44.9566 48.5077 44.6552C48.4425 44.5042 48.3915 44.3769 48.3533 44.2773C48.3342 44.2275 48.3183 44.1845 48.3054 44.1488L48.2882 44.1008L48.2813 44.081L48.2783 44.0721L48.2769 44.068Z" fill="#FE81E7"/>
+<path d="M197.406 18.1998C203.586 18.1998 208 22.9671 208 29.7209C208 36.4746 203.586 41.3303 197.406 41.3303C195.022 41.3303 193.124 40.5798 191.756 39.2997V48.7461H184.163V18.7295H191.094V21.0249C192.462 19.1709 194.581 18.1998 197.406 18.1998ZM195.905 34.4441C198.112 34.4441 200.231 32.855 200.231 29.765C200.231 26.6751 198.156 25.0859 195.905 25.0859C193.786 25.0859 191.623 26.4985 191.623 29.7209C191.623 32.8991 193.742 34.4441 195.905 34.4441Z" fill="#FE81E7"/>
+<path d="M168.254 18.1998C174.875 18.1998 180.304 23.1878 180.304 29.765C180.304 36.3422 174.875 41.3303 168.254 41.3303C161.588 41.3303 156.247 36.3422 156.247 29.765C156.247 23.1878 161.588 18.1998 168.254 18.1998ZM168.298 25.1742C165.737 25.1742 164.016 27.0723 164.016 29.765C164.016 32.5018 165.737 34.3558 168.298 34.3558C170.681 34.3558 172.535 32.5018 172.535 29.765C172.535 27.0723 170.681 25.1742 168.298 25.1742Z" fill="#FE81E7"/>
+<path d="M142.918 18.1998C149.098 18.1998 153.512 22.9671 153.512 29.7209C153.512 36.4746 149.098 41.3303 142.918 41.3303C140.534 41.3303 138.636 40.5798 137.268 39.2997V48.7461H129.675V18.7295H136.606V21.0249C137.974 19.1709 140.093 18.1998 142.918 18.1998ZM141.417 34.4441C143.624 34.4441 145.743 32.855 145.743 29.765C145.743 26.6751 143.668 25.0859 141.417 25.0859C139.298 25.0859 137.135 26.4985 137.135 29.7209C137.135 32.8991 139.254 34.4441 141.417 34.4441Z" fill="#FE81E7"/>
+<path d="M120.883 8C123.443 8 125.562 9.94226 125.562 12.5025C125.562 15.0186 123.443 16.9609 120.883 16.9609C118.323 16.9609 116.248 15.0186 116.248 12.5025C116.248 9.94226 118.323 8 120.883 8ZM124.723 18.7295V40.8005H117.131V18.7295H124.723Z" fill="#F4F3FF"/>
+<path d="M111.734 18.3763C112.572 18.3763 113.279 18.5088 113.897 18.7295V25.4391H112.087C108.732 25.4391 106.834 26.8958 106.834 30.7361V40.8006H99.2414V18.7295H106.172V21.069C107.54 19.3475 109.482 18.3763 111.734 18.3763Z" fill="#F4F3FF"/>
+<path d="M83.3317 18.1998C89.953 18.1998 95.3825 23.1878 95.3825 29.765C95.3825 36.3422 89.953 41.3303 83.3317 41.3303C76.6662 41.3303 71.325 36.3422 71.325 29.765C71.325 23.1878 76.6662 18.1998 83.3317 18.1998ZM83.3758 25.1742C80.8156 25.1742 79.094 27.0723 79.094 29.765C79.094 32.5018 80.8156 34.3558 83.3758 34.3558C85.7595 34.3558 87.6135 32.5018 87.6135 29.765C87.6135 27.0723 85.7595 25.1742 83.3758 25.1742Z" fill="#F4F3FF"/>
+<path d="M67.4765 12.0618V40.8005H59.8841V12.0618H67.4765Z" fill="#F4F3FF"/>
+<path d="M43.9745 18.1998C50.5958 18.1998 56.0253 23.1878 56.0253 29.765C56.0253 36.3422 50.5958 41.3303 43.9745 41.3303C37.309 41.3303 31.9678 36.3422 31.9678 29.765C31.9678 23.1878 37.309 18.1998 43.9745 18.1998ZM44.0186 25.1742C41.4584 25.1742 39.7368 27.0723 39.7368 29.765C39.7368 32.5018 41.4584 34.3558 44.0186 34.3558C46.4023 34.3558 48.2563 32.5018 48.2563 29.765C48.2563 27.0723 46.4023 25.1742 44.0186 25.1742Z" fill="#F4F3FF"/>
+<path d="M20.0508 18.1998C24.6857 18.1998 28.173 20.5393 29.9386 24.1148L24.6857 28.1318C23.6263 26.4985 22.3021 25.1742 20.1391 25.1742C17.4464 25.1742 15.769 27.0723 15.769 29.765C15.769 32.4577 17.4464 34.3558 20.1391 34.3558C22.3021 34.3558 23.6263 33.0757 24.6857 31.4424L29.9386 35.4152C28.173 38.9907 24.6857 41.3303 20.0508 41.3303C13.3412 41.3303 8 36.3422 8 29.765C8 23.1878 13.3412 18.1998 20.0508 18.1998Z" fill="#F4F3FF"/>
+      </svg>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+        <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle dark mode"><span id="theme-icon">🌙</span></button>
+        <div class="lang-toggle">
+          <button class="lang-btn active" onclick="setLang('es')" id="btn-es">ES</button>
+          <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+        </div>
+      </div>
+    </div>
+    <h1 class="header-title"><span>UX </span><span class="accent">Sorcery</span></h1>
+    <p class="header-sub" id="h-sub">Tu grimoire de diseño de producto. Patrones, inspiración, métodos y principios en un solo lugar.</p>
+    <div class="header-stats">
+      <div class="stat"><span class="stat-num">6</span><span class="stat-label" id="stat-tomes">Tomos</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num">128</span><span class="stat-label" id="stat-art">Recursos</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num">∞</span><span class="stat-label" id="stat-grow">Creciendo</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- HOME VIEW -->
+<div id="view-home" class="view active">
+  <main class="home-main">
+    <div class="home-intro">
+      <div class="home-intro-label" id="home-label">Elige tu tomo</div>
+      <div class="home-intro-title" id="home-title">¿Qué hechizo necesitás hoy?</div>
+      <div class="home-intro-sub" id="home-sub">Cada categoría es un capítulo de tu práctica como diseñadora.</div>
+    </div>
+    <div class="cat-grid" id="cat-grid"></div>
+  </main>
+</div>
+
+<!-- INNER VIEW -->
+<div id="view-inner" class="view">
+  <div class="inner-header">
+    <div class="inner-header-inner">
+      <button class="back-btn" onclick="goHome()">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="back-label">Volver</span>
+      </button>
+      <div class="inner-sep"></div>
+      <div class="inner-cat-name" id="inner-cat-name"></div>
+      <div class="inner-filters" id="inner-filters"></div>
+      <div class="inner-sort" id="inner-sort-wrap">
+        <span class="sort-label" id="sort-label-text">Orden:</span>
+        <select class="sort-select" id="sort-select" onchange="setSort(this.value)">
+          <option value="default" id="sort-opt-az">A → Z</option>
+          <option value="access" id="sort-opt-ac">Acceso</option>
+          <option value="cat" id="sort-opt-cat">Categoría</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <main class="inner-main">
+    <div class="inner-cat-hero" id="inner-cat-hero"></div>
+    <div class="results-meta">
+      <div class="results-count" id="results-count"></div>
+      <div class="legend">
+        <div class="legend-item"><span class="dot dot-free"></span><span id="leg-free">Gratis</span></div>
+        <div class="legend-item"><span class="dot dot-freemium"></span><span id="leg-freemium">Freemium</span></div>
+        <div class="legend-item"><span class="dot dot-paid"></span><span id="leg-paid">Solo de pago</span></div>
+        <div class="legend-item"><span class="dot dot-account"></span><span id="leg-account">Solo cuenta</span></div>
+        <div class="legend-item"><span style="font-size:9px;">👤</span><span id="leg-reg">Requiere registro</span></div>
+      </div>
+    </div>
+    <div id="inner-content"></div>
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <svg width="100" height="33" viewBox="0 0 216 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M48.2769 44.068C48.2762 44.066 48.2755 44.064 51.7573 42.877C55.239 41.6901 55.2383 41.6881 55.2377 41.6863L55.2365 41.6826L55.2341 41.6758L55.23 41.6641L55.2243 41.648C55.2226 41.6434 55.2218 41.6412 55.2218 41.6412C55.2218 41.6412 55.2222 41.6421 55.2229 41.6439C55.2265 41.6534 55.2392 41.686 55.2619 41.7386C55.3076 41.8443 55.3918 42.0265 55.5208 42.2599C55.7816 42.7314 56.2076 43.3796 56.8412 44.0279C58.043 45.2577 60.125 46.6424 63.7688 46.6424C67.4127 46.6424 69.4947 45.2577 70.6965 44.0279C71.3301 43.3796 71.7561 42.7314 72.0168 42.2599C72.1459 42.0265 72.2301 41.8443 72.2758 41.7386C72.2985 41.686 72.3112 41.6534 72.3148 41.6439C72.3155 41.6421 72.3159 41.6412 72.3159 41.6412C72.3159 41.6412 72.315 41.6434 72.3134 41.648L72.3077 41.6641L72.3036 41.6758L72.3012 41.6826L72.3 41.6863C72.2993 41.6881 72.2987 41.6901 75.7804 42.877C79.2622 44.064 79.2615 44.066 79.2608 44.068L79.2594 44.0721L79.2564 44.081L79.2495 44.1008L79.2323 44.1488C79.2194 44.1845 79.2035 44.2275 79.1844 44.2773C79.1462 44.3769 79.0952 44.5042 79.03 44.6552C78.8998 44.9566 78.7118 45.3559 78.4549 45.8204C77.9438 46.7446 77.1432 47.9574 75.9582 49.17C73.5227 51.6621 69.5988 53.9994 63.7688 53.9994C57.9389 53.9994 54.015 51.6621 51.5795 49.17C50.3945 47.9574 49.5939 46.7446 49.0828 45.8204C48.8259 45.3559 48.6379 44.9566 48.5077 44.6552C48.4425 44.5042 48.3915 44.3769 48.3533 44.2773C48.3342 44.2275 48.3183 44.1845 48.3054 44.1488L48.2882 44.1008L48.2813 44.081L48.2783 44.0721L48.2769 44.068Z" fill="#FE81E7"/>
+<path d="M197.406 18.1998C203.586 18.1998 208 22.9671 208 29.7209C208 36.4746 203.586 41.3303 197.406 41.3303C195.022 41.3303 193.124 40.5798 191.756 39.2997V48.7461H184.163V18.7295H191.094V21.0249C192.462 19.1709 194.581 18.1998 197.406 18.1998ZM195.905 34.4441C198.112 34.4441 200.231 32.855 200.231 29.765C200.231 26.6751 198.156 25.0859 195.905 25.0859C193.786 25.0859 191.623 26.4985 191.623 29.7209C191.623 32.8991 193.742 34.4441 195.905 34.4441Z" fill="#FE81E7"/>
+<path d="M168.254 18.1998C174.875 18.1998 180.304 23.1878 180.304 29.765C180.304 36.3422 174.875 41.3303 168.254 41.3303C161.588 41.3303 156.247 36.3422 156.247 29.765C156.247 23.1878 161.588 18.1998 168.254 18.1998ZM168.298 25.1742C165.737 25.1742 164.016 27.0723 164.016 29.765C164.016 32.5018 165.737 34.3558 168.298 34.3558C170.681 34.3558 172.535 32.5018 172.535 29.765C172.535 27.0723 170.681 25.1742 168.298 25.1742Z" fill="#FE81E7"/>
+<path d="M142.918 18.1998C149.098 18.1998 153.512 22.9671 153.512 29.7209C153.512 36.4746 149.098 41.3303 142.918 41.3303C140.534 41.3303 138.636 40.5798 137.268 39.2997V48.7461H129.675V18.7295H136.606V21.0249C137.974 19.1709 140.093 18.1998 142.918 18.1998ZM141.417 34.4441C143.624 34.4441 145.743 32.855 145.743 29.765C145.743 26.6751 143.668 25.0859 141.417 25.0859C139.298 25.0859 137.135 26.4985 137.135 29.7209C137.135 32.8991 139.254 34.4441 141.417 34.4441Z" fill="#FE81E7"/>
+<path d="M120.883 8C123.443 8 125.562 9.94226 125.562 12.5025C125.562 15.0186 123.443 16.9609 120.883 16.9609C118.323 16.9609 116.248 15.0186 116.248 12.5025C116.248 9.94226 118.323 8 120.883 8ZM124.723 18.7295V40.8005H117.131V18.7295H124.723Z" fill="#F4F3FF"/>
+<path d="M111.734 18.3763C112.572 18.3763 113.279 18.5088 113.897 18.7295V25.4391H112.087C108.732 25.4391 106.834 26.8958 106.834 30.7361V40.8006H99.2414V18.7295H106.172V21.069C107.54 19.3475 109.482 18.3763 111.734 18.3763Z" fill="#F4F3FF"/>
+<path d="M83.3317 18.1998C89.953 18.1998 95.3825 23.1878 95.3825 29.765C95.3825 36.3422 89.953 41.3303 83.3317 41.3303C76.6662 41.3303 71.325 36.3422 71.325 29.765C71.325 23.1878 76.6662 18.1998 83.3317 18.1998ZM83.3758 25.1742C80.8156 25.1742 79.094 27.0723 79.094 29.765C79.094 32.5018 80.8156 34.3558 83.3758 34.3558C85.7595 34.3558 87.6135 32.5018 87.6135 29.765C87.6135 27.0723 85.7595 25.1742 83.3758 25.1742Z" fill="#F4F3FF"/>
+<path d="M67.4765 12.0618V40.8005H59.8841V12.0618H67.4765Z" fill="#F4F3FF"/>
+<path d="M43.9745 18.1998C50.5958 18.1998 56.0253 23.1878 56.0253 29.765C56.0253 36.3422 50.5958 41.3303 43.9745 41.3303C37.309 41.3303 31.9678 36.3422 31.9678 29.765C31.9678 23.1878 37.309 18.1998 43.9745 18.1998ZM44.0186 25.1742C41.4584 25.1742 39.7368 27.0723 39.7368 29.765C39.7368 32.5018 41.4584 34.3558 44.0186 34.3558C46.4023 34.3558 48.2563 32.5018 48.2563 29.765C48.2563 27.0723 46.4023 25.1742 44.0186 25.1742Z" fill="#F4F3FF"/>
+<path d="M20.0508 18.1998C24.6857 18.1998 28.173 20.5393 29.9386 24.1148L24.6857 28.1318C23.6263 26.4985 22.3021 25.1742 20.1391 25.1742C17.4464 25.1742 15.769 27.0723 15.769 29.765C15.769 32.4577 17.4464 34.3558 20.1391 34.3558C22.3021 34.3558 23.6263 33.0757 24.6857 31.4424L29.9386 35.4152C28.173 38.9907 24.6857 41.3303 20.0508 41.3303C13.3412 41.3303 8 36.3422 8 29.765C8 23.1878 13.3412 18.1998 20.0508 18.1998Z" fill="#F4F3FF"/>
+    </svg>
+    <div class="footer-note" id="footer-note">UX Sorcery Grimoire · coloripop · 2026</div>
+  </div>
+</footer>
+
+<script>
+const categories = [
+  { id:'spellbook', icon:'📖',
+    name_es:'Libro de Hechizos', name_en:'Spellbook',
+    tagline_es:'Tu biblioteca de patrones UX/UI listos para invocar.', tagline_en:'Your UX/UI pattern spell book.',
+    desc_es:'Patrones de interfaz, patrones con IA y herramientas AI para diseñadores. Cada entrada incluye cuándo usarlo, por qué funciona y ejemplos reales.',
+    desc_en:'Interface patterns, AI patterns and AI tools for designers. Each entry includes when to use it, why it works, and real examples.',
+    cta_es:'Explorar hechizos', cta_en:'Browse spells',
+    subs_es:['Patrones de interfaz','Patrones con IA','Tools AI'],
+    subs_en:['UI patterns','AI patterns','AI tools'], type:'resources' },
+  { id:'artifacts', icon:'🧿',
+    name_es:'Artefactos', name_en:'Artifacts',
+    tagline_es:'Reliquias visuales de tus viajes digitales.', tagline_en:'Visual relics from your digital journeys.',
+    desc_es:'Inspiración visual curada. No es un volcado de links — todo tiene un "por qué vale la pena".',
+    desc_en:'Curated visual inspiration. Not a dump — everything has a "why it\'s worth it".',
+    cta_es:'Combinar artefactos', cta_en:'Combine artifacts',
+    subs_es:['Inspiración de interfaces'], subs_en:['UI inspiration'], type:'resources' },
+  { id:'runas', icon:'ᚱ',
+    name_es:'Runas', name_en:'Runes',
+    tagline_es:'El alfabeto visual del diseño de producto.', tagline_en:'The visual alphabet of product design.',
+    desc_es:'Familias y sets de íconos para tus proyectos de interfaz. Cada runa es un símbolo con intención — explorá estilos, licencias y casos de uso para encontrar el lenguaje visual perfecto para cada producto.',
+    desc_en:'Icon families and sets for your interface projects. Each rune is an intentional symbol — explore styles, licenses and use cases to find the perfect visual language for every product.',
+    cta_es:'Descifrar runas', cta_en:'Decipher runes',
+    subs_es:['Icon sets open source','Icon sets premium','Íconos especializados'],
+    subs_en:['Open source icon sets','Premium icon sets','Specialized icons'], type:'resources' },
+  { id:'rituals', icon:'🔮',
+    name_es:'Rituales', name_en:'Rituals',
+    tagline_es:'Aquí ocurre la magia real de la investigación.', tagline_en:'Where the real research magic happens.',
+    desc_es:'Métodos de diseño, herramientas de investigación y pruebas de usabilidad. Cada recurso es un ritual para entender mejor a tus usuarios.',
+    desc_en:'Design methods, research tools and usability testing. Each resource is a ritual for better understanding your users.',
+    cta_es:'Invocar ritual', cta_en:'Invoke ritual',
+    subs_es:['Métodos de diseño','Herramientas de investigación','Herramientas de prueba'],
+    subs_en:['Design methods','Research tools','Testing tools'], type:'resources', section:'rituals' },
+  { id:'enchant', icon:'🪄',
+    name_es:'Encantamientos', name_en:'Enchantments',
+    tagline_es:'El motor invisible. Principios y psicología.', tagline_en:'The invisible engine. Principles & psychology.',
+    desc_es:'Lo que hace que el usuario diga "esto se siente bien" sin saber por qué. Sesgos cognitivos, modelos mentales y heurísticas.',
+    desc_en:'What makes users say "this feels right" without knowing why. Cognitive biases, mental models, and heuristics.',
+    cta_es:'Activar encantamiento', cta_en:'Cast enchantment',
+    subs_es:['Sesgos cognitivos','Modelos mentales','Heurísticas'],
+    subs_en:['Cognitive biases','Mental models','Heuristics'], type:'coming' },
+  { id:'alchemy', icon:'⚗️',
+    name_es:'Laboratorio de Alquimia', name_en:'Alchemy Lab',
+    tagline_es:'De consumidora a creadora. Tu espacio coloripop.', tagline_en:'From consumer to creator. Your coloripop space.',
+    desc_es:'Síntesis personal: tu espacio de trabajo y herramientas de coloripop. Aquí es donde la magia se vuelve tuya.',
+    desc_en:'Personal synthesis: your workspace and coloripop tools. This is where the magic becomes yours.',
+    cta_es:'Iniciar transmutación', cta_en:'Start transmutation',
+    subs_es:['Espacio coloripop','Herramientas','Proyectos activos'],
+    subs_en:['coloripop workspace','Tools','Active projects'], type:'coming' }
+];
+
+const resources = [
+  { name:"Awwwards", url:"https://www.awwwards.com/", cat:"Web Design", section:"artifacts", desc_es:"Los mejores sitios web del mundo evaluados por expertos. Alto nivel de elaboración y creatividad.", desc_en:"The world's best websites evaluated by experts. High craft and creativity.", access:"free", needsAccount:false },
+  { name:"Behance", url:"https://www.behance.net/", cat:"Web Design", section:"artifacts", desc_es:"Plataforma de Adobe con millones de proyectos de diseño de interfaz, identidad visual, ilustración y animación.", desc_en:"Adobe's platform with millions of UI, branding, illustration and motion projects.", access:"free", needsAccount:true },
+  { name:"Best Awards NZ", url:"https://bestawards.co.nz/", cat:"Awards", section:"artifacts", desc_es:"Premios de diseño de Nueva Zelanda. Identidad, digital y diseño de producto de alto nivel.", desc_en:"New Zealand design awards. High-level branding, digital and product design.", access:"free", needsAccount:false },
+  { name:"Bento Grids", url:"https://bentogrids.com/", cat:"Web Design", section:"artifacts", desc_es:"La colección definitiva de composiciones tipo bento. Ideal para portafolios, páginas de inicio y secciones de funcionalidades.", desc_en:"The definitive bento grid layout collection. Ideal for portfolios, landings and feature pages.", access:"free", needsAccount:false },
+  { name:"Built for Mars", url:"https://builtformars.com/ux-bites", cat:"Contenido", section:"artifacts", desc_es:"Análisis profundo de UX de aplicaciones reales. Cada entrada explica el porqué detrás de las decisiones de diseño.", desc_en:"Deep UX analysis of real apps. Each entry explains the reasoning behind design decisions.", access:"free", needsAccount:false },
+  { name:"CSS Design Awards", url:"https://www.cssdesignawards.com/", cat:"Web Design", section:"artifacts", desc_es:"Reconocimiento para sitios con excelencia en diseño, usabilidad e innovación.", desc_en:"Recognition for websites with excellence in design, usability and innovation.", access:"free", needsAccount:false },
+  { name:"CSS Line", url:"https://cssline.com/", cat:"Web Design", section:"artifacts", desc_es:"Galería curada de sitios web con fuerte protagonismo del CSS. Actualizada regularmente.", desc_en:"Curated gallery of CSS-forward websites. Updated regularly.", access:"free", needsAccount:false },
+  { name:"Collect UI", url:"https://collectui.com/", cat:"Diseño Móvil", section:"artifacts", desc_es:"Inspiración diaria de interfaces organizada por componente: inicio de sesión, incorporación, tarjetas, y más.", desc_en:"Daily UI inspiration organized by component: login, onboarding, cards, and more.", access:"free", needsAccount:false },
+  { name:"Cosmos", url:"https://www.cosmos.so/", cat:"Web Design", section:"artifacts", desc_es:"Tablero visual colaborativo. Ideal para coleccionar y organizar referencias de diseño.", desc_en:"Visual collaborative moodboard. Great for collecting and organizing design references.", access:"account", needsAccount:true },
+  { name:"Design Fuell", url:"https://designfuell.com/", cat:"Web Design", section:"artifacts", desc_es:"Boletín y galería de diseño web con selecciones curadas de sitios creativos.", desc_en:"Newsletter and web design gallery with curated selections of creative sites.", access:"free", needsAccount:false },
+  { name:"Dribbble", url:"https://dribbble.com/", cat:"Web Design", section:"artifacts", desc_es:"La comunidad de diseño más grande del mundo. Miles de piezas de interfaz, ilustración e identidad visual.", desc_en:"The world's largest design community. Thousands of UI, illustration and branding shots.", access:"free", needsAccount:true },
+  { name:"Godly", url:"https://godly.website/", cat:"Web Design", section:"artifacts", desc_es:"Los sitios web más creativos e innovadores. Especialidad en animación, 3D y diseño web de vanguardia.", desc_en:"The most creative and innovative websites. Specializes in motion, 3D and boundary-pushing web design.", access:"free", needsAccount:false },
+  { name:"Mobbin", url:"https://mobbin.com/discover/apps/ios/latest", cat:"Diseño Móvil", section:"artifacts", desc_es:"La mayor biblioteca de capturas y flujos de aplicaciones iOS, Android y web. Plan estudiantil disponible.", desc_en:"The largest library of iOS, Android and web app screenshots and flows. Student plan available.", access:"freemium", needsAccount:true },
+  { name:"Navbar Gallery", url:"https://www.navbar.gallery/", cat:"Web Design", section:"artifacts", desc_es:"Galería dedicada exclusivamente a barras de navegación y encabezados. Perfecta para estudiar ese patrón.", desc_en:"Gallery dedicated exclusively to navbars and headers. Perfect for studying that pattern.", access:"free", needsAccount:false },
+  { name:"Page Flows", url:"https://pageflows.com/", cat:"Diseño Móvil", section:"artifacts", desc_es:"Grabaciones de video de flujos reales de UX en aplicaciones populares. Ideal para estudiar incorporación y conversión.", desc_en:"Video recordings of real UX flows in popular apps. Great for studying onboarding and conversion.", access:"paid", needsAccount:true },
+  { name:"Pinterest", url:"https://es.pinterest.com/", cat:"Web Design", section:"artifacts", desc_es:"La referencia clásica. Imágenes infinitas de interfaces, identidad visual, tipografía y más.", desc_en:"The classic reference. Endless UI, branding, typography and more images.", access:"free", needsAccount:false },
+  { name:"Pttrns", url:"https://www.pttrns.com/", cat:"Diseño Móvil", section:"artifacts", desc_es:"Patrones de diseño móvil organizados por categoría. Clásico en el arsenal de diseñadores de aplicaciones.", desc_en:"Mobile design patterns organized by category. A classic in every app designer's toolkit.", access:"freemium", needsAccount:false },
+  { name:"Refero", url:"https://refero.design/", cat:"Diseño Móvil", section:"artifacts", desc_es:"Más de 21,000 pantallas de aplicaciones reales (iOS y web). Organizado por secciones y patrones.", desc_en:"21,000+ real app screens (iOS and web). Organized by sections and patterns.", access:"freemium", needsAccount:true },
+  { name:"SaaS Pages", url:"https://saaspages.xyz/", cat:"SaaS", section:"artifacts", desc_es:"Ejemplos de páginas SaaS organizados por sección: héroe, precios, llamada a la acción, testimonios.", desc_en:"SaaS page examples organized by section: hero, pricing, CTA, testimonials.", access:"free", needsAccount:false },
+  { name:"Saaspo", url:"https://saaspo.com/", cat:"SaaS", section:"artifacts", desc_es:"Colección curada de los mejores sitios SaaS. Filtrá por tipo de página. 100% gratuito.", desc_en:"Curated collection of the best SaaS websites. Filter by page type. 100% free.", access:"free", needsAccount:false },
+  { name:"Screens Design", url:"https://screensdesign.com/", cat:"Diseño Móvil", section:"artifacts", desc_es:"Biblioteca de patrones de aplicaciones iOS reales. Organizada por flujos, componentes y categorías.", desc_en:"Real iOS app pattern library. Organized by flows, components and categories.", access:"paid", needsAccount:true },
+  { name:"Scrnshts", url:"https://scrnshts.club/", cat:"Diseño Móvil", section:"artifacts", desc_es:"Colección curada de las mejores capturas de la App Store. Enfocada en íconos y pantallas de presentación.", desc_en:"Curated collection of the finest App Store screenshots. Focused on icons and preview screens.", access:"free", needsAccount:false },
+  { name:"Variant", url:"https://variant.com/", cat:"Contenido", section:"artifacts", desc_es:"Artículos y recursos sobre diseño de producto, crecimiento y estrategia de UX.", desc_en:"Articles and resources on product design, growth and UX strategy.", access:"free", needsAccount:false },
+  { name:"Webby Awards", url:"https://www.webbyawards.com/", cat:"Awards", section:"artifacts", desc_es:"Los 'Óscar de Internet'. Ganadores en diseño, UX, aplicaciones móviles y experiencias digitales.", desc_en:"The 'Oscars of the Internet'. Winners in design, UX, mobile and digital experiences.", access:"free", needsAccount:false },
+  // ── RITUALES: Métodos de Diseño ──
+  { name:"UX Methods", url:"https://uxmethods.org/", cat:"Métodos de diseño", section:"rituals", desc_es:"Biblioteca completa de métodos UX organizados por fase del proceso. Referencia esencial para cualquier diseñador.", desc_en:"Complete library of UX methods organized by process phase. An essential reference for any designer.", access:"free", needsAccount:false },
+  { name:"Universal Design Playbook", url:"https://universaldesignguide.com/playbook/", cat:"Métodos de diseño", section:"rituals", desc_es:"Guía práctica de diseño universal e inclusivo. Principios y tácticas para diseñar para todos.", desc_en:"Practical guide to universal and inclusive design. Principles and tactics for designing for everyone.", access:"free", needsAccount:false },
+  { name:"Experience Research Society", url:"https://experienceresearchsociety.org/ux/evaluation-methods/", cat:"Métodos de diseño", section:"rituals", desc_es:"Métodos de evaluación de experiencia de usuario avalados por la comunidad académica e investigadora.", desc_en:"User experience evaluation methods backed by the academic and research community.", access:"free", needsAccount:false },
+  { name:"This is Service Design Doing", url:"https://www.thisisservicedesigndoing.com/methods", cat:"Métodos de diseño", section:"rituals", desc_es:"Más de 50 métodos de diseño de servicios explicados paso a paso. El estándar de la industria.", desc_en:"Over 50 service design methods explained step by step. The industry standard.", access:"free", needsAccount:false },
+  { name:"UX Methods (Airtable)", url:"https://www.airtable.com/universe/expSQZi5P7UPZDWrO/ux-methods-and-projects?explore=true", cat:"Métodos de diseño", section:"rituals", desc_es:"Base de datos curada de métodos UX y tipos de proyectos en Airtable. Fácil de explorar y filtrar.", desc_en:"Curated database of UX methods and project types in Airtable. Easy to explore and filter.", access:"free", needsAccount:false },
+  { name:"UX Repo", url:"https://uxrepo.co/", cat:"Métodos de diseño", section:"rituals", desc_es:"Repositorio de recursos de investigación UX: plantillas, guías y herramientas organizadas por tipo.", desc_en:"Repository of UX research resources: templates, guides and tools organized by type.", access:"free", needsAccount:false },
+  { name:"Questionable Methods", url:"https://questionablemethods.com/", cat:"Métodos de diseño", section:"rituals", desc_es:"Análisis crítico de métodos de investigación cuestionables. Ayuda a evitar sesgos y errores comunes.", desc_en:"Critical analysis of questionable research methods. Helps avoid biases and common mistakes.", access:"free", needsAccount:false },
+  { name:"Unfix Decision Methods", url:"https://unfix.com/decision-methods", cat:"Métodos de diseño", section:"rituals", desc_es:"Métodos para la toma de decisiones en equipos de producto. Estructuras ágiles y colaborativas.", desc_en:"Decision-making methods for product teams. Agile and collaborative frameworks.", access:"free", needsAccount:false },
+  { name:"DSS Design Toolkits", url:"https://toolkits.dss.cloud/design/", cat:"Métodos de diseño", section:"rituals", desc_es:"Colección de herramientas y marcos de diseño listos para usar en proyectos reales.", desc_en:"Collection of design tools and frameworks ready to use in real projects.", access:"free", needsAccount:false },
+  { name:"UX Atlas", url:"https://www.uxatlas.io/", cat:"Métodos de diseño", section:"rituals", desc_es:"Mapa visual de métodos y herramientas UX. Navega por fases, actividades y entregables.", desc_en:"Visual map of UX methods and tools. Navigate by phases, activities and deliverables.", access:"free", needsAccount:false },
+  // ── RITUALES: Herramientas de investigación ──
+  { name:"TechCrunch", url:"https://techcrunch.com/", cat:"Investigación", section:"rituals", desc_es:"El medio de referencia para tendencias tecnológicas, startups e innovación digital. Clave para investigación de mercado.", desc_en:"The go-to source for tech trends, startups and digital innovation. Key for market research.", access:"free", needsAccount:false },
+  { name:"Crunchbase", url:"https://www.crunchbase.com/", cat:"Investigación", section:"rituals", desc_es:"Base de datos de empresas, financiamiento e inversión. Ideal para analizar competidores y el ecosistema.", desc_en:"Company, funding and investment database. Ideal for analyzing competitors and the ecosystem.", access:"freemium", needsAccount:true },
+  { name:"TradingView", url:"https://www.tradingview.com/", cat:"Investigación", section:"rituals", desc_es:"Plataforma de análisis financiero y datos de mercado. Útil para contexto económico en proyectos fintech.", desc_en:"Financial analysis and market data platform. Useful for economic context in fintech projects.", access:"freemium", needsAccount:true },
+  { name:"SimilarWeb", url:"https://www.similarweb.com/", cat:"Investigación", section:"rituals", desc_es:"Analítica de tráfico web y benchmarking competitivo. Revelá el rendimiento digital de cualquier sitio.", desc_en:"Web traffic analytics and competitive benchmarking. Reveal the digital performance of any site.", access:"freemium", needsAccount:true },
+  { name:"FounderPal", url:"https://founderpal.ai/", cat:"Investigación", section:"rituals", desc_es:"Herramienta de IA para investigación de mercado y análisis de usuarios. Acelera la fase de descubrimiento.", desc_en:"AI tool for market research and user analysis. Speeds up the discovery phase.", access:"freemium", needsAccount:true },
+  { name:"There's an AI for That", url:"https://theresanaiforthat.com/", cat:"Investigación", section:"rituals", desc_es:"Directorio de herramientas de IA organizadas por caso de uso. Ideal para explorar el ecosistema IA actual.", desc_en:"Directory of AI tools organized by use case. Ideal for exploring the current AI ecosystem.", access:"free", needsAccount:false },
+  { name:"Indeed", url:"https://www.indeed.com/", cat:"Investigación", section:"rituals", desc_es:"Plataforma de empleo para investigar roles, habilidades demandadas y tendencias del mercado laboral en diseño.", desc_en:"Job platform to research roles, in-demand skills and labor market trends in design.", access:"free", needsAccount:false },
+  { name:"Product Hunt", url:"https://www.producthunt.com/", cat:"Investigación", section:"rituals", desc_es:"Descubrí los productos digitales más nuevos del mundo. Referencia para tendencias en herramientas y apps.", desc_en:"Discover the world's newest digital products. Reference for trends in tools and apps.", access:"free", needsAccount:false },
+  { name:"Glassdoor", url:"https://www.glassdoor.com/", cat:"Investigación", section:"rituals", desc_es:"Reseñas de empresas, sueldos y cultura organizacional. Útil para investigar contexto interno en proyectos.", desc_en:"Company reviews, salaries and organizational culture. Useful for researching internal context in projects.", access:"freemium", needsAccount:true },
+  // ── RITUALES: Herramientas de prueba ──
+  { name:"Lyssna", url:"https://www.lyssna.com/", cat:"Pruebas de usabilidad", section:"rituals", desc_es:"Plataforma de investigación de usuarios para pruebas de usabilidad, pruebas de cinco segundos y encuestas.", desc_en:"User research platform for usability tests, five-second tests and surveys.", access:"freemium", needsAccount:true },
+  { name:"Dovetail", url:"https://dovetail.com/", cat:"Pruebas de usabilidad", section:"rituals", desc_es:"Herramienta de análisis de investigación cualitativa. Centraliza notas, videos y hallazgos del equipo.", desc_en:"Qualitative research analysis tool. Centralizes notes, videos and team findings.", access:"freemium", needsAccount:true },
+  { name:"Maze", url:"https://maze.co/", cat:"Pruebas de usabilidad", section:"rituals", desc_es:"Pruebas de usabilidad continuas directamente desde prototipos de Figma. Resultados en minutos.", desc_en:"Continuous usability testing directly from Figma prototypes. Results in minutes.", access:"freemium", needsAccount:true },
+  { name:"Lookback", url:"https://www.lookback.com/", cat:"Pruebas de usabilidad", section:"rituals", desc_es:"Plataforma de investigación con usuarios en vivo o grabada. Ideal para entrevistas moderadas y no moderadas.", desc_en:"Live or recorded user research platform. Ideal for moderated and unmoderated interviews.", access:"paid", needsAccount:true },
+  { name:"Edraw AI Heatmap", url:"https://www.edraw.ai/feature/online-heat-map-maker.html", cat:"Pruebas de usabilidad", section:"rituals", desc_es:"Creador de mapas de calor en línea con IA. Visualizá dónde se enfoca la atención en tus interfaces.", desc_en:"Online AI-powered heatmap maker. Visualize where attention focuses on your interfaces.", access:"freemium", needsAccount:true },
+  { name:"Attention Insight", url:"https://attentioninsight.com/", cat:"Pruebas de usabilidad", section:"rituals", desc_es:"Predicción de atención visual mediante IA antes de hacer pruebas con usuarios reales. Ahorra tiempo en iteraciones.", desc_en:"AI-based visual attention prediction before testing with real users. Saves time on iterations.", access:"freemium", needsAccount:true },
+  // ── RUNAS: Sets open source ──
+  { name:"Heroicons", url:"https://heroicons.com/", cat:"Sets open source", section:"runas", desc_es:"Íconos SVG de alta calidad por los creadores de Tailwind CSS. Estilo outline y solid, perfectos para interfaces modernas.", desc_en:"High-quality SVG icons by the creators of Tailwind CSS. Outline and solid styles, perfect for modern UIs.", access:"free", needsAccount:false },
+  { name:"Lucide", url:"https://lucide.dev/icons/", cat:"Sets open source", section:"runas", desc_es:"Fork comunitario de Feather Icons con cientos de íconos adicionales. Consistentes, limpios y bien mantenidos.", desc_en:"Community fork of Feather Icons with hundreds of additional icons. Consistent, clean and well maintained.", access:"free", needsAccount:false },
+  { name:"Phosphor Icons", url:"https://phosphoricons.com/", cat:"Sets open source", section:"runas", desc_es:"Sistema flexible con 6 estilos: thin, light, regular, bold, fill y duotone. Más de 1,400 íconos.", desc_en:"Flexible system with 6 styles: thin, light, regular, bold, fill and duotone. Over 1,400 icons.", access:"free", needsAccount:false },
+  { name:"Remix Icon", url:"https://remixicon.com/", cat:"Sets open source", section:"runas", desc_es:"Más de 2,800 íconos open source en estilo line y fill. Ideal para aplicaciones web y móviles.", desc_en:"Over 2,800 open source icons in line and fill style. Ideal for web and mobile apps.", access:"free", needsAccount:false },
+  { name:"Tabler Icons", url:"https://tabler.io/icons/", cat:"Sets open source", section:"runas", desc_es:"Más de 4,200 íconos SVG gratuitos con trazos consistentes. Uno de los sets más completos disponibles.", desc_en:"Over 4,200 free SVG icons with consistent strokes. One of the most comprehensive sets available.", access:"free", needsAccount:false },
+  { name:"Feather Icons", url:"https://feathericons.com/", cat:"Sets open source", section:"runas", desc_es:"267 íconos minimalistas de trazo fino. El estándar del diseño limpio y moderno.", desc_en:"267 minimalist thin-stroke icons. The standard for clean and modern design.", access:"free", needsAccount:false },
+  { name:"Ionicons", url:"https://ionic.io/ionicons", cat:"Sets open source", section:"runas", desc_es:"Íconos del ecosistema Ionic con estilos iOS, Android y Material Design en un solo set.", desc_en:"Icons from the Ionic ecosystem with iOS, Android and Material Design styles in one set.", access:"free", needsAccount:false },
+  { name:"Material Icons", url:"https://fonts.google.com/icons", cat:"Sets open source", section:"runas", desc_es:"La biblioteca de íconos de Google. Más de 2,500 íconos en 5 estilos incluyendo rounded y sharp.", desc_en:"Google's icon library. Over 2,500 icons in 5 styles including rounded and sharp.", access:"free", needsAccount:false },
+  { name:"Radix Icons", url:"https://www.radix-ui.com/icons", cat:"Sets open source", section:"runas", desc_es:"15×15px íconos cuidadosamente diseñados por el equipo de Radix UI. Precisos al píxel.", desc_en:"15×15px icons carefully crafted by the Radix UI team. Pixel-perfect precision.", access:"free", needsAccount:false },
+  { name:"Box Icons", url:"https://boxicons.com/", cat:"Sets open source", section:"runas", desc_es:"Set de alta calidad con estilos regular, solid y logos. Fácil de integrar en cualquier proyecto.", desc_en:"High-quality set with regular, solid and logo styles. Easy to integrate into any project.", access:"free", needsAccount:false },
+  { name:"Eva Icons", url:"https://akveo.github.io/eva-icons/#/", cat:"Sets open source", section:"runas", desc_es:"Más de 480 íconos con animaciones incorporadas. Estilo outline y fill con variantes de color.", desc_en:"Over 480 icons with built-in animations. Outline and fill style with color variants.", access:"free", needsAccount:false },
+  { name:"Iconoir", url:"https://iconoir.com/", cat:"Sets open source", section:"runas", desc_es:"Más de 1,600 íconos SVG de trazo limpio diseñados en grilla consistente de 24×24.", desc_en:"Over 1,600 clean stroke SVG icons designed on a consistent 24×24 grid.", access:"free", needsAccount:false },
+  { name:"CSS.gg", url:"https://css.gg/", cat:"Sets open source", section:"runas", desc_es:"Íconos implementados puramente en CSS. Ligeros, sin dependencias de imagen.", desc_en:"Icons implemented purely in CSS. Lightweight, no image dependencies.", access:"free", needsAccount:false },
+  { name:"Humble Icons", url:"https://www.humbleicons.com/", cat:"Sets open source", section:"runas", desc_es:"250 íconos simples y neutros. Perfectos para interfaces que necesitan discreción visual.", desc_en:"250 simple and neutral icons. Perfect for interfaces that need visual subtlety.", access:"free", needsAccount:false },
+  { name:"Octicons", url:"https://primer.style/octicons/icon/home-24/", cat:"Sets open source", section:"runas", desc_es:"El sistema de íconos de GitHub. Open source, consistente y usado en uno de los productos más grandes del mundo.", desc_en:"GitHub's icon system. Open source, consistent and used in one of the world's largest products.", access:"free", needsAccount:false },
+  { name:"Material Design Icons", url:"https://pictogrammers.com/library/mdi/", cat:"Sets open source", section:"runas", desc_es:"La comunidad de íconos Material más grande. Miles de variantes y contribuciones de la comunidad.", desc_en:"The largest Material icon community. Thousands of variants and community contributions.", access:"free", needsAccount:false },
+  { name:"Flowbite Icons", url:"https://flowbite.com/icons/", cat:"Sets open source", section:"runas", desc_es:"Íconos open source del equipo de Flowbite, optimizados para Tailwind CSS.", desc_en:"Open source icons from the Flowbite team, optimized for Tailwind CSS.", access:"free", needsAccount:false },
+  { name:"Ikonate", url:"https://ikonate.com/", cat:"Sets open source", section:"runas", desc_es:"Íconos SVG personalizables por color, tamaño y grosor directamente en el navegador.", desc_en:"SVG icons customizable by color, size and stroke width directly in the browser.", access:"free", needsAccount:false },
+  { name:"IconSVG", url:"https://iconsvg.xyz/", cat:"Sets open source", section:"runas", desc_es:"Herramienta para personalizar íconos SVG antes de descargar. Ajustá trazo, color y tamaño.", desc_en:"Tool to customize SVG icons before downloading. Adjust stroke, color and size.", access:"free", needsAccount:false },
+  { name:"SVG Icons Sparkk", url:"https://svgicons.sparkk.fr/", cat:"Sets open source", section:"runas", desc_es:"Colección de íconos SVG descargables individualmente. Variados estilos y categorías.", desc_en:"Downloadable SVG icon collection. Various styles and categories.", access:"free", needsAccount:false },
+  { name:"Linearicons", url:"https://linearicons.com", cat:"Sets open source", section:"runas", desc_es:"170 íconos de trazo ultrafino. Minimalistas y elegantes para proyectos de alto diseño.", desc_en:"170 ultra-thin stroke icons. Minimalist and elegant for high-design projects.", access:"freemium", needsAccount:false },
+  { name:"Zondicons", url:"https://www.zondicons.com/", cat:"Sets open source", section:"runas", desc_es:"Set solid diseñados por Steve Schoger, co-creador de Tailwind UI. Estilo relleno clásico.", desc_en:"Solid icon set designed by Steve Schoger, co-creator of Tailwind UI. Classic filled style.", access:"free", needsAccount:false },
+  { name:"Genericons", url:"https://genericons.com/", cat:"Sets open source", section:"runas", desc_es:"Íconos genéricos para blogging y redes sociales. Ampliamente usados en temas de WordPress.", desc_en:"Generic icons for blogging and social media. Widely used in WordPress themes.", access:"free", needsAccount:false },
+  { name:"Dripicons", url:"http://demo.amitjakhu.com/dripicons/", cat:"Sets open source", section:"runas", desc_es:"200 íconos de línea en estilo uniforme. Clásico y confiable para interfaces limpias.", desc_en:"200 line icons in uniform style. Classic and reliable for clean interfaces.", access:"free", needsAccount:false },
+  { name:"Smart Icons", url:"https://smarticons.co/", cat:"Sets open source", section:"runas", desc_es:"Set curado con enfoque en claridad semántica. Fácil de identificar a cualquier tamaño.", desc_en:"Curated set focused on semantic clarity. Easy to identify at any size.", access:"free", needsAccount:false },
+  { name:"Typicons", url:"https://www.s-ings.com/typicons/", cat:"Sets open source", section:"runas", desc_es:"336 íconos vectoriales gratuitos diseñados como tipografía. Integración via font o SVG.", desc_en:"336 free vector icons designed as a typeface. Integration via font or SVG.", access:"free", needsAccount:false },
+  { name:"Hlvticons", url:"https://hlvticons.ch/", cat:"Sets open source", section:"runas", desc_es:"Set con influencia del estilo tipográfico suizo aplicada al diseño de iconografía.", desc_en:"Icon set with Swiss typographic style influence applied to icon design.", access:"free", needsAccount:false },
+  { name:"Zwicon", url:"https://www.zwicon.com/cheatsheet.html", cat:"Sets open source", section:"runas", desc_es:"Set de íconos de trazo personalizable. Limpio y versátil para proyectos modernos.", desc_en:"Customizable stroke icon set. Clean and versatile for modern projects.", access:"free", needsAccount:false },
+  { name:"Core Icon", url:"https://coreicon.dev/", cat:"Sets open source", section:"runas", desc_es:"Set de íconos de sistema minimalista. Diseñado para coherencia en interfaces complejas.", desc_en:"Minimalist system icon set. Designed for coherence in complex interfaces.", access:"free", needsAccount:false },
+  { name:"Themify Icons", url:"https://themify.me/themify-icons", cat:"Sets open source", section:"runas", desc_es:"320 íconos web en formato de fuente e SVG. Ampliamente usados en WordPress y plugins.", desc_en:"320 web icons in font and SVG format. Widely used in WordPress and plugins.", access:"free", needsAccount:false },
+  { name:"CSS Icon", url:"https://cssicon.space/#/", cat:"Sets open source", section:"runas", desc_es:"Íconos creados 100% con CSS puro. Sin imágenes, sin SVG — puro código.", desc_en:"Icons created 100% with pure CSS. No images, no SVG — pure code.", access:"free", needsAccount:false },
+  { name:"Cool Icons", url:"https://coolicons.cool/", cat:"Sets open source", section:"runas", desc_es:"Set moderno con más de 400 íconos. Estilo limpio con buena densidad de información visual.", desc_en:"Modern set with over 400 icons. Clean style with good visual information density.", access:"free", needsAccount:false },
+  // ── RUNAS: Sets premium ──
+  { name:"Font Awesome", url:"https://fontawesome.com/", cat:"Sets premium", section:"runas", desc_es:"La biblioteca de íconos más usada del mundo. Plan gratuito robusto + pro con miles de íconos adicionales.", desc_en:"The world's most used icon library. Robust free plan + pro with thousands of additional icons.", access:"freemium", needsAccount:true },
+  { name:"Untitled UI Icons", url:"https://www.untitledui.com/icons", cat:"Sets premium", section:"runas", desc_es:"Más de 1,100 íconos del sistema de diseño Untitled UI. Consistencia y elegancia de nivel profesional.", desc_en:"Over 1,100 icons from the Untitled UI design system. Professional-level consistency and elegance.", access:"freemium", needsAccount:true },
+  { name:"Huge Icons", url:"https://hugeicons.com/", cat:"Sets premium", section:"runas", desc_es:"Más de 27,000 íconos en múltiples estilos. Una de las colecciones más grandes disponibles.", desc_en:"Over 27,000 icons in multiple styles. One of the largest collections available.", access:"freemium", needsAccount:true },
+  { name:"Iconsax", url:"https://app.iconsax.io/", cat:"Sets premium", section:"runas", desc_es:"1,000 íconos en 6 estilos distintos. Diseñados para coherencia visual perfecta entre estilos.", desc_en:"1,000 icons in 6 distinct styles. Designed for perfect visual coherence across styles.", access:"freemium", needsAccount:true },
+  { name:"Iconic App", url:"https://iconic.app/", cat:"Sets premium", section:"runas", desc_es:"Íconos premium con variantes de estilo y personalización avanzada. Ideal para sistemas de diseño.", desc_en:"Premium icons with style variants and advanced customization. Ideal for design systems.", access:"paid", needsAccount:true },
+  { name:"Dazzle UI", url:"https://dazzleui.pro/", cat:"Sets premium", section:"runas", desc_es:"Set premium con enfoque en interfaces SaaS. Moderno, expresivo y bien documentado.", desc_en:"Premium set focused on SaaS interfaces. Modern, expressive and well documented.", access:"paid", needsAccount:true },
+  { name:"Glyphs", url:"https://glyphs.fyi/", cat:"Sets premium", section:"runas", desc_es:"Sistema de íconos con múltiples pesos y estilos — como una tipografía variable pero para íconos.", desc_en:"Icon system with multiple weights and styles — like a variable font but for icons.", access:"freemium", needsAccount:true },
+  { name:"Swift Icons", url:"https://www.swifticons.com/", cat:"Sets premium", section:"runas", desc_es:"Más de 4,600 íconos en múltiples estilos y formatos. Licencia comercial incluida.", desc_en:"Over 4,600 icons in multiple styles and formats. Commercial license included.", access:"paid", needsAccount:true },
+  { name:"Orion Icon Library", url:"https://www.orioniconlibrary.com/", cat:"Sets premium", section:"runas", desc_es:"Más de 8,000 íconos en estilos flat, line y color. Cobertura temática muy amplia.", desc_en:"Over 8,000 icons in flat, line and color styles. Very broad thematic coverage.", access:"freemium", needsAccount:true },
+  { name:"Unicorn Icons", url:"https://www.unicornicons.com/icons", cat:"Sets premium", section:"runas", desc_es:"Íconos animados y estáticos con personalidad. Perfectos para landing pages y productos con carácter.", desc_en:"Animated and static icons with personality. Perfect for landing pages and products with character.", access:"freemium", needsAccount:true },
+  { name:"Moving Icons", url:"https://www.movingicons.dev/", cat:"Sets premium", section:"runas", desc_es:"Íconos animados listos para usar en componentes web. Sin necesidad de After Effects.", desc_en:"Animated icons ready to use in web components. No After Effects needed.", access:"freemium", needsAccount:true },
+  { name:"Neat Icons", url:"https://neaticons.pro/", cat:"Sets premium", section:"runas", desc_es:"Set minimalista de alta calidad con licencia comercial. Trazo fino y elegante.", desc_en:"High-quality minimalist set with commercial license. Fine and elegant stroke.", access:"paid", needsAccount:true },
+  { name:"Griddy Icons", url:"https://griddyicons.com/", cat:"Sets premium", section:"runas", desc_es:"Íconos creativos con grilla explícita. Carácter propio, ideal para marcas con personalidad fuerte.", desc_en:"Creative icons with an explicit grid. Unique character, ideal for brands with strong personality.", access:"paid", needsAccount:true },
+  { name:"Radical Icons", url:"https://radicalicons.com/", cat:"Sets premium", section:"runas", desc_es:"Set de íconos expresivos estilo bold. Para productos que quieren destacar visualmente.", desc_en:"Expressive bold-style icon set. For products that want to stand out visually.", access:"paid", needsAccount:true },
+  { name:"Iconly Pro", url:"https://iconly.pro", cat:"Sets premium", section:"runas", desc_es:"Set premium con estilo consistente y elegante. Muy usado en aplicaciones móviles de alto nivel.", desc_en:"Premium set with consistent and elegant style. Widely used in high-end mobile applications.", access:"paid", needsAccount:true },
+  { name:"Icon Hub", url:"https://iconhub.io/", cat:"Sets premium", section:"runas", desc_es:"Plataforma con múltiples sets curados. Descarga individual o por paquetes con licencia comercial.", desc_en:"Platform with multiple curated sets. Individual or package downloads with commercial license.", access:"freemium", needsAccount:true },
+  { name:"Line Icons", url:"https://lineicons.com/", cat:"Sets premium", section:"runas", desc_es:"Más de 8,000 íconos de línea en múltiples formatos. Ideal para proyectos que requieren cobertura amplia.", desc_en:"Over 8,000 line icons in multiple formats. Ideal for projects that require broad coverage.", access:"freemium", needsAccount:true },
+  { name:"Icon Shock", url:"https://www.iconshock.com/svg-icons/", cat:"Sets premium", section:"runas", desc_es:"Más de 400,000 íconos en múltiples estilos. Una de las colecciones más grandes del mercado.", desc_en:"Over 400,000 icons in multiple styles. One of the largest collections on the market.", access:"freemium", needsAccount:true },
+  { name:"Icons Download", url:"https://icons.download/", cat:"Sets premium", section:"runas", desc_es:"Directorio curado de sets de íconos con descarga directa. Filtrá por estilo, formato y licencia.", desc_en:"Curated directory of icon sets with direct download. Filter by style, format and license.", access:"free", needsAccount:false },
+  // ── RUNAS: Íconos especializados ──
+  { name:"Health Icons", url:"https://healthicons.org/", cat:"Íconos especializados", section:"runas", desc_es:"Íconos open source para salud y medicina. Desarrollados para proyectos humanitarios y de salud pública.", desc_en:"Open source health and medicine icons. Developed for humanitarian and public health projects.", access:"free", needsAccount:false },
+  { name:"Weather Icons", url:"https://erikflowers.github.io/weather-icons/", cat:"Íconos especializados", section:"runas", desc_es:"222 íconos meteorológicos SVG. El estándar para aplicaciones del clima.", desc_en:"222 meteorological SVG icons. The standard for weather applications.", access:"free", needsAccount:false },
+  { name:"Maki Icons", url:"https://labs.mapbox.com/maki-icons/", cat:"Íconos especializados", section:"runas", desc_es:"Íconos de puntos de interés para mapas. Usados en Mapbox y proyectos geoespaciales.", desc_en:"Points of interest icons for maps. Used in Mapbox and geospatial projects.", access:"free", needsAccount:false },
+  { name:"Map Icons", url:"http://map-icons.com/", cat:"Íconos especializados", section:"runas", desc_es:"Íconos específicamente diseñados para Google Maps y aplicaciones de localización.", desc_en:"Icons specifically designed for Google Maps and location-based applications.", access:"free", needsAccount:false },
+  { name:"Bitcoin Icons", url:"https://bitcoinicons.com/", cat:"Íconos especializados", section:"runas", desc_es:"Set de íconos para interfaces cripto y blockchain. Consistentes y listos para producción.", desc_en:"Icon set for crypto and blockchain interfaces. Consistent and production-ready.", access:"free", needsAccount:false },
+  { name:"Simple Icons", url:"https://simpleicons.org/", cat:"Íconos especializados", section:"runas", desc_es:"Más de 2,900 íconos SVG de marcas populares con colores oficiales. Indispensable para integraciones.", desc_en:"Over 2,900 SVG icons of popular brands with official colors. Indispensable for integrations.", access:"free", needsAccount:false },
+  { name:"Meteocons", url:"https://demo.alessioatzeni.com/meteocons/", cat:"Íconos especializados", section:"runas", desc_es:"Íconos meteorológicos animados y estáticos. Diseño limpio y expresivo para apps del clima.", desc_en:"Animated and static weather icons. Clean and expressive design for weather apps.", access:"free", needsAccount:false },
+  { name:"Isocons", url:"https://www.isocons.app/", cat:"Íconos especializados", section:"runas", desc_es:"Íconos isométricos únicos. Para interfaces y presentaciones que quieren romper la bidimensionalidad.", desc_en:"Unique isometric icons. For interfaces and presentations that want to break two-dimensionality.", access:"freemium", needsAccount:true },
+  { name:"Pictographic", url:"https://www.pictographic.io/icons", cat:"Íconos especializados", section:"runas", desc_es:"Íconos y pictogramas con estilo ilustrativo. Para productos que buscan personalidad visual distinta.", desc_en:"Icons and pictograms with illustrative style. For products seeking a distinctive visual personality.", access:"freemium", needsAccount:true },
+  { name:"Icon Kitchen", url:"https://icon.kitchen/", cat:"Íconos especializados", section:"runas", desc_es:"Generador de íconos de apps para Android e iOS. Exporta en todos los tamaños requeridos por las plataformas.", desc_en:"App icon generator for Android and iOS. Exports in all sizes required by the platforms.", access:"free", needsAccount:false },
+  { name:"Iconists Central", url:"https://iconists.co/central", cat:"Íconos especializados", section:"runas", desc_es:"Directorio de recursos sobre diseño de íconos: artículos, herramientas y comunidad.", desc_en:"Directory of icon design resources: articles, tools and community.", access:"free", needsAccount:false },
+  { name:"Skeu Design", url:"https://www.skeudesign.com", cat:"Íconos especializados", section:"runas", desc_es:"Íconos con estilo eskeumórfico. Para interfaces que buscan profundidad y realismo visual.", desc_en:"Skeuomorphic-style icons. For interfaces that seek visual depth and realism.", access:"freemium", needsAccount:true },
+  // ── LIBRO DE HECHIZOS: Patrones con IA ──
+  { name:"Maggie Appleton – AI Patterns", url:"https://maggieappleton.com/patterns", cat:"Patrones con IA", section:"spellbook", desc_es:"Colección de patrones de interacción con IA de Maggie Appleton. Referencia académica y práctica sobre cómo diseñar interfaces con IA de forma ética y efectiva.", desc_en:"Maggie Appleton's AI interaction patterns collection. Academic and practical reference on designing ethical and effective AI interfaces.", access:"free", needsAccount:false },
+  { name:"AI UX Patterns", url:"https://www.aiuxpatterns.com/", cat:"Patrones con IA", section:"spellbook", desc_es:"Biblioteca de patrones UX específicos para productos con IA. Cómo manejar incertidumbre, errores, feedback y confianza del usuario.", desc_en:"UX pattern library specific to AI products. How to handle uncertainty, errors, feedback and user trust.", access:"free", needsAccount:false },
+  { name:"Agentic UX Patterns", url:"https://agenticuxpatterns.com/", cat:"Patrones con IA", section:"spellbook", desc_es:"Patrones para diseñar interfaces con agentes de IA autónomos. Cómo comunicar acciones, delegar tareas y mantener el control del usuario.", desc_en:"Patterns for designing interfaces with autonomous AI agents. How to communicate actions, delegate tasks and maintain user control.", access:"free", needsAccount:false },
+  { name:"AI Interaction Atlas", url:"https://ai-interaction.com/atlas/ai", cat:"Patrones con IA", section:"spellbook", desc_es:"Atlas de interacciones con IA organizadas por tipo. Exploración sistemática de cómo los usuarios interactúan con sistemas inteligentes.", desc_en:"Atlas of AI interactions organized by type. Systematic exploration of how users interact with intelligent systems.", access:"free", needsAccount:false },
+  { name:"Shape of AI", url:"https://www.shapeof.ai/", cat:"Patrones con IA", section:"spellbook", desc_es:"Recurso de Apple sobre los patrones de diseño emergentes en interfaces con IA. Principios fundamentales para productos inteligentes.", desc_en:"Apple's resource on emerging design patterns in AI interfaces. Fundamental principles for intelligent products.", access:"free", needsAccount:false },
+  { name:"Aiverse Patterns", url:"https://www.aiverse.design/patterns", cat:"Patrones con IA", section:"spellbook", desc_es:"Colección curada de patrones visuales en productos de IA reales. Inspiración directa de los mejores productos del mercado.", desc_en:"Curated collection of visual patterns from real AI products. Direct inspiration from the best products on the market.", access:"free", needsAccount:false },
+  { name:"Microsoft HAX Toolkit", url:"https://www.microsoft.com/en-us/haxtoolkit/library/", cat:"Patrones con IA", section:"spellbook", desc_es:"Guías de experiencia humano-IA de Microsoft. 18 principios fundamentales para diseñar sistemas de IA que augmentan a las personas.", desc_en:"Microsoft's human-AI experience guidelines. 18 fundamental principles for designing AI systems that augment people.", access:"free", needsAccount:false },
+  { name:"Generative AI UX Patterns", url:"https://uxplanet.org/generative-ai-ux-design-patterns-192bb169ab99", cat:"Patrones con IA", section:"spellbook", desc_es:"Artículo de UX Planet sobre patrones de diseño específicos para IA generativa. Casos prácticos y recomendaciones.", desc_en:"UX Planet article on design patterns specific to generative AI. Practical cases and recommendations.", access:"free", needsAccount:false },
+  { name:"PAIR Guidebook – Patterns", url:"https://pair.withgoogle.com/guidebook/patterns", cat:"Patrones con IA", section:"spellbook", desc_es:"Guía de patrones de Google PAIR (People + AI Research). El estándar de la industria para diseñar productos de IA centrados en las personas.", desc_en:"Google PAIR (People + AI Research) patterns guide. The industry standard for designing people-centered AI products.", access:"free", needsAccount:false },
+  // ── LIBRO DE HECHIZOS: Tools AI ──
+  { name:"AI UX Playground", url:"https://www.aiuxplayground.com/prompts", cat:"Tools AI", section:"spellbook", desc_es:"Biblioteca de prompts de diseño UX para trabajar con IA. Plantillas listas para investigación, wireframing, evaluación heurística y más.", desc_en:"UX design prompt library for working with AI. Ready-made templates for research, wireframing, heuristic evaluation and more.", access:"free", needsAccount:false },
+  { name:"Voice of AI", url:"https://www.voiceofai.io/", cat:"Tools AI", section:"spellbook", desc_es:"Herramienta para diseñar y testear la voz y personalidad de asistentes de IA. Fundamental para productos conversacionales.", desc_en:"Tool for designing and testing the voice and personality of AI assistants. Essential for conversational products.", access:"freemium", needsAccount:true },
+  { name:"Efecto", url:"https://efecto.app/", cat:"Tools AI", section:"spellbook", desc_es:"Herramienta de prototipado con IA para diseñadores. Generá interfaces y flujos a partir de descripciones en lenguaje natural.", desc_en:"AI-powered prototyping tool for designers. Generate interfaces and flows from natural language descriptions.", access:"freemium", needsAccount:true },
+  { name:"AI Goodies", url:"https://aigoodies.beehiiv.com/", cat:"Tools AI", section:"spellbook", desc_es:"Newsletter curado con las mejores herramientas de IA para creativos y diseñadores. Nuevas herramientas cada semana.", desc_en:"Curated newsletter with the best AI tools for creatives and designers. New tools every week.", access:"free", needsAccount:false },
+  { name:"Board of Innovation AI", url:"https://ai.boardofinnovation.com/", cat:"Tools AI", section:"spellbook", desc_es:"Suite de herramientas de IA para innovación y diseño estratégico. Canvas, generadores y facilitadores para talleres.", desc_en:"AI tool suite for innovation and strategic design. Canvases, generators and facilitators for workshops.", access:"freemium", needsAccount:true }
+];
+
+const i18n = {
+  es: {
+    subtitle:'Tu grimoire de diseño de producto. Patrones, inspiración, métodos y principios en un solo lugar.',
+    statTomes:'Tomos', statArt:'Recursos', statGrow:'Creciendo',
+    homeLabel:'Elige tu tomo', homeTitle:'¿Qué hechizo necesitás hoy?',
+    homeSub:'Cada categoría es un capítulo de tu práctica como diseñadora.',
+    backLabel:'Volver', sortLabel:'Orden:',
+    sortAZ:'A → Z', sortAccess:'Acceso', sortCat:'Categoría', filterAll:'Todos',
+    showing:n=>`Mostrando <strong>${n}</strong> recurso${n!==1?'s':''}`,
+    legFree:'Gratis', legFreemium:'Freemium', legPaid:'Solo de pago',
+    legAccount:'Solo cuenta', legReg:'Requiere registro', labelAccount:'Requiere registro',
+    accessLabels:{free:'Gratis',freemium:'Freemium',paid:'Solo de pago',account:'Requiere cuenta'},
+    catLabels:{'Diseño Móvil':'Diseño Móvil','Web Design':'Diseño Web','SaaS':'SaaS','Awards':'Premios','Contenido':'Contenido','Métodos de diseño':'Métodos de diseño','Investigación':'Investigación','Pruebas de usabilidad':'Pruebas de usabilidad','Sets open source':'Sets open source','Sets premium':'Sets premium','Íconos especializados':'Íconos especializados','Patrones de interfaz':'Patrones de interfaz','Patrones con IA':'Patrones con IA','Tools AI':'Tools AI'},
+    comingSoonTitle:'Hechizo en preparación',
+    comingSoonSub:'Este tomo está siendo escrito. Volvé pronto para encontrar nuevos recursos y magia.',
+    comingSoonBadge:'En construcción',
+    footerNote:'UX Sorcery Grimoire · coloripop · 2026'
+  },
+  en: {
+    subtitle:'Your product design grimoire. Patterns, inspiration, methods and principles in one place.',
+    statTomes:'Tomes', statArt:'Resources', statGrow:'Growing',
+    homeLabel:'Choose your tome', homeTitle:'What spell do you need today?',
+    homeSub:'Each category is a chapter of your design practice.',
+    backLabel:'Back', sortLabel:'Sort:',
+    sortAZ:'A → Z', sortAccess:'Access', sortCat:'Category', filterAll:'All',
+    showing:n=>`Showing <strong>${n}</strong> resource${n!==1?'s':''}`,
+    legFree:'Free', legFreemium:'Freemium', legPaid:'Paid only',
+    legAccount:'Account only', legReg:'Registration required', labelAccount:'Registration required',
+    accessLabels:{free:'Free',freemium:'Freemium',paid:'Paid only',account:'Account required'},
+    catLabels:{'Diseño Móvil':'Mobile UI','Web Design':'Web Design','SaaS':'SaaS','Awards':'Awards','Contenido':'Content','Métodos de diseño':'Design Methods','Investigación':'Research','Pruebas de usabilidad':'Usability Testing','Sets open source':'Open Source Sets','Sets premium':'Premium Sets','Íconos especializados':'Specialized Icons','Patrones de interfaz':'UI Patterns','Patrones con IA':'AI Patterns','Tools AI':'AI Tools'},
+    comingSoonTitle:'Spell in preparation',
+    comingSoonSub:'This tome is being written. Come back soon for new resources and magic.',
+    comingSoonBadge:'Under construction',
+    footerNote:'UX Sorcery Grimoire · coloripop · 2026'
+  }
+};
+
+const catClass={'Diseño Móvil':'cat-mobile','Web Design':'cat-web','SaaS':'cat-saas','Awards':'cat-awards','Contenido':'cat-content','Métodos de diseño':'cat-mobile','Investigación':'cat-web','Pruebas de usabilidad':'cat-content','Sets open source':'cat-saas','Sets premium':'cat-awards','Íconos especializados':'cat-content','Patrones de interfaz':'cat-mobile','Patrones con IA':'cat-web','Tools AI':'cat-saas'};
+const accessOrder={free:0,freemium:1,account:2,paid:3};
+let currentLang='es', currentSort='default', currentFilter='all', currentCatId=null;
+
+function renderHome() {
+  const t = i18n[currentLang];
+  document.getElementById('cat-grid').innerHTML = categories.map(c => {
+    const isWide = c.id === 'alchemy';
+    return `<div class="cat-card${isWide?' wide':''}" data-cat="${c.id}" onclick="openCat('${c.id}')">
+      <div class="cat-card-orb"></div>
+      <div class="cat-card-inner">
+        <div class="cat-card-top">
+          <div class="cat-card-icon">${c.icon}</div>
+          <div class="cat-card-name">${c['name_'+currentLang]}</div>
+          <div class="cat-card-tagline">${c['tagline_'+currentLang]}</div>
+          <div class="cat-card-subs">${c['subs_'+currentLang].map(s=>`<div class="cat-card-sub">${s}</div>`).join('')}</div>
+        </div>
+        <div class="cat-card-bottom">
+          <span></span>
+          <div class="cat-card-arrow"><svg viewBox="0 0 13 13" fill="none"><path d="M2.5 10.5L10.5 2.5M10.5 2.5H4.5M10.5 2.5V8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCat(catId) {
+  currentCatId = catId; currentFilter = 'all'; currentSort = 'default';
+  document.getElementById('sort-select').value = 'default';
+  const cat = categories.find(c=>c.id===catId);
+  const t = i18n[currentLang];
+  document.getElementById('inner-cat-name').textContent = cat.icon+' '+cat['name_'+currentLang];
+  document.getElementById('inner-cat-hero').innerHTML = `
+    <div class="inner-cat-icon">${cat.icon}</div>
+    <div><div class="inner-cat-title">${cat['name_'+currentLang]}</div><div class="inner-cat-desc">${cat['desc_'+currentLang]}</div></div>`;
+  const filtersEl = document.getElementById('inner-filters');
+  const sortWrap = document.getElementById('inner-sort-wrap');
+  if (cat.type === 'resources') {
+    const sectionId = cat.section || cat.id;
+    const sectionResources = resources.filter(r=>r.section===sectionId);
+    const subCats = ['all',...new Set(sectionResources.map(r=>r.cat))];
+    filtersEl.innerHTML = subCats.map(c=>{
+      const label = c==='all' ? t.filterAll : (t.catLabels[c]||c);
+      return `<button class="chip${c==='all'?' active':''}" onclick="setFilter('${c}',this)">${label}</button>`;
+    }).join('');
+    sortWrap.style.display = 'flex';
+  } else { filtersEl.innerHTML = ''; sortWrap.style.display = 'none'; }
+  document.getElementById('view-home').classList.remove('active');
+  document.getElementById('view-inner').classList.add('active');
+  window.scrollTo(0,0);
+  renderInner();
+}
+
+function goHome() {
+  document.getElementById('view-inner').classList.remove('active');
+  document.getElementById('view-home').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderInner() {
+  const cat = categories.find(c=>c.id===currentCatId);
+  const t = i18n[currentLang];
+  const content = document.getElementById('inner-content');
+  const countEl = document.getElementById('results-count');
+  if (cat.type === 'coming') {
+    countEl.innerHTML = '';
+    content.innerHTML = `<div class="coming-soon-wrap">
+      <div class="coming-soon-icon">${cat.icon}</div>
+      <div class="coming-soon-title">${t.comingSoonTitle}</div>
+      <div class="coming-soon-sub">${t.comingSoonSub}</div>
+      <div class="coming-soon-badge"><span class="coming-soon-dot"></span>${t.comingSoonBadge}</div>
+    </div>`;
+    return;
+  }
+  const sectionId = cat.section || cat.id;
+  const sectionResources = resources.filter(r=>r.section===sectionId);
+  let filtered = currentFilter==='all' ? [...sectionResources] : sectionResources.filter(r=>r.cat===currentFilter);
+  if (currentSort==='default') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+  else if (currentSort==='access') filtered.sort((a,b)=>accessOrder[a.access]-accessOrder[b.access]);
+  else if (currentSort==='cat') filtered.sort((a,b)=>a.cat.localeCompare(b.cat)||a.name.localeCompare(b.name));
+  countEl.innerHTML = t.showing(filtered.length);
+  content.innerHTML = `<div class="res-grid">${filtered.map((r,i)=>`
+    <a class="card" href="${r.url}" target="_blank" rel="noopener" style="animation-delay:${i*0.03}s">
+      <div class="card-head">
+        <div class="card-name">${r.name}</div>
+        <span class="cat-badge ${catClass[r.cat]}">${t.catLabels[r.cat]}</span>
+      </div>
+      <div class="card-desc">${r['desc_'+currentLang]}</div>
+      <div class="card-foot">
+        <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+          <span class="access-badge access-${r.access}"><span class="dot dot-${r.access}"></span>${t.accessLabels[r.access]}</span>
+          ${r.needsAccount?`<span class="access-badge access-account" style="opacity:0.85;"><span style="font-size:9px;">👤</span> ${t.labelAccount}</span>`:''}
+        </div>
+        <div class="arrow-icon"><svg viewBox="0 0 13 13" fill="none"><path d="M2.5 10.5L10.5 2.5M10.5 2.5H4.5M10.5 2.5V8.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </a>`).join('')}</div>`;
+}
+
+function setFilter(cat,btn){currentFilter=cat;document.querySelectorAll('#inner-filters .chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');renderInner();}
+function setSort(val){currentSort=val;renderInner();}
+
+function setLang(lang) {
+  currentLang=lang;
+  document.getElementById('btn-es').classList.toggle('active',lang==='es');
+  document.getElementById('btn-en').classList.toggle('active',lang==='en');
+  document.documentElement.lang=lang;
+  applyTranslations(); renderHome();
+  if(currentCatId && document.getElementById('view-inner').classList.contains('active')) openCat(currentCatId);
+}
+
+function applyTranslations(){
+  const t=i18n[currentLang];
+  document.getElementById('h-sub').textContent=t.subtitle;
+  document.getElementById('stat-tomes').textContent=t.statTomes;
+  document.getElementById('stat-art').textContent=t.statArt;
+  document.getElementById('stat-grow').textContent=t.statGrow;
+  document.getElementById('home-label').textContent=t.homeLabel;
+  document.getElementById('home-title').textContent=t.homeTitle;
+  document.getElementById('home-sub').textContent=t.homeSub;
+  document.getElementById('back-label').textContent=t.backLabel;
+  document.getElementById('sort-label-text').textContent=t.sortLabel;
+  document.getElementById('sort-opt-az').textContent=t.sortAZ;
+  document.getElementById('sort-opt-ac').textContent=t.sortAccess;
+  document.getElementById('sort-opt-cat').textContent=t.sortCat;
+  document.getElementById('leg-free').textContent=t.legFree;
+  document.getElementById('leg-freemium').textContent=t.legFreemium;
+  document.getElementById('leg-paid').textContent=t.legPaid;
+  document.getElementById('leg-account').textContent=t.legAccount;
+  document.getElementById('leg-reg').textContent=t.legReg;
+  document.getElementById('footer-note').textContent=t.footerNote;
+}
+
+let currentTheme=localStorage.getItem('coloripop-theme')||'dark';
+function applyTheme(theme){document.documentElement.setAttribute('data-theme',theme);document.getElementById('theme-icon').textContent=theme==='dark'?'☀️':'🌙';localStorage.setItem('coloripop-theme',theme);}
+function toggleTheme(){currentTheme=currentTheme==='dark'?'light':'dark';applyTheme(currentTheme);}
+
+// SKY CANVAS — stars at night, sunrise clouds + sun/moon at dawn
+(function(){
+  const canvas=document.getElementById('star-canvas');
+  const ctx=canvas.getContext('2d');
+  const header=canvas.parentElement;
+  const STAR_COLORS=['#FFFFFF','#B5AFFF','#FE81E7','#E2E0FF','#7B6FFF'];
+  let stars=[],shooting=[],clouds=[],W,H,f=0;
+
+  function rr(a,b){return a+Math.random()*(b-a);}
+  function pick(a){return a[Math.floor(rr(0,a.length))];}
+  function resize(){W=canvas.width=header.offsetWidth;H=canvas.height=header.offsetHeight;}
+  function isLight(){return document.documentElement.getAttribute('data-theme')==='light';}
+
+  // ── STARS & SHOOTING ──
+  function makeStar(){return{x:rr(0,W),y:rr(0,H*0.75),r:rr(0.3,1.8),color:pick(STAR_COLORS),twinkleOffset:rr(0,Math.PI*2),alphaSpeed:rr(0.0005,0.003)};}
+  function makeShot(){const angle=rr(15,35)*Math.PI/180;return{x:rr(W*0.1,W*0.9),y:rr(0,H*0.5),len:rr(80,180),speed:rr(6,12),alpha:0,phase:'in',dx:Math.cos(angle),dy:Math.sin(angle),trail:[],delay:rr(0,400),color:pick(['#FFFFFF','#E2E0FF','#B5AFFF'])};}
+  function initStars(){stars=Array.from({length:160},makeStar);shooting=Array.from({length:3},makeShot);}
+
+  // ── MOON ──
+  function drawMoon(){
+    const mx=W*0.72, my=H*0.5, mr=Math.min(W,H)*0.065;
+    // Glow
+    const glow=ctx.createRadialGradient(mx,my,mr*0.3,mx,my,mr*2.5);
+    glow.addColorStop(0,'rgba(255,248,220,0.25)');glow.addColorStop(1,'rgba(255,248,220,0)');
+    ctx.beginPath();ctx.arc(mx,my,mr*2.5,0,Math.PI*2);ctx.fillStyle=glow;ctx.globalAlpha=1;ctx.fill();
+    // Main moon disc
+    const moonG=ctx.createRadialGradient(mx-mr*0.25,my-mr*0.25,0,mx,my,mr);
+    moonG.addColorStop(0,'#FFFDE8');moonG.addColorStop(0.6,'#FFF5C0');moonG.addColorStop(1,'#F0E080');
+    ctx.beginPath();ctx.arc(mx,my,mr,0,Math.PI*2);ctx.fillStyle=moonG;ctx.globalAlpha=1;ctx.fill();
+    // Crescent shadow
+    ctx.save();ctx.globalAlpha=0.55;
+    ctx.beginPath();ctx.arc(mx+mr*0.28,my-mr*0.1,mr*0.82,0,Math.PI*2);
+    ctx.fillStyle=var_navy();ctx.fill();ctx.restore();
+    // Craters
+    [[mx-mr*0.25,my+mr*0.2,mr*0.1],[mx+mr*0.05,my-mr*0.3,mr*0.07]].forEach(([cx,cy,cr])=>{
+      ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);ctx.fillStyle='rgba(200,180,60,0.3)';ctx.globalAlpha=1;ctx.fill();
+    });
+  }
+
+  function var_navy(){return getComputedStyle(document.documentElement).getPropertyValue('--navy').trim()||'#211F54';}
+
+  // ── SUN ──
+  function drawSun(){
+    const sx=W*0.72, sy=H*0.5, sr=Math.min(W,H)*0.08;
+    const pulse=0.97+0.03*Math.sin(f*0.025);
+    const R=sr*pulse;
+
+    // Soft outer atmosphere glow
+    const atmo=ctx.createRadialGradient(sx,sy,R*0.8,sx,sy,R*5);
+    atmo.addColorStop(0,'rgba(255,240,160,0.18)');
+    atmo.addColorStop(0.4,'rgba(255,220,100,0.08)');
+    atmo.addColorStop(1,'rgba(255,200,80,0)');
+    ctx.beginPath();ctx.arc(sx,sy,R*5,0,Math.PI*2);
+    ctx.fillStyle=atmo;ctx.globalAlpha=1;ctx.fill();
+
+    // Rays — alternating long/short, rotating slowly
+    ctx.save();
+    const rayAngle=f*0.004;
+    const rayCount=16;
+    for(let i=0;i<rayCount;i++){
+      const angle=rayAngle+i*(Math.PI*2/rayCount);
+      const isLong=i%2===0;
+      const inner=R*1.22;
+      const outer=isLong ? R*(2.8+0.15*Math.sin(f*0.04+i)) : R*(1.8+0.1*Math.sin(f*0.04+i));
+      const tipW=isLong ? 0.055 : 0.04;
+
+      // Ray as tapered triangle
+      const ax=sx+Math.cos(angle-tipW)*inner, ay=sy+Math.sin(angle-tipW)*inner;
+      const bx=sx+Math.cos(angle+tipW)*inner, by=sy+Math.sin(angle+tipW)*inner;
+      const cx2=sx+Math.cos(angle)*outer,    cy2=sy+Math.sin(angle)*outer;
+
+      const rayG=ctx.createLinearGradient(sx,sy,cx2,cy2);
+      rayG.addColorStop(0,'rgba(255,248,180,0.85)');
+      rayG.addColorStop(0.5,'rgba(255,235,100,0.45)');
+      rayG.addColorStop(1,'rgba(255,220,80,0)');
+
+      ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.lineTo(cx2,cy2);ctx.closePath();
+      ctx.fillStyle=rayG;ctx.globalAlpha=0.9;ctx.fill();
+    }
+    ctx.restore();
+
+    // Inner halo ring
+    const halo=ctx.createRadialGradient(sx,sy,R*0.92,sx,sy,R*1.2);
+    halo.addColorStop(0,'rgba(255,255,200,0.5)');
+    halo.addColorStop(1,'rgba(255,230,100,0)');
+    ctx.beginPath();ctx.arc(sx,sy,R*1.2,0,Math.PI*2);
+    ctx.fillStyle=halo;ctx.globalAlpha=1;ctx.fill();
+
+    // Sun disc
+    const sunG=ctx.createRadialGradient(sx-R*0.28,sy-R*0.28,0,sx,sy,R);
+    sunG.addColorStop(0,'#FFFDE0');
+    sunG.addColorStop(0.35,'#FFE84A');
+    sunG.addColorStop(0.75,'#FFCC00');
+    sunG.addColorStop(1,'#F5A800');
+    ctx.beginPath();ctx.arc(sx,sy,R,0,Math.PI*2);
+    ctx.fillStyle=sunG;ctx.globalAlpha=1;ctx.fill();
+
+    // Specular highlight top-left
+    const spec=ctx.createRadialGradient(sx-R*0.3,sy-R*0.32,0,sx-R*0.3,sy-R*0.32,R*0.55);
+    spec.addColorStop(0,'rgba(255,255,240,0.55)');
+    spec.addColorStop(1,'rgba(255,255,200,0)');
+    ctx.beginPath();ctx.arc(sx,sy,R,0,Math.PI*2);
+    ctx.fillStyle=spec;ctx.globalAlpha=1;ctx.fill();
+  }
+
+  // ── CLOUDS (bottom of canvas, dawn-tinted) ──
+  function makeCloud(startLeft){
+    const w=rr(182,442), h=w*rr(0.3,0.45);
+    const yMin=H*0.58+100, yMax=H*0.94+100;
+    return{
+      x: startLeft ? -w-rr(0,150) : rr(-w, W+w*0.5),
+      y: rr(yMin, yMax),
+      w, h,
+      speed: rr(0.08,0.28),
+      alpha: rr(0.75,0.95),
+      layer: Math.random()>0.45 ? 'front':'back'
+    };
+  }
+
+  function drawSingleCloud(cx,cy,w,h,alpha,tint){
+    const r=h*0.5;
+    const base=cy+h*0.3;
+    ctx.save();ctx.globalAlpha=alpha;
+
+    const puffs=[
+      {ox:0,       oy:0,       r:r},
+      {ox:-w*0.27, oy:h*0.1,   r:r*0.74},
+      {ox: w*0.25, oy:h*0.12,  r:r*0.7},
+      {ox:-w*0.13, oy:h*0.18,  r:r*0.6},
+      {ox: w*0.13, oy:h*0.2,   r:r*0.56},
+      {ox:-w*0.43, oy:h*0.26,  r:r*0.5},
+      {ox: w*0.41, oy:h*0.25,  r:r*0.46},
+    ];
+
+    // Base fill — dawn-tinted
+    puffs.forEach(p=>{
+      ctx.beginPath();ctx.arc(cx+p.ox,cy+p.oy,p.r,0,Math.PI*2);
+      ctx.fillStyle=tint.base;ctx.fill();
+    });
+    // Highlights
+    puffs.forEach(p=>{
+      const g=ctx.createRadialGradient(cx+p.ox-p.r*0.25,cy+p.oy-p.r*0.35,0,cx+p.ox,cy+p.oy,p.r);
+      g.addColorStop(0,tint.hi);g.addColorStop(0.55,tint.mid);g.addColorStop(1,'rgba(180,180,220,0)');
+      ctx.beginPath();ctx.arc(cx+p.ox,cy+p.oy,p.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+    });
+    // Bottom shadow tint
+    const shG=ctx.createLinearGradient(cx,base-h*0.05,cx,base+h*0.12);
+    shG.addColorStop(0,'rgba(100,130,200,0)');shG.addColorStop(1,tint.shadow);
+    ctx.beginPath();ctx.ellipse(cx,base,w*0.48,h*0.18,0,0,Math.PI*2);
+    ctx.fillStyle=shG;ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawClouds(){
+    const frontTint={base:'#FFFFFF',hi:'rgba(255,255,255,0.98)',mid:'rgba(240,245,255,0.6)',shadow:'rgba(180,200,230,0.3)'};
+    const backTint ={base:'#EEF2FF',hi:'rgba(255,255,255,0.9)',mid:'rgba(220,230,255,0.4)',shadow:'rgba(160,180,220,0.25)'};
+    const sorted=[...clouds].sort((a,b)=>a.layer==='back'?-1:1);
+    sorted.forEach(c=>{
+      c.x+=c.speed*(c.layer==='back'?0.5:1);
+      if(c.x>W+c.w+60) clouds[clouds.indexOf(c)]=makeCloud(true);
+      const tint=c.layer==='back'?backTint:frontTint;
+      const a=c.layer==='back'?c.alpha*0.5:c.alpha;
+      drawSingleCloud(c.x,c.y,c.w,c.h,a,tint);
+    });
+  }
+
+  function initClouds(){clouds=Array.from({length:12},()=>makeCloud(false));}
+  function init(){resize();initStars();initClouds();}
+
+  function drawStarryNight(){
+    // Moon
+    drawMoon();
+    // Stars
+    stars.forEach(s=>{
+      const tw=0.5+0.5*Math.sin(f*s.alphaSpeed*60+s.twinkleOffset);
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=s.color;ctx.globalAlpha=0.3+tw*0.7;ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    // Shooting stars
+    shooting.forEach((s,i)=>{
+      if(s.delay>0){s.delay--;return;}
+      if(s.phase==='in'){s.alpha=Math.min(1,s.alpha+0.06);if(s.alpha>=1)s.phase='move';}
+      else if(s.phase==='out'){s.alpha=Math.max(0,s.alpha-0.05);if(s.alpha<=0){shooting[i]=makeShot();return;}}
+      s.trail.push({x:s.x,y:s.y});if(s.trail.length>18)s.trail.shift();
+      if(s.phase==='move'){s.x+=s.dx*s.speed;s.y+=s.dy*s.speed;if(s.x>W+50||s.y>H+50)s.phase='out';}
+      for(let j=0;j<s.trail.length;j++){const r=j/s.trail.length;ctx.beginPath();ctx.arc(s.trail[j].x,s.trail[j].y,0.8*r,0,Math.PI*2);ctx.fillStyle=s.color;ctx.globalAlpha=s.alpha*r*0.8;ctx.fill();}
+      ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x-s.dx*s.len,s.y-s.dy*s.len);
+      const g=ctx.createLinearGradient(s.x,s.y,s.x-s.dx*s.len,s.y-s.dy*s.len);
+      g.addColorStop(0,s.color);g.addColorStop(1,'transparent');
+      ctx.strokeStyle=g;ctx.lineWidth=1.2;ctx.globalAlpha=s.alpha*0.9;ctx.stroke();
+    });
+  }
+
+  function drawDawnSky(){
+    drawSun();
+    drawClouds();
+  }
+
+  function loop(){
+    f++;ctx.clearRect(0,0,W,H);ctx.globalAlpha=1;
+    if(isLight()) drawDawnSky();
+    else drawStarryNight();
+    ctx.globalAlpha=1;
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize',()=>{resize();initStars();initClouds();});
+  init();loop();
+})();
+
+applyTheme(currentTheme);
+applyTranslations();
+renderHome();
+</script>
+</body>
+</html>
