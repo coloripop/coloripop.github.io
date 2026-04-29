@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Quiz: Crisis Digital</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+    .card {
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: #3b82f6;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    button:hover {
+        background: #2563eb;
+    }
+    .correct { background: #22c55e !important; }
+    .wrong { background: #ef4444 !important; }
+    #timer { font-size: 18px; margin-bottom: 10px; }
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Crisis Digital</h1>
+<p>¿Qué salvarías primero?</p>
+
+<div class="card">
+    <div id="timer"></div>
+    <h2 id="question"></h2>
+    <div id="answers"></div>
+    <p id="feedback"></p>
+</div>
+
+<script>
+const quiz = [
+{
+    question: "La plataforma de pagos deja de funcionar. ¿Qué es MÁS crítico?",
+    answers: ["24 horas", "Minutos", "1 semana"],
+    correct: 1,
+    insight: "Aquí importa la rapidez → RTO"
+},
+{
+    question: "Se pierde información de pagos recientes. ¿Qué es aceptable?",
+    answers: ["Perder una semana", "Perder horas", "No perder nada"],
+    correct: 2,
+    insight: "Aquí importa la información → RPO"
+},
+{
+    question: "El historial de trámites no está disponible",
+    answers: ["Minutos", "Horas", "Días"],
+    correct: 1,
+    insight: "No todo es crítico en tiempo"
+},
+{
+    question: "El chat de soporte está caído",
+    answers: ["Inmediato", "Horas", "Días"],
+    correct: 1,
+    insight: "Impacto moderado"
+},
+{
+    question: "Solo puedes priorizar UNA cosa",
+    answers: ["Evitar pérdida de datos", "Recuperar rápido"],
+    correct: 0,
+    insight: "Depende del contexto"
+}
+];
+
+let current = 0;
+let score = 0;
+let timeLeft = 10;
+let timer;
+
+function loadQuestion() {
+    if (current >= quiz.length) {
+        showResults();
+        return;
+    }
+
+    document.getElementById("feedback").innerText = "";
+    document.getElementById("question").innerText = quiz[current].question;
+    const answersDiv = document.getElementById("answers");
+    answersDiv.innerHTML = "";
+
+    quiz[current].answers.forEach((answer, index) => {
+        const btn = document.createElement("button");
+        btn.innerText = answer;
+        btn.onclick = () => selectAnswer(index, btn);
+        answersDiv.appendChild(btn);
+    });
+
+    startTimer();
+}
+
+function selectAnswer(index, button) {
+    clearInterval(timer);
+    const correct = quiz[current].correct;
+    const buttons = document.querySelectorAll("button");
+
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (index === correct) {
+        button.classList.add("correct");
+        score++;
+        document.getElementById("feedback").innerText = "✅ Correcto";
+    } else {
+        button.classList.add("wrong");
+        buttons[correct].classList.add("correct");
+        document.getElementById("feedback").innerText = "❌ Incorrecto";
+    }
+
+    document.getElementById("feedback").innerText += " — " + quiz[current].insight;
+
+    setTimeout(() => {
+        current++;
+        loadQuestion();
+    }, 2000);
+}
+
+function startTimer() {
+    timeLeft = 10;
+    document.getElementById("timer").innerText = "⏱️ " + timeLeft + "s";
+
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = "⏱️ " + timeLeft + "s";
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            current++;
+            loadQuestion();
+        }
+    }, 1000);
+}
+
+function showResults() {
+    document.querySelector(".card").innerHTML = `
+        <h2>🏁 Resultados</h2>
+        <p>Tu puntaje: ${score} / ${quiz.length}</p>
+        <p>
+        ⏱️ RTO = qué tan rápido necesitas recuperar algo<br><br>
+        💾 RPO = cuánta información puedes perder
+        </p>
+        <button onclick="location.reload()">Reintentar</button>
+    `;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
