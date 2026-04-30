@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Design Thinking</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+    padding: 20px;
+  }
+  .card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 600px;
+    margin: auto;
+  }
+  button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #38bdf8;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #0ea5e9;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2 id="question">Cargando...</h2>
+  <div id="answers"></div>
+  <button onclick="nextQuestion()">Siguiente</button>
+</div>
+
+<script>
+const quiz = [
+  {
+    question: "Un estudiante dice: 'No entiendo cómo inscribirme'. ¿Qué deberías hacer primero?",
+    answers: [
+      { text: "Crear una app", correct: false },
+      { text: "Entender qué siente", correct: true },
+      { text: "Hacer un tutorial", correct: false }
+    ]
+  },
+  {
+    question: "¿Cuál es una buena pregunta para entender el problema?",
+    answers: [
+      { text: "¿Te gusta la universidad?", correct: false },
+      { text: "¿Qué parte te confundió más?", correct: true },
+      { text: "¿Cuántas materias tomas?", correct: false }
+    ]
+  },
+  {
+    question: "¿Qué frase define mejor el problema?",
+    answers: [
+      { text: "Necesita ayuda porque está perdido", correct: true },
+      { text: "Necesita estudiar más", correct: false },
+      { text: "Necesita mejores notas", correct: false }
+    ]
+  },
+  {
+    question: "¿Qué debes hacer después de entender el problema?",
+    answers: [
+      { text: "Generar ideas", correct: true },
+      { text: "Evaluar notas", correct: false },
+      { text: "Programar", correct: false }
+    ]
+  },
+  {
+    question: "¿Qué tipo de idea es válida?",
+    answers: [
+      { text: "Solo apps complejas", correct: false },
+      { text: "Cualquier idea que ayude", correct: true },
+      { text: "Solo soluciones digitales", correct: false }
+    ]
+  },
+  {
+    question: "Elegiste una idea. ¿Ahora qué haces?",
+    answers: [
+      { text: "La ignoras", correct: false },
+      { text: "La explicas como funcionaría", correct: true },
+      { text: "La cambias por otra", correct: false }
+    ]
+  },
+  {
+    question: "¿Qué significa probar tu idea?",
+    answers: [
+      { text: "Usarla con alguien", correct: true },
+      { text: "Guardarla", correct: false },
+      { text: "Publicarla", correct: false }
+    ]
+  },
+  {
+    question: "Después de probar, ¿qué haces?",
+    answers: [
+      { text: "Nada", correct: false },
+      { text: "Mejorarla", correct: true },
+      { text: "Eliminarla", correct: false }
+    ]
+  }
+];
+
+let current = 0;
+let score = 0;
+
+function loadQuestion() {
+  const q = quiz[current];
+  document.getElementById("question").innerText = q.question;
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  q.answers.forEach((a) => {
+    const btn = document.createElement("button");
+    btn.innerText = a.text;
+    btn.onclick = () => {
+      if (a.correct) score++;
+      nextQuestion();
+    };
+    answersDiv.appendChild(btn);
+  });
+}
+
+function nextQuestion() {
+  current++;
+  if (current < quiz.length) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  let message = "";
+
+  if (score <= 3) message = "🧠 Estás empezando a entender el proceso";
+  else if (score <= 6) message = "🚀 Vas bien, ya aplicas lógica UX";
+  else message = "🔥 Dominas el pensamiento UX";
+
+  document.querySelector(".card").innerHTML = `
+    <h2>Resultado final</h2>
+    <p>Puntaje: ${score}/8</p>
+    <p>${message}</p>
+    <button onclick="location.reload()">Reintentar</button>
+  `;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
