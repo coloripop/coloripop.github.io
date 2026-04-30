@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tabla Periódica de Acrónimos de Producto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--cw:112px;--ch:108px;--gap:7px}
+
+  [data-theme="dark"]{
+    --bg:#0d0d1a;--surface:rgba(255,255,255,0.07);--border:rgba(255,255,255,0.14);
+    --border-soft:rgba(255,255,255,0.22);--text:#fff;--muted:rgba(255,255,255,0.4);
+    --faint:rgba(255,255,255,0.28);--dim:rgba(255,255,255,0.5);
+    --modal-bg:#1a1a2e;--modal-border:rgba(255,255,255,0.1);
+    --modal-desc:rgba(255,255,255,0.5);--modal-full:rgba(255,255,255,0.8);
+    --backdrop:rgba(5,5,18,0.88);--tog-active:#ffffffe6;--tog-active-t:#0d0d1a;
+    --tog-wrap:rgba(255,255,255,0.07);--tog-border:rgba(255,255,255,0.12);
+    --all-bg:rgba(255,255,255,0.9);--all-t:#0d0d1a;
+    --ghost-border:rgba(255,255,255,0.2);--ghost-t:rgba(255,255,255,0.5);
+    --shadow:rgba(0,0,0,0.5);--modal-shadow:rgba(0,0,0,0.65);
+    --close-bg:rgba(255,255,255,0.1);--close-h:rgba(255,255,255,0.22);--close-c:rgba(255,255,255,0.7);
+    --legend-c:rgba(255,255,255,0.5);--icon-op:0.38;
+  }
+  [data-theme="light"]{
+    --bg:#f0f0f8;--surface:rgba(0,0,0,0.05);--border:rgba(0,0,0,0.12);
+    --border-soft:rgba(0,0,0,0.2);--text:#0d0d1a;--muted:rgba(0,0,0,0.45);
+    --faint:rgba(0,0,0,0.32);--dim:rgba(0,0,0,0.5);
+    --modal-bg:#fff;--modal-border:rgba(0,0,0,0.1);
+    --modal-desc:rgba(0,0,0,0.5);--modal-full:rgba(0,0,0,0.75);
+    --backdrop:rgba(180,180,210,0.65);--tog-active:#0d0d1a;--tog-active-t:#fff;
+    --tog-wrap:rgba(0,0,0,0.06);--tog-border:rgba(0,0,0,0.12);
+    --all-bg:#0d0d1a;--all-t:#fff;
+    --ghost-border:rgba(0,0,0,0.2);--ghost-t:rgba(0,0,0,0.45);
+    --shadow:rgba(0,0,0,0.15);--modal-shadow:rgba(0,0,0,0.2);
+    --close-bg:rgba(0,0,0,0.07);--close-h:rgba(0,0,0,0.14);--close-c:rgba(0,0,0,0.6);
+    --legend-c:rgba(0,0,0,0.5);--icon-op:0.33;
+  }
+
+  html,body{min-height:100vh;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);transition:background .3s,color .3s}
+  body{padding:1.8rem 1.2rem 3rem}
+
+  /* ── PAGE HEADER ── */
+  .page-header{margin-bottom:1.4rem}
+  .page-header h1{font-family:'DM Sans',sans-serif;font-size:clamp(28px,5vw,52px);font-weight:700;letter-spacing:-1.5px;color:var(--text);margin-bottom:.7rem;line-height:1}
+  .action-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .lang-wrap{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:30px;padding:3px;gap:2px;transition:background .3s,border-color .3s}
+  .lang-btn{border:none;background:transparent;color:var(--dim);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;cursor:pointer;transition:background .2s,color .2s;letter-spacing:.5px}
+  .lang-btn.active{background:var(--tog-active);color:var(--tog-active-t)}
+  .theme-icons{display:flex;align-items:center;gap:6px;color:var(--dim);cursor:pointer;user-select:none;font-size:14px}
+  .theme-toggle{width:40px;height:22px;background:var(--tog-wrap);border:1px solid var(--tog-border);border-radius:11px;cursor:pointer;position:relative;transition:background .3s,border-color .3s}
+  .theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--tog-active);transition:transform .25s cubic-bezier(.34,1.3,.64,1),background .3s}
+  [data-theme="light"] .theme-toggle::after{transform:translateX(18px)}
+
+  .search-box{position:relative;flex:1;max-width:340px}
+  .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;opacity:var(--icon-op);pointer-events:none;transition:opacity .2s}
+
+  /* ── QUIZ TOGGLE ── */
+  .quiz-toggle{
+    display:inline-flex;align-items:center;gap:6px;
+    border:1.5px solid var(--border);
+    background:var(--surface);
+    color:var(--text);
+    border-radius:30px;
+    padding:8px 14px;
+    font-size:11px;font-weight:700;
+    font-family:'DM Sans',sans-serif;
+    cursor:pointer;
+    letter-spacing:.3px;
+    transition:background .2s,border-color .2s,color .2s,transform .15s;
+    white-space:nowrap;
+  }
+  .quiz-toggle:hover{transform:scale(1.04)}
+  .quiz-toggle.active{
+    background:var(--text);
+    color:var(--bg);
+    border-color:var(--text);
+  }
+  .quiz-toggle svg{width:14px;height:14px;flex-shrink:0}
+
+  /* ── QUIZ MODE: hide card names ── */
+  .quiz-mode .card-name{
+    opacity:0;
+    filter:blur(6px);
+    transition:opacity .2s, filter .2s;
+    user-select:none;
+  }
+  .quiz-mode .card-wrap:hover .card-name{
+    opacity:.88;
+    filter:blur(0);
+  }
+  .search-icon circle,.search-icon line{stroke:var(--text)}
+  .search-box:focus-within .search-icon{opacity:.7}
+  .search-box input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:30px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;padding:10px 18px 10px 40px;outline:none;transition:border-color .2s,background .3s}
+  .search-box input::placeholder{color:var(--faint)}
+  .search-box input:focus{border-color:var(--border-soft)}
+
+  .filters{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:.8rem}
+  .f-all{border:none;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.2px;background:var(--all-bg);color:var(--all-t);transition:transform .15s,background .3s,color .3s}
+  .f-all:hover{transform:scale(1.06)}
+  .f-all.off{background:transparent!important;color:var(--ghost-t)!important;border:1.5px solid var(--ghost-border)!important}
+  .f-cat{border:1.5px solid transparent;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.2px;background:transparent;transition:transform .15s,background .2s,color .2s,border-color .2s}
+  .f-cat:hover{transform:scale(1.06)}
+  .f-cat.ghost{background:transparent!important;color:var(--dim)!important}
+
+
+
+  .count{text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--faint);margin-bottom:1rem}
+
+  .pt-outer{overflow-x:auto;padding-bottom:8px}
+  .pt-grid{display:grid;grid-template-columns:repeat(10,var(--cw));gap:var(--gap);width:fit-content;margin:0 auto}
+
+  .card-wrap{width:var(--cw);height:var(--ch);cursor:pointer;border-radius:10px;transition:transform .18s,opacity .25s,box-shadow .18s}
+  .card-wrap:hover{transform:scale(1.07);box-shadow:0 8px 28px var(--shadow)}
+  .card-wrap.dimmed{opacity:.08;pointer-events:none}
+  [data-theme="light"] .card-wrap:hover{box-shadow:0 8px 22px rgba(0,0,0,0.22)}
+
+  .card-face{width:100%;height:100%;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 5px;text-align:center;position:relative;user-select:none}
+  .card-num{font-family:'Space Mono',monospace;font-size:8px;opacity:.6;position:absolute;top:5px;left:7px}
+  .card-acronym{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;line-height:1;margin-bottom:4px}
+  .card-name{font-size:9px;font-weight:500;line-height:1.3;opacity:.88}
+
+  #backdrop{position:fixed;inset:0;background:var(--backdrop);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+  #backdrop.open{opacity:1;pointer-events:all}
+  #modal-card{width:340px;height:230px;perspective:1000px;position:relative;z-index:101}
+  #modal-inner{width:100%;height:100%;transform-style:preserve-3d;border-radius:18px}
+  .modal-front,.modal-back{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 22px;text-align:center}
+  .modal-back{transform:rotateY(180deg);background:var(--modal-bg);border:1px solid var(--modal-border);box-shadow:0 30px 70px var(--modal-shadow);transition:background .3s}
+  .modal-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--dim);position:absolute;top:14px;left:16px}
+  .modal-close{position:absolute;top:12px;right:14px;background:var(--close-bg);border:none;border-radius:50%;width:30px;height:30px;color:var(--close-c);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .modal-close:hover{background:var(--close-h);color:var(--text)}
+  .modal-tag{font-size:10px;font-weight:700;margin-bottom:6px;padding:3px 10px;border-radius:10px;letter-spacing:.5px}
+  .modal-title{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;line-height:1;margin-bottom:10px;color:var(--text)}
+  .modal-full{font-size:13px;font-weight:700;color:var(--modal-full);margin-bottom:10px;line-height:1.4}
+  .modal-desc{font-size:13px;color:var(--modal-desc);line-height:1.65}
+  .modal-link{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 16px;border-radius:20px;font-size:11px;font-weight:700;text-decoration:none;letter-spacing:.3px;transition:transform .15s,opacity .15s;font-family:'DM Sans',sans-serif}
+  .modal-link:hover{transform:scale(1.05);opacity:.85}
+  .modal-link svg{width:12px;height:12px;flex-shrink:0}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:1.4rem}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--legend-c)}
+  .legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+  @media(max-width:700px){body{padding:1rem .6rem 2rem}#modal-card{width:290px;height:210px}.modal-title{font-size:28px}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1 id="main-title"></h1>
+  <div class="action-bar">
+    <div class="search-box">
+      <input type="text" id="search" oninput="doFilter()"/>
+      <svg class="search-icon" viewBox="0 0 20 20" fill="none">
+        <circle cx="8.5" cy="8.5" r="5.5" stroke-width="2"/>
+        <line x1="12.5" y1="12.5" x2="17" y2="17" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="lang-wrap">
+      <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <div class="theme-icons" onclick="toggleTheme()">
+      <span>🌙</span>
+      <button class="theme-toggle" aria-label="Toggle theme"></button>
+      <span>☀️</span>
+    </div>
+    <button class="quiz-toggle" id="quiz-toggle" onclick="toggleQuiz()" title="Modo quiz">
+      <svg id="quiz-icon-show" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
+        <path d="M10 4C5.5 4 2 10 2 10s3.5 6 8 6 8-6 8-6-3.5-6-8-6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.7"/>
+      </svg>
+      <svg id="quiz-icon-hide" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <path d="M3 3l14 14M10 4C5.5 4 2 10 2 10s1 1.8 3 3.5M7.5 7.5A2.5 2.5 0 0112.5 12.5M10 16c4.5 0 8-6 8-6s-1-1.8-3-3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span id="quiz-label"></span>
+    </button>
+  </div>
+</div>
+
+<div class="filters" id="filters"></div>
+<div class="count" id="count"></div>
+
+<div class="pt-outer">
+  <div class="pt-grid" id="grid"></div>
+</div>
+<div class="legend" id="legend"></div>
+
+<div id="backdrop">
+  <div id="modal-card">
+    <div id="modal-inner">
+      <div class="modal-front" id="modal-front"></div>
+      <div class="modal-back">
+        <span class="modal-num" id="modal-num"></span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-tag" id="modal-tag"></div>
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-full" id="modal-full"></div>
+        <div class="modal-desc" id="modal-desc"></div>
+        <a class="modal-link" id="modal-link" href="#" target="_blank" rel="noopener">
+          <span id="modal-link-text"></span>
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TRANSLATIONS ─────────────────────────────────────────────
+const T = {
+  es:{
+    title:'Tabla Periódica de Acrónimos de Producto',
+    subtitle:'Toca una tarjeta para ver su definición · coloripop',
+    placeholder:'Buscar acrónimo o nombre...',
+    all:'Todos',
+    count:n=>n===TOTAL?`${TOTAL} acrónimos`:`${n} de ${TOTAL} acrónimos`,
+    cats:{core:'Core Product',metrics:'Métricas',business:'Negocio',ux:'Diseño UX',dev:'Desarrollo',tech:'Tecnología',design:'Diseño Visual',experience:'Experiencia CX'},
+    quiz:{show:'Mostrar nombres',hide:'Ocultar nombres'},
+  },
+  en:{
+    title:'Periodic Table of Product Acronyms',
+    subtitle:'Tap a card to see its definition · coloripop',
+    placeholder:'Search acronym or name...',
+    all:'All',
+    count:n=>n===TOTAL?`${TOTAL} acronyms`:`${n} of ${TOTAL} acronyms`,
+    cats:{core:'Core Product',metrics:'Metrics',business:'Business',ux:'UX Design',dev:'Development',tech:'Technology',design:'Visual Design',experience:'Experience CX'},
+    quiz:{show:'Show names',hide:'Hide names'},
+  },
+};
+
+// ── CATEGORY COLORS ──────────────────────────────────────────
+// Colors sampled from coloripop palette image
+// Each has: bg (vivid), text (on-card), darkText (modal tag dark), lightBg (light mode card)
+const CATS={
+  core:      {bg:'#8343cf', text:'#f0e8ff'},
+  metrics:   {bg:'#f58b61', text:'#3d1800'},
+  business:  {bg:'#4aebdb', text:'#003330'},
+  ux:        {bg:'#f4d604', text:'#2a2200'},
+  dev:       {bg:'#f03b72', text:'#fff0f4'},
+  tech:      {bg:'#3492ea', text:'#e8f2ff'},
+  design:    {bg:'#f980e9', text:'#3a0035'},
+  experience:{bg:'#3831df', text:'#e8e6ff'},
+};
+
+// ── DATA ─────────────────────────────────────────────────────
+// Columns: core | metrics-A | metrics-B | business | ux | dev | tech | design | experience
+// All metrics use cat:'metrics', split visually by column position only
+
+const COLUMNS = [
+  // COL 0 – core
+  [
+    {a:'MVP',  f:'Minimum Viable Product',              d:{es:'Versión más básica de un producto que permite validar hipótesis con usuarios reales.',                                 en:'The simplest version of a product that allows validating hypotheses with real users.'},              cat:'core',url:'https://www.productplan.com/glossary/minimum-viable-product/'},
+    {a:'PRD',  f:'Product Requirements Document',       d:{es:'Documento que describe funcionalidades, objetivos y restricciones de un producto.',                                    en:"A document describing a product's features, goals, and constraints."},                              cat:'core',url:'https://www.productplan.com/glossary/product-requirements-document/'},
+    {a:'A/B',  f:'A/B Testing (Split Testing)',         d:{es:'Experimento que compara dos versiones de un elemento para determinar cuál funciona mejor.',                            en:'An experiment comparing two versions of an element to determine which performs better.'},           cat:'core',url:'https://www.optimizely.com/optimization-glossary/ab-testing/'},
+    {a:'PoC',  f:'Proof of Concept',                    d:{es:'Experimento o prototipo temprano para validar la viabilidad técnica o de negocio de una idea.',                        en:'An early experiment or prototype to validate the technical or business feasibility of an idea.'},    cat:'core',url:'https://www.productplan.com/glossary/proof-of-concept/'},
+    {a:'PDCA', f:'Plan, Do, Check, Act',                d:{es:'Ciclo de mejora continua de cuatro pasos usado en gestión de calidad y desarrollo de productos.',                      en:'A four-step continuous improvement cycle used in quality management and product development.'},      cat:'core',url:'https://asq.org/quality-resources/pdca-cycle'},
+  ],
+  // COL 1 – metrics A (growth / engagement)
+  [
+    {a:'AARRR',f:'Acquisition, Activation, Retention, Referral, Revenue', d:{es:'Framework pirata de métricas para medir el ciclo de vida del cliente.',                             en:'Pirate metrics framework for measuring the full customer lifecycle.'},                              cat:'metrics',url:'https://www.productplan.com/glossary/aarrr-framework/'},
+    {a:'NPS',  f:'Net Promoter Score',                  d:{es:'Métrica que mide la probabilidad de que usuarios recomienden tu producto.',                                            en:'Metric that measures how likely users are to recommend your product.'},                             cat:'metrics',url:'https://www.netpromoter.com/know/'},
+    {a:'KPI',  f:'Key Performance Indicator',           d:{es:'Indicador clave para medir el progreso hacia un objetivo estratégico.',                                               en:'Key metric used to measure progress toward a strategic goal.'},                                    cat:'metrics',url:'https://www.investopedia.com/terms/k/kpi.asp'},
+    {a:'CTR',  f:'Click-Through Rate',                  d:{es:'Porcentaje de usuarios que hacen clic en un elemento respecto al total que lo ven.',                                  en:'The percentage of users who click on an element out of all who see it.'},                          cat:'metrics',url:'https://support.google.com/google-ads/answer/2615875'},
+    {a:'MoM',  f:'Month-over-Month Growth',             d:{es:'Tasa de crecimiento comparando un mes con el mes inmediatamente anterior.',                                           en:'Growth rate comparing one month to the immediately preceding month.'},                             cat:'metrics',url:'https://www.investopedia.com/terms/m/mom.asp'},
+    {a:'YoY',  f:'Year-over-Year Growth',               d:{es:'Tasa de crecimiento comparando un período con el mismo período del año anterior.',                                    en:'Growth rate comparing a period to the same period in the previous year.'},                         cat:'metrics',url:'https://www.investopedia.com/terms/y/year-over-year.asp'},
+    {a:'DAU',  f:'Daily Active Users',                  d:{es:'Número de usuarios únicos que interactúan con un producto en un día. Indicador clave de engagement.',                 en:'Number of unique users who interact with a product on a given day. A key engagement indicator.'},   cat:'metrics',url:'https://www.productplan.com/glossary/daily-active-users/'},
+    {a:'MAU',  f:'Monthly Active Users',                d:{es:'Número de usuarios únicos que interactúan con un producto al menos una vez al mes.',                                  en:'Number of unique users who interact with a product at least once a month.'},                        cat:'metrics',url:'https://www.productplan.com/glossary/monthly-active-users/'},
+    {a:'RR',   f:'Retention Rate',                      d:{es:'Porcentaje de usuarios que continúan usando el producto después de un período determinado.',                          en:'Percentage of users who continue using the product after a given period.'},                         cat:'metrics',url:'https://www.investopedia.com/terms/r/retention-rate.asp'},
+  ],
+  // COL 2 – metrics B (cost / revenue)
+  [
+    {a:'ROI',  f:'Return on Investment',                d:{es:'Medida del beneficio obtenido en relación a la inversión realizada.',                                                  en:'Measure of the profit gained relative to the investment made.'},                                   cat:'metrics',url:'https://www.investopedia.com/terms/r/returnoninvestment.asp'},
+    {a:'CSAT', f:'Customer Satisfaction',               d:{es:'Métrica que mide la satisfacción directa del cliente tras una interacción.',                                          en:'Metric that measures direct customer satisfaction after an interaction.'},                          cat:'metrics',url:'https://www.qualtrics.com/experience-management/customer/what-is-csat/'},
+    {a:'CAC',  f:'Customer Acquisition Cost',           d:{es:'Costo total promedio de adquirir un nuevo cliente.',                                                                  en:'The average total cost of acquiring a new customer.'},                                             cat:'metrics',url:'https://www.investopedia.com/terms/c/customer-acquisition-cost.asp'},
+    {a:'CLV',  f:'Customer Lifetime Value',             d:{es:'Valor total que un cliente genera para el negocio durante toda su relación con el producto.',                         en:'The total value a customer generates for the business throughout their relationship.'},             cat:'metrics',url:'https://www.investopedia.com/terms/c/customer-lifetime-value.asp'},
+    {a:'ARPU', f:'Average Revenue Per User',            d:{es:'Ingresos promedio generados por cada usuario activo en un período determinado.',                                      en:'The average revenue generated per active user in a given period.'},                                cat:'metrics',url:'https://www.investopedia.com/terms/a/average-revenue-user-arpu.asp'},
+    {a:'CR',   f:'Conversion Rate',                     d:{es:'Porcentaje de usuarios que completan una acción deseada (compra, registro) del total de visitantes.',                 en:'Percentage of users who complete a desired action (purchase, sign-up) out of total visitors.'},    cat:'metrics',url:'https://www.optimizely.com/optimization-glossary/conversion-rate/'},
+    {a:'AOV',  f:'Average Order Value',                 d:{es:'Valor promedio de cada pedido o transacción realizada en un período de tiempo determinado.',                          en:'The average value of each order or transaction made in a given time period.'},                      cat:'metrics',url:'https://www.shopify.com/blog/average-order-value'},
+    {a:'CPC',  f:'Cost per Click',                      d:{es:'Costo que paga un anunciante cada vez que un usuario hace clic en su anuncio.',                                       en:'The cost an advertiser pays each time a user clicks on their ad.'},                                cat:'metrics',url:'https://support.google.com/google-ads/answer/116495'},
+  ],
+  // COL 3 – business A (strategy & docs)
+  [
+    {a:'TAM',  f:'Total Addressable Market',            d:{es:'Tamaño total del mercado disponible si se capturara el 100% de la demanda.',                                         en:'The total market size available if 100% of demand were captured.'},                               cat:'business',url:'https://www.investopedia.com/terms/t/total-addressable-market.asp'},
+    {a:'SAM',  f:'Serviceable Addressable Market',      d:{es:'Segmento del TAM al que el producto puede llegar de forma realista.',                                                en:'The segment of the TAM that the product can realistically reach.'},                               cat:'business',url:'https://www.investopedia.com/terms/s/serviceable-available-market.asp'},
+    {a:'MRD',  f:'Market Requirements Document',        d:{es:'Documento que define las necesidades del mercado que un producto debe satisfacer.',                                  en:'A document defining the market needs that a product must satisfy.'},                              cat:'business',url:'https://www.productplan.com/glossary/market-requirements-document/'},
+    {a:'BRD',  f:'Business Requirements Document',      d:{es:'Documento que detalla los requerimientos de negocio para un proyecto o producto.',                                   en:'A document detailing the business requirements for a project or product.'},                       cat:'business',url:'https://www.projectmanager.com/blog/business-requirements-document'},
+    {a:'OKRs', f:'Objectives and Key Results',          d:{es:'Framework de metas que conecta objetivos cualitativos con resultados medibles.',                                     en:'A goal-setting framework connecting qualitative objectives to measurable results.'},               cat:'business',url:'https://www.whatmatters.com/faqs/okr-meaning-definition-example'},
+    {a:'SWOT', f:'Strengths, Weaknesses, Opportunities, Threats', d:{es:'Análisis estratégico de factores internos y externos de un producto o empresa.',                          en:'A strategic analysis of internal and external factors affecting a product or company.'},          cat:'business',url:'https://www.investopedia.com/terms/s/swot.asp'},
+    {a:'SEO',  f:'Search Engine Optimization',          d:{es:'Técnicas para mejorar la visibilidad de un sitio en motores de búsqueda y atraer tráfico orgánico.',                en:"Techniques for improving a site's visibility in search engines and attracting organic traffic."},  cat:'business',url:'https://moz.com/learn/seo/what-is-seo'},
+    {a:'GTM',  f:'Go to Market',                        d:{es:'Estrategia que define cómo un producto llega a sus clientes objetivo, incluyendo canales y posicionamiento.',        en:'A strategy defining how a product reaches its target customers, including channels and positioning.'}, cat:'business',url:'https://www.productplan.com/glossary/go-to-market-strategy/'},
+    {a:'DACI', f:'Driver, Approver, Contributors, Informed', d:{es:'Framework que define roles claros para la toma de decisiones en equipo.',                                      en:'A framework that defines clear roles for team decision-making.'},                                  cat:'business',url:'https://www.atlassian.com/team-playbook/plays/daci'},
+    {a:'RFP',  f:'Request for Proposal',                d:{es:'Documento formal que invita a proveedores a presentar propuestas para cubrir una necesidad de proyecto.',            en:'A formal document inviting vendors to submit proposals to meet a specific project need.'},         cat:'business',url:'https://www.investopedia.com/terms/r/request-for-proposal.asp'},
+  ],
+  // COL 4 – business B (commerce models)
+  [
+    {a:'B2B',  f:'Business to Business',                d:{es:'Modelo donde una empresa vende productos o servicios a otras empresas (ej. mayoristas, software SaaS).',             en:'A model where a company sells products or services to other businesses (e.g. wholesalers, SaaS).'},  cat:'business',url:'https://www.investopedia.com/terms/b/btob.asp'},
+    {a:'B2C',  f:'Business to Consumer',                d:{es:'Modelo donde una empresa vende directamente al consumidor final (ej. Amazon, supermercados).',                        en:'A model where a company sells directly to the end consumer (e.g. Amazon, supermarkets).'},          cat:'business',url:'https://www.investopedia.com/terms/b/btoc.asp'},
+    {a:'B2G',  f:'Business to Government',              d:{es:'Modelo donde empresas venden productos o servicios a instituciones gubernamentales o administración pública.',         en:'A model where companies sell products or services to government institutions or public administration.'}, cat:'business',url:'https://www.investopedia.com/terms/b/btog.asp'},
+    {a:'B2E',  f:'Business to Employee',                d:{es:'Estrategias o servicios internos de la empresa dirigidos a sus propios empleados (ej. portales de beneficios).',      en:'Internal company strategies or services directed at its own employees (e.g. benefits portals).'},   cat:'business',url:'https://www.techtarget.com/searchcustomerexperience/definition/business-to-employee-B2E'},
+    {a:'B2B2C',f:'Business to Business to Consumer',    d:{es:'Una empresa usa otra empresa como intermediaria para llegar al consumidor final, compartiendo valor en la cadena.',   en:'A company uses another business as an intermediary to reach the end consumer, sharing value in the chain.'}, cat:'business',url:'https://www.investopedia.com/terms/b/business-to-business-to-consumer-b2b2c.asp'},
+    {a:'C2C',  f:'Consumer to Consumer',                d:{es:'Consumidores que venden a otros consumidores, generalmente en plataformas de segunda mano (ej. eBay, Vinted).',       en:'Consumers selling to other consumers, typically on second-hand platforms (e.g. eBay, Vinted).'},     cat:'business',url:'https://www.investopedia.com/terms/c/ctoc.asp'},
+    {a:'C2B',  f:'Consumer to Business',                d:{es:'Consumidores que ofrecen productos o servicios a empresas (ej. influencers, freelancers que proponen colaboraciones).',en:'Consumers offering products or services to companies (e.g. influencers, freelancers proposing collaborations).'}, cat:'business',url:'https://www.investopedia.com/terms/c/ctob.asp'},
+    {a:'G2C',  f:'Government to Consumer',              d:{es:'Servicios ofrecidos por el gobierno directamente al ciudadano (ej. pago de impuestos online, trámites digitales).',  en:'Services offered by the government directly to citizens (e.g. online tax payments, digital procedures).'}, cat:'business',url:'https://www.techtarget.com/searchcio/definition/G2C'},
+  ],
+  // COL 5 – ux
+  [
+    {a:'UX',   f:'User Experience',                     d:{es:'Experiencia global del usuario al interactuar con un producto o servicio.',                                           en:'The overall experience a user has when interacting with a product or service.'},                    cat:'ux',url:'https://www.nngroup.com/articles/definition-user-experience/'},
+    {a:'UI',   f:'User Interface',                      d:{es:'Conjunto de elementos visuales a través de los cuales el usuario interactúa con el producto.',                       en:'The set of visual elements through which a user interacts with a product.'},                       cat:'ux',url:'https://www.nngroup.com/articles/definition-user-interface/'},
+    {a:'IA',   f:'Information Architecture',            d:{es:'Organización y estructura del contenido para facilitar la navegación del usuario.',                                   en:'The organization and structure of content to facilitate user navigation.'},                         cat:'ux',url:'https://www.nngroup.com/articles/ia-vs-navigation/'},
+    {a:'CTA',  f:'Call to Action',                      d:{es:'Elemento de UI que invita al usuario a realizar una acción específica.',                                              en:'A UI element that prompts the user to take a specific action.'},                                    cat:'ux',url:'https://www.nngroup.com/articles/call-to-action-buttons/'},
+    {a:'UXR',  f:'User Experience Research',            d:{es:'Proceso de investigar el comportamiento y necesidades de usuarios para informar el diseño.',                          en:'The process of researching user behavior and needs to inform design decisions.'},                   cat:'ux',url:'https://www.nngroup.com/articles/ux-research-cheat-sheet/'},
+    {a:'IxD',  f:'Interaction Design',                  d:{es:'Disciplina que define la estructura y el comportamiento de sistemas interactivos para crear interfaces fluidas.',     en:'Discipline defining the structure and behavior of interactive systems to create fluid interfaces.'}, cat:'ux',url:'https://www.interaction-design.org/literature/topics/interaction-design'},
+    {a:'SUS',  f:'System Usability Scale',              d:{es:'Encuesta de 10 preguntas para evaluar la usabilidad y facilidad de uso de un producto de forma rápida.',             en:'A 10-question survey for quickly evaluating the usability and user-friendliness of a product.'},    cat:'ux',url:'https://www.usability.gov/how-to-and-tools/methods/system-usability-scale.html'},
+    {a:'WAI',  f:'Web Accessibility Initiative',        d:{es:'Iniciativa del W3C para mejorar la accesibilidad web a personas con discapacidad, con estándares como WCAG.',        en:'A W3C initiative to improve web accessibility for people with disabilities, including WCAG.'},      cat:'ux',url:'https://www.w3.org/WAI/fundamentals/accessibility-intro/'},
+    {a:'DS',   f:'Design System',                       d:{es:'Colección de componentes reutilizables, guías y estándares que garantizan consistencia visual y funcional en un producto.', en:'A collection of reusable components, guidelines, and standards that ensure visual and functional consistency across a product.'}, cat:'ux',url:'https://www.nngroup.com/articles/design-systems-101/'},
+    {a:'DLS',  f:'Design Language System',              d:{es:'Sistema de diseño popularizado por Airbnb que unifica el lenguaje visual y de interacción de una marca en todos sus productos.',en:'A design system popularized by Airbnb that unifies the visual and interaction language of a brand across all its products.'}, cat:'ux',url:'https://airbnb.design/building-a-visual-language/'},
+    {a:'UI Kit',f:'User Interface Kit',                 d:{es:'Biblioteca de componentes de interfaz lista para usar en herramientas como Figma, que acelera el diseño y mantiene consistencia.',en:'A library of ready-to-use interface components in tools like Figma, speeding up design and maintaining consistency.'}, cat:'ux',url:'https://www.figma.com/resource-library/ui-kit/'},
+  ],
+  // COL 6 – dev
+  [
+    {a:'CI/CD',f:'Continuous Integration / Continuous Deployment', d:{es:'Prácticas para automatizar la integración y entrega continua de software.',                               en:'Practices for automating the continuous integration and delivery of software.'},                   cat:'dev',url:'https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment'},
+    {a:'SDK',  f:'Software Development Kit',            d:{es:'Conjunto de herramientas para que desarrolladores creen apps sobre una plataforma.',                                  en:'A set of tools that allows developers to build apps on top of a platform.'},                       cat:'dev',url:'https://www.ibm.com/topics/sdk'},
+    {a:'IDE',  f:'Integrated Development Environment',  d:{es:'Entorno que combina editor, compilador y debugger en una sola herramienta.',                                          en:'An environment combining a code editor, compiler, and debugger in one tool.'},                      cat:'dev',url:'https://www.codecademy.com/article/what-is-an-ide'},
+    {a:'TDD',  f:'Test-Driven Development',             d:{es:'Metodología donde se escriben pruebas antes de escribir el código funcional.',                                        en:'A methodology where tests are written before the functional code.'},                               cat:'dev',url:'https://martinfowler.com/bliki/TestDrivenDevelopment.html'},
+    {a:'PWA',  f:'Progressive Web Application',         d:{es:'Web app que usa tecnologías modernas para ofrecer experiencia similar a una app nativa.',                             en:'A web app using modern technologies to deliver a native app-like experience.'},                     cat:'dev',url:'https://web.dev/articles/what-are-pwas'},
+    {a:'QA',   f:'Quality Assurance',                   d:{es:'Proceso de prueba y verificación que asegura que un producto cumple los estándares de calidad antes del lanzamiento.',en:'The testing and verification process ensuring a product meets quality standards before release.'},   cat:'dev',url:'https://www.atlassian.com/incident-management/devops/qa'},
+    {a:'DOD',  f:'Definition of Done',                  d:{es:'Acuerdo del equipo que define qué criterios debe cumplir una tarea para considerarse completada.',                    en:'A team agreement defining what criteria a task must meet to be considered complete.'},              cat:'dev',url:'https://www.scrum.org/resources/blog/done-understanding-definition-done'},
+  ],
+  // COL 7 – tech
+  [
+    {a:'API',  f:'Application Programming Interface',   d:{es:'Interfaz que permite que dos aplicaciones se comuniquen entre sí.',                                                   en:'An interface that allows two applications to communicate with each other.'},                        cat:'tech',url:'https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Introduction'},
+    {a:'JSON', f:'JavaScript Object Notation',          d:{es:'Formato ligero de intercambio de datos legible por humanos y máquinas.',                                              en:'A lightweight data interchange format readable by both humans and machines.'},                      cat:'tech',url:'https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/JSON'},
+    {a:'XML',  f:'Extensible Markup Language',          d:{es:'Lenguaje de marcado para almacenar y transportar datos de forma estructurada.',                                       en:'A markup language for storing and transporting data in a structured format.'},                      cat:'tech',url:'https://developer.mozilla.org/en-US/docs/Web/XML/XML_introduction'},
+    {a:'REST', f:'Representational State Transfer',     d:{es:'Estilo arquitectónico para diseñar APIs web basado en HTTP.',                                                         en:'An architectural style for designing web APIs based on HTTP.'},                                    cat:'tech',url:'https://restfulapi.net/'},
+    {a:'SOAP', f:'Simple Object Access Protocol',       d:{es:'Protocolo de mensajería basado en XML para intercambio de información entre sistemas.',                               en:'An XML-based messaging protocol for exchanging information between systems.'},                     cat:'tech',url:'https://www.ibm.com/topics/soap-apis'},
+    {a:'SaaS', f:'Software as a Service',               d:{es:'Modelo donde el software se accede vía internet como servicio, sin instalación local.',                               en:'A model where software is accessed over the internet as a service, no local install.'},            cat:'tech',url:'https://www.salesforce.com/saas/'},
+    {a:'DBMS', f:'Database Management System',          d:{es:'Software para crear, gestionar y consultar bases de datos estructuradas.',                                            en:'Software used to create, manage, and query structured databases.'},                                cat:'tech',url:'https://www.oracle.com/database/what-is-database/'},
+    {a:'AI',   f:'Artificial Intelligence',             d:{es:'Tecnología que permite a los sistemas aprender y razonar. En diseño se aplica a interfaces adaptativas y chatbots.',  en:'Technology enabling systems to learn and reason. In design, applied to adaptive UIs and chatbots.'}, cat:'tech',url:'https://www.ibm.com/topics/artificial-intelligence'},
+    {a:'ML',   f:'Machine Learning',                    d:{es:'Rama de la IA que permite a los sistemas aprender de datos y mejorar sin ser programados explícitamente.',             en:'A branch of AI that allows systems to learn from data and improve without explicit programming.'},   cat:'tech',url:'https://www.ibm.com/topics/machine-learning'},
+    {a:'IoT',  f:'Internet of Things',                  d:{es:'Red de dispositivos físicos conectados a internet que recopilan e intercambian datos.',                               en:'A network of physical devices connected to the internet that collect and exchange data.'},          cat:'tech',url:'https://www.ibm.com/topics/internet-of-things'},
+    {a:'CMS',  f:'Content Management System',           d:{es:'Plataforma para crear, gestionar y publicar contenido digital sin necesidad de programar.',                           en:'A platform for creating, managing, and publishing digital content without coding.'},                cat:'tech',url:'https://www.cloudflare.com/learning/performance/what-is-a-content-management-system/'},
+  ],
+  // COL 8 – design
+  [
+    {a:'CSS',  f:'Cascading Style Sheets',              d:{es:'Lenguaje para definir el estilo visual de páginas web: colores, tipografía, espaciado y layout.',                     en:'A language for defining the visual style of web pages: colors, typography, spacing, and layout.'}, cat:'design',url:'https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps/What_is_CSS'},
+    {a:'HTML', f:'HyperText Markup Language',           d:{es:'Lenguaje estándar para crear la estructura y el contenido de páginas web.',                                           en:'The standard language for creating the structure and content of web pages.'},                       cat:'design',url:'https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML'},
+    {a:'SVG',  f:'Scalable Vector Graphics',            d:{es:'Formato vectorial que escala sin perder calidad, ideal para iconos, logos y gráficos en cualquier resolución.',       en:'A vector format that scales without losing quality, ideal for icons, logos, and graphics.'},         cat:'design',url:'https://developer.mozilla.org/en-US/docs/Web/SVG'},
+    {a:'PNG',  f:'Portable Network Graphics',           d:{es:'Formato de imagen de alta calidad sin pérdida, ideal para fondos transparentes y gráficos detallados.',              en:'A high-quality lossless image format ideal for transparent backgrounds and detailed graphics.'},    cat:'design',url:'https://www.adobe.com/creativecloud/file-types/image/raster/png-file.html'},
+    {a:'GIF',  f:'Graphics Interchange Format',         d:{es:'Formato de imagen que soporta animaciones simples y transparencia, usado para micro-interacciones.',                  en:'An image format supporting simple animations and transparency, used for micro-interactions.'},      cat:'design',url:'https://www.adobe.com/creativecloud/file-types/image/raster/gif-file.html'},
+    {a:'DPI',  f:'Dots Per Inch',                       d:{es:'Medida de densidad de imagen que determina su resolución. A mayor DPI, mayor nitidez en pantalla o impresión.',       en:'An image density measure that determines resolution. Higher DPI means sharper output.'},             cat:'design',url:'https://www.adobe.com/creativecloud/photography/discover/dots-per-inch.html'},
+    {a:'RWD',  f:'Responsive Web Design',               d:{es:'Enfoque de diseño web que asegura que las páginas se vean bien en cualquier dispositivo o tamaño de pantalla.',       en:'A web design approach ensuring pages look great on any device or screen size.'},                    cat:'design',url:'https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design'},
+    {a:'AR/VR',f:'Augmented Reality / Virtual Reality', d:{es:'Tecnologías que superponen o reemplazan la realidad con contenido digital, usadas en experiencias inmersivas.',       en:'Technologies that overlay or replace reality with digital content for immersive experiences.'},     cat:'design',url:'https://www.interaction-design.org/literature/topics/augmented-reality'},
+  ],
+  // COL 9 – experience
+  [
+    {a:'CX',   f:'Customer Experience',                 d:{es:'Suma de todas las interacciones y percepciones que un cliente tiene con una marca, del primer contacto al soporte.',  en:'The sum of all interactions and perceptions a customer has with a brand, from first contact to support.'}, cat:'experience',url:'https://www.nngroup.com/articles/ux-vs-cx/'},
+    {a:'BX',   f:'Brand Experience',                   d:{es:'Percepción emocional del usuario hacia una marca en todos sus puntos de contacto, digitales y físicos.',             en:'The user\'s emotional perception of a brand across all its touchpoints, digital and physical.'},    cat:'experience',url:'https://www.interaction-design.org/literature/article/brand-experience'},
+    {a:'SD',   f:'Service Design',                      d:{es:'Disciplina que diseña todos los puntos de contacto de un servicio, incluyendo personas, procesos y canales.',        en:'A discipline that designs all touchpoints of a service, including people, processes, and channels.'}, cat:'experience',url:'https://www.interaction-design.org/literature/topics/service-design'},
+    {a:'CRM',  f:'Customer Relationship Management',    d:{es:'Sistema para gestionar y analizar interacciones con clientes, con el fin de mejorar relaciones y retención.',         en:'A system to manage and analyze customer interactions to improve relationships and increase retention.'}, cat:'experience',url:'https://www.salesforce.com/crm/what-is-crm/'},
+    {a:'UCP',  f:'Unified Customer Profile',            d:{es:'Representación centralizada de todos los datos de un cliente en un solo registro, para personalizar experiencias.',   en:'A centralized record of all data about a customer, used to personalize their experience.'},           cat:'experience',url:'https://www.techtarget.com/searchcustomerexperience/definition/unified-customer-profile'},
+    {a:'CJM',  f:'Customer Journey Mapping',            d:{es:'Mapa visual de la experiencia del cliente que refleja sus metas, emociones e interacciones con el producto.',         en:'A visual map of the customer experience reflecting goals, emotions, and touchpoints over time.'},      cat:'experience',url:'https://www.nngroup.com/articles/customer-journey-mapping/'},
+  ],
+];
+
+// ── FLATTEN DATA + BUILD GRID LAYOUT ─────────────────────────
+// Grid: 9 columns, rows = max column length
+// Row 1: col0[0] _ _ _ _ _ _ _ col8[0]  (gap rows like real periodic table)
+// Row 2: col0[1] col1[0] _ _ _ _ _ _ col8[1]
+// Row 3+: all columns fill top-down
+
+const NUM_COLS = 10;
+const maxLen = Math.max(...COLUMNS.map(c=>c.length)); // 11 (col1/metrics-A has 9, tech has 11)
+
+// Assign global indices
+let globalIdx = 0;
+const FLAT = [];
+COLUMNS.forEach(col => {
+  col.forEach(item => {
+    item._idx = globalIdx++;
+    FLAT.push(item);
+  });
+});
+
+const TOTAL = FLAT.length;
+
+// Build layout: for each row, pick the item from each column at that row index
+// Special: rows 0 and 1 have gaps (like original table)
+// Row 0: core[0], empty×7, experience[0]
+// Row 1: core[1], metrics-A[0], empty×5, experience[1]
+// Row 2+: each column fills straight down
+
+function getColItem(colIdx, rowIdx) {
+  // adjust for the 2 gap rows at top
+  // col0 (core): starts at row 0
+  // col1,2 (metrics): col1 starts row 1, col2 starts row 1
+  // col3-7 (biz,ux,dev,tech,design): start row 2
+  // col8 (experience): starts row 0
+  const starts = [0, 1, 1, 2, 2, 2, 2, 2, 2, 0];
+  const dataRow = rowIdx - starts[colIdx];
+  if (dataRow < 0 || dataRow >= COLUMNS[colIdx].length) return null;
+  return COLUMNS[colIdx][dataRow];
+}
+
+const totalRows = maxLen + 2; // +2 for the gap rows at top
+const LAYOUT = [];
+for (let r = 0; r < totalRows; r++) {
+  const row = [];
+  for (let c = 0; c < NUM_COLS; c++) {
+    row.push(getColItem(c, r));
+  }
+  LAYOUT.push(row);
+}
+
+// ── STATE ─────────────────────────────────────────────────────
+let lang='es', theme='dark', activeFilters=new Set(), todosActive=true, openModalIdx=null;
+const cardEls=[];
+
+function toggleTheme(){
+  theme=theme==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+}
+
+
+
+// ── BUILD GRID ────────────────────────────────────────────────
+const grid=document.getElementById('grid');
+LAYOUT.forEach(row=>{
+  row.forEach(item=>{
+    if(!item){
+      grid.appendChild(document.createElement('div'));
+    } else {
+      const cat=CATS[item.cat];
+      const wrap=document.createElement('div');
+      wrap.className='card-wrap';
+      wrap.dataset.cat=item.cat;
+      wrap.dataset.a=item.a.toLowerCase();
+      wrap.dataset.f=item.f.toLowerCase();
+      wrap.innerHTML=`
+        <div class="card-face" style="background:${cat.bg};color:${cat.text};">
+          <span class="card-num" style="color:${cat.text};">#${item._idx+1}</span>
+          <div class="card-acronym">${item.a}</div>
+          <div class="card-name">${item.f}</div>
+        </div>`;
+      wrap.addEventListener('click',()=>openModal(item._idx));
+      grid.appendChild(wrap);
+      cardEls.push(wrap);
+    }
+  });
+});
+
+// ── FILTERS ───────────────────────────────────────────────────
+const filtersEl=document.getElementById('filters');
+const allBtn=document.createElement('button');
+allBtn.className='f-all'; allBtn.id='btn-all';
+allBtn.onclick=()=>{todosActive=true;activeFilters.clear();updateUI();};
+filtersEl.appendChild(allBtn);
+
+Object.entries(CATS).forEach(([key,cat])=>{
+  const btn=document.createElement('button');
+  btn.className='f-cat ghost'; btn.dataset.cat=key;
+  btn.dataset.bg=cat.bg; btn.dataset.fg=cat.text;
+  btn.style.borderColor=cat.bg+'55';
+  btn.onclick=()=>{
+    todosActive=false;
+    if(activeFilters.has(key)){activeFilters.delete(key);if(!activeFilters.size)todosActive=true;}
+    else activeFilters.add(key);
+    updateUI();
+  };
+  filtersEl.appendChild(btn);
+});
+
+// ── LEGEND ────────────────────────────────────────────────────
+const legendEl=document.getElementById('legend');
+Object.entries(CATS).forEach(([key,cat])=>{
+  const item=document.createElement('div');
+  item.className='legend-item'; item.dataset.cat=key;
+  item.innerHTML=`<div class="legend-dot" style="background:${cat.bg};"></div><span></span>`;
+  legendEl.appendChild(item);
+});
+
+// ── LANG ──────────────────────────────────────────────────────
+function setLang(l){
+  lang=l;
+  document.getElementById('btn-es').classList.toggle('active',l==='es');
+  document.getElementById('btn-en').classList.toggle('active',l==='en');
+  applyTranslations();
+  if(openModalIdx!==null)refreshModalLang(openModalIdx);
+}
+
+// ── QUIZ MODE ─────────────────────────────────────────────────
+let quizMode = false;
+function toggleQuiz(){
+  quizMode = !quizMode;
+  const grid = document.getElementById('grid');
+  grid.classList.toggle('quiz-mode', quizMode);
+  const btn = document.getElementById('quiz-toggle');
+  btn.classList.toggle('active', quizMode);
+  document.getElementById('quiz-icon-show').style.display = quizMode ? 'none' : 'block';
+  document.getElementById('quiz-icon-hide').style.display = quizMode ? 'block' : 'none';
+  document.getElementById('quiz-label').textContent = quizMode ? T[lang].quiz.hide : T[lang].quiz.show;
+}
+
+function applyTranslations(){
+  const t=T[lang];
+  document.getElementById('main-title').textContent=t.title;
+  document.getElementById('search').placeholder=t.placeholder;
+  document.getElementById('btn-all').textContent=t.all;
+  document.querySelectorAll('.f-cat[data-cat]').forEach(btn=>{btn.textContent=t.cats[btn.dataset.cat];});
+  document.querySelectorAll('.legend-item[data-cat] span').forEach(span=>{span.textContent=t.cats[span.closest('[data-cat]').dataset.cat];});
+  // quiz label
+  const ql=document.getElementById('quiz-label');
+  if(ql) ql.textContent=quizMode?T[lang].quiz.hide:T[lang].quiz.show;
+  const visible=cardEls.filter(c=>!c.classList.contains('dimmed')).length;
+  document.getElementById('count').textContent=t.count(visible);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+const backdrop=document.getElementById('backdrop');
+const modalInner=document.getElementById('modal-inner');
+const modalFront=document.getElementById('modal-front');
+
+function openModal(idx){
+  openModalIdx=idx;
+  const item=FLAT[idx]; const cat=CATS[item.cat];
+  modalFront.style.background=cat.bg; modalFront.style.color=cat.text;
+  modalFront.innerHTML=`
+    <span style="position:absolute;top:14px;left:16px;font-family:'Space Mono',monospace;font-size:11px;opacity:.6;">#${idx+1}</span>
+    <div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:700;margin-bottom:8px;">${item.a}</div>
+    <div style="font-size:12px;font-weight:500;opacity:.85;line-height:1.4;">${item.f}</div>`;
+  document.getElementById('modal-num').textContent='#'+(idx+1);
+  const tag=document.getElementById('modal-tag');
+  tag.textContent=T[lang].cats[item.cat]; tag.style.background=cat.bg+'28'; tag.style.color=cat.bg;
+  document.getElementById('modal-title').textContent=item.a;
+  document.getElementById('modal-full').textContent=item.f;
+  document.getElementById('modal-desc').textContent=item.d[lang];
+  // Link
+  const linkEl=document.getElementById('modal-link');
+  const linkTxt=document.getElementById('modal-link-text');
+  if(item.url){
+    linkEl.href=item.url;
+    linkEl.style.display='inline-flex';
+    linkEl.style.background=cat.bg+'22';
+    linkEl.style.color=cat.bg;
+    linkTxt.textContent=lang==='es'?'Aprender más':'Learn more';
+  } else {
+    linkEl.style.display='none';
+  }
+  modalInner.style.transition='none'; modalInner.style.transform='rotateY(0deg) scale(0.6)';
+  void modalInner.offsetWidth;
+  backdrop.classList.add('open'); document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    modalInner.style.transition='transform .52s cubic-bezier(.34,1.28,.64,1)';
+    modalInner.style.transform='rotateY(180deg) scale(1)';
+  }));
+}
+
+function refreshModalLang(idx){
+  const item=FLAT[idx];
+  document.getElementById('modal-tag').textContent=T[lang].cats[item.cat];
+  document.getElementById('modal-desc').textContent=item.d[lang];
+  const linkTxt=document.getElementById('modal-link-text');
+  if(linkTxt) linkTxt.textContent=lang==='es'?'Aprender más':'Learn more';
+}
+
+function closeModal(){
+  openModalIdx=null;
+  modalInner.style.transition='transform .22s ease-in';
+  modalInner.style.transform='rotateY(180deg) scale(.7)';
+  backdrop.classList.remove('open'); document.body.style.overflow='';
+}
+
+backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// ── FILTER / UI ───────────────────────────────────────────────
+function updateUI(){
+  document.getElementById('btn-all').classList.toggle('off',!todosActive);
+  document.querySelectorAll('.f-cat[data-cat]').forEach(btn=>{
+    const on=activeFilters.has(btn.dataset.cat);
+    btn.classList.toggle('ghost',!on);
+    btn.style.background=on?btn.dataset.bg:'transparent';
+    btn.style.color=on?btn.dataset.fg:'';
+    btn.style.borderColor=on?'transparent':btn.dataset.bg+'55';
+  });
+  doFilter();
+}
+
+function doFilter(){
+  const q=document.getElementById('search').value.toLowerCase().trim();
+  let visible=0;
+  cardEls.forEach(card=>{
+    const ok=(todosActive||activeFilters.has(card.dataset.cat))&&
+             (!q||card.dataset.a.includes(q)||card.dataset.f.includes(q));
+    card.classList.toggle('dimmed',!ok);
+    if(ok)visible++;
+  });
+  document.getElementById('count').textContent=T[lang].count(visible);
+}
+
+applyTranslations(); updateUI();
+</script>
+</body>
+</html>
