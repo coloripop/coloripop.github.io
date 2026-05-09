@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bingo de Acrónimos — Cartón</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg: #0e0e18;
+  --surface: #18182a;
+  --border: rgba(255,255,255,0.1);
+  --text: #ffffff;
+  --muted: rgba(255,255,255,0.45);
+  --faint: rgba(255,255,255,0.2);
+  --card-radius: 14px;
+  --accent: #ffd93d;
+}
+
+html,body{min-height:100vh;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);overflow-x:hidden}
+
+/* noise texture overlay */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+}
+
+/* glow blobs */
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.18;pointer-events:none;z-index:0}
+.blob-1{width:500px;height:500px;background:#8343cf;top:-100px;left:-150px}
+.blob-2{width:400px;height:400px;background:#3831df;bottom:-80px;right:-100px}
+
+.page{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:1.5rem 1rem 3rem;display:flex;flex-direction:column;gap:1.2rem}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.5px}
+.lang-row{display:flex;gap:6px;align-items:center}
+.lang-btn{border:1.5px solid var(--border);background:transparent;color:var(--muted);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+.lang-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+/* ── HERO ── */
+.hero{display:flex;flex-direction:column;gap:.3rem}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(36px,10vw,56px);font-weight:800;line-height:.95;letter-spacing:-2px;color:var(--text)}
+.hero-title span{color:var(--accent)}
+.hero-sub{font-size:13px;color:var(--muted);margin-top:.4rem}
+
+/* ── PLAYER INPUT ── */
+.player-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.player-input{
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:700;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:30px;color:var(--text);padding:10px 18px;
+  width:180px;outline:none;transition:border-color .2s;
+}
+.player-input::placeholder{color:var(--faint);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400}
+.player-input:focus{border-color:rgba(255,255,255,.35)}
+.new-card-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  border:none;border-radius:30px;padding:12px 20px;
+  font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;
+  cursor:pointer;letter-spacing:.2px;
+  background:var(--text);color:var(--bg);
+  transition:transform .15s,opacity .15s;
+  white-space:nowrap;
+}
+.new-card-btn:hover{transform:scale(1.04)}
+.new-card-btn svg{width:15px;height:15px}
+
+/* ── STATUS BAR ── */
+.status-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem 1rem;border-radius:30px;
+  background:var(--surface);border:1.5px solid var(--border);
+  font-size:12px;color:var(--muted);flex-wrap:wrap;gap:6px;
+}
+.status-marked{font-family:'Space Mono',monospace;font-weight:700;color:var(--text)}
+.status-bingo{font-family:'Space Mono',monospace;font-weight:700;color:var(--accent);display:none}
+.status-bar.has-bingo .status-bingo{display:block}
+.status-bar.has-bingo .status-hint{display:none}
+
+/* ── BINGO CARD ── */
+.bingo-card{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  padding:6px;
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+}
+
+/* ── CELL ── */
+.cell{
+  aspect-ratio:1;
+  border-radius:var(--card-radius);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:6px 4px;text-align:center;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:transform .15s cubic-bezier(.34,1.3,.64,1), box-shadow .15s, opacity .2s;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.cell:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.cell:active{transform:scale(.97)}
+
+.cell-acronym{
+  font-family:'Space Mono',monospace;
+  font-size:clamp(11px,3.5vw,15px);
+  font-weight:700;line-height:1;
+  margin-bottom:3px;
+}
+.cell-name{font-size:clamp(6.5px,2vw,8.5px);line-height:1.25;opacity:.85}
+
+/* marked state */
+.cell.marked{opacity:.38}
+.cell.marked .cell-check{display:flex}
+.cell-check{
+  display:none;
+  position:absolute;inset:0;
+  align-items:center;justify-content:center;
+  font-size:22px;
+  background:rgba(0,0,0,.25);
+  border-radius:var(--card-radius);
+  backdrop-filter:blur(2px);
+}
+
+/* winning line highlight */
+.cell.winner-line{
+  animation:pulse-win .6s ease infinite alternate;
+  opacity:1!important;
+}
+@keyframes pulse-win{
+  from{box-shadow:0 0 0 2px var(--accent),0 0 10px var(--accent)55}
+  to{box-shadow:0 0 0 4px var(--accent),0 0 22px var(--accent)99}
+}
+
+/* ── CALLED SECTION ── */
+.called-section{display:flex;flex-direction:column;gap:.6rem}
+.called-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.called-chips{display:flex;flex-wrap:wrap;gap:5px;min-height:24px}
+.chip{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  padding:4px 10px;border-radius:10px;
+  border:1.5px solid transparent;
+  transition:transform .1s;
+}
+.chip.found{transform:scale(1.05)}
+
+/* ── CONFIRM MODAL ── */
+.confirm-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(14,14,24,.92);
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .25s;
+}
+.confirm-overlay.show{opacity:1;pointer-events:all}
+.confirm-box{
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:1.8rem 1.6rem;
+  display:flex;flex-direction:column;gap:12px;
+  max-width:300px;width:90%;
+  transform:scale(.88);
+  transition:transform .3s cubic-bezier(.34,1.3,.64,1);
+}
+.confirm-overlay.show .confirm-box{transform:scale(1)}
+.confirm-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text)}
+.confirm-sub{font-size:13px;color:var(--muted);line-height:1.5}
+.confirm-actions{display:flex;gap:8px;margin-top:4px}
+.confirm-yes{flex:1;border:none;border-radius:30px;padding:11px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;background:var(--text);color:var(--bg);transition:transform .15s}
+.confirm-yes:hover{transform:scale(1.04)}
+.confirm-no{flex:1;border:1.5px solid var(--border);border-radius:30px;padding:11px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;background:transparent;color:var(--muted);transition:transform .15s}
+.confirm-no:hover{transform:scale(1.04)}
+
+/* ── WINNER OVERLAY ── */
+.win-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(14,14,24,.92);
+  backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.win-overlay.show{opacity:1;pointer-events:all}
+.win-box{
+  background:var(--surface);
+  border:2px solid var(--accent);
+  border-radius:24px;
+  padding:2.5rem 2rem;
+  text-align:center;
+  display:flex;flex-direction:column;gap:12px;
+  transform:scale(.85);
+  transition:transform .4s cubic-bezier(.34,1.3,.64,1);
+  max-width:320px;width:90%;
+}
+.win-overlay.show .win-box{transform:scale(1)}
+.win-emoji{font-size:52px;line-height:1}
+.win-title{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--accent);letter-spacing:-1px}
+.win-sub{font-size:14px;color:var(--muted)}
+.win-btn{
+  margin-top:4px;border:none;border-radius:30px;padding:12px 28px;
+  background:var(--accent);color:#4a3600;font-size:14px;font-weight:700;
+  font-family:'DM Sans',sans-serif;cursor:pointer;
+  transition:transform .15s;
+}
+.win-btn:hover{transform:scale(1.04)}
+
+/* ── INSTRUCTIONS ── */
+.instructions{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:16px;padding:1rem 1.2rem;
+  font-size:12px;color:var(--muted);line-height:1.7;
+}
+.instructions strong{color:var(--text)}
+
+/* ── ANIMATIONS ── */
+.cell{animation:cell-in .35s cubic-bezier(.34,1.3,.64,1) both}
+@keyframes cell-in{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="page">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo">coloripop · BINGO</div>
+    <div class="lang-row">
+      <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-title" id="hero-title"></div>
+    <div class="hero-sub" id="hero-sub"></div>
+  </div>
+
+  <!-- PLAYER + NEW CARD -->
+  <div class="player-row">
+    <input class="player-input" type="text" id="player-name" maxlength="20"/>
+    <button class="new-card-btn" onclick="newCard()">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span id="new-card-label"></span>
+    </button>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status-bar" id="status-bar">
+    <span id="status-hint"></span>
+    <span class="status-marked" id="status-marked"></span>
+    <span class="status-bingo" id="status-bingo">🎉 BINGO!</span>
+  </div>
+
+  <!-- BINGO CARD -->
+  <div class="bingo-card" id="bingo-card"></div>
+
+  <!-- CALLED ACRONYMS -->
+  <div class="called-section" id="called-section" style="display:none">
+    <div class="called-title" id="called-title"></div>
+    <div class="called-chips" id="called-chips"></div>
+  </div>
+
+  <!-- INSTRUCTIONS -->
+  <div class="instructions" id="instructions"></div>
+
+</div>
+
+<!-- CONFIRM NEW CARD MODAL -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-sub" id="confirm-sub"></div>
+    <div class="confirm-actions">
+      <button class="confirm-yes" id="confirm-yes" onclick="confirmNewCard()"></button>
+      <button class="confirm-no" id="confirm-no" onclick="cancelNewCard()"></button>
+    </div>
+  </div>
+</div>
+
+<!-- WINNER OVERLAY -->
+<div class="win-overlay" id="win-overlay">
+  <div class="win-box">
+    <div class="win-emoji">🏆</div>
+    <div class="win-title" id="win-title-text">BINGO!</div>
+    <div class="win-sub" id="win-sub-text"></div>
+    <button class="win-btn" id="win-btn" onclick="dismissWin()"></button>
+  </div>
+</div>
+
+<script>
+const ALL_ACRONYMS = [{"a": "MVP", "f": "Minimum Viable Product", "es": "Versión más básica de un producto que permite validar hipótesis con usuarios reales.", "en": "The simplest version of a product that allows validating hypotheses with real users.", "cat": "core", "bg": "#8343cf", "text": "#f0e8ff", "url": "https://www.productplan.com/glossary/minimum-viable-product/"}, {"a": "A/B", "f": "A/B Testing (Split Testing)", "es": "Experimento que compara dos versiones de un elemento para determinar cuál funciona mejor.", "en": "An experiment comparing two versions of an element to determine which performs better.", "cat": "core", "bg": "#8343cf", "text": "#f0e8ff", "url": "https://www.optimizely.com/optimization-glossary/ab-testing/"}, {"a": "PoC", "f": "Proof of Concept", "es": "Experimento o prototipo temprano para validar la viabilidad técnica o de negocio de una idea.", "en": "An early experiment or prototype to validate the technical or business feasibility of an idea.", "cat": "core", "bg": "#8343cf", "text": "#f0e8ff", "url": "https://www.productplan.com/glossary/proof-of-concept/"}, {"a": "PDCA", "f": "Plan, Do, Check, Act", "es": "Ciclo de mejora continua de cuatro pasos usado en gestión de calidad y desarrollo de productos.", "en": "A four-step continuous improvement cycle used in quality management and product development.", "cat": "core", "bg": "#8343cf", "text": "#f0e8ff", "url": "https://asq.org/quality-resources/pdca-cycle"}, {"a": "AARRR", "f": "Acquisition, Activation, Retention, Referral, Revenue", "es": "Framework pirata de métricas para medir el ciclo de vida del cliente.", "en": "Pirate metrics framework for measuring the full customer lifecycle.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.productplan.com/glossary/aarrr-framework/"}, {"a": "NPS", "f": "Net Promoter Score", "es": "Métrica que mide la probabilidad de que usuarios recomienden tu producto.", "en": "Metric that measures how likely users are to recommend your product.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.netpromoter.com/know/"}, {"a": "KPI", "f": "Key Performance Indicator", "es": "Indicador clave para medir el progreso hacia un objetivo estratégico.", "en": "Key metric used to measure progress toward a strategic goal.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.investopedia.com/terms/k/kpi.asp"}, {"a": "CTR", "f": "Click-Through Rate", "es": "Porcentaje de usuarios que hacen clic en un elemento respecto al total que lo ven.", "en": "The percentage of users who click on an element out of all who see it.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://support.google.com/google-ads/answer/2615875"}, {"a": "MoM", "f": "Month-over-Month Growth", "es": "Tasa de crecimiento comparando un mes con el mes inmediatamente anterior.", "en": "Growth rate comparing one month to the immediately preceding month.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.investopedia.com/terms/m/mom.asp"}, {"a": "YoY", "f": "Year-over-Year Growth", "es": "Tasa de crecimiento comparando un período con el mismo período del año anterior.", "en": "Growth rate comparing a period to the same period in the previous year.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.investopedia.com/terms/y/year-over-year.asp"}, {"a": "DAU", "f": "Daily Active Users", "es": "Número de usuarios únicos que interactúan con un producto en un día. Indicador clave de engagement.", "en": "Number of unique users who interact with a product on a given day. A key engagement indicator.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.productplan.com/glossary/daily-active-users/"}, {"a": "MAU", "f": "Monthly Active Users", "es": "Número de usuarios únicos que interactúan con un producto al menos una vez al mes.", "en": "Number of unique users who interact with a product at least once a month.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.productplan.com/glossary/monthly-active-users/"}, {"a": "RR", "f": "Retention Rate", "es": "Porcentaje de usuarios que continúan usando el producto después de un período determinado.", "en": "Percentage of users who continue using the product after a given period.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.investopedia.com/terms/r/retention-rate.asp"}, {"a": "ROI", "f": "Return on Investment", "es": "Medida del beneficio obtenido en relación a la inversión realizada.", "en": "Measure of the profit gained relative to the investment made.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.investopedia.com/terms/r/returnoninvestment.asp"}, {"a": "CSAT", "f": "Customer Satisfaction", "es": "Métrica que mide la satisfacción directa del cliente tras una interacción.", "en": "Metric that measures direct customer satisfaction after an interaction.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.qualtrics.com/experience-management/customer/what-is-csat/"}, {"a": "CAC", "f": "Customer Acquisition Cost", "es": "Costo total promedio de adquirir un nuevo cliente.", "en": "The average total cost of acquiring a new customer.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.investopedia.com/terms/c/customer-acquisition-cost.asp"}, {"a": "CLV", "f": "Customer Lifetime Value", "es": "Valor total que un cliente genera para el negocio durante toda su relación con el producto.", "en": "The total value a customer generates for the business throughout their relationship.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.investopedia.com/terms/c/customer-lifetime-value.asp"}, {"a": "ARPU", "f": "Average Revenue Per User", "es": "Ingresos promedio generados por cada usuario activo en un período determinado.", "en": "The average revenue generated per active user in a given period.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.investopedia.com/terms/a/average-revenue-user-arpu.asp"}, {"a": "CR", "f": "Conversion Rate", "es": "Porcentaje de usuarios que completan una acción deseada (compra, registro) del total de visitantes.", "en": "Percentage of users who complete a desired action (purchase, sign-up) out of total visitors.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.optimizely.com/optimization-glossary/conversion-rate/"}, {"a": "AOV", "f": "Average Order Value", "es": "Valor promedio de cada pedido o transacción realizada en un período de tiempo determinado.", "en": "The average value of each order or transaction made in a given time period.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://www.shopify.com/blog/average-order-value"}, {"a": "CPC", "f": "Cost per Click", "es": "Costo que paga un anunciante cada vez que un usuario hace clic en su anuncio.", "en": "The cost an advertiser pays each time a user clicks on their ad.", "cat": "metrics", "bg": "#f58b61", "text": "#3d1800", "url": "https://support.google.com/google-ads/answer/116495"}, {"a": "TAM", "f": "Total Addressable Market", "es": "Tamaño total del mercado disponible si se capturara el 100% de la demanda.", "en": "The total market size available if 100% of demand were captured.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/t/total-addressable-market.asp"}, {"a": "SAM", "f": "Serviceable Addressable Market", "es": "Segmento del TAM al que el producto puede llegar de forma realista.", "en": "The segment of the TAM that the product can realistically reach.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/s/serviceable-available-market.asp"}, {"a": "MRD", "f": "Market Requirements Document", "es": "Documento que define las necesidades del mercado que un producto debe satisfacer.", "en": "A document defining the market needs that a product must satisfy.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.productplan.com/glossary/market-requirements-document/"}, {"a": "BRD", "f": "Business Requirements Document", "es": "Documento que detalla los requerimientos de negocio para un proyecto o producto.", "en": "A document detailing the business requirements for a project or product.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.projectmanager.com/blog/business-requirements-document"}, {"a": "OKRs", "f": "Objectives and Key Results", "es": "Framework de metas que conecta objetivos cualitativos con resultados medibles.", "en": "A goal-setting framework connecting qualitative objectives to measurable results.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.whatmatters.com/faqs/okr-meaning-definition-example"}, {"a": "SWOT", "f": "Strengths, Weaknesses, Opportunities, Threats", "es": "Análisis estratégico de factores internos y externos de un producto o empresa.", "en": "A strategic analysis of internal and external factors affecting a product or company.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/s/swot.asp"}, {"a": "GTM", "f": "Go to Market", "es": "Estrategia que define cómo un producto llega a sus clientes objetivo, incluyendo canales y posicionamiento.", "en": "A strategy defining how a product reaches its target customers, including channels and positioning.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.productplan.com/glossary/go-to-market-strategy/"}, {"a": "DACI", "f": "Driver, Approver, Contributors, Informed", "es": "Framework que define roles claros para la toma de decisiones en equipo.", "en": "A framework that defines clear roles for team decision-making.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.atlassian.com/team-playbook/plays/daci"}, {"a": "RFP", "f": "Request for Proposal", "es": "Documento formal que invita a proveedores a presentar propuestas para cubrir una necesidad de proyecto.", "en": "A formal document inviting vendors to submit proposals to meet a specific project need.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/r/request-for-proposal.asp"}, {"a": "B2B", "f": "Business to Business", "es": "Modelo donde una empresa vende productos o servicios a otras empresas (ej. mayoristas, software SaaS).", "en": "A model where a company sells products or services to other businesses (e.g. wholesalers, SaaS).", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/b/btob.asp"}, {"a": "B2C", "f": "Business to Consumer", "es": "Modelo donde una empresa vende directamente al consumidor final (ej. Amazon, supermercados).", "en": "A model where a company sells directly to the end consumer (e.g. Amazon, supermarkets).", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/b/btoc.asp"}, {"a": "B2G", "f": "Business to Government", "es": "Modelo donde empresas venden productos o servicios a instituciones gubernamentales o administración pública.", "en": "A model where companies sell products or services to government institutions or public administration.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/b/btog.asp"}, {"a": "B2E", "f": "Business to Employee", "es": "Estrategias o servicios internos de la empresa dirigidos a sus propios empleados (ej. portales de beneficios).", "en": "Internal company strategies or services directed at its own employees (e.g. benefits portals).", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.techtarget.com/searchcustomerexperience/definition/business-to-employee-B2E"}, {"a": "B2B2C", "f": "Business to Business to Consumer", "es": "Una empresa usa otra empresa como intermediaria para llegar al consumidor final, compartiendo valor en la cadena.", "en": "A company uses another business as an intermediary to reach the end consumer, sharing value in the chain.", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/b/business-to-business-to-consumer-b2b2c.asp"}, {"a": "C2C", "f": "Consumer to Consumer", "es": "Consumidores que venden a otros consumidores, generalmente en plataformas de segunda mano (ej. eBay, Vinted).", "en": "Consumers selling to other consumers, typically on second-hand platforms (e.g. eBay, Vinted).", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/c/ctoc.asp"}, {"a": "C2B", "f": "Consumer to Business", "es": "Consumidores que ofrecen productos o servicios a empresas (ej. influencers, freelancers que proponen colaboraciones).", "en": "Consumers offering products or services to companies (e.g. influencers, freelancers proposing collaborations).", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.investopedia.com/terms/c/ctob.asp"}, {"a": "G2C", "f": "Government to Consumer", "es": "Servicios ofrecidos por el gobierno directamente al ciudadano (ej. pago de impuestos online, trámites digitales).", "en": "Services offered by the government directly to citizens (e.g. online tax payments, digital procedures).", "cat": "business", "bg": "#4aebdb", "text": "#003330", "url": "https://www.techtarget.com/searchcio/definition/G2C"}, {"a": "UX", "f": "User Experience", "es": "Experiencia global del usuario al interactuar con un producto o servicio.", "en": "The overall experience a user has when interacting with a product or service.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.nngroup.com/articles/definition-user-experience/"}, {"a": "UI", "f": "User Interface", "es": "Conjunto de elementos visuales a través de los cuales el usuario interactúa con el producto.", "en": "The set of visual elements through which a user interacts with a product.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.nngroup.com/articles/definition-user-interface/"}, {"a": "IA", "f": "Information Architecture", "es": "Organización y estructura del contenido para facilitar la navegación del usuario.", "en": "The organization and structure of content to facilitate user navigation.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.nngroup.com/articles/ia-vs-navigation/"}, {"a": "CTA", "f": "Call to Action", "es": "Elemento de UI que invita al usuario a realizar una acción específica.", "en": "A UI element that prompts the user to take a specific action.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.nngroup.com/articles/call-to-action-buttons/"}, {"a": "UXR", "f": "User Experience Research", "es": "Proceso de investigar el comportamiento y necesidades de usuarios para informar el diseño.", "en": "The process of researching user behavior and needs to inform design decisions.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.nngroup.com/articles/ux-research-cheat-sheet/"}, {"a": "IxD", "f": "Interaction Design", "es": "Disciplina que define la estructura y el comportamiento de sistemas interactivos para crear interfaces fluidas.", "en": "Discipline defining the structure and behavior of interactive systems to create fluid interfaces.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.interaction-design.org/literature/topics/interaction-design"}, {"a": "SUS", "f": "System Usability Scale", "es": "Encuesta de 10 preguntas para evaluar la usabilidad y facilidad de uso de un producto de forma rápida.", "en": "A 10-question survey for quickly evaluating the usability and user-friendliness of a product.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.usability.gov/how-to-and-tools/methods/system-usability-scale.html"}, {"a": "WAI", "f": "Web Accessibility Initiative", "es": "Iniciativa del W3C para mejorar la accesibilidad web a personas con discapacidad, con estándares como WCAG.", "en": "A W3C initiative to improve web accessibility for people with disabilities, including WCAG.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.w3.org/WAI/fundamentals/accessibility-intro/"}, {"a": "DS", "f": "Design System", "es": "Colección de componentes reutilizables, guías y estándares que garantizan consistencia visual y funcional en un producto.", "en": "A collection of reusable components, guidelines, and standards that ensure visual and functional consistency across a product.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.nngroup.com/articles/design-systems-101/"}, {"a": "DLS", "f": "Design Language System", "es": "Sistema de diseño popularizado por Airbnb que unifica el lenguaje visual y de interacción de una marca en todos sus productos.", "en": "A design system popularized by Airbnb that unifies the visual and interaction language of a brand across all its products.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://airbnb.design/building-a-visual-language/"}, {"a": "UI Kit", "f": "User Interface Kit", "es": "Biblioteca de componentes de interfaz lista para usar en herramientas como Figma, que acelera el diseño y mantiene consistencia.", "en": "A library of ready-to-use interface components in tools like Figma, speeding up design and maintaining consistency.", "cat": "ux", "bg": "#f4d604", "text": "#2a2200", "url": "https://www.figma.com/resource-library/ui-kit/"}, {"a": "CI/CD", "f": "Continuous Integration / Continuous Deployment", "es": "Prácticas para automatizar la integración y entrega continua de software.", "en": "Practices for automating the continuous integration and delivery of software.", "cat": "dev", "bg": "#f03b72", "text": "#fff0f4", "url": "https://www.atlassian.com/continuous-delivery/principles/continuous-integration-vs-delivery-vs-deployment"}, {"a": "SDK", "f": "Software Development Kit", "es": "Conjunto de herramientas para que desarrolladores creen apps sobre una plataforma.", "en": "A set of tools that allows developers to build apps on top of a platform.", "cat": "dev", "bg": "#f03b72", "text": "#fff0f4", "url": "https://www.ibm.com/topics/sdk"}, {"a": "IDE", "f": "Integrated Development Environment", "es": "Entorno que combina editor, compilador y debugger en una sola herramienta.", "en": "An environment combining a code editor, compiler, and debugger in one tool.", "cat": "dev", "bg": "#f03b72", "text": "#fff0f4", "url": "https://www.codecademy.com/article/what-is-an-ide"}, {"a": "TDD", "f": "Test-Driven Development", "es": "Metodología donde se escriben pruebas antes de escribir el código funcional.", "en": "A methodology where tests are written before the functional code.", "cat": "dev", "bg": "#f03b72", "text": "#fff0f4", "url": "https://martinfowler.com/bliki/TestDrivenDevelopment.html"}, {"a": "PWA", "f": "Progressive Web Application", "es": "Web app que usa tecnologías modernas para ofrecer experiencia similar a una app nativa.", "en": "A web app using modern technologies to deliver a native app-like experience.", "cat": "dev", "bg": "#f03b72", "text": "#fff0f4", "url": "https://web.dev/articles/what-are-pwas"}, {"a": "QA", "f": "Quality Assurance", "es": "Proceso de prueba y verificación que asegura que un producto cumple los estándares de calidad antes del lanzamiento.", "en": "The testing and verification process ensuring a product meets quality standards before release.", "cat": "dev", "bg": "#f03b72", "text": "#fff0f4", "url": "https://www.atlassian.com/incident-management/devops/qa"}, {"a": "DOD", "f": "Definition of Done", "es": "Acuerdo del equipo que define qué criterios debe cumplir una tarea para considerarse completada.", "en": "A team agreement defining what criteria a task must meet to be considered complete.", "cat": "dev", "bg": "#f03b72", "text": "#fff0f4", "url": "https://www.scrum.org/resources/blog/done-understanding-definition-done"}, {"a": "API", "f": "Application Programming Interface", "es": "Interfaz que permite que dos aplicaciones se comuniquen entre sí.", "en": "An interface that allows two applications to communicate with each other.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Introduction"}, {"a": "JSON", "f": "JavaScript Object Notation", "es": "Formato ligero de intercambio de datos legible por humanos y máquinas.", "en": "A lightweight data interchange format readable by both humans and machines.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/JSON"}, {"a": "XML", "f": "Extensible Markup Language", "es": "Lenguaje de marcado para almacenar y transportar datos de forma estructurada.", "en": "A markup language for storing and transporting data in a structured format.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://developer.mozilla.org/en-US/docs/Web/XML/XML_introduction"}, {"a": "REST", "f": "Representational State Transfer", "es": "Estilo arquitectónico para diseñar APIs web basado en HTTP.", "en": "An architectural style for designing web APIs based on HTTP.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://restfulapi.net/"}, {"a": "SOAP", "f": "Simple Object Access Protocol", "es": "Protocolo de mensajería basado en XML para intercambio de información entre sistemas.", "en": "An XML-based messaging protocol for exchanging information between systems.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://www.ibm.com/topics/soap-apis"}, {"a": "SaaS", "f": "Software as a Service", "es": "Modelo donde el software se accede vía internet como servicio, sin instalación local.", "en": "A model where software is accessed over the internet as a service, no local install.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://www.salesforce.com/saas/"}, {"a": "DBMS", "f": "Database Management System", "es": "Software para crear, gestionar y consultar bases de datos estructuradas.", "en": "Software used to create, manage, and query structured databases.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://www.oracle.com/database/what-is-database/"}, {"a": "AI", "f": "Artificial Intelligence", "es": "Tecnología que permite a los sistemas aprender y razonar. En diseño se aplica a interfaces adaptativas y chatbots.", "en": "Technology enabling systems to learn and reason. In design, applied to adaptive UIs and chatbots.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://www.ibm.com/topics/artificial-intelligence"}, {"a": "ML", "f": "Machine Learning", "es": "Rama de la IA que permite a los sistemas aprender de datos y mejorar sin ser programados explícitamente.", "en": "A branch of AI that allows systems to learn from data and improve without explicit programming.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://www.ibm.com/topics/machine-learning"}, {"a": "IoT", "f": "Internet of Things", "es": "Red de dispositivos físicos conectados a internet que recopilan e intercambian datos.", "en": "A network of physical devices connected to the internet that collect and exchange data.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://www.ibm.com/topics/internet-of-things"}, {"a": "CMS", "f": "Content Management System", "es": "Plataforma para crear, gestionar y publicar contenido digital sin necesidad de programar.", "en": "A platform for creating, managing, and publishing digital content without coding.", "cat": "tech", "bg": "#3492ea", "text": "#e8f2ff", "url": "https://www.cloudflare.com/learning/performance/what-is-a-content-management-system/"}, {"a": "CSS", "f": "Cascading Style Sheets", "es": "Lenguaje para definir el estilo visual de páginas web: colores, tipografía, espaciado y layout.", "en": "A language for defining the visual style of web pages: colors, typography, spacing, and layout.", "cat": "design", "bg": "#f980e9", "text": "#3a0035", "url": "https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps/What_is_CSS"}, {"a": "HTML", "f": "HyperText Markup Language", "es": "Lenguaje estándar para crear la estructura y el contenido de páginas web.", "en": "The standard language for creating the structure and content of web pages.", "cat": "design", "bg": "#f980e9", "text": "#3a0035", "url": "https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML"}, {"a": "SVG", "f": "Scalable Vector Graphics", "es": "Formato vectorial que escala sin perder calidad, ideal para iconos, logos y gráficos en cualquier resolución.", "en": "A vector format that scales without losing quality, ideal for icons, logos, and graphics.", "cat": "design", "bg": "#f980e9", "text": "#3a0035", "url": "https://developer.mozilla.org/en-US/docs/Web/SVG"}, {"a": "PNG", "f": "Portable Network Graphics", "es": "Formato de imagen de alta calidad sin pérdida, ideal para fondos transparentes y gráficos detallados.", "en": "A high-quality lossless image format ideal for transparent backgrounds and detailed graphics.", "cat": "design", "bg": "#f980e9", "text": "#3a0035", "url": "https://www.adobe.com/creativecloud/file-types/image/raster/png-file.html"}, {"a": "GIF", "f": "Graphics Interchange Format", "es": "Formato de imagen que soporta animaciones simples y transparencia, usado para micro-interacciones.", "en": "An image format supporting simple animations and transparency, used for micro-interactions.", "cat": "design", "bg": "#f980e9", "text": "#3a0035", "url": "https://www.adobe.com/creativecloud/file-types/image/raster/gif-file.html"}, {"a": "DPI", "f": "Dots Per Inch", "es": "Medida de densidad de imagen que determina su resolución. A mayor DPI, mayor nitidez en pantalla o impresión.", "en": "An image density measure that determines resolution. Higher DPI means sharper output.", "cat": "design", "bg": "#f980e9", "text": "#3a0035", "url": "https://www.adobe.com/creativecloud/photography/discover/dots-per-inch.html"}, {"a": "RWD", "f": "Responsive Web Design", "es": "Enfoque de diseño web que asegura que las páginas se vean bien en cualquier dispositivo o tamaño de pantalla.", "en": "A web design approach ensuring pages look great on any device or screen size.", "cat": "design", "bg": "#f980e9", "text": "#3a0035", "url": "https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design"}, {"a": "AR/VR", "f": "Augmented Reality / Virtual Reality", "es": "Tecnologías que superponen o reemplazan la realidad con contenido digital, usadas en experiencias inmersivas.", "en": "Technologies that overlay or replace reality with digital content for immersive experiences.", "cat": "design", "bg": "#f980e9", "text": "#3a0035", "url": "https://www.interaction-design.org/literature/topics/augmented-reality"}, {"a": "CX", "f": "Customer Experience", "es": "Suma de todas las interacciones y percepciones que un cliente tiene con una marca, del primer contacto al soporte.", "en": "The sum of all interactions and perceptions a customer has with a brand, from first contact to support.", "cat": "experience", "bg": "#3831df", "text": "#e8e6ff", "url": "https://www.nngroup.com/articles/ux-vs-cx/"}, {"a": "BX", "f": "Brand Experience", "es": "Percepción emocional del usuario hacia una marca en todos sus puntos de contacto, digitales y físicos.", "en": "The user\\'s emotional perception of a brand across all its touchpoints, digital and physical.", "cat": "experience", "bg": "#3831df", "text": "#e8e6ff", "url": "https://www.interaction-design.org/literature/article/brand-experience"}, {"a": "SD", "f": "Service Design", "es": "Disciplina que diseña todos los puntos de contacto de un servicio, incluyendo personas, procesos y canales.", "en": "A discipline that designs all touchpoints of a service, including people, processes, and channels.", "cat": "experience", "bg": "#3831df", "text": "#e8e6ff", "url": "https://www.interaction-design.org/literature/topics/service-design"}, {"a": "CRM", "f": "Customer Relationship Management", "es": "Sistema para gestionar y analizar interacciones con clientes, con el fin de mejorar relaciones y retención.", "en": "A system to manage and analyze customer interactions to improve relationships and increase retention.", "cat": "experience", "bg": "#3831df", "text": "#e8e6ff", "url": "https://www.salesforce.com/crm/what-is-crm/"}, {"a": "UCP", "f": "Unified Customer Profile", "es": "Representación centralizada de todos los datos de un cliente en un solo registro, para personalizar experiencias.", "en": "A centralized record of all data about a customer, used to personalize their experience.", "cat": "experience", "bg": "#3831df", "text": "#e8e6ff", "url": "https://www.techtarget.com/searchcustomerexperience/definition/unified-customer-profile"}, {"a": "CJM", "f": "Customer Journey Mapping", "es": "Mapa visual de la experiencia del cliente que refleja sus metas, emociones e interacciones con el producto.", "en": "A visual map of the customer experience reflecting goals, emotions, and touchpoints over time.", "cat": "experience", "bg": "#3831df", "text": "#e8e6ff", "url": "https://www.nngroup.com/articles/customer-journey-mapping/"}];
+
+// ── TRANSLATIONS ──────────────────────────────────────────────
+const T = {
+  es:{
+    heroTitle:'<span>Bingo</span> de<br>Acrónimos',
+    heroSub:'Tu cartón personal · Marca cuando escuches la definición',
+    newCard:'Nuevo cartón',
+    playerPlaceholder:'Tu nombre...',
+    statusHint:'Toca una celda cuando escuches su definición',
+    statusMarked:(n,t)=>`${n} de ${t} marcadas`,
+    calledTitle:'Acrónimos cantados por el profe:',
+    winTitle:'¡BINGO!',
+    winSub:(name)=>`¡${name} completó una línea!`,
+    winBtn:'¡Seguir jugando!',
+    instrTitle:'¿Cómo jugar?',
+    confirmTitle:'¿Nuevo cartón?',
+    confirmSub:'Perderás tu progreso actual.',
+    confirmYes:'Sí, nuevo cartón',
+    confirmNo:'Cancelar',
+    instr:`<strong>1.</strong> Escucha la definición que dice tu profe.<br>
+           <strong>2.</strong> Identifica el acrónimo en tu cartón y tócalo para marcarlo ✓<br>
+           <strong>3.</strong> Completa una fila, columna o diagonal para ganar.<br>
+           <strong>4.</strong> ¡Grita el acrónimo de la esquina de tu línea ganadora!`,
+  },
+  en:{
+    heroTitle:'Acronym<br><span>Bingo</span>',
+    heroSub:'Your personal card · Mark when you hear the definition',
+    newCard:'New card',
+    playerPlaceholder:'Your name...',
+    statusHint:'Tap a cell when you hear its definition',
+    statusMarked:(n,t)=>`${n} of ${t} marked`,
+    calledTitle:'Acronyms called by teacher:',
+    winTitle:'BINGO!',
+    winSub:(name)=>`${name} completed a line!`,
+    winBtn:'Keep playing!',
+    instrTitle:'How to play?',
+    confirmTitle:'New card?',
+    confirmSub:'Your current progress will be lost.',
+    confirmYes:'Yes, new card',
+    confirmNo:'Cancel',
+    instr:`<strong>1.</strong> Listen to the definition your teacher calls out.<br>
+           <strong>2.</strong> Find the acronym on your card and tap it to mark it ✓<br>
+           <strong>3.</strong> Complete a row, column, or diagonal to win.<br>
+           <strong>4.</strong> Shout the corner acronym of your winning line!`,
+  },
+};
+
+// ── STATE ─────────────────────────────────────────────────────
+let lang = localStorage.getItem('bingo-lang') || 'es';
+let cardData = null;   // array of 16 acronym objects
+let marked = new Set();
+let calledByTeacher = []; // acronyms typed into the "called" input (future)
+let playerName = '';
+let won = false;
+
+const STORAGE_CARD    = 'bingo-card-v1';
+const STORAGE_MARKED  = 'bingo-marked-v1';
+const STORAGE_NAME    = 'bingo-name-v1';
+const STORAGE_VISITED = 'bingo-visited-v1'; // flag: has the user visited before?
+
+// ── INIT ──────────────────────────────────────────────────────
+function init(){
+  // ── Language ──────────────────────────────────────────────
+  setLang(lang, true);
+
+  // ── Player name ───────────────────────────────────────────
+  const savedName = localStorage.getItem(STORAGE_NAME) || '';
+  document.getElementById('player-name').value = savedName;
+  playerName = savedName;
+  document.getElementById('player-name').addEventListener('input', e=>{
+    playerName = e.target.value;
+    localStorage.setItem(STORAGE_NAME, playerName);
+  });
+
+  // ── Card session logic ────────────────────────────────────
+  const hasVisited  = localStorage.getItem(STORAGE_VISITED);
+  const savedCard   = localStorage.getItem(STORAGE_CARD);
+  const savedMarked = localStorage.getItem(STORAGE_MARKED);
+
+  if(hasVisited && savedCard){
+    // Returning user — restore their exact card and marks
+    try{
+      cardData = JSON.parse(savedCard);
+      marked   = new Set(JSON.parse(savedMarked || '[]'));
+      renderCard(false);
+      // Restore winner state if they had a bingo
+      if(marked.size >= 4) checkWin();
+    } catch {
+      // Corrupted storage — fresh start
+      firstVisitSetup();
+    }
+  } else {
+    // First visit ever on this device/browser — generate fresh card
+    firstVisitSetup();
+  }
+
+  applyTranslations();
+  updateStatus();
+}
+
+function firstVisitSetup(){
+  // Mark as visited and generate a brand new card
+  localStorage.setItem(STORAGE_VISITED, '1');
+  generateAndSave();
+}
+
+function newCard(){
+  showConfirmModal();
+}
+
+function showConfirmModal(){
+  const t = T[lang];
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+
+function confirmNewCard(){
+  document.getElementById('confirm-overlay').classList.remove('show');
+  // Keep STORAGE_VISITED so they don't get treated as first-timer again
+  // Just generate a fresh card
+  generateAndSave();
+  won = false;
+  document.getElementById('status-bar').classList.remove('has-bingo');
+  document.getElementById('called-section').style.display='none';
+  document.getElementById('called-chips').innerHTML='';
+  calledByTeacher=[];
+  document.querySelectorAll('.cell.winner-line').forEach(c=>c.classList.remove('winner-line'));
+}
+
+function cancelNewCard(){
+  document.getElementById('confirm-overlay').classList.remove('show');
+}
+
+function generateAndSave(){
+  const shuffled = [...ALL_ACRONYMS].sort(()=>Math.random()-.5);
+  cardData = shuffled.slice(0,16);
+  marked   = new Set();
+  localStorage.setItem(STORAGE_VISITED, '1');
+  localStorage.setItem(STORAGE_CARD,    JSON.stringify(cardData));
+  localStorage.setItem(STORAGE_MARKED,  JSON.stringify([]));
+  renderCard(true);
+  updateStatus();
+}
+
+// ── RENDER CARD ───────────────────────────────────────────────
+function renderCard(animate){
+  const grid = document.getElementById('bingo-card');
+  grid.innerHTML = '';
+  cardData.forEach((item, idx)=>{
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (marked.has(idx) ? ' marked' : '');
+    cell.style.background = item.bg;
+    cell.style.color = item.text;
+    if(animate) cell.style.animationDelay = (idx * 28) + 'ms';
+    else cell.style.animation = 'none';
+
+    cell.innerHTML = `
+      <div class="cell-acronym">${item.a}</div>
+      <div class="cell-name">${item.f}</div>
+      <div class="cell-check">✓</div>`;
+
+    cell.addEventListener('click', ()=>toggleMark(idx, cell));
+    // long press to see definition
+    let pressTimer;
+    cell.addEventListener('pointerdown', ()=>{
+      pressTimer = setTimeout(()=>showDefinition(item), 500);
+    });
+    cell.addEventListener('pointerup', ()=>clearTimeout(pressTimer));
+    cell.addEventListener('pointerleave', ()=>clearTimeout(pressTimer));
+
+    grid.appendChild(cell);
+  });
+}
+
+// ── MARK LOGIC ────────────────────────────────────────────────
+function toggleMark(idx, cellEl){
+  if(won) return;
+  if(marked.has(idx)){
+    marked.delete(idx);
+    cellEl.classList.remove('marked');
+  } else {
+    marked.add(idx);
+    cellEl.classList.add('marked');
+    // pulse animation
+    cellEl.style.transform = 'scale(1.12)';
+    setTimeout(()=>cellEl.style.transform='',250);
+  }
+  localStorage.setItem(STORAGE_MARKED, JSON.stringify([...marked]));
+  updateStatus();
+  checkWin();
+}
+
+function updateStatus(){
+  const t = T[lang];
+  document.getElementById('status-hint').textContent = t.statusHint;
+  document.getElementById('status-marked').textContent = t.statusMarked(marked.size, 16);
+}
+
+// ── WIN CHECK ─────────────────────────────────────────────────
+function checkWin(){
+  const lines = [
+    [0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],   // rows
+    [0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],   // cols
+    [0,5,10,15],[3,6,9,12]                           // diagonals
+  ];
+  for(const line of lines){
+    if(line.every(i=>marked.has(i))){
+      // highlight
+      const cells = document.querySelectorAll('.bingo-card .cell');
+      line.forEach(i=>{ if(cells[i]) cells[i].classList.add('winner-line'); });
+      showWin();
+      return;
+    }
+  }
+}
+
+function showWin(){
+  won = true;
+  const t = T[lang];
+  const name = playerName || (lang==='es'?'Tú':'You');
+  document.getElementById('win-title-text').textContent = t.winTitle;
+  document.getElementById('win-sub-text').textContent = t.winSub(name);
+  document.getElementById('win-btn').textContent = t.winBtn;
+  document.getElementById('status-bar').classList.add('has-bingo');
+  setTimeout(()=>document.getElementById('win-overlay').classList.add('show'), 300);
+}
+
+function dismissWin(){
+  document.getElementById('win-overlay').classList.remove('show');
+}
+
+// ── DEFINITION TOOLTIP (long press) ──────────────────────────
+function showDefinition(item){
+  // Simple alert-style — could be enhanced later
+  const def = lang==='es' ? item.es : item.en;
+  alert(`${item.a} — ${item.f}\n\n${def}`);
+}
+
+// ── LANG ──────────────────────────────────────────────────────
+function setLang(l, silent){
+  lang = l;
+  localStorage.setItem('bingo-lang', l);
+  document.getElementById('btn-es').classList.toggle('active', l==='es');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.documentElement.lang = l;
+  applyTranslations();
+  if(!silent) updateStatus();
+}
+
+function applyTranslations(){
+  const t = T[lang];
+  document.getElementById('hero-title').innerHTML = t.heroTitle;
+  document.getElementById('hero-sub').textContent = t.heroSub;
+  document.getElementById('new-card-label').textContent = t.newCard;
+  document.getElementById('player-name').placeholder = t.playerPlaceholder;
+  document.getElementById('status-hint').textContent = t.statusHint;
+  document.getElementById('called-title').textContent = t.calledTitle;
+  document.getElementById('win-btn').textContent = t.winBtn;
+  // confirm modal
+  const ct = document.getElementById('confirm-title');
+  if(ct){
+    ct.textContent = t.confirmTitle;
+    document.getElementById('confirm-sub').textContent = t.confirmSub;
+    document.getElementById('confirm-yes').textContent = t.confirmYes;
+    document.getElementById('confirm-no').textContent = t.confirmNo;
+  }
+  document.getElementById('instructions').innerHTML =
+    `<strong>${t.instrTitle}</strong><br><br>${t.instr}`;
+  updateStatus();
+}
+
+init();
+</script>
+</body>
+</html>
