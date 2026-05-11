@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Player — Bingo de Acrónimos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="shared/styles.css"/>
+<style>
+  .wrap{max-width:560px;margin:0 auto;padding:0 1rem 3rem;display:flex;flex-direction:column;gap:1.2rem}
+
+  /* join card */
+  .join-card{display:flex;flex-direction:column;gap:14px;padding:2rem 1.6rem}
+
+  /* status bar */
+  .status-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.6rem 1.1rem;border-radius:var(--r-pill);
+    background:var(--surface);border:1.5px solid var(--border);
+    font-size:12px;color:var(--muted);flex-wrap:wrap;gap:6px;
+  }
+  .status-marked{font-family:var(--f-mono);font-weight:700;color:var(--text)}
+
+  /* last called highlight */
+  .last-called{
+    padding:1rem 1.2rem;border-radius:var(--r-md);
+    display:flex;flex-direction:column;gap:6px;
+    border:1.5px solid transparent;
+    transition:background .3s, border-color .3s;
+  }
+  .last-called.empty{background:var(--surface);border-color:var(--border)}
+  .last-called .lc-def{font-family:var(--f-display);font-size:18px;font-weight:700;line-height:1.35}
+  .last-called.empty .lc-def{color:var(--faint);font-weight:600;font-size:14px}
+  .last-called.has{padding:1.2rem 1.3rem}
+  .last-called.has .lc-def{color:#fff}
+
+  /* bingo grid */
+  .bingo-card{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:6px;padding:6px;
+    background:var(--surface);
+    border:1.5px solid var(--border);
+    border-radius:var(--r-md);
+  }
+  .cell{
+    aspect-ratio:1;
+    animation:tile-in .35s cubic-bezier(.34,1.3,.64,1) both;
+  }
+  .cell.marked{opacity:.42}
+  .cell .check{
+    position:absolute;inset:0;display:none;
+    align-items:center;justify-content:center;font-size:24px;
+    background:rgba(0,0,0,.28);border-radius:var(--r-sm);
+    backdrop-filter:blur(2px);
+  }
+  .cell.marked .check{display:flex}
+
+  .called-list{
+    display:flex;flex-wrap:wrap;gap:4px;
+  }
+  .chip{
+    font-family:var(--f-mono);font-size:9px;font-weight:700;
+    padding:3px 8px;border-radius:7px;
+  }
+
+  /* bingo button (sticky-ish) */
+  .bingo-action{display:flex;justify-content:center;padding:.4rem 0}
+  .bingo-action .btn-bingo{
+    background:var(--accent);color:#4a3600;
+    padding:14px 36px;font-size:16px;font-weight:800;letter-spacing:1px;
+    box-shadow:0 0 0 2px var(--accent), 0 0 24px var(--accent-glow);
+    animation:win-pulse 1.2s ease infinite alternate;
+  }
+  .btn-bingo:disabled{box-shadow:none;animation:none;background:var(--surface);color:var(--faint)}
+
+  /* waiting state */
+  .waiting-screen{display:flex;flex-direction:column;gap:14px;align-items:center;padding:2.5rem 1.5rem;text-align:center}
+  .waiting-screen .big{font-family:var(--f-display);font-size:28px;font-weight:800;letter-spacing:-1px}
+  .waiting-screen .sub{font-size:13px;color:var(--muted);max-width:32ch}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="page">
+
+  <header class="topbar">
+    <a class="brand" href="index.html" style="text-decoration:none">
+      <div class="brand-mark"></div>
+      <span id="brand-name">Acronym Bingo</span>
+    </a>
+    <div class="topbar-right">
+      <a class="btn btn-sm btn-ghost" href="index.html" id="btn-back">← Hub</a>
+      <div class="lang-wrap">
+        <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- JOIN VIEW -->
+    <section class="surface-card join-card" id="join-view">
+      <div class="col" style="gap:6px;text-align:center">
+        <h1 class="hero-title" style="font-size:48px"><span class="accent" id="hero-bingo">Bingo</span></h1>
+        <div class="hero-sub" id="hero-sub"></div>
+      </div>
+      <div class="col" style="gap:6px;margin-top:8px">
+        <span class="label" id="lbl-name"></span>
+        <input class="input" id="input-name" maxlength="20" autocomplete="off"/>
+      </div>
+      <div class="col" style="gap:6px">
+        <span class="label" id="lbl-room"></span>
+        <input class="input input-mono" id="input-code" maxlength="4" autocomplete="off"/>
+      </div>
+      <button class="btn btn-primary btn-lg" id="btn-join" onclick="joinRoom()"></button>
+      <div id="join-error" style="display:none;font-size:13px;color:#ff6b8a;text-align:center;font-weight:600;padding:6px;border-radius:8px;background:rgba(255,107,138,.08)"></div>
+    </section>
+
+    <!-- GAME VIEW -->
+    <section id="game-view" style="display:none">
+
+      <div class="header-row" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div class="col" style="gap:2px">
+          <span class="label" id="lbl-hello"></span>
+          <div style="font-family:var(--f-display);font-size:24px;font-weight:800;letter-spacing:-.5px" id="player-display">—</div>
+        </div>
+        <div class="row" style="gap:6px">
+          <span class="pill"><span class="label" style="color:var(--faint)">SALA</span><strong id="game-code">----</strong></span>
+        </div>
+      </div>
+
+      <!-- last called -->
+      <div class="last-called empty" id="last-called">
+        <span class="label" id="lbl-last"></span>
+        <div class="lc-def" id="lc-def"></div>
+      </div>
+
+      <div class="status-bar">
+        <span id="status-hint"></span>
+        <span class="status-marked" id="status-marked"></span>
+      </div>
+
+      <!-- card -->
+      <div class="bingo-card" id="bingo-card"></div>
+
+      <div class="bingo-action">
+        <button class="btn btn-bingo" id="btn-bingo" onclick="claimBingo()" disabled></button>
+      </div>
+
+      <!-- called acronyms (mini) -->
+      <div class="surface-card col" style="gap:8px;padding:1rem 1.2rem">
+        <span class="label" id="lbl-called-list"></span>
+        <div class="called-list" id="called-list"></div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- BINGO CLAIMED OVERLAY -->
+<div class="overlay" id="overlay-claim">
+  <div class="overlay-box win">
+    <div style="font-size:44px;text-align:center">⏳</div>
+    <div class="overlay-title" style="text-align:center" id="claim-title"></div>
+    <div class="overlay-sub" style="text-align:center" id="claim-sub"></div>
+  </div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="overlay" id="overlay-win">
+  <div class="overlay-box win">
+    <div style="font-size:54px;text-align:center">🏆</div>
+    <div class="overlay-title" style="text-align:center;color:var(--accent);font-size:42px" id="win-title">BINGO!</div>
+    <div class="overlay-sub" style="text-align:center" id="win-sub"></div>
+    <button class="btn btn-accent" id="win-btn" onclick="closeWin()"></button>
+  </div>
+</div>
+
+<!-- REJECTED OVERLAY -->
+<div class="overlay" id="overlay-reject">
+  <div class="overlay-box">
+    <div style="font-size:42px;text-align:center">😅</div>
+    <div class="overlay-title" style="text-align:center" id="reject-title"></div>
+    <div class="overlay-sub" style="text-align:center" id="reject-sub"></div>
+    <button class="btn btn-primary" onclick="closeReject()" id="reject-btn"></button>
+  </div>
+</div>
+
+<!-- KICKED / SESSION ENDED OVERLAY -->
+<div class="overlay" id="overlay-kicked">
+  <div class="overlay-box">
+    <div style="font-size:48px;text-align:center">👋</div>
+    <div class="overlay-title" style="text-align:center" id="kicked-title"></div>
+    <div class="overlay-sub" style="text-align:center" id="kicked-sub"></div>
+    <button class="btn btn-primary" onclick="location.href='index.html'" id="kicked-btn"></button>
+  </div>
+</div>
+
+<script src="shared/data.js"></script>
+<script src="shared/translations.js"></script>
+<script src="shared/sync.js"></script>
+<script>
+let lang = localStorage.getItem('bingo-lang') || 'es';
+let roomCode = (new URLSearchParams(location.search).get('room')
+              || localStorage.getItem('bingo-current-room')
+              || '').toUpperCase();
+let playerId = Sync.getOrCreatePlayerId();
+let playerName = localStorage.getItem('bingo-player-name') || '';
+let myCard = []; // array of 16 ACRONYM indices
+let marked = new Set(); // cell indices (0-15)
+let state = null;
+let joined = false;
+let lastClaimResult = null;
+let lastWinnerCount = 0;
+
+function setLang(l){
+  lang = l;
+  localStorage.setItem('bingo-lang', l);
+  document.getElementById('btn-es').classList.toggle('active', l==='es');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.documentElement.lang = l;
+  apply();
+}
+
+function apply(){
+  const t = T[lang];
+  document.getElementById('brand-name').textContent = t.appName;
+  document.getElementById('hero-sub').textContent = t.tagline;
+  document.getElementById('lbl-name').textContent = t.playerName;
+  document.getElementById('input-name').placeholder = t.namePh;
+  document.getElementById('lbl-room').textContent = t.roomCode;
+  document.getElementById('input-code').placeholder = 'XXXX';
+  document.getElementById('btn-join').textContent = t.join;
+  document.getElementById('btn-back').textContent = t.backHome;
+  document.getElementById('lbl-hello').textContent = t.you;
+  document.getElementById('lbl-last').textContent = t.lastCalled;
+  document.getElementById('lbl-called-list').textContent = t.calledList;
+  document.getElementById('btn-bingo').textContent = t.callBingo;
+  document.getElementById('claim-title').textContent = t.callBingo;
+  document.getElementById('claim-sub').textContent = t.bingoSent;
+  document.getElementById('win-sub').textContent = t.bingoValidated;
+  document.getElementById('win-btn').textContent = t.end;
+  document.getElementById('reject-title').textContent = t.bingoInvalidated;
+  document.getElementById('reject-sub').textContent = '';
+  document.getElementById('reject-btn').textContent = t.cancel;
+  document.getElementById('kicked-title').textContent = lang==='es' ? 'La partida terminó' : 'The game has ended';
+  document.getElementById('kicked-sub').textContent = lang==='es'
+    ? 'El profe cerró la sesión. ¡Gracias por jugar!'
+    : 'The teacher ended the session. Thanks for playing!';
+  document.getElementById('kicked-btn').textContent = lang==='es' ? 'Volver al hub' : 'Back to hub';
+  if(joined) renderGame(); else renderJoin();
+}
+
+function renderJoin(){
+  document.getElementById('input-name').value = playerName;
+  document.getElementById('input-code').value = roomCode;
+}
+
+function showJoinError(msg){
+  const el = document.getElementById('join-error');
+  el.textContent = msg;
+  el.style.display = '';
+}
+function clearJoinError(){
+  const el = document.getElementById('join-error');
+  el.style.display = 'none';
+  el.textContent = '';
+}
+
+function joinRoom(){
+  clearJoinError();
+  const name = document.getElementById('input-name').value.trim();
+  const code = document.getElementById('input-code').value.trim().toUpperCase();
+  if(!name || !code || code.length !== 4){
+    showJoinError(lang==='es'
+      ? 'Ingresa tu nombre y un código de sala de 4 caracteres.'
+      : 'Enter your name and a 4-character room code.');
+    return;
+  }
+  playerName = name;
+  roomCode = code;
+  localStorage.setItem('bingo-player-name', name);
+  localStorage.setItem('bingo-current-room', code);
+  state = Sync.getRoom(code);
+  if(!state){
+    showJoinError(lang==='es'
+      ? 'Esa sala no existe. Pídele el código al profe.'
+      : "That room doesn't exist. Ask your teacher for the code.");
+    return;
+  }
+  if(state.ended){
+    showJoinError(lang==='es'
+      ? 'Esta partida ya terminó.'
+      : 'This game has already ended.');
+    return;
+  }
+
+  // resume existing card if same player+room
+  const existingPlayer = state.players[playerId];
+  if(existingPlayer && existingPlayer.card && existingPlayer.card.length === 16){
+    myCard = existingPlayer.card;
+    marked = new Set(existingPlayer.marked || []);
+  } else {
+    myCard = generateCard();
+    marked = new Set();
+  }
+  Sync.savePlayerCard(roomCode, playerId, name, myCard);
+  Sync.subscribe(roomCode, s=>{ if(s){ state=s; onStateUpdate(); } });
+
+  joined = true;
+  document.getElementById('join-view').style.display = 'none';
+  document.getElementById('game-view').style.display = '';
+  document.getElementById('player-display').textContent = name;
+  document.getElementById('game-code').textContent = code;
+  apply();
+  renderGame();
+}
+
+function generateCard(){
+  const all = ACRONYMS.map((_,i)=>i);
+  for(let i=all.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [all[i],all[j]] = [all[j],all[i]];
+  }
+  return all.slice(0,16);
+}
+
+function onStateUpdate(){
+  if(!state || !joined) return;
+  // Teacher ended the session — kick player back to lobby
+  if(state.ended){
+    handleKicked();
+    return;
+  }
+  // sync marks from server only if newer? simple: take server value if different keys
+  // we'll let local marks rule, but check claim verification
+  const me = state.players[playerId];
+  if(me && me.claimed){
+    if(me.claimed.verified === 'valid' && lastClaimResult !== 'valid'){
+      lastClaimResult = 'valid';
+      hideClaimOverlay();
+      showWin();
+    } else if(me.claimed.verified === 'invalid' && lastClaimResult !== 'invalid'){
+      lastClaimResult = 'invalid';
+      hideClaimOverlay();
+      showReject();
+    }
+  }
+  renderGame();
+}
+
+function handleKicked(){
+  // Close any open overlay, show kicked overlay, then return to hub.
+  document.getElementById('overlay-claim').classList.remove('show');
+  document.getElementById('overlay-win').classList.remove('show');
+  document.getElementById('overlay-reject').classList.remove('show');
+  localStorage.removeItem('bingo-current-room');
+  joined = false;
+  document.getElementById('overlay-kicked').classList.add('show');
+}
+
+function renderGame(){
+  if(!state) return;
+  const t = T[lang];
+
+  // last called
+  const lc = document.getElementById('last-called');
+  const lcDef = document.getElementById('lc-def');
+  if(state.currentIdx >= 0){
+    const item = ACRONYMS[state.currentIdx];
+    const c = CATS[item.cat];
+    lc.classList.remove('empty');
+    lc.classList.add('has');
+    lc.style.background = c.bg;
+    lc.style.color = c.text;
+    lc.style.borderColor = c.bg;
+    lcDef.textContent = item[lang];
+    lc.querySelector('.label').style.color = c.text;
+    lc.querySelector('.label').style.opacity = '.7';
+  } else {
+    lc.classList.add('empty');
+    lc.classList.remove('has');
+    lc.style.background = '';
+    lc.style.color = '';
+    lc.style.borderColor = '';
+    lcDef.textContent = t.waitingForCall;
+    lc.querySelector('.label').style.color = '';
+    lc.querySelector('.label').style.opacity = '';
+  }
+
+  // status
+  document.getElementById('status-hint').textContent =
+    lang==='es' ? 'Toca una celda para marcarla' : 'Tap a cell to mark it';
+  document.getElementById('status-marked').textContent = t.markedCount(marked.size, 16);
+
+  // grid
+  renderCard();
+
+  // called list
+  const list = document.getElementById('called-list');
+  list.innerHTML = state.called.map(i=>{
+    const it = ACRONYMS[i];
+    const c = CATS[it.cat];
+    return `<span class="chip" style="background:${c.bg};color:${c.text}">${it.a}</span>`;
+  }).join('') || `<span style="font-size:11px;color:var(--faint)">—</span>`;
+
+  // bingo button
+  const winLine = checkWin();
+  const btn = document.getElementById('btn-bingo');
+  const me = state.players[playerId];
+  const alreadyClaimedPending = me && me.claimed && !me.claimed.verified;
+  btn.disabled = !winLine || alreadyClaimedPending;
+}
+
+function renderCard(){
+  const grid = document.getElementById('bingo-card');
+  if(grid.children.length !== 16){
+    grid.innerHTML = '';
+    myCard.forEach((acroIdx, cellIdx)=>{
+      const item = ACRONYMS[acroIdx];
+      const c = CATS[item.cat];
+      const el = document.createElement('div');
+      el.className = 'cell acro-tile' + (marked.has(cellIdx)?' marked':'');
+      el.style.background = c.bg;
+      el.style.color = c.text;
+      el.style.animationDelay = (cellIdx*25)+'ms';
+      el.innerHTML = `
+        <div class="acro">${item.a}</div>
+        <div class="full">${item.f}</div>
+        <div class="check">✓</div>`;
+      el.addEventListener('click', ()=>toggleMark(cellIdx, el));
+      grid.appendChild(el);
+    });
+  } else {
+    [...grid.children].forEach((el, i)=>{
+      el.classList.toggle('marked', marked.has(i));
+    });
+  }
+}
+
+function toggleMark(cellIdx, el){
+  if(marked.has(cellIdx)) marked.delete(cellIdx);
+  else marked.add(cellIdx);
+  el.classList.toggle('marked');
+  Sync.markCell(roomCode, playerId, cellIdx, marked.has(cellIdx));
+  renderGame();
+}
+
+function checkWin(){
+  const lines = [
+    [0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],
+    [0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],
+    [0,5,10,15],[3,6,9,12]
+  ];
+  for(const line of lines){
+    if(line.every(i=>marked.has(i))) return line;
+  }
+  return null;
+}
+
+function claimBingo(){
+  const line = checkWin();
+  if(!line) return;
+  // highlight winning line
+  const cells = document.querySelectorAll('.bingo-card .cell');
+  line.forEach(i=>cells[i] && cells[i].classList.add('win-pulse'));
+  Sync.claimBingo(roomCode, playerId, line);
+  lastClaimResult = null;
+  document.getElementById('overlay-claim').classList.add('show');
+}
+
+function hideClaimOverlay(){ document.getElementById('overlay-claim').classList.remove('show'); }
+function showWin(){ document.getElementById('overlay-win').classList.add('show'); }
+function closeWin(){ document.getElementById('overlay-win').classList.remove('show'); }
+function showReject(){
+  document.querySelectorAll('.bingo-card .cell.win-pulse').forEach(c=>c.classList.remove('win-pulse'));
+  document.getElementById('overlay-reject').classList.add('show');
+}
+function closeReject(){
+  document.getElementById('overlay-reject').classList.remove('show');
+  // clear claim so we can claim again
+  const me = state.players[playerId];
+  if(me) me.claimed = null;
+}
+
+// init
+function init(){
+  setLang(lang);
+  // pre-fill
+  document.getElementById('input-name').value = playerName;
+  document.getElementById('input-code').value = roomCode;
+  // auto-format code input
+  document.getElementById('input-code').addEventListener('input', e=>{
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+  });
+}
+init();
+</script>
+</body>
+</html>

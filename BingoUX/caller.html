@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Caller — Bingo de Acrónimos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="shared/styles.css"/>
+<script src="shared/auth.js"></script>
+<style>
+  .wrap{max-width:920px;margin:0 auto;padding:0 1.4rem 4rem;display:flex;flex-direction:column;gap:1.4rem}
+
+  .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-top:.4rem}
+  .room-pill{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:8px 16px;border-radius:var(--r-pill);
+    background:var(--surface);border:1.5px solid var(--border-strong);
+  }
+  .room-pill .label{margin-right:4px}
+  .room-pill .code{font-family:var(--f-mono);font-size:18px;font-weight:700;letter-spacing:3px;color:var(--text)}
+
+  .page-title{font-family:var(--f-display);font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-1.5px}
+
+  /* main caller card */
+  .caller-stage{
+    border-radius:var(--r-lg);
+    border:1.5px solid var(--border);
+    background:var(--surface);
+    padding:2rem;
+    display:flex;flex-direction:column;gap:1.4rem;
+    min-height:340px;
+    transition:border-color .3s, background .3s;
+    position:relative;
+    overflow:hidden;
+  }
+  .caller-stage.has-current{
+    background:linear-gradient(135deg, var(--cat-bg, var(--surface)) 0%, var(--surface) 70%);
+    border-color:var(--cat-bg, var(--border));
+  }
+
+  .stage-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .cat-tag{
+    display:inline-flex;align-items:center;
+    padding:6px 14px;border-radius:var(--r-pill);
+    font-size:11px;font-weight:700;letter-spacing:.5px;
+    text-transform:uppercase;
+  }
+  .progress{font-family:var(--f-mono);font-size:11px;color:var(--faint)}
+
+  .definition-block{display:flex;flex-direction:column;gap:6px}
+  .definition{
+    font-family:var(--f-display);
+    font-size:clamp(22px,3.6vw,34px);
+    font-weight:700;line-height:1.3;letter-spacing:-.5px;
+    color:var(--text);
+    min-height:2.6em;
+  }
+  .definition.empty{color:var(--faint);font-weight:600}
+
+  .answer-row{
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    padding:1.1rem 1.3rem;
+    background:rgba(0,0,0,.25);
+    border-radius:var(--r-md);
+    border:1.5px solid var(--border);
+    min-height:90px;
+    transition:opacity .25s;
+  }
+  .answer-row.hidden{opacity:.15}
+  .answer-acro{
+    font-family:var(--f-mono);
+    font-size:clamp(28px,5vw,42px);
+    font-weight:700;color:var(--text);line-height:1;
+  }
+  .answer-full{font-size:13px;font-weight:500;color:var(--muted);line-height:1.4}
+
+  .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+  /* called list */
+  .called-section{display:flex;flex-direction:column;gap:.7rem}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;min-height:30px}
+  .chip{
+    font-family:var(--f-mono);font-size:10px;font-weight:700;
+    padding:4px 10px;border-radius:8px;
+    border:1.5px solid transparent;
+    transition:transform .1s;
+  }
+
+  /* players panel */
+  .players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+  .player-tile{
+    padding:.85rem 1rem;
+    border:1.5px solid var(--border);
+    border-radius:var(--r-md);
+    background:var(--surface);
+    display:flex;flex-direction:column;gap:4px;
+    transition:border-color .2s, background .2s;
+  }
+  .player-tile.claimed{border-color:var(--accent);background:rgba(255,217,61,.08);animation:win-pulse 1s ease infinite alternate}
+  .player-tile.winner{border-color:var(--accent);background:rgba(255,217,61,.16)}
+  .player-name{font-family:var(--f-display);font-weight:800;font-size:15px}
+  .player-meta{font-family:var(--f-mono);font-size:10px;color:var(--muted);display:flex;gap:8px}
+  .player-meta .badge{padding:2px 7px;border-radius:6px;background:var(--surface-strong)}
+  .player-meta .badge.win{background:var(--accent);color:#4a3600}
+
+  /* claim verify modal */
+  .claim-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
+    padding:5px;background:var(--surface);border-radius:var(--r-md);
+    border:1.5px solid var(--border);
+  }
+  .claim-grid .acro-tile{aspect-ratio:1;font-size:10px}
+  .claim-grid .acro-tile .acro{font-size:13px}
+  .claim-grid .acro-tile .full{font-size:7px}
+  .claim-grid .acro-tile.in-line{outline:3px solid var(--accent);outline-offset:-1px}
+  .claim-grid .acro-tile.bad{filter:saturate(.2)}
+  .claim-grid .acro-tile.bad::after{content:'!';position:absolute;top:2px;right:4px;font-size:10px;color:#fff;background:#f03b72;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+  .claim-summary{
+    font-family:var(--f-mono);font-size:11px;
+    padding:.7rem 1rem;border-radius:var(--r-md);
+    background:var(--surface);
+  }
+  .claim-summary.ok{background:rgba(74,235,219,.14);color:#4aebdb}
+  .claim-summary.bad{background:rgba(240,59,114,.14);color:#f58baa}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="page">
+
+  <header class="topbar">
+    <a class="brand" href="index.html" style="text-decoration:none">
+      <div class="brand-mark"></div>
+      <span id="brand-name">Acronym Bingo</span>
+    </a>
+    <div class="topbar-right">
+      <button class="btn btn-sm btn-ghost" onclick="teacherLogout()" title="Cerrar sesión" style="padding:6px 10px">🔒</button>
+      <a class="btn btn-sm btn-ghost" href="index.html" id="btn-back">← Hub</a>
+      <div class="lang-wrap">
+        <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <div class="header-row">
+      <div class="col" style="gap:6px">
+        <span class="label" id="lbl-role"></span>
+        <h1 class="page-title" id="page-title"></h1>
+      </div>
+      <div class="room-pill">
+        <span class="label" id="lbl-room"></span>
+        <span class="code" id="room-code">----</span>
+      </div>
+    </div>
+
+    <!-- main stage -->
+    <section class="caller-stage" id="caller-stage">
+      <div class="stage-top">
+        <span class="cat-tag" id="cat-tag" style="display:none">CAT</span>
+        <span class="progress" id="progress">0 / 0</span>
+      </div>
+
+      <div class="definition-block">
+        <span class="label" id="lbl-def"></span>
+        <div class="definition empty" id="definition"></div>
+      </div>
+
+      <div class="answer-row hidden" id="answer-row">
+        <div class="col" style="gap:4px;flex:1">
+          <span class="label" id="lbl-acro"></span>
+          <div class="row" style="gap:14px;align-items:baseline;flex-wrap:wrap">
+            <span class="answer-acro" id="answer-acro">—</span>
+            <span class="answer-full" id="answer-full">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary btn-lg" id="btn-next" onclick="nextCall()"></button>
+        <button class="btn btn-ghost" id="btn-reveal" onclick="reveal()"></button>
+        <button class="btn btn-ghost" id="btn-reset" onclick="askReset()"></button>
+        <button class="btn btn-ghost" id="btn-end" onclick="askEnd()" style="color:#ff8a8a;border-color:rgba(255,138,138,.3)"></button>
+      </div>
+    </section>
+
+    <!-- called chips -->
+    <section class="surface-card called-section">
+      <div class="row between">
+        <span class="label" id="lbl-called"></span>
+      </div>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <!-- players panel -->
+    <section class="surface-card col" style="gap:14px">
+      <div class="row between">
+        <span class="label" id="lbl-players"></span>
+        <span class="pill" id="pill-players">0</span>
+      </div>
+      <div class="players-grid" id="players-grid"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- reset confirm -->
+<div class="overlay" id="overlay-reset">
+  <div class="overlay-box">
+    <div class="overlay-title" id="reset-title"></div>
+    <div class="overlay-sub" id="reset-sub"></div>
+    <div class="row" style="gap:8px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" id="reset-yes" onclick="confirmReset()"></button>
+      <button class="btn btn-ghost" style="flex:1" id="reset-no" onclick="closeReset()"></button>
+    </div>
+  </div>
+</div>
+
+<!-- end game confirm -->
+<div class="overlay" id="overlay-end">
+  <div class="overlay-box">
+    <div style="font-size:34px">🛑</div>
+    <div class="overlay-title" id="end-title"></div>
+    <div class="overlay-sub" id="end-sub"></div>
+    <div class="row" style="gap:8px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1;background:#ff5c7c;color:#fff" id="end-yes" onclick="confirmEnd()"></button>
+      <button class="btn btn-ghost" style="flex:1" id="end-no" onclick="closeEnd()"></button>
+    </div>
+  </div>
+</div>
+
+<!-- claim verify -->
+<div class="overlay" id="overlay-claim">
+  <div class="overlay-box" style="max-width:520px">
+    <div class="row between">
+      <div class="col" style="gap:2px">
+        <span class="label">🎉 <span id="claim-label"></span></span>
+        <div class="overlay-title" id="claim-name"></div>
+      </div>
+    </div>
+    <div class="overlay-sub" id="claim-sub"></div>
+    <div class="claim-grid" id="claim-grid"></div>
+    <div class="claim-summary" id="claim-summary"></div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-accent" style="flex:1" id="claim-yes" onclick="verifyClaim('valid')"></button>
+      <button class="btn btn-ghost" style="flex:1" id="claim-no" onclick="verifyClaim('invalid')"></button>
+    </div>
+  </div>
+</div>
+
+<script src="shared/data.js"></script>
+<script src="shared/translations.js"></script>
+<script src="shared/sync.js"></script>
+<script>
+let lang = localStorage.getItem('bingo-lang') || 'es';
+let roomCode = (new URLSearchParams(location.search).get('room')
+              || localStorage.getItem('bingo-current-room')
+              || '').toUpperCase();
+let state = null;
+let pendingClaimPlayerId = null;
+
+function setLang(l){
+  lang = l;
+  localStorage.setItem('bingo-lang', l);
+  document.getElementById('btn-es').classList.toggle('active', l==='es');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.documentElement.lang = l;
+  apply();
+}
+
+function apply(){
+  const t = T[lang];
+  document.getElementById('brand-name').textContent = t.appName;
+  document.getElementById('lbl-role').textContent = t.roleCaller;
+  document.getElementById('page-title').textContent = t.callerTitle;
+  document.getElementById('lbl-room').textContent = t.roomCode;
+  document.getElementById('lbl-def').textContent = t.callerDef;
+  document.getElementById('lbl-acro').textContent = t.callerAcro;
+  document.getElementById('lbl-called').textContent = t.calledList;
+  document.getElementById('lbl-players').textContent = t.playersLabel;
+  document.getElementById('btn-next').textContent = t.nextCall;
+  document.getElementById('btn-reveal').textContent = t.reveal;
+  document.getElementById('btn-reset').textContent = t.resetGame;
+  document.getElementById('btn-end').textContent = lang==='es' ? '🛑 Terminar partida' : '🛑 End game';
+  document.getElementById('end-title').textContent = lang==='es' ? '¿Terminar la partida?' : 'End the game?';
+  document.getElementById('end-sub').textContent = lang==='es'
+    ? 'Todos los jugadores serán expulsados de la sala. Esta acción no se puede deshacer.'
+    : 'All players will be kicked from the room. This action cannot be undone.';
+  document.getElementById('end-yes').textContent = lang==='es' ? 'Sí, terminar' : 'Yes, end';
+  document.getElementById('end-no').textContent = t.cancel;
+  document.getElementById('btn-back').textContent = t.backHome;
+  document.getElementById('reset-title').textContent = t.confirmReset;
+  document.getElementById('reset-sub').textContent = t.confirmResetSub;
+  document.getElementById('reset-yes').textContent = t.yes;
+  document.getElementById('reset-no').textContent = t.cancel;
+  document.getElementById('claim-label').textContent = t.pendingClaim;
+  document.getElementById('claim-yes').textContent = t.markValid;
+  document.getElementById('claim-no').textContent = t.markInvalid;
+  render();
+}
+
+function render(){
+  if(!state) return;
+  const t = T[lang];
+  document.getElementById('room-code').textContent = state.code;
+
+  // current
+  const stage = document.getElementById('caller-stage');
+  const defEl = document.getElementById('definition');
+  const answerRow = document.getElementById('answer-row');
+  const catTag = document.getElementById('cat-tag');
+
+  if(state.currentIdx >= 0){
+    const item = ACRONYMS[state.currentIdx];
+    const cat = CATS[item.cat];
+    defEl.textContent = item[lang];
+    defEl.classList.remove('empty');
+    document.getElementById('answer-acro').textContent = item.a;
+    document.getElementById('answer-full').textContent = item.f;
+    answerRow.classList.toggle('hidden', !state.revealed);
+    catTag.style.display = '';
+    catTag.textContent = cat.label[lang];
+    catTag.style.background = cat.bg;
+    catTag.style.color = cat.text;
+    stage.classList.add('has-current');
+    stage.style.setProperty('--cat-bg', cat.bg+'22');
+  } else {
+    defEl.textContent = t.waiting;
+    defEl.classList.add('empty');
+    answerRow.classList.add('hidden');
+    catTag.style.display = 'none';
+    stage.classList.remove('has-current');
+  }
+
+  // progress
+  document.getElementById('progress').textContent = t.progress(state.called.length, ACRONYMS.length);
+
+  // chips
+  const chips = document.getElementById('chips');
+  chips.innerHTML = state.called.map(i=>{
+    const it = ACRONYMS[i];
+    const c = CATS[it.cat];
+    return `<span class="chip" style="background:${c.bg};color:${c.text}">${it.a}</span>`;
+  }).join('') || `<span style="font-size:11px;color:var(--faint)">—</span>`;
+
+  // players
+  const players = Object.values(state.players || {});
+  document.getElementById('pill-players').textContent = players.length;
+  const grid = document.getElementById('players-grid');
+  if(players.length === 0){
+    grid.innerHTML = `<div style="grid-column:1/-1;font-size:13px;color:var(--faint);padding:1rem;text-align:center">${t.noPlayers}</div>`;
+  } else {
+    grid.innerHTML = players.map(p=>{
+      const isWinner = state.winners.some(w=>w.playerId===p.id);
+      const claiming = p.claimed && !p.claimed.verified;
+      const cls = isWinner ? 'winner' : (claiming ? 'claimed' : '');
+      const marked = (p.marked||[]).length;
+      const total = (p.card||[]).length;
+      return `<div class="player-tile ${cls}">
+        <div class="player-name">${escapeHtml(p.name||'—')}</div>
+        <div class="player-meta">
+          <span class="badge">${marked}/${total}</span>
+          ${isWinner?`<span class="badge win">🏆 ${t.winnerDeclared}</span>`:''}
+          ${claiming?`<span class="badge" style="background:var(--accent);color:#4a3600">!</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // pending claims
+  const pending = players.find(p => p.claimed && !p.claimed.verified);
+  if(pending && pendingClaimPlayerId !== pending.id){
+    pendingClaimPlayerId = pending.id;
+    showClaimModal(pending);
+  } else if(!pending){
+    pendingClaimPlayerId = null;
+  }
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function nextCall(){
+  if(!state) return;
+  const remaining = ACRONYMS.map((_,i)=>i).filter(i=>!state.called.includes(i));
+  if(remaining.length === 0) return;
+  const idx = remaining[Math.floor(Math.random()*remaining.length)];
+  state = Sync.callAcronym(roomCode, idx);
+  render();
+}
+
+function reveal(){
+  if(!state || state.currentIdx < 0) return;
+  state = Sync.revealCurrent(roomCode);
+  render();
+}
+
+function askReset(){ document.getElementById('overlay-reset').classList.add('show'); }
+function closeReset(){ document.getElementById('overlay-reset').classList.remove('show'); }
+
+function askEnd(){ document.getElementById('overlay-end').classList.add('show'); }
+function closeEnd(){ document.getElementById('overlay-end').classList.remove('show'); }
+function confirmEnd(){
+  Sync.endRoom(roomCode);
+  closeEnd();
+  // Redirect caller back to hub after a brief moment
+  setTimeout(()=>{ location.href = 'index.html'; }, 400);
+}
+function confirmReset(){
+  state = Sync.resetRoom(roomCode);
+  closeReset();
+  render();
+}
+
+function showClaimModal(player){
+  const t = T[lang];
+  const grid = document.getElementById('claim-grid');
+  document.getElementById('claim-name').textContent = player.name;
+  document.getElementById('claim-sub').textContent = t.pendingClaimSub(player.name);
+
+  const lineSet = new Set(player.claimed.line || []);
+  const markedSet = new Set(player.marked || []);
+  const calledSet = new Set(state.called);
+
+  let okCount = 0, badCount = 0;
+
+  grid.innerHTML = (player.card||[]).map((acroIdx, cellIdx)=>{
+    const item = ACRONYMS[acroIdx];
+    const c = CATS[item.cat];
+    const inLine = lineSet.has(cellIdx);
+    const isMarked = markedSet.has(cellIdx);
+    const wasCalled = calledSet.has(acroIdx);
+    let cls = 'acro-tile';
+    if(inLine) cls += ' in-line';
+    if(isMarked && !wasCalled) { cls += ' bad'; badCount++; }
+    if(isMarked && wasCalled) okCount++;
+    return `<div class="${cls}" style="background:${c.bg};color:${c.text};opacity:${isMarked?1:.32}">
+      <div class="acro">${item.a}</div>
+      <div class="full">${item.f}</div>
+    </div>`;
+  }).join('');
+
+  // line valid? all line cells marked AND all called
+  const lineValid = (player.claimed.line||[]).every(ci=>{
+    const idx = player.card[ci];
+    return markedSet.has(ci) && calledSet.has(idx);
+  });
+
+  const summary = document.getElementById('claim-summary');
+  summary.className = 'claim-summary ' + (lineValid ? 'ok' : 'bad');
+  summary.textContent = lineValid
+    ? (lang==='es'?`✓ Línea válida — ${okCount} marcadas correctas`:`✓ Line valid — ${okCount} correct marks`)
+    : (lang==='es'?`✗ Línea inválida — ${badCount} acrónimo(s) sin cantar`:`✗ Line invalid — ${badCount} acronym(s) not called`);
+
+  document.getElementById('overlay-claim').classList.add('show');
+}
+
+function verifyClaim(result){
+  if(!pendingClaimPlayerId) return;
+  state = Sync.verifyClaim(roomCode, pendingClaimPlayerId, result);
+  document.getElementById('overlay-claim').classList.remove('show');
+  pendingClaimPlayerId = null;
+  render();
+}
+
+// init
+function init(){
+  if(!roomCode){
+    // create one
+    roomCode = Sync.createRoom({lang});
+    localStorage.setItem('bingo-current-room', roomCode);
+    history.replaceState({}, '', '?room='+roomCode);
+  }
+  state = Sync.getRoom(roomCode);
+  if(!state){
+    state = {code:roomCode}; // create stub
+    Sync.createRoom({lang}); // create new (since old missing)
+    state = Sync.getRoom(roomCode) || {
+      code:roomCode, called:[], players:{}, winners:[], currentIdx:-1, revealed:false
+    };
+  }
+  Sync.subscribe(roomCode, s=>{
+    if(s){ state = s; render(); }
+  });
+  setLang(lang);
+}
+init();
+</script>
+</body>
+</html>

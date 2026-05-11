@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Verify — Bingo de Acrónimos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="shared/styles.css"/>
+<script src="shared/auth.js"></script>
+<style>
+  .wrap{max-width:920px;margin:0 auto;padding:0 1.4rem 4rem;display:flex;flex-direction:column;gap:1.4rem}
+
+  .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-top:.4rem}
+  .room-pill{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:8px 16px;border-radius:var(--r-pill);
+    background:var(--surface);border:1.5px solid var(--border-strong);
+  }
+  .room-pill .code{font-family:var(--f-mono);font-size:18px;font-weight:700;letter-spacing:3px;color:var(--text)}
+
+  .page-title{font-family:var(--f-display);font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-1.5px}
+
+  /* player picker */
+  .picker{display:flex;flex-wrap:wrap;gap:6px}
+  .picker-btn{
+    border:1.5px solid var(--border);background:var(--surface);
+    border-radius:var(--r-pill);padding:8px 16px;cursor:pointer;
+    font-family:var(--f-body);font-size:13px;font-weight:600;color:var(--text);
+    display:inline-flex;align-items:center;gap:8px;
+    transition:background .2s, border-color .2s, transform .15s;
+  }
+  .picker-btn:hover{transform:scale(1.04);background:var(--surface-strong)}
+  .picker-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .picker-btn .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--faint);
+  }
+  .picker-btn.claimed .dot{background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+  .picker-btn.winner .dot{background:#4aebdb}
+
+  /* main verify card */
+  .verify-card{display:flex;flex-direction:column;gap:1.2rem;padding:1.6rem}
+  .verify-empty{
+    padding:3rem 1rem;text-align:center;color:var(--faint);
+    font-size:14px;
+  }
+
+  .player-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .player-name-big{font-family:var(--f-display);font-size:32px;font-weight:800;letter-spacing:-1px}
+
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--muted)}
+  .legend-item{display:inline-flex;align-items:center;gap:6px}
+  .legend-swatch{width:14px;height:14px;border-radius:3px}
+
+  /* card grid */
+  .verify-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:5px;padding:5px;background:var(--surface);
+    border:1.5px solid var(--border);border-radius:var(--r-md);
+  }
+  .verify-grid .vcell{
+    aspect-ratio:1;border-radius:var(--r-sm);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:8px 6px;text-align:center;position:relative;
+    user-select:none;overflow:hidden;
+  }
+  .vcell .acro{font-family:var(--f-mono);font-size:15px;font-weight:700;line-height:1;margin-bottom:3px}
+  .vcell .full{font-size:7.5px;line-height:1.25;opacity:.85;font-weight:500}
+  .vcell.unmarked{opacity:.22}
+  .vcell.bad::after{
+    content:'!';position:absolute;top:4px;right:5px;
+    font-family:var(--f-mono);font-size:10px;font-weight:700;
+    width:16px;height:16px;border-radius:50%;
+    background:#f03b72;color:#fff;display:flex;align-items:center;justify-content:center;
+  }
+  .vcell.ok::after{
+    content:'✓';position:absolute;top:4px;right:5px;
+    font-size:10px;font-weight:700;
+    width:16px;height:16px;border-radius:50%;
+    background:#4aebdb;color:#003330;display:flex;align-items:center;justify-content:center;
+  }
+  .vcell.in-line{outline:3px solid var(--accent);outline-offset:-1px;animation:win-pulse 1s ease infinite alternate}
+
+  /* summary tag */
+  .summary-tag{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    flex-wrap:wrap;
+    padding:1rem 1.2rem;border-radius:var(--r-md);
+    border:1.5px solid var(--border);background:var(--surface);
+  }
+  .summary-tag.valid{border-color:#4aebdb;background:rgba(74,235,219,.10)}
+  .summary-tag.invalid{border-color:#f03b72;background:rgba(240,59,114,.08)}
+  .summary-tag .verdict{font-family:var(--f-display);font-size:20px;font-weight:800;letter-spacing:-.5px}
+  .summary-tag.valid .verdict{color:#4aebdb}
+  .summary-tag.invalid .verdict{color:#f58baa}
+  .summary-tag .stats{font-family:var(--f-mono);font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* called acronyms reference */
+  .called-ref{display:flex;flex-wrap:wrap;gap:5px}
+  .chip{
+    font-family:var(--f-mono);font-size:10px;font-weight:700;
+    padding:4px 10px;border-radius:8px;
+  }
+
+  .winner-banner{
+    display:flex;align-items:center;gap:14px;padding:1rem 1.2rem;
+    border-radius:var(--r-md);border:2px solid var(--accent);
+    background:rgba(255,217,61,.10);
+  }
+  .winner-banner .trophy{font-size:32px}
+  .winner-banner .col{gap:2px}
+  .winner-banner .name{font-family:var(--f-display);font-size:20px;font-weight:800}
+  .winner-banner .at{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="page">
+
+  <header class="topbar">
+    <a class="brand" href="index.html" style="text-decoration:none">
+      <div class="brand-mark"></div>
+      <span id="brand-name">Acronym Bingo</span>
+    </a>
+    <div class="topbar-right">
+      <button class="btn btn-sm btn-ghost" onclick="teacherLogout()" title="Cerrar sesión" style="padding:6px 10px">🔒</button>
+      <a class="btn btn-sm btn-ghost" href="index.html" id="btn-back">← Hub</a>
+      <div class="lang-wrap">
+        <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <div class="header-row">
+      <div class="col" style="gap:6px">
+        <span class="label" id="lbl-role"></span>
+        <h1 class="page-title" id="page-title"></h1>
+        <span style="font-size:13px;color:var(--muted)" id="page-sub"></span>
+      </div>
+      <div class="room-pill">
+        <span class="label" id="lbl-room"></span>
+        <span class="code" id="room-code">----</span>
+      </div>
+    </div>
+
+    <!-- declared winners -->
+    <div id="winners-list" class="col" style="gap:6px"></div>
+
+    <!-- player picker -->
+    <section class="surface-card col" style="gap:14px">
+      <div class="row between">
+        <span class="label" id="lbl-pick"></span>
+        <span class="pill" id="pill-count">0</span>
+      </div>
+      <div class="picker" id="picker"></div>
+    </section>
+
+    <!-- main verify card -->
+    <section class="surface-card verify-card" id="verify-card">
+      <div class="verify-empty" id="verify-empty"></div>
+    </section>
+
+    <!-- called list reference -->
+    <section class="surface-card col" style="gap:8px;padding:1rem 1.2rem">
+      <div class="row between">
+        <span class="label" id="lbl-called"></span>
+        <span class="pill" id="pill-called">0</span>
+      </div>
+      <div class="called-ref" id="called-ref"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="shared/data.js"></script>
+<script src="shared/translations.js"></script>
+<script src="shared/sync.js"></script>
+<script>
+let lang = localStorage.getItem('bingo-lang') || 'es';
+let roomCode = (new URLSearchParams(location.search).get('room')
+              || localStorage.getItem('bingo-current-room')
+              || '').toUpperCase();
+let state = null;
+let selectedPlayerId = null;
+
+function setLang(l){
+  lang = l;
+  localStorage.setItem('bingo-lang', l);
+  document.getElementById('btn-es').classList.toggle('active', l==='es');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.documentElement.lang = l;
+  apply();
+}
+
+function apply(){
+  const t = T[lang];
+  document.getElementById('brand-name').textContent = t.appName;
+  document.getElementById('lbl-role').textContent = t.roleVerify;
+  document.getElementById('page-title').textContent = t.verifyTitle;
+  document.getElementById('page-sub').textContent = t.verifySub;
+  document.getElementById('lbl-room').textContent = t.roomCode;
+  document.getElementById('lbl-pick').textContent = t.pickPlayer;
+  document.getElementById('lbl-called').textContent = t.calledList;
+  document.getElementById('btn-back').textContent = t.backHome;
+  render();
+}
+
+function render(){
+  if(!state) return;
+  const t = T[lang];
+  document.getElementById('room-code').textContent = state.code;
+
+  // winners
+  const winnersEl = document.getElementById('winners-list');
+  winnersEl.innerHTML = (state.winners||[]).map(w=>{
+    const ago = formatAgo(Date.now()-w.verifiedAt);
+    return `<div class="winner-banner">
+      <div class="trophy">🏆</div>
+      <div class="col">
+        <div class="name">${escapeHtml(w.name)}</div>
+        <div class="at">${t.winnerDeclared} · ${ago} ago</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // picker
+  const players = Object.values(state.players||{});
+  document.getElementById('pill-count').textContent = players.length;
+  const picker = document.getElementById('picker');
+  if(players.length === 0){
+    picker.innerHTML = `<div style="font-size:13px;color:var(--faint)">${t.noPlayers}</div>`;
+  } else {
+    picker.innerHTML = players.map(p=>{
+      const isWinner = (state.winners||[]).some(w=>w.playerId===p.id);
+      const claiming = p.claimed && !p.claimed.verified;
+      const cls = ['picker-btn'];
+      if(selectedPlayerId === p.id) cls.push('active');
+      if(claiming) cls.push('claimed');
+      if(isWinner) cls.push('winner');
+      return `<button class="${cls.join(' ')}" onclick="pickPlayer('${p.id}')">
+        <span class="dot"></span>
+        ${escapeHtml(p.name||'—')}
+        ${claiming?' 🔔':''}
+      </button>`;
+    }).join('');
+  }
+
+  // called ref
+  const calledRef = document.getElementById('called-ref');
+  document.getElementById('pill-called').textContent = state.called.length;
+  calledRef.innerHTML = state.called.map(i=>{
+    const it = ACRONYMS[i];
+    const c = CATS[it.cat];
+    return `<span class="chip" style="background:${c.bg};color:${c.text}">${it.a}</span>`;
+  }).join('') || `<span style="font-size:11px;color:var(--faint)">—</span>`;
+
+  // selected player view
+  renderSelected();
+}
+
+function pickPlayer(id){ selectedPlayerId = id; render(); }
+
+function renderSelected(){
+  const t = T[lang];
+  const card = document.getElementById('verify-card');
+  if(!selectedPlayerId || !state.players[selectedPlayerId]){
+    card.innerHTML = `<div class="verify-empty">${T[lang].pickPlayer} ↑</div>`;
+    return;
+  }
+  const p = state.players[selectedPlayerId];
+  const calledSet = new Set(state.called);
+  const markedSet = new Set(p.marked||[]);
+  const lineSet = new Set((p.claimed && p.claimed.line) || []);
+
+  let okCount = 0, badCount = 0, unmarkedCount = 0;
+  (p.card||[]).forEach((acroIdx, ci)=>{
+    const isMarked = markedSet.has(ci);
+    const wasCalled = calledSet.has(acroIdx);
+    if(isMarked && wasCalled) okCount++;
+    else if(isMarked && !wasCalled) badCount++;
+    else unmarkedCount++;
+  });
+
+  // is there a valid winning line?
+  const lines = [
+    [0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],
+    [0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],
+    [0,5,10,15],[3,6,9,12]
+  ];
+  let validLine = null;
+  for(const line of lines){
+    if(line.every(ci => markedSet.has(ci) && calledSet.has(p.card[ci]))){
+      validLine = line; break;
+    }
+  }
+
+  const claiming = p.claimed && !p.claimed.verified;
+  const isWinner = (state.winners||[]).some(w=>w.playerId===p.id);
+
+  let summaryHtml = '';
+  if(validLine){
+    summaryHtml = `<div class="summary-tag valid">
+      <div class="verdict">✓ ${lang==='es'?'Línea válida':'Line valid'}</div>
+      <div class="stats">
+        <span>${okCount} ${lang==='es'?'correctas':'correct'}</span>
+        <span>${badCount} ${t.notCalled}</span>
+        <span>${unmarkedCount} ${t.notMarked}</span>
+      </div>
+    </div>`;
+  } else {
+    summaryHtml = `<div class="summary-tag ${badCount>0?'invalid':''}">
+      <div class="verdict">${badCount>0?'✗ '+t.notCalled:'— '+(lang==='es'?'Sin línea':'No line')}</div>
+      <div class="stats">
+        <span>${okCount} ${lang==='es'?'correctas':'correct'}</span>
+        <span>${badCount} ${t.notCalled}</span>
+        <span>${unmarkedCount} ${t.notMarked}</span>
+      </div>
+    </div>`;
+  }
+
+  const showLine = validLine || (p.claimed && p.claimed.line);
+  const lineToShow = new Set(showLine || []);
+
+  const gridHtml = (p.card||[]).map((acroIdx, ci)=>{
+    const item = ACRONYMS[acroIdx];
+    const c = CATS[item.cat];
+    const isMarked = markedSet.has(ci);
+    const wasCalled = calledSet.has(acroIdx);
+    let cls = 'vcell';
+    if(!isMarked) cls += ' unmarked';
+    if(isMarked && wasCalled) cls += ' ok';
+    if(isMarked && !wasCalled) cls += ' bad';
+    if(lineToShow.has(ci)) cls += ' in-line';
+    return `<div class="${cls}" style="background:${c.bg};color:${c.text}">
+      <div class="acro">${item.a}</div>
+      <div class="full">${item.f}</div>
+    </div>`;
+  }).join('');
+
+  let actionsHtml = '';
+  if(claiming){
+    actionsHtml = `<div class="actions">
+      <button class="btn btn-accent" style="flex:1" onclick="declareWinner()">${t.declareWinner}</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="rejectClaim()">${t.rejectClaim}</button>
+    </div>`;
+  } else if(!isWinner && validLine){
+    actionsHtml = `<div class="actions">
+      <button class="btn btn-accent" onclick="declareWinner()">${t.declareWinner}</button>
+    </div>`;
+  } else if(isWinner){
+    actionsHtml = `<div style="color:var(--accent);font-family:var(--f-display);font-weight:800;font-size:18px">🏆 ${t.winnerDeclared}</div>`;
+  }
+
+  card.innerHTML = `
+    <div class="player-header">
+      <div class="player-name-big">${escapeHtml(p.name||'—')}</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch" style="background:#4aebdb"></span> ${t.matched}</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:#f03b72"></span> ${t.notCalled}</span>
+      </div>
+    </div>
+    ${summaryHtml}
+    <div class="verify-grid">${gridHtml}</div>
+    ${actionsHtml}
+  `;
+}
+
+function declareWinner(){
+  if(!selectedPlayerId) return;
+  state = Sync.verifyClaim(roomCode, selectedPlayerId, 'valid');
+  // if there was no claim, create one synthetically for record
+  const p = state.players[selectedPlayerId];
+  if(!p.claimed){
+    // find line and re-mark valid
+    const lines=[[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],[0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],[0,5,10,15],[3,6,9,12]];
+    const calledSet = new Set(state.called);
+    const markedSet = new Set(p.marked||[]);
+    const line = lines.find(L=>L.every(ci=>markedSet.has(ci) && calledSet.has(p.card[ci])));
+    if(line){
+      Sync.claimBingo(roomCode, selectedPlayerId, line);
+      state = Sync.verifyClaim(roomCode, selectedPlayerId, 'valid');
+    }
+  }
+  render();
+}
+
+function rejectClaim(){
+  if(!selectedPlayerId) return;
+  state = Sync.verifyClaim(roomCode, selectedPlayerId, 'invalid');
+  render();
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function formatAgo(ms){
+  const s = Math.floor(ms/1000);
+  if(s<60) return s+'s';
+  const m = Math.floor(s/60);
+  if(m<60) return m+'m';
+  return Math.floor(m/60)+'h';
+}
+
+// init
+function init(){
+  if(!roomCode){
+    document.getElementById('verify-empty')?.remove?.();
+    document.querySelector('.wrap').innerHTML = `<div class="surface-card" style="padding:2rem;text-align:center">
+      <div class="hero-title" style="font-size:32px">No room</div>
+      <div class="hero-sub">Go to the <a href="index.html" style="color:var(--accent)">hub</a> and pick a room first.</div>
+    </div>`;
+    return;
+  }
+  state = Sync.getRoom(roomCode);
+  if(!state){
+    document.querySelector('.wrap').innerHTML = `<div class="surface-card" style="padding:2rem;text-align:center">
+      <div class="hero-title" style="font-size:32px">Room ${roomCode} not found</div>
+      <div class="hero-sub" style="margin-top:8px"><a href="index.html" style="color:var(--accent)">← back to hub</a></div>
+    </div>`;
+    return;
+  }
+  // auto-pick first claimer if any
+  const claimer = Object.values(state.players).find(p=>p.claimed && !p.claimed.verified);
+  if(claimer) selectedPlayerId = claimer.id;
+  Sync.subscribe(roomCode, s=>{
+    if(s){
+      state = s;
+      const newClaimer = Object.values(s.players).find(p=>p.claimed && !p.claimed.verified);
+      if(newClaimer && selectedPlayerId !== newClaimer.id) selectedPlayerId = newClaimer.id;
+      render();
+    }
+  });
+  setLang(lang);
+}
+init();
+</script>
+</body>
+</html>
