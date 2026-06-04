@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pattern Snap — Facilitadora</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --purple: #4A3AFF;
+    --pink:   #FE81E7;
+    --navy:   #1E1B4B;
+    --lavender: #B5AFFF;
+    --light:  #E2E0FF;
+    --white:  #FFFFFF;
+    --gray:   #6B7280;
+    --dark:   #0F0D2E;
+    --card:   #1a1740;
+    --green:  #22C55E;
+    --red:    #EF4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    min-height: 100vh;
+  }
+
+  /* ── CONFIG SCREEN ── */
+  #config-screen {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 2rem; gap: 2rem;
+  }
+  .logo-text {
+    font-size: 2.5rem; font-weight: 800; letter-spacing: -0.05em;
+  }
+  .logo-text span { color: var(--pink); }
+  .config-card {
+    background: var(--card); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 1.5rem; padding: 2.5rem; width: 100%; max-width: 700px;
+    display: flex; flex-direction: column; gap: 1.5rem;
+  }
+  .config-card h2 { font-size: 1.1rem; color: var(--lavender); font-weight: 600; }
+  .field-group { display: flex; flex-direction: column; gap: 0.5rem; }
+  .field-group label { font-size: 0.8rem; color: var(--lavender); text-transform: uppercase; letter-spacing: 0.08em; }
+  input, textarea, select {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 0.75rem; padding: 0.75rem 1rem; color: var(--white);
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; width: 100%;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none; border-color: var(--purple);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .btn {
+    padding: 0.85rem 2rem; border-radius: 0.75rem; border: none;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
+  }
+  .btn-primary { background: var(--purple); color: var(--white); }
+  .btn-primary:hover { background: #3D2EE0; transform: translateY(-1px); }
+  .btn-pink { background: var(--pink); color: var(--navy); }
+  .btn-pink:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; }
+  .btn-danger { background: var(--red); color: var(--white); }
+  .btn-success { background: var(--green); color: var(--navy); }
+  .btn-outline {
+    background: transparent; color: var(--white);
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .btn-outline:hover { border-color: var(--pink); color: var(--pink); }
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .correct-badge {
+    display: inline-block; padding: 0.2rem 0.6rem;
+    background: var(--green); color: var(--navy);
+    border-radius: 0.4rem; font-size: 0.75rem; font-weight: 700;
+    margin-left: 0.5rem;
+  }
+  .question-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .question-item {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.75rem; padding: 1rem 1.25rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .question-item .q-num {
+    font-family: 'DM Mono', monospace; font-size: 0.8rem;
+    color: var(--purple); background: rgba(74,58,255,0.2);
+    padding: 0.25rem 0.6rem; border-radius: 0.4rem; flex-shrink: 0;
+  }
+  .question-item .q-text { flex: 1; font-size: 0.9rem; color: var(--lavender); }
+  .question-item .q-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+  /* ── LOBBY SCREEN ── */
+  #lobby-screen { display: none; padding: 2rem; min-height: 100vh; }
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+  }
+  .session-code-display {
+    font-family: 'DM Mono', monospace; font-size: 3rem; font-weight: 500;
+    color: var(--pink); letter-spacing: 0.15em;
+    background: rgba(254,129,231,0.1); border: 2px dashed var(--pink);
+    padding: 0.5rem 1.5rem; border-radius: 1rem;
+  }
+  .join-url {
+    font-family: 'DM Mono', monospace; font-size: 0.8rem;
+    color: var(--lavender); background: rgba(255,255,255,0.05);
+    padding: 0.5rem 1rem; border-radius: 0.5rem; word-break: break-all;
+  }
+  .players-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem; margin: 1.5rem 0;
+  }
+  .player-chip {
+    background: var(--card); border: 1px solid var(--purple);
+    border-radius: 0.75rem; padding: 0.75rem 1rem;
+    text-align: center; font-weight: 600; font-size: 0.9rem;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .player-count {
+    font-size: 0.85rem; color: var(--lavender);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── GAME SCREEN ── */
+  #game-screen { display: none; padding: 2rem; min-height: 100vh; }
+  .game-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
+  }
+  .q-progress {
+    font-family: 'DM Mono', monospace; font-size: 0.85rem; color: var(--lavender);
+  }
+  .timer-circle {
+    width: 80px; height: 80px; border-radius: 50%;
+    border: 4px solid var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 800; color: var(--white);
+    background: var(--card); flex-shrink: 0;
+    transition: border-color 0.5s;
+  }
+  .timer-circle.urgent { border-color: var(--red); color: var(--red); }
+  .question-display {
+    background: var(--card); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 1.5rem; padding: 2rem; margin-bottom: 1.5rem;
+  }
+  .question-display .q-label {
+    font-size: 0.75rem; color: var(--lavender); text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 0.75rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .question-display .q-main {
+    font-size: 1.4rem; font-weight: 700; line-height: 1.4;
+  }
+  .question-display .q-image {
+    width: 100%; max-height: 250px; object-fit: contain;
+    border-radius: 1rem; margin-top: 1rem; background: rgba(255,255,255,0.05);
+  }
+  .answers-display {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .answer-opt {
+    background: var(--card); border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 1rem; padding: 1.25rem;
+    display: flex; align-items: center; gap: 1rem;
+    transition: all 0.3s;
+  }
+  .answer-opt.correct { border-color: var(--green); background: rgba(34,197,94,0.1); }
+  .answer-opt.wrong   { border-color: var(--red);   background: rgba(239,68,68,0.1); opacity: 0.5; }
+  .answer-opt .opt-letter {
+    width: 36px; height: 36px; border-radius: 0.5rem; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem;
+    background: rgba(255,255,255,0.1);
+  }
+  .answer-opt.correct .opt-letter { background: var(--green); color: var(--navy); }
+  .answer-opt.wrong   .opt-letter { background: var(--red); color: var(--white); }
+  .answer-opt .opt-text { font-size: 0.95rem; font-weight: 500; }
+  .answer-opt .opt-bar-wrap {
+    margin-top: 0.5rem; height: 6px; background: rgba(255,255,255,0.1);
+    border-radius: 3px; overflow: hidden;
+  }
+  .answer-opt .opt-bar {
+    height: 100%; background: var(--purple); border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .answer-opt.correct .opt-bar { background: var(--green); }
+  .answer-opt .opt-count {
+    font-size: 0.75rem; color: var(--lavender); margin-top: 0.25rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── LEADERBOARD ── */
+  #leaderboard-screen { display: none; padding: 2rem; min-height: 100vh; }
+  .lb-list { display: flex; flex-direction: column; gap: 0.75rem; max-width: 600px; margin: 0 auto; }
+  .lb-item {
+    display: flex; align-items: center; gap: 1.25rem;
+    background: var(--card); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 1rem; padding: 1rem 1.5rem;
+    animation: slideUp 0.4s ease forwards; opacity: 0;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .lb-item:nth-child(1) { border-color: gold; animation-delay: 0.1s; }
+  .lb-item:nth-child(2) { border-color: silver; animation-delay: 0.2s; }
+  .lb-item:nth-child(3) { border-color: #CD7F32; animation-delay: 0.3s; }
+  .lb-rank {
+    font-family: 'DM Mono', monospace; font-size: 1.5rem; font-weight: 700;
+    width: 40px; text-align: center; flex-shrink: 0;
+  }
+  .lb-item:nth-child(1) .lb-rank { color: gold; }
+  .lb-item:nth-child(2) .lb-rank { color: silver; }
+  .lb-item:nth-child(3) .lb-rank { color: #CD7F32; }
+  .lb-name { flex: 1; font-size: 1.1rem; font-weight: 600; }
+  .lb-pts {
+    font-family: 'DM Mono', monospace; font-size: 1.2rem;
+    color: var(--pink); font-weight: 700;
+  }
+
+  /* ── SHARED ── */
+  .screen-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .screen-sub { font-size: 0.9rem; color: var(--lavender); margin-bottom: 2rem; }
+  .actions-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+  .divider { height: 1px; background: rgba(255,255,255,0.1); margin: 1rem 0; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.2rem 0.6rem; border-radius: 0.4rem;
+    font-size: 0.75rem; font-weight: 600;
+  }
+  .tag-purple { background: rgba(74,58,255,0.3); color: var(--lavender); }
+  .tag-pink   { background: rgba(254,129,231,0.2); color: var(--pink); }
+
+  /* responses live bar */
+  .responses-bar {
+    background: var(--card); border-radius: 1rem; padding: 1rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1rem; font-size: 0.9rem;
+  }
+  .responses-bar .rb-fill {
+    flex: 1; height: 8px; background: rgba(255,255,255,0.1);
+    border-radius: 4px; overflow: hidden;
+  }
+  .responses-bar .rb-inner {
+    height: 100%; background: var(--pink); border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .notification {
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: var(--purple); color: white;
+    padding: 1rem 1.5rem; border-radius: 1rem;
+    font-size: 0.9rem; font-weight: 600;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s; z-index: 999;
+    max-width: 320px;
+  }
+  .notification.show { transform: translateY(0); opacity: 1; }
+
+  .phase-badge {
+    display: inline-block; padding: 0.25rem 0.75rem;
+    border-radius: 2rem; font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    font-family: 'DM Mono', monospace;
+  }
+  .phase-lobby    { background: rgba(255,255,255,0.1); color: var(--lavender); }
+  .phase-question { background: rgba(74,58,255,0.4); color: var(--lavender); }
+  .phase-results  { background: rgba(34,197,94,0.2); color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- ═══════ CONFIG SCREEN ═══════ -->
+<div id="config-screen">
+  <div class="logo-text">Pattern <span>Snap</span> ⚡</div>
+  <p style="color:var(--lavender); font-size:0.9rem; text-align:center; max-width:500px">
+    Vista Facilitadora — configura tu sesión, sube preguntas y lanza el juego en tiempo real
+  </p>
+
+  <!-- Session config -->
+  <div class="config-card">
+    <h2>🎮 Configurar Sesión</h2>
+    <div class="field-group">
+      <label>Código de sesión (los jugadores lo usarán para unirse)</label>
+      <div style="display:flex; gap:0.75rem">
+        <input type="text" id="session-code" placeholder="Ej: SNAP01" style="text-transform:uppercase; font-family:'DM Mono',monospace; font-size:1.2rem; letter-spacing:0.1em" maxlength="8"/>
+        <button class="btn btn-outline btn-sm" onclick="generateCode()" style="flex-shrink:0">🎲 Random</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Segundos por pregunta</label>
+      <select id="timer-seconds">
+        <option value="10">10 segundos (rápido)</option>
+        <option value="15" selected>15 segundos</option>
+        <option value="20">20 segundos</option>
+        <option value="30">30 segundos (tranquilo)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Questions builder -->
+  <div class="config-card">
+    <h2>❓ Preguntas</h2>
+
+    <div style="background:rgba(74,58,255,0.15); border:1px solid var(--purple); border-radius:0.75rem; padding:1rem; font-size:0.85rem; color:var(--lavender)">
+      💡 Tip: En "Pregunta" puedes poner texto o pegar una URL de imagen de pantalla de app para que los alumnos la identifiquen. Las 4 opciones son los patrones entre los que deben elegir.
+    </div>
+
+    <!-- Add question form -->
+    <div style="display:flex; flex-direction:column; gap:1rem; padding:1.25rem; background:rgba(255,255,255,0.04); border-radius:1rem; border:1px dashed rgba(255,255,255,0.15)">
+      <div class="field-group">
+        <label>Pregunta o descripción de pantalla</label>
+        <textarea id="q-text" placeholder="Ej: Esta pantalla muestra sugerencias que aparecen antes de que el usuario termine de escribir. ¿Qué patrón es?"></textarea>
+      </div>
+      <div class="field-group">
+        <label>URL de imagen (opcional — pantalla de app)</label>
+        <input type="url" id="q-image" placeholder="https://..." />
+      </div>
+      <div class="options-grid">
+        <div class="field-group">
+          <label>Opción A</label>
+          <input type="text" id="q-opt0" placeholder="Smart Suggestions" />
+        </div>
+        <div class="field-group">
+          <label>Opción B</label>
+          <input type="text" id="q-opt1" placeholder="Auto Complete" />
+        </div>
+        <div class="field-group">
+          <label>Opción C</label>
+          <input type="text" id="q-opt2" placeholder="Smart Ranking" />
+        </div>
+        <div class="field-group">
+          <label>Opción D</label>
+          <input type="text" id="q-opt3" placeholder="Classification" />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Respuesta correcta</label>
+        <select id="q-correct">
+          <option value="0">A</option>
+          <option value="1">B</option>
+          <option value="2">C</option>
+          <option value="3">D</option>
+        </select>
+      </div>
+      <button class="btn btn-pink btn-sm" onclick="addQuestion()">+ Agregar pregunta</button>
+    </div>
+
+    <!-- Questions list -->
+    <div id="question-list" class="question-list"></div>
+  </div>
+
+  <button class="btn btn-primary" style="font-size:1.1rem; padding:1rem 3rem" onclick="createSession()">
+    🚀 Crear Sesión y Abrir Lobby
+  </button>
+</div>
+
+<!-- ═══════ LOBBY SCREEN ═══════ -->
+<div id="lobby-screen">
+  <div class="top-bar">
+    <div>
+      <div class="screen-title">Sala de espera 🎯</div>
+      <div class="screen-sub">Comparte el código con tus alumnos</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:0.75rem; color:var(--lavender); margin-bottom:0.5rem">Código de sesión</div>
+      <div class="session-code-display" id="lobby-code-display">---</div>
+    </div>
+  </div>
+
+  <div class="join-url" id="join-url-display"></div>
+
+  <div style="margin-top:1.5rem">
+    <div class="player-count" id="player-count">0 jugadores conectados</div>
+    <div class="players-grid" id="players-grid"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap">
+    <button class="btn btn-success" onclick="startGame()" id="start-btn" disabled>
+      ▶ Iniciar Juego
+    </button>
+    <span style="font-size:0.85rem; color:var(--lavender)" id="start-hint">Necesitas al menos 1 jugador</span>
+  </div>
+</div>
+
+<!-- ═══════ GAME SCREEN ═══════ -->
+<div id="game-screen">
+  <div class="game-header">
+    <div>
+      <span class="phase-badge phase-question" id="phase-label">Pregunta</span>
+      <div class="q-progress" id="q-progress">1 / 5</div>
+    </div>
+    <div class="timer-circle" id="timer-display">15</div>
+  </div>
+
+  <div class="responses-bar">
+    <span style="font-size:0.8rem; color:var(--lavender); flex-shrink:0">Respuestas</span>
+    <div class="rb-fill"><div class="rb-inner" id="rb-inner" style="width:0%"></div></div>
+    <span id="rb-count" style="font-family:'DM Mono',monospace; font-size:0.85rem; flex-shrink:0">0/0</span>
+  </div>
+
+  <div class="question-display">
+    <div class="q-label">¿Qué patrón es este?</div>
+    <div class="q-main" id="q-display-text"></div>
+    <img id="q-display-image" class="q-image" style="display:none" />
+  </div>
+
+  <div class="answers-display" id="answers-display"></div>
+
+  <div class="actions-row">
+    <button class="btn btn-primary" id="reveal-btn" onclick="revealAnswers()" style="display:none">
+      👁 Revelar respuestas
+    </button>
+    <button class="btn btn-success" id="next-btn" onclick="nextQuestion()" style="display:none">
+      ▶ Siguiente pregunta
+    </button>
+    <button class="btn btn-pink" id="finish-btn" onclick="showLeaderboard()" style="display:none">
+      🏆 Ver leaderboard final
+    </button>
+  </div>
+</div>
+
+<!-- ═══════ LEADERBOARD SCREEN ═══════ -->
+<div id="leaderboard-screen">
+  <div style="text-align:center; margin-bottom:2rem">
+    <div style="font-size:3rem; margin-bottom:0.5rem">🏆</div>
+    <div class="screen-title">Resultados Finales</div>
+    <div class="screen-sub" id="lb-session-info"></div>
+  </div>
+
+  <div class="lb-list" id="lb-list"></div>
+
+  <div style="text-align:center; margin-top:2rem">
+    <button class="btn btn-outline" onclick="resetToConfig()">🔄 Nueva sesión</button>
+  </div>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script>
+// ── SUPABASE INIT ──────────────────────────────────────────────────────────
+let sbClient = null;
+let sessionCode = '';
+let questions = [];
+let currentQuestionIndex = 0;
+let timerInterval = null;
+let timerSeconds = 15;
+let currentPhase = 'lobby';
+let players = [];
+let answersThisRound = [];
+let playerChannel = null;
+let answerChannel = null;
+let gameChannel = null;
+
+const LETTERS = ['A','B','C','D'];
+const COLORS  = ['#4A3AFF','#FE81E7','#22C55E','#F59E0B'];
+
+function initSupabase() {
+function initSupabase() {
+  const url = 'https://qvioqwulfkzdjxxpemvy.supabase.co';
+  const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2aW9xd3VsZmt6ZGp4eHBlbXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1NDgyNDQsImV4cCI6MjA5NjEyNDI0NH0.AZJONBozgaAW_FuW6dTz4QZ8mlLIMh8ww1MlpCB4g-Q';
+  sbClient = window.supabase.createClient(url, key);
+  return true;
+}
+
+window.addEventListener('load', () => {
+  generateCode();
+});
+
+// ── UTILITIES ─────────────────────────────────────────────────────────────
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('session-code').value = code;
+}
+
+function showNotif(msg, duration = 3000) {
+  const el = document.getElementById('notification');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function showScreen(id) {
+  ['config-screen','lobby-screen','game-screen','leaderboard-screen']
+    .forEach(s => document.getElementById(s).style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
+
+// ── QUESTIONS BUILDER ─────────────────────────────────────────────────────
+function addQuestion() {
+  const text    = document.getElementById('q-text').value.trim();
+  const image   = document.getElementById('q-image').value.trim();
+  const opts    = [0,1,2,3].map(i => document.getElementById(`q-opt${i}`).value.trim());
+  const correct = parseInt(document.getElementById('q-correct').value);
+
+  if (!text) { showNotif('⚠️ Escribe el texto de la pregunta'); return; }
+  if (opts.some(o => !o)) { showNotif('⚠️ Completa las 4 opciones'); return; }
+
+  questions.push({ text, image, opts, correct, id: Date.now() });
+
+  // Clear form
+  ['q-text','q-image'].forEach(id => document.getElementById(id).value = '');
+  [0,1,2,3].forEach(i => document.getElementById(`q-opt${i}`).value = '');
+
+  renderQuestions();
+  showNotif(`✅ Pregunta ${questions.length} agregada`);
+}
+
+function removeQuestion(idx) {
+  questions.splice(idx, 1);
+  renderQuestions();
+}
+
+function renderQuestions() {
+  const list = document.getElementById('question-list');
+  if (questions.length === 0) { list.innerHTML = ''; return; }
+  list.innerHTML = `
+    <div style="font-size:0.85rem; color:var(--lavender); margin-bottom:0.5rem">
+      ${questions.length} pregunta${questions.length > 1 ? 's' : ''} cargada${questions.length > 1 ? 's' : ''}
+    </div>
+    ${questions.map((q, i) => `
+      <div class="question-item">
+        <span class="q-num">Q${i+1}</span>
+        <div class="q-text">${q.text.substring(0,80)}${q.text.length>80?'…':''}</div>
+        <div style="font-size:0.8rem; color:var(--green); flex-shrink:0">✓ ${LETTERS[q.correct]}</div>
+        <div class="q-actions">
+          <button class="btn btn-outline btn-sm" onclick="removeQuestion(${i})">✕</button>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ── SESSION CREATION ──────────────────────────────────────────────────────
+async function createSession() {
+  if (!initSupabase()) return;
+  if (questions.length === 0) { showNotif('⚠️ Agrega al menos una pregunta'); return; }
+
+  sessionCode = document.getElementById('session-code').value.trim().toUpperCase();
+  if (!sessionCode) { showNotif('⚠️ Escribe un código de sesión'); return; }
+
+  timerSeconds = parseInt(document.getElementById('timer-seconds').value);
+
+  // Delete any existing session with same code
+  await sbClient.from('ps_game').delete().eq('session_code', sessionCode);
+  await sbClient.from('ps_answers').delete().eq('session_code', sessionCode);
+  await sbClient.from('ps_players').delete().eq('session_code', sessionCode);
+
+  const { error } = await sbClient.from('ps_game').insert({
+    session_code:    sessionCode,
+    phase:           'lobby',
+    current_question_index: 0,
+    questions:       questions,
+    timer_seconds:   timerSeconds,
+  });
+
+  if (error) { showNotif('❌ Error creando sesión: ' + error.message); return; }
+
+  showNotif(`✅ Sesión ${sessionCode} creada`);
+  openLobby();
+}
+
+function openLobby() {
+  document.getElementById('lobby-code-display').textContent = sessionCode;
+
+  const playerUrl = `${window.location.origin}${window.location.pathname.replace('facilitador.html','jugador.html')}?session=${sessionCode}`;
+  document.getElementById('join-url-display').textContent = playerUrl;
+
+  showScreen('lobby-screen');
+  subscribeToPlayers();
+}
+
+// ── REALTIME SUBSCRIPTIONS ────────────────────────────────────────────────
+function subscribeToPlayers() {
+  playerChannel = sbClient
+    .channel(`players-${sessionCode}`)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'ps_players',
+      filter: `session_code=eq.${sessionCode}`
+    }, async () => {
+      await fetchPlayers();
+    })
+    .subscribe();
+  fetchPlayers();
+}
+
+async function fetchPlayers() {
+  const { data } = await sbClient.from('ps_players')
+    .select('*').eq('session_code', sessionCode).order('joined_at');
+  if (!data) return;
+  players = data;
+  renderPlayers();
+}
+
+function renderPlayers() {
+  const grid  = document.getElementById('players-grid');
+  const count = document.getElementById('player-count');
+  const btn   = document.getElementById('start-btn');
+  const hint  = document.getElementById('start-hint');
+
+  count.textContent = `${players.length} jugador${players.length !== 1 ? 'es' : ''} conectado${players.length !== 1 ? 's' : ''}`;
+  grid.innerHTML = players.map(p => `<div class="player-chip">👤 ${p.player_name}</div>`).join('');
+
+  if (players.length > 0) {
+    btn.disabled = false;
+    hint.textContent = `Todo listo con ${players.length} jugador${players.length > 1 ? 'es' : ''}`;
+  }
+}
+
+async function subscribeToAnswers() {
+  answerChannel = sbClient
+    .channel(`answers-${sessionCode}-${currentQuestionIndex}`)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'ps_answers',
+      filter: `session_code=eq.${sessionCode}`
+    }, (payload) => {
+      if (payload.new.question_index === currentQuestionIndex) {
+        answersThisRound.push(payload.new);
+        updateResponseBar();
+      }
+    })
+    .subscribe();
+}
+
+function updateResponseBar() {
+  const total = players.length;
+  const recv  = answersThisRound.length;
+  const pct   = total > 0 ? (recv / total * 100) : 0;
+  document.getElementById('rb-inner').style.width = pct + '%';
+  document.getElementById('rb-count').textContent = `${recv}/${total}`;
+
+  if (recv >= total && total > 0) {
+    clearInterval(timerInterval);
+    showRevealButton();
+  }
+}
+
+// ── GAME FLOW ──────────────────────────────────────────────────────────────
+async function startGame() {
+  currentQuestionIndex = 0;
+  await pushGameState({ phase: 'question', current_question_index: 0, timer_started_at: new Date().toISOString() });
+  showScreen('game-screen');
+  renderQuestion();
+  subscribeToAnswers();
+  startTimer();
+}
+
+function renderQuestion() {
+  const q = questions[currentQuestionIndex];
+  answersThisRound = [];
+
+  document.getElementById('q-progress').textContent = `${currentQuestionIndex + 1} / ${questions.length}`;
+  document.getElementById('q-display-text').textContent = q.text;
+
+  const img = document.getElementById('q-display-image');
+  if (q.image) { img.src = q.image; img.style.display = 'block'; }
+  else { img.style.display = 'none'; }
+
+  const display = document.getElementById('answers-display');
+  display.innerHTML = q.opts.map((opt, i) => `
+    <div class="answer-opt" id="opt-${i}">
+      <div class="opt-letter" style="background:${COLORS[i]}">${LETTERS[i]}</div>
+      <div>
+        <div class="opt-text">${opt}</div>
+        <div class="opt-bar-wrap"><div class="opt-bar" id="bar-${i}" style="width:0%; background:${COLORS[i]}"></div></div>
+        <div class="opt-count" id="count-${i}">0 respuestas</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('reveal-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('finish-btn').style.display = 'none';
+  document.getElementById('phase-label').textContent = 'Pregunta activa';
+
+  updateResponseBar();
+}
+
+function startTimer() {
+  let t = timerSeconds;
+  const display = document.getElementById('timer-display');
+  display.textContent = t;
+  display.classList.remove('urgent');
+
+  timerInterval = setInterval(() => {
+    t--;
+    display.textContent = t;
+    if (t <= 5) display.classList.add('urgent');
+    if (t <= 0) {
+      clearInterval(timerInterval);
+      showRevealButton();
+    }
+  }, 1000);
+}
+
+function showRevealButton() {
+  document.getElementById('reveal-btn').style.display = 'inline-flex';
+  document.getElementById('phase-label').textContent = 'Tiempo agotado';
+}
+
+async function revealAnswers() {
+  document.getElementById('reveal-btn').style.display = 'none';
+
+  const q = questions[currentQuestionIndex];
+  const total = answersThisRound.length;
+
+  // Count per option
+  const counts = [0,0,0,0];
+  answersThisRound.forEach(a => counts[a.answer_index]++);
+
+  // Update UI
+  q.opts.forEach((_, i) => {
+    const opt   = document.getElementById(`opt-${i}`);
+    const bar   = document.getElementById(`bar-${i}`);
+    const count = document.getElementById(`count-${i}`);
+    const pct   = total > 0 ? (counts[i] / total * 100) : 0;
+
+    bar.style.width = pct + '%';
+    count.textContent = `${counts[i]} respuesta${counts[i] !== 1 ? 's' : ''} (${Math.round(pct)}%)`;
+
+    if (i === q.correct) opt.classList.add('correct');
+    else if (counts[i] > 0) opt.classList.add('wrong');
+  });
+
+  // Update player points in DB
+  const updates = answersThisRound.map(a => {
+    const ms_taken = a.time_ms;
+    const speedBonus = Math.max(0, Math.round((timerSeconds * 1000 - ms_taken) / (timerSeconds * 1000) * 500));
+    const pts = a.is_correct ? 500 + speedBonus : 0;
+    return sbClient.from('ps_answers').update({ points: pts }).eq('id', a.id);
+  });
+  await Promise.all(updates);
+
+  // Update player totals
+  for (const a of answersThisRound) {
+    const ms_taken = a.time_ms;
+    const speedBonus = Math.max(0, Math.round((timerSeconds * 1000 - ms_taken) / (timerSeconds * 1000) * 500));
+    const pts = a.is_correct ? 500 + speedBonus : 0;
+    if (pts > 0) {
+      await sbClient.rpc ? null : null; // skip rpc, do manual update
+      const { data: player } = await sbClient.from('ps_players')
+        .select('total_points').eq('player_name', a.player_name).eq('session_code', sessionCode).single();
+      if (player) {
+        await sbClient.from('ps_players').update({ total_points: (player.total_points || 0) + pts })
+          .eq('player_name', a.player_name).eq('session_code', sessionCode);
+      }
+    }
+  }
+
+  await pushGameState({ phase: 'results' });
+
+  const isLast = currentQuestionIndex >= questions.length - 1;
+  if (isLast) {
+    document.getElementById('finish-btn').style.display = 'inline-flex';
+  } else {
+    document.getElementById('next-btn').style.display = 'inline-flex';
+  }
+}
+
+async function nextQuestion() {
+  currentQuestionIndex++;
+  document.getElementById('next-btn').style.display = 'none';
+  if (answerChannel) sbClient.removeChannel(answerChannel);
+
+  await pushGameState({
+    phase: 'question',
+    current_question_index: currentQuestionIndex,
+    timer_started_at: new Date().toISOString()
+  });
+
+  renderQuestion();
+  subscribeToAnswers();
+  startTimer();
+}
+
+async function showLeaderboard() {
+  await pushGameState({ phase: 'finished' });
+
+  const { data } = await sbClient.from('ps_players')
+    .select('*').eq('session_code', sessionCode)
+    .order('total_points', { ascending: false });
+
+  showScreen('leaderboard-screen');
+  document.getElementById('lb-session-info').textContent =
+    `Sesión ${sessionCode} — ${questions.length} preguntas — ${players.length} jugadores`;
+
+  const MEDALS = ['🥇','🥈','🥉'];
+  document.getElementById('lb-list').innerHTML = (data || []).map((p, i) => `
+    <div class="lb-item" style="animation-delay:${i * 0.1}s">
+      <div class="lb-rank">${MEDALS[i] || (i+1)}</div>
+      <div class="lb-name">👤 ${p.player_name}</div>
+      <div class="lb-pts">${p.total_points} pts</div>
+    </div>
+  `).join('');
+}
+
+async function pushGameState(update) {
+  await sbClient.from('ps_game').update(update).eq('session_code', sessionCode);
+}
+
+function resetToConfig() {
+  if (playerChannel) sbClient.removeChannel(playerChannel);
+  if (answerChannel) sbClient.removeChannel(answerChannel);
+  questions = [];
+  players = [];
+  renderQuestions();
+  showScreen('config-screen');
+}
+</script>
+</body>
+</html>
