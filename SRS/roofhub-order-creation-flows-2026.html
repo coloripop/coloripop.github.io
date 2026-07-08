@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Screen Flow Analysis: Roof Hub Order Creation — Competitor Set</title>
+<style>
+  :root {
+    --navy: #0A2342;
+    --lime: #9FBF1A;
+    --frost: #E3E3E3;
+    --gray: #6b7280;
+    --dark: #111827;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f9fafb; color:var(--dark); }
+  header.main-header { background: var(--navy); color:#fff; padding: 24px 32px 18px; }
+  header.main-header h1 { margin:0 0 4px; font-size: 22px; }
+  header.main-header .sub { color: var(--lime); font-size: 13px; margin-bottom: 4px; }
+  header.main-header .note { color: rgba(255,255,255,0.65); font-size: 11.5px; }
+  .filters { display:flex; gap:16px; margin-top:12px; flex-wrap:wrap; }
+  .filter-group { font-size:12px; color:#fff; }
+  .filter-btn { background: rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:14px; padding:4px 12px; margin-right:6px; cursor:pointer; font-size:11.5px; }
+  .filter-btn.active { background: var(--lime); color:#0A2342; border-color: var(--lime); font-weight:bold; }
+
+  .tab-bar { display:flex; flex-wrap:wrap; gap:2px; background:#fff; border-bottom:1px solid #e5e7eb; padding: 0 16px; position:sticky; top:0; z-index:10; }
+  .tab { border:none; background:transparent; padding:12px 14px; font-size:12.5px; cursor:pointer; color:#374151; border-bottom:3px solid transparent; display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  .tab:hover { background:#f3f4f6; }
+  .tab.tab-active { border-bottom-color: var(--navy); font-weight:bold; color: var(--navy); }
+  .tab-ref { color:#9a5b1e; }
+  .tab-suggested { border-bottom-color: transparent; }
+  .tab-suggested.tab-active { border-bottom-color: var(--lime); color:#5a7a00; }
+  .tab-dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .tab-flag { font-size:11px; }
+
+  .content-wrap { padding: 24px 32px 60px; max-width: 1400px; margin: 0 auto; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  .page-header h1 { font-size:22px; margin:0 0 4px; color: var(--dark); }
+  .page-header .page-subtitle { font-size:12.5px; color: var(--gray); margin-bottom:16px; }
+
+  .legend-bar { display:inline-flex; gap:16px; align-items:center; background:#fff; border:1px solid #e5e7eb; border-radius:6px; padding:8px 14px; font-size:11px; margin-bottom:18px; flex-wrap:wrap; }
+  .legend-shape { display:inline-block; width:11px; height:11px; margin-right:4px; vertical-align:middle; }
+  .legend-screen { border:1.5px solid #9ca3af; background:#fff; }
+  .legend-decision { background:#1a1a2e; transform:rotate(45deg); width:8px; height:8px; }
+  .legend-gap { border:1.5px dashed #f59e0b; background:#fffbeb; }
+  .legend-error { border:1.5px solid #ef4444; background:#fef9f9; }
+  .legend-start { border-radius:50%; background:#1b3a6b; }
+  .legend-end { border-radius:50%; background:#16a34a; }
+
+  .flow-single-col { max-width: 300px; margin-bottom: 24px; }
+  .flow-single-col svg { width:100%; height:auto; display:block; }
+
+  .ref-badge { display:inline-block; background:#fff7ed; color:#9a5b1e; border:1px solid #fdba74; border-radius:14px; padding:5px 12px; font-size:11.5px; margin-bottom:12px; }
+  .pattern-callout { background:#f0fdfa; border:1px solid #99f6e4; border-radius:6px; padding:12px 14px; font-size:12px; margin-bottom:18px; line-height:1.6; }
+
+  .ux-observations { margin-top: 20px; padding-top:16px; border-top:1px solid #e5e7eb; }
+  .ux-observations h3 { font-size:14px; margin-bottom:12px; }
+  .obs-columns { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
+  .obs-col h4 { font-size:10px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px; }
+  .obs-strength { color:#16a34a; }
+  .obs-gap { color:#d97706; }
+  .obs-bullet { font-size:12.5px; margin-bottom:6px; line-height:1.5; }
+  .obs-good { color: var(--dark); }
+  .obs-bad { color: var(--dark); }
+
+  .ratings-block { margin-top:16px; grid-column: 1 / -1; }
+  .ratings-block h4 { font-size:10px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px; color:#374151; }
+  .rating-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .rating-label { width:50px; font-size:12px; }
+  .rating-bar-bg { flex:1; max-width:220px; height:10px; background:#e5e7eb; border-radius:5px; overflow:hidden; }
+  .rating-bar-fill { height:100%; border-radius:5px; }
+  .rating-score { font-size:11.5px; width:36px; text-align:right; }
+  .not-enough-data { font-size:12px; color:#9ca3af; font-style:italic; margin-top:12px; }
+  .gap-note-box { background:#fffbeb; border:1px solid #f59e0b; border-radius:6px; padding:10px 12px; font-size:12px; color:#92400e; margin-top:14px; grid-column: 1 / -1; }
+
+  .evidence-panel { margin-top:20px; }
+  .evidence-panel h3 { font-size:14px; margin-bottom:10px; }
+  .evidence-table { width:100%; border-collapse: collapse; font-size:12px; background:#fff; }
+  .evidence-table th { background: var(--navy); color:#fff; text-align:left; padding:8px 10px; font-size:11px; cursor:pointer; }
+  .evidence-table td { padding:8px 10px; border-bottom:1px solid #f3f4f6; }
+  .evidence-table tbody tr:nth-child(even) { background:#f9fafb; }
+  .evidence-table a { color:#0d6e6e; }
+  .gap-cell { color:#d97706; font-style:italic; }
+  .muted-table th { background:#9ca3af; }
+  .muted-table tbody tr { background:#fafafa; }
+
+  .tab-footer { margin-top:24px; font-size:10.5px; font-style:italic; color:#9ca3af; border-top:1px solid #f3f4f6; padding-top:10px; }
+
+  .copy-btn { background: var(--navy); color:#fff; border:none; border-radius:5px; padding:6px 12px; font-size:11px; cursor:pointer; margin-bottom:10px; display:inline-block; }
+  .copy-btn.copied { background: var(--lime); color:#0A2342; }
+  .copy-btn-sm { padding:3px 8px; font-size:10px; margin-bottom:0; margin-left:8px; }
+
+  .suggested-grid { display:grid; grid-template-columns: 1fr 1fr; gap:32px; }
+  .channel-title { font-size:11px; text-transform:uppercase; letter-spacing:0.06em; font-weight:bold; margin-bottom:6px; }
+  .why-this-flow { margin-top:24px; padding-top:16px; border-top:1px solid #e5e7eb; }
+  .why-this-flow h3 { font-size:14px; margin-bottom:10px; }
+  .why-bullet { font-size:12.5px; margin-bottom:8px; line-height:1.5; color:#374151; }
+
+  .comparison-scroll { display:flex; gap:0; overflow-x:auto; padding-bottom:10px; }
+  .comparison-col { min-width:230px; border-right:1px solid #e5e7eb; padding:0 14px; }
+  .comparison-col:last-child { border-right:none; }
+  .comparison-col-header { color:#fff; font-size:11.5px; font-weight:bold; padding:8px 10px; border-radius:4px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+  .comparison-col svg { width:100%; height:auto; }
+  .col-source-footer { font-size:9.5px; color:#9ca3af; font-style:italic; margin-top:8px; }
+  .stage-labels { font-size:11.5px; color:#6b7280; margin-bottom:10px; font-weight:bold; }
+
+  .review-checkpoint { background:#fffbeb; border:1px solid #f59e0b; border-radius:6px; padding:12px 16px; font-size:13px; color:#92400e; margin-bottom:20px; }
+  .priority-badge { color:#fff; font-size:10.5px; padding:2px 8px; border-radius:10px; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<header class="main-header">
+  <h1>User Screen Flow Analysis: Roof Hub Order Creation — Competitor Set</h1>
+  <div class="sub">Roofing procurement platforms · US + Europe · researched July 2026 · Capmation</div>
+  <div class="note">All screens documented from real sources. Gaps shown explicitly. Not a reconstruction from general knowledge.</div>
+  <div class="filters">
+    <div class="filter-group">
+      Geography:
+      <button class="filter-btn active" onclick="filterGeo('all', this)">All</button>
+      <button class="filter-btn" onclick="filterGeo('US', this)">🇺🇸 US</button>
+      <button class="filter-btn" onclick="filterGeo('EU', this)">🇪🇺 Europe</button>
+    </div>
+    <div class="filter-group">
+      Type:
+      <button class="filter-btn active" onclick="filterType('all', this)">All</button>
+      <button class="filter-btn" onclick="filterType('competitor', this)">Direct competitors</button>
+      <button class="filter-btn" onclick="filterType('reference', this)">External references</button>
+    </div>
+  </div>
+</header>
+
+<div class="tab-bar" id="tabBar">
+<button class="tab" data-geo="US" data-type="competitor" data-tabid="qxo" onclick="showTab('qxo', this)"><span class="tab-dot" style="background:#8B1E2B"></span>QXO PRO+ <span class="tab-flag">🇺🇸</span></button>
+<button class="tab" data-geo="US" data-type="competitor" data-tabid="abc" onclick="showTab('abc', this)"><span class="tab-dot" style="background:#1B3A6B"></span>ABC Supply <span class="tab-flag">🇺🇸</span></button>
+<button class="tab" data-geo="US" data-type="competitor" data-tabid="acculynx" onclick="showTab('acculynx', this)"><span class="tab-dot" style="background:#0F5132"></span>AccuLynx <span class="tab-flag">🇺🇸</span></button>
+<button class="tab" data-geo="US" data-type="competitor" data-tabid="rsg" onclick="showTab('rsg', this)"><span class="tab-dot" style="background:#6B7280"></span>RSG <span class="tab-flag">🇺🇸</span></button>
+<button class="tab" data-geo="EU" data-type="competitor" data-tabid="sig" onclick="showTab('sig', this)"><span class="tab-dot" style="background:#0D6E6E"></span>SIG Roofing <span class="tab-flag">🇪🇺</span></button>
+<button class="tab tab-ref" data-geo="US" data-type="reference" data-tabid="hd" onclick="showTab('hd', this)">🔍 Home Depot Pro</button>
+<button class="tab tab-ref" data-geo="Global" data-type="reference" data-tabid="amzn" onclick="showTab('amzn', this)">🔍 Amazon Business</button>
+<button class="tab tab-suggested" data-geo="all" data-type="suggested" data-tabid="suggested" onclick="showTab('suggested', this)">✦ Suggested Flow</button>
+<button class="tab" data-geo="all" data-type="summary" data-tabid="summary" onclick="showTab('summary', this)">📊 Summary</button>
+<button class="tab" data-geo="all" data-type="comparison" data-tabid="comparison" onclick="showTab('comparison', this)">⇄ Comparison</button>
+<button class="tab" data-geo="all" data-type="modules" data-tabid="modules" onclick="showTab('modules', this)">📦 Modules</button>
+
+</div>
+
+<div class="content-wrap" id="contentWrap">
+
+<div class="tab-content" id="tab-qxo">
+    <div class="page-header">
+      <h1>QXO PRO+ — Order Creation Flow</h1>
+      <div class="page-subtitle">QXO PRO+ (formerly Beacon PRO+) · US · researched July 2026</div>
+    </div>
+    
+    
+    <button class="copy-btn" onclick="copySVGById('svg-qxo', this)">📋 Copy SVG</button>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="flow-single-col">
+      <svg id="svg-qxo" viewBox="0 0 260 1107" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Login / Select Contact</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">QXO PRO+ (formerly Beacon PRO+)</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">if report exists</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="100" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Measurement Check</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Check for EagleView / GAF</text><text x="32" y="157" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">QuickMeasure report</text><text x="36" y="171" font-family="Arial" font-size="10.5" fill="#374151">Premium residential report</text><text x="42" y="185" font-family="Arial" font-size="10.5" fill="#374151">required for Smart Order</text><text x="20" y="222" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: Roofle / becn.com</text><text x="130.0" y="240" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">select template</text><line x1="130.0" y1="244" x2="130.0" y2="260" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,260 134.0,260 130.0,267" fill="#9ca3af"/><rect x="20" y="267" width="220" height="88" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="285" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Order Materials / Smart</text><text x="32" y="301" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Order</text><text x="32" y="317" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Begin Smart Order button</text><text x="36" y="331" font-family="Arial" font-size="10.5" fill="#374151">Select a project template</text><text x="20" y="368" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: becn.com 2024</text><text x="130.0" y="386" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">next</text><line x1="130.0" y1="390" x2="130.0" y2="406" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,406 134.0,406 130.0,413" fill="#9ca3af"/><rect x="20" y="413" width="220" height="114" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="431" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Configure Order</text><text x="32" y="447" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Waste factor &amp; job details</text><text x="36" y="461" font-family="Arial" font-size="10.5" fill="#374151">Waste factor (default 10%)</text><text x="36" y="475" font-family="Arial" font-size="10.5" fill="#374151">Number of penetrations</text><text x="36" y="489" font-family="Arial" font-size="10.5" fill="#374151">Ice &amp; water shield: yes/no</text><text x="36" y="503" font-family="Arial" font-size="10.5" fill="#374151">Decking: yes/no</text><text x="20" y="540" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: becn.com 2024</text><text x="130.0" y="558" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">continue</text><line x1="130.0" y1="562" x2="130.0" y2="578" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,578 134.0,578 130.0,585" fill="#9ca3af"/><rect x="20" y="585" width="220" height="114" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="603" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Material Template</text><text x="32" y="619" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Auto-populated quantities</text><text x="36" y="633" font-family="Arial" font-size="10.5" fill="#374151">Items segmented by category</text><text x="42" y="647" font-family="Arial" font-size="10.5" fill="#374151">(shingles, underlayment, misc.)</text><text x="36" y="661" font-family="Arial" font-size="10.5" fill="#374151">Quantities calculated from</text><text x="42" y="675" font-family="Arial" font-size="10.5" fill="#374151">measurement data</text><text x="20" y="712" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: becn.com 2024</text><text x="130.0" y="730" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">place order</text><line x1="130.0" y1="734" x2="130.0" y2="750" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,750 134.0,750 130.0,757" fill="#9ca3af"/><rect x="20" y="757" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="775" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Checkout</text><text x="32" y="791" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Pre-filled from project</text><text x="36" y="805" font-family="Arial" font-size="10.5" fill="#374151">Project address pre-populated</text><text x="36" y="819" font-family="Arial" font-size="10.5" fill="#374151">Choose delivery/pickup date &amp; time</text><text x="20" y="856" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: becn.com 2024</text><line x1="130.0" y1="878" x2="130.0" y2="894" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,894 134.0,894 130.0,901" fill="#9ca3af"/><rect x="20" y="901" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="923" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Placed</text><text x="36" y="939" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">5–10 min total, ~6 steps</text><line x1="130.0" y1="971" x2="130.0" y2="987" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,987 134.0,987 130.0,994" fill="#9ca3af"/><rect x="20" y="994" width="220" height="86" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="1014" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Post-submission editing</text><text x="32" y="1029" font-family="Arial" font-size="10" fill="#92400e">[Gap — one-way sync: order</text><text x="32" y="1044" font-family="Arial" font-size="10" fill="#92400e">cannot be edited/removed once</text><text x="32" y="1059" font-family="Arial" font-size="10" fill="#92400e">sent; must contact rep]</text><text x="20" y="1093" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: JobNimbus Support</text></svg>
+    </div>
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-columns">
+        <div class="obs-col">
+          <h4 class="obs-strength">STRENGTHS</h4>
+          <div class="obs-bullet obs-good">✓ 24/7 ordering from any device, deliveries scheduled to jobsite</div><div class="obs-bullet obs-good">✓ Smart Order + EagleView integration cuts an order to 5–10 minutes across ~6 steps</div><div class="obs-bullet obs-good">✓ Free to use, shows negotiated pricing</div>
+        </div>
+        <div class="obs-col">
+          <h4 class="obs-gap">GAPS</h4>
+          <div class="obs-bullet obs-bad">⚠ One-way sync — once an order is sent, it cannot be edited or items removed within the connecting app</div><div class="obs-bullet obs-bad">⚠ Rebranded from Beacon PRO+ to QXO PRO+ following QXO&#x27;s acquisition of Beacon — may cause contractor confusion</div>
+        </div>
+      </div>
+      <div class="ratings-block"><h4>RATINGS</h4><div class="rating-row">
+          <span class="rating-label">Ease</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:60.0%; background:#f59e0b;"></div></div>
+          <span class="rating-score">3/5</span>
+        </div><div class="rating-row">
+          <span class="rating-label">Speed</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:80.0%; background:#0d6e6e;"></div></div>
+          <span class="rating-score">4/5</span>
+        </div><div class="rating-row">
+          <span class="rating-label">Trust</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:60.0%; background:#f59e0b;"></div></div>
+          <span class="rating-score">3/5</span>
+        </div></div>
+      
+    </div>
+    <div class="evidence-panel">
+      <h3>Evidence Panel</h3>
+      <table class="evidence-table"><thead><tr><th>Screen name</th><th>Source organization</th><th>Date</th></tr></thead><tbody><tr><td>Login / Select Contact</td><td></td><td></td></tr><tr><td>Measurement Check</td><td>Roofle / becn.com</td><td></td></tr><tr><td>Order Materials / Smart Order</td><td>becn.com 2024</td><td></td></tr><tr><td>Configure Order</td><td>becn.com 2024</td><td></td></tr><tr><td>Material Template</td><td>becn.com 2024</td><td></td></tr><tr><td>Checkout</td><td>becn.com 2024</td><td></td></tr><tr><td>Order Placed</td><td></td><td></td></tr><tr><td>Post-submission editing</td><td colspan="2" class="gap-cell">[Gap] — JobNimbus Support</td></tr></tbody></table>
+    </div>
+    <div class="tab-footer">All screens sourced from: <a href="https://www.becn.com/beaconbits/build-your-business/smart-order-how-beacon-pro-makes-it-easier-to-order-roofing-project-materials" target="_blank" rel="noopener">Beacon/QXO — Smart Order</a> · 2024, <a href="https://help.hover.to/en/articles/8417806-submit-orders-directly-to-qxo-from-hover" target="_blank" rel="noopener">Hover Help Center — QXO Integration</a> · —, <a href="https://support.jobnimbus.com/what-are-the-constraints-with-the-beacon-pro-integration" target="_blank" rel="noopener">JobNimbus Support</a> · —, <a href="https://success.roofle.com/knowledge/beacon-integration-ordering" target="_blank" rel="noopener">Roofle Knowledge Base</a> · —</div>
+    </div>
+<div class="tab-content" id="tab-abc">
+    <div class="page-header">
+      <h1>ABC Supply — Order Creation Flow</h1>
+      <div class="page-subtitle">ABC Supply / myABCsupply · US · researched July 2026</div>
+    </div>
+    
+    
+    <button class="copy-btn" onclick="copySVGById('svg-abc', this)">📋 Copy SVG</button>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="flow-single-col">
+      <svg id="svg-abc" viewBox="0 0 260 1093" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Login</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">myABCsupply (web or app)</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">select items</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Browse / Search Catalog</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">200,000+ products</text><text x="36" y="157" font-family="Arial" font-size="10.5" fill="#374151">Search by name, keyword, or</text><text x="42" y="171" font-family="Arial" font-size="10.5" fill="#374151">category</text><text x="20" y="208" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: Apple App Store listing</text><text x="130.0" y="226" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">or</text><line x1="130.0" y1="230" x2="130.0" y2="246" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,246 134.0,246 130.0,253" fill="#9ca3af"/><rect x="20" y="253" width="220" height="100" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="271" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Measurement Integration</text><text x="32" y="287" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">EagleView / QuickMeasure /</text><text x="32" y="301" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">HOVER / Roofr</text><text x="36" y="315" font-family="Arial" font-size="10.5" fill="#374151">Gather measurements, turn into</text><text x="42" y="329" font-family="Arial" font-size="10.5" fill="#374151">order items</text><text x="20" y="366" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: abcsupply.com 2021</text><text x="130.0" y="384" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">or convert</text><line x1="130.0" y1="388" x2="130.0" y2="404" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,404 134.0,404 130.0,411" fill="#9ca3af"/><rect x="20" y="411" width="220" height="116" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="429" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Build Order or Apply</text><text x="32" y="445" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Template</text><text x="32" y="461" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Order history &amp; favorites</text><text x="36" y="475" font-family="Arial" font-size="10.5" fill="#374151">Templates for frequently ordered</text><text x="42" y="489" font-family="Arial" font-size="10.5" fill="#374151">materials</text><text x="36" y="503" font-family="Arial" font-size="10.5" fill="#374151">Reorder from history</text><text x="20" y="540" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: abcsupply.com blog</text><text x="130.0" y="558" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">submit</text><line x1="130.0" y1="562" x2="130.0" y2="578" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,578 134.0,578 130.0,585" fill="#9ca3af"/><rect x="20" y="585" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="603" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Quote-to-Order Conversion</text><text x="32" y="619" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Convert active quotes</text><text x="36" y="633" font-family="Arial" font-size="10.5" fill="#374151">Real-time preferred pricing via</text><text x="42" y="647" font-family="Arial" font-size="10.5" fill="#374151">integration partners</text><text x="20" y="684" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: abcsupply.com 2021</text><text x="130.0" y="702" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">confirm</text><line x1="130.0" y1="706" x2="130.0" y2="722" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,722 134.0,722 130.0,729" fill="#9ca3af"/><rect x="20" y="729" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="747" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">24/7 Submit Order</text><text x="32" y="763" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Web or mobile</text><text x="36" y="777" font-family="Arial" font-size="10.5" fill="#374151">Adjust quantities</text><text x="36" y="791" font-family="Arial" font-size="10.5" fill="#374151">Select delivery location</text><text x="20" y="828" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: abcsupply.com press release 2020</text><line x1="130.0" y1="850" x2="130.0" y2="866" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,866 134.0,866 130.0,873" fill="#9ca3af"/><rect x="20" y="873" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="895" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Confirmed</text><text x="36" y="911" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">~5-10 min (customer-reported)</text><line x1="130.0" y1="943" x2="130.0" y2="959" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,959 134.0,959 130.0,966" fill="#9ca3af"/><rect x="20" y="966" width="220" height="100" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="984" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Delivery Tracking</text><text x="32" y="1000" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Post-order</text><text x="36" y="1014" font-family="Arial" font-size="10.5" fill="#374151">Track status of upcoming</text><text x="42" y="1028" font-family="Arial" font-size="10.5" fill="#374151">deliveries</text><text x="36" y="1042" font-family="Arial" font-size="10.5" fill="#374151">Retrieve delivery photos</text><text x="20" y="1079" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: RoofersCoffeeShop 2024</text></svg>
+    </div>
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-columns">
+        <div class="obs-col">
+          <h4 class="obs-strength">STRENGTHS</h4>
+          <div class="obs-bullet obs-good">✓ Integrates with 4 measurement providers (EagleView, GAF QuickMeasure, HOVER, Roofr)</div><div class="obs-bullet obs-good">✓ Real-time preferred pricing through integration partners</div><div class="obs-bullet obs-good">✓ Cuts ordering time in half via templates &amp; favorites</div><div class="obs-bullet obs-good">✓ Available in English, Spanish, and Polish</div>
+        </div>
+        <div class="obs-col">
+          <h4 class="obs-gap">GAPS</h4>
+          <div class="obs-bullet obs-bad">⚠ Detailed address/delivery-method screen sequence not documented in public sources</div><div class="obs-bullet obs-bad">⚠ Ordering not available in California per 2020 press release — may have since changed</div>
+        </div>
+      </div>
+      <div class="ratings-block"><h4>RATINGS</h4><div class="rating-row">
+          <span class="rating-label">Ease</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:80.0%; background:#0d6e6e;"></div></div>
+          <span class="rating-score">4/5</span>
+        </div><div class="rating-row">
+          <span class="rating-label">Speed</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:80.0%; background:#0d6e6e;"></div></div>
+          <span class="rating-score">4/5</span>
+        </div><div class="rating-row">
+          <span class="rating-label">Trust</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:80.0%; background:#0d6e6e;"></div></div>
+          <span class="rating-score">4/5</span>
+        </div></div>
+      
+    </div>
+    <div class="evidence-panel">
+      <h3>Evidence Panel</h3>
+      <table class="evidence-table"><thead><tr><th>Screen name</th><th>Source organization</th><th>Date</th></tr></thead><tbody><tr><td>Login</td><td></td><td></td></tr><tr><td>Browse / Search Catalog</td><td>Apple App Store listing</td><td></td></tr><tr><td>Measurement Integration</td><td>abcsupply.com 2021</td><td></td></tr><tr><td>Build Order or Apply Template</td><td>abcsupply.com blog</td><td></td></tr><tr><td>Quote-to-Order Conversion</td><td>abcsupply.com 2021</td><td></td></tr><tr><td>24/7 Submit Order</td><td>abcsupply.com press release 2020</td><td></td></tr><tr><td>Order Confirmed</td><td></td><td></td></tr><tr><td>Delivery Tracking</td><td>RoofersCoffeeShop 2024</td><td></td></tr></tbody></table>
+    </div>
+    <div class="tab-footer">All screens sourced from: <a href="https://www.abcsupply.com/contractor-center/myabcsupply/" target="_blank" rel="noopener">ABC Supply — myABCsupply</a> · 2021, <a href="https://apps.apple.com/us/app/abc-supply/id1449056650" target="_blank" rel="noopener">Apple App Store — ABC Supply App</a> · —, <a href="https://www.rooferscoffeeshop.com/post/online-orders-are-now-easier-with-myabcsupply" target="_blank" rel="noopener">RoofersCoffeeShop</a> · 2024, <a href="https://www.abcsupply.com/media-center/press-release/abc-supply-customers-can-now-place-orders-through-myabcsupply/" target="_blank" rel="noopener">ABC Supply — Press Release</a> · 2020</div>
+    </div>
+<div class="tab-content" id="tab-acculynx">
+    <div class="page-header">
+      <h1>AccuLynx — Order Creation Flow</h1>
+      <div class="page-subtitle">AccuLynx (cross-distributor threat) · US · researched July 2026</div>
+    </div>
+    
+    
+    <button class="copy-btn" onclick="copySVGById('svg-acculynx', this)">📋 Copy SVG</button>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="flow-single-col">
+      <svg id="svg-acculynx" viewBox="0 0 260 981" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Build Estimate</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">AccuLynx template</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">pull pricing</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Item Search</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">By supplier item code</text><text x="36" y="157" font-family="Arial" font-size="10.5" fill="#374151">Search using code from supplier</text><text x="42" y="171" font-family="Arial" font-size="10.5" fill="#374151">site or invoice</text><text x="20" y="208" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: acculynx.com/acculynx-material-ordering</text><text x="130.0" y="226" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">convert</text><line x1="130.0" y1="230" x2="130.0" y2="246" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,246 134.0,246 130.0,253" fill="#9ca3af"/><rect x="20" y="253" width="220" height="130" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="271" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Live Pricing &amp;</text><text x="32" y="287" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Availability</text><text x="32" y="303" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">ABC Supply · QXO · SRS</text><text x="32" y="317" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Distribution</text><text x="36" y="331" font-family="Arial" font-size="10.5" fill="#374151">Real-time unique pricing, updated</text><text x="42" y="345" font-family="Arial" font-size="10.5" fill="#374151">daily</text><text x="36" y="359" font-family="Arial" font-size="10.5" fill="#374151">Real-time product availability</text><text x="20" y="396" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: acculynx.com integrations pages</text><text x="130.0" y="414" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">submit</text><line x1="130.0" y1="418" x2="130.0" y2="434" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,434 134.0,434 130.0,441" fill="#9ca3af"/><rect x="20" y="441" width="220" height="102" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="459" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Convert to Material Order</text><text x="32" y="475" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">/ PO</text><text x="32" y="491" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Estimate → material list</text><text x="36" y="505" font-family="Arial" font-size="10.5" fill="#374151">Quantities &amp; waste factors auto-</text><text x="42" y="519" font-family="Arial" font-size="10.5" fill="#374151">calculated</text><text x="20" y="556" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: acculynx.com/order-roofing-materials</text><text x="130.0" y="574" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">track</text><line x1="130.0" y1="578" x2="130.0" y2="594" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,594 134.0,594 130.0,601" fill="#9ca3af"/><rect x="20" y="601" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="619" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Submit to Supplier System</text><text x="32" y="635" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Direct to branch</text><text x="36" y="649" font-family="Arial" font-size="10.5" fill="#374151">Sales rep + branch manager</text><text x="42" y="663" font-family="Arial" font-size="10.5" fill="#374151">notified</text><text x="20" y="700" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: acculynx.com/acculynx-material-ordering</text><line x1="130.0" y1="722" x2="130.0" y2="738" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,738 134.0,738 130.0,745" fill="#9ca3af"/><rect x="20" y="745" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="767" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Manager Tracking</text><text x="36" y="783" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Status, ETA, proof of delivery</text><line x1="130.0" y1="815" x2="130.0" y2="831" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,831 134.0,831 130.0,838" fill="#9ca3af"/><rect x="20" y="838" width="220" height="116" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="858" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Non-integrated</text><text x="32" y="873" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">distributors</text><text x="32" y="888" font-family="Arial" font-size="10" fill="#92400e">[Gap — no live pricing/one-</text><text x="32" y="903" font-family="Arial" font-size="10" fill="#92400e">click order for</text><text x="32" y="918" font-family="Arial" font-size="10" fill="#92400e">local/independent distributors</text><text x="32" y="933" font-family="Arial" font-size="10" fill="#92400e">outside ABC/QXO/SRS]</text><text x="20" y="967" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: RoofingSoftwareGuide 2026</text></svg>
+    </div>
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-columns">
+        <div class="obs-col">
+          <h4 class="obs-strength">STRENGTHS</h4>
+          <div class="obs-bullet obs-good">✓ Only platform integrating 3 major distributors simultaneously: ABC Supply, QXO, and SRS Distribution — Roof Hub&#x27;s own parent</div><div class="obs-bullet obs-good">✓ Estimate-to-order pipeline scored 10.0 on ease-of-ordering in a 3rd-party review</div><div class="obs-bullet obs-good">✓ One-click reorder for frequently ordered items</div><div class="obs-bullet obs-good">✓ Order Manager gives real-time status + proof-of-delivery photos</div>
+        </div>
+        <div class="obs-col">
+          <h4 class="obs-gap">GAPS</h4>
+          <div class="obs-bullet obs-bad">⚠ Direct ordering integrations limited to ABC Supply, QXO, and SRS only — local/independent distributors require manual PO building</div><div class="obs-bullet obs-bad">⚠ Some users report the redesigned calendar/scheduling made navigation harder</div>
+        </div>
+      </div>
+      <div class="ratings-block"><h4>RATINGS</h4><div class="rating-row">
+          <span class="rating-label">Ease</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:60.0%; background:#f59e0b;"></div></div>
+          <span class="rating-score">3/5</span>
+        </div><div class="rating-row">
+          <span class="rating-label">Speed</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:80.0%; background:#0d6e6e;"></div></div>
+          <span class="rating-score">4/5</span>
+        </div><div class="rating-row">
+          <span class="rating-label">Trust</span>
+          <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:80.0%; background:#0d6e6e;"></div></div>
+          <span class="rating-score">4/5</span>
+        </div></div>
+      
+    </div>
+    <div class="evidence-panel">
+      <h3>Evidence Panel</h3>
+      <table class="evidence-table"><thead><tr><th>Screen name</th><th>Source organization</th><th>Date</th></tr></thead><tbody><tr><td>Build Estimate</td><td></td><td></td></tr><tr><td>Item Search</td><td>acculynx.com/acculynx-material-ordering</td><td></td></tr><tr><td>Live Pricing &amp; Availability</td><td>acculynx.com integrations pages</td><td></td></tr><tr><td>Convert to Material Order / PO</td><td>acculynx.com/order-roofing-materials</td><td></td></tr><tr><td>Submit to Supplier System</td><td>acculynx.com/acculynx-material-ordering</td><td></td></tr><tr><td>Order Manager Tracking</td><td></td><td></td></tr><tr><td>Non-integrated distributors</td><td colspan="2" class="gap-cell">[Gap] — RoofingSoftwareGuide 2026</td></tr></tbody></table>
+    </div>
+    <div class="tab-footer">All screens sourced from: <a href="https://acculynx.com/acculynx-material-ordering/" target="_blank" rel="noopener">AccuLynx — Material Ordering</a> · 2025, <a href="https://acculynx.com/integrations/qxo/" target="_blank" rel="noopener">AccuLynx — QXO Integration</a> · 2026, <a href="https://roofingsoftwareguide.com/roundups/best-roofing-material-ordering-software/" target="_blank" rel="noopener">RoofingSoftwareGuide — Best Material Ordering Software</a> · 2026, <a href="https://acculynx.com/order-roofing-materials/" target="_blank" rel="noopener">AccuLynx — Order Accuracy</a> · 2025</div>
+    </div>
+<div class="tab-content" id="tab-rsg">
+    <div class="page-header">
+      <h1>RSG — Order Creation Flow</h1>
+      <div class="page-subtitle">Roofing Supply Group (RSG) · US · researched July 2026</div>
+    </div>
+    
+    
+    <button class="copy-btn" onclick="copySVGById('svg-rsg', this)">📋 Copy SVG</button>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="flow-single-col">
+      <svg id="svg-rsg" viewBox="0 0 260 435" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="88" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="36" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ No digital ordering</text><text x="32" y="51" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">portal found</text><text x="32" y="66" font-family="Arial" font-size="10" fill="#92400e">No app, website order form, or</text><text x="32" y="81" font-family="Arial" font-size="10" fill="#92400e">account portal documented</text><text x="20" y="117" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: LinkedIn, RocketReach, Crunchbase (searched 3+ times)</text><line x1="130.0" y1="139" x2="130.0" y2="155" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,155 134.0,155 130.0,162" fill="#9ca3af"/><rect x="20" y="162" width="220" height="116" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="182" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Order process appears</text><text x="32" y="197" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">phone/rep-based</text><text x="32" y="212" font-family="Arial" font-size="10" fill="#92400e">57 US branches; one-step</text><text x="32" y="227" font-family="Arial" font-size="10" fill="#92400e">distribution model described</text><text x="32" y="242" font-family="Arial" font-size="10" fill="#92400e">only in company/marketing</text><text x="32" y="257" font-family="Arial" font-size="10" fill="#92400e">pages</text><text x="20" y="291" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: linkedin.com/company/roofing-supply-group-rsg-</text><line x1="130.0" y1="313" x2="130.0" y2="329" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,329 134.0,329 130.0,336" fill="#9ca3af"/><rect x="20" y="336" width="220" height="72" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="356" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ No mobile app documented</text><text x="32" y="371" font-family="Arial" font-size="10" fill="#92400e">Not found in App Store, Google</text><text x="32" y="386" font-family="Arial" font-size="10" fill="#92400e">Play, or company site</text><text x="20" y="421" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: web search, 3+ queries, no results</text></svg>
+    </div>
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-columns">
+        <div class="obs-col">
+          <h4 class="obs-strength">STRENGTHS</h4>
+          <div class="obs-bullet obs-good">✓ 57 US branches, one-step distribution model for roofing contractors</div><div class="obs-bullet obs-good">✓ Established logistics strength and manufacturer relationships (per company materials)</div>
+        </div>
+        <div class="obs-col">
+          <h4 class="obs-gap">GAPS</h4>
+          <div class="obs-bullet obs-bad">⚠ No public digital ordering platform, app, or account portal found after 3+ targeted searches</div><div class="obs-bullet obs-bad">⚠ Ratings withheld — insufficient documented data to assess Ease/Speed/Trust</div>
+        </div>
+      </div>
+      <div class="not-enough-data">[Not enough data] — insufficient documented capabilities to rate this flow.</div>
+      <div class="gap-note-box">⚠ Portal may not exist publicly, or ordering may be entirely phone/rep-based. This is a documented absence, not an assumption.</div>
+    </div>
+    <div class="evidence-panel">
+      <h3>Evidence Panel</h3>
+      <table class="evidence-table"><thead><tr><th>Screen name</th><th>Source organization</th><th>Date</th></tr></thead><tbody><tr><td>No digital ordering portal found</td><td colspan="2" class="gap-cell">[Gap] — LinkedIn, RocketReach, Crunchbase (searched 3+ times)</td></tr><tr><td>Order process appears phone/rep-based</td><td colspan="2" class="gap-cell">[Gap] — linkedin.com/company/roofing-supply-group-rsg-</td></tr><tr><td>No mobile app documented</td><td colspan="2" class="gap-cell">[Gap] — web search, 3+ queries, no results</td></tr></tbody></table>
+    </div>
+    <div class="tab-footer">All screens sourced from: <a href="https://www.linkedin.com/company/roofing-supply-group-rsg-" target="_blank" rel="noopener">LinkedIn — Roofing Supply Group</a> · —, <a href="https://rocketreach.co/roofing-supply-group-rsg-profile_b5ce66a5f42e0951" target="_blank" rel="noopener">RocketReach — RSG Profile</a> · —, <a href="https://www.crunchbase.com/organization/roofing-supply-group" target="_blank" rel="noopener">Crunchbase — Roofing Supply Group</a> · —</div>
+    </div>
+<div class="tab-content" id="tab-sig">
+    <div class="page-header">
+      <h1>SIG Roofing — Order Creation Flow</h1>
+      <div class="page-subtitle">SIG Roofing (UK/Europe) · EU · researched July 2026</div>
+    </div>
+    
+    
+    <button class="copy-btn" onclick="copySVGById('svg-sig', this)">📋 Copy SVG</button>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="flow-single-col">
+      <svg id="svg-sig" viewBox="0 0 260 526" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Open Trade Account</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Required before ordering</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">browse</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Login</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">portal.sigroofing.co.uk</text><text x="36" y="157" font-family="Arial" font-size="10.5" fill="#374151">Account-based login confirmed</text><text x="36" y="171" font-family="Arial" font-size="10.5" fill="#374151">Basket / account-switching present</text><text x="20" y="208" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: portal.sigroofing.co.uk (login page)</text><line x1="130.0" y1="230" x2="130.0" y2="246" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,246 134.0,246 130.0,253" fill="#9ca3af"/><rect x="20" y="253" width="220" height="116" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="273" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Checkout / basket</text><text x="32" y="288" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">screens</text><text x="32" y="303" font-family="Arial" font-size="10" fill="#92400e">[Gap — login-gated; no</text><text x="32" y="318" font-family="Arial" font-size="10" fill="#92400e">secondary walkthrough or</text><text x="32" y="333" font-family="Arial" font-size="10" fill="#92400e">screenshots found after 3+</text><text x="32" y="348" font-family="Arial" font-size="10" fill="#92400e">searches]</text><text x="20" y="382" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: search attempted, no secondary documentation found</text><line x1="130.0" y1="404" x2="130.0" y2="420" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,420 134.0,420 130.0,427" fill="#9ca3af"/><rect x="20" y="427" width="220" height="72" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="445" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Trade Club Points</text><text x="32" y="461" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Loyalty program</text><text x="36" y="475" font-family="Arial" font-size="10.5" fill="#374151">Points earned per £ spent</text><text x="20" y="512" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: sigroofing.co.uk 2023</text></svg>
+    </div>
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-columns">
+        <div class="obs-col">
+          <h4 class="obs-strength">STRENGTHS</h4>
+          <div class="obs-bullet obs-good">✓ Confirmed account-based ordering portal (portal.sigroofing.co.uk) with basket &amp; account-switching functionality</div><div class="obs-bullet obs-good">✓ Process stages clearly named in contractor brochure: Estimating → Quotation → Ordering → Delivery</div><div class="obs-bullet obs-good">✓ Trade Club loyalty program with points per £ spent</div>
+        </div>
+        <div class="obs-col">
+          <h4 class="obs-gap">GAPS</h4>
+          <div class="obs-bullet obs-bad">⚠ Full checkout/basket screen sequence is login-gated — no secondary documentation (help articles, screenshots, walkthroughs) found after 3+ searches</div><div class="obs-bullet obs-bad">⚠ Ratings withheld for the checkout flow specifically due to insufficient documented data</div>
+        </div>
+      </div>
+      <div class="not-enough-data">[Not enough data] — insufficient documented capabilities to rate this flow.</div>
+      <div class="gap-note-box">⚠ Portal is confirmed to exist and require a trade account, but is login-gated with no public secondary documentation of the order-creation screens.</div>
+    </div>
+    <div class="evidence-panel">
+      <h3>Evidence Panel</h3>
+      <table class="evidence-table"><thead><tr><th>Screen name</th><th>Source organization</th><th>Date</th></tr></thead><tbody><tr><td>Open Trade Account</td><td></td><td></td></tr><tr><td>Login</td><td>portal.sigroofing.co.uk (login page)</td><td></td></tr><tr><td>Checkout / basket screens</td><td colspan="2" class="gap-cell">[Gap] — search attempted, no secondary documentation found</td></tr><tr><td>Trade Club Points</td><td>sigroofing.co.uk 2023</td><td></td></tr></tbody></table>
+    </div>
+    <div class="tab-footer">All screens sourced from: <a href="https://www.sigroofing.co.uk/" target="_blank" rel="noopener">SIG Roofing</a> · 2023, <a href="https://www.sigroofing.co.uk/wp-content/uploads/2020/06/SIG-Roofing-Contractor-Brochure_FINAL_LR.pdf" target="_blank" rel="noopener">SIG Roofing — Contractor Brochure (PDF)</a> · —, <a href="https://portal.sigroofing.co.uk/user/login" target="_blank" rel="noopener">SIG Roofing Portal — Login</a> · —</div>
+    </div>
+<div class="tab-content" id="tab-hd">
+    <div class="page-header">
+      <h1>Home Depot Pro — Order Creation Flow</h1>
+      <div class="page-subtitle">Home Depot Pro (Pro Xtra) — External Reference · US · researched July 2026</div>
+    </div>
+    <div class="ref-badge">🔍 External reference — AI-assisted BOM generation from a plain-text project description, and minute-by-...</div>
+    <div class="pattern-callout"><strong>Why included:</strong> Evaluated for its AI-assisted list-building and granular live delivery tracking — patterns Roof Hub&#x27;s Order Creation could borrow, not because Home Depot is a roofing-specialized competitor.<br><strong>Pattern to borrow:</strong> AI-assisted BOM generation from a plain-text project description, and minute-by-minute GPS delivery tracking with live ETA — both more granular than Roof Hub&#x27;s current AM/PM/Anytime delivery-time field.</div>
+    <button class="copy-btn" onclick="copySVGById('svg-hd', this)">📋 Copy SVG</button>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="flow-single-col">
+      <svg id="svg-hd" viewBox="0 0 260 775" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Pro Xtra Account</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Free loyalty program for contractors</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">or Quote Center</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="114" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">AI List Builder</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Type a project description</text><text x="36" y="157" font-family="Arial" font-size="10.5" fill="#374151">Builds materials list from</text><text x="42" y="171" font-family="Arial" font-size="10.5" fill="#374151">description, spreadsheet, doc, or</text><text x="42" y="185" font-family="Arial" font-size="10.5" fill="#374151">template</text><text x="36" y="199" font-family="Arial" font-size="10.5" fill="#374151">Integrated with Project Planning</text><text x="20" y="236" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: smartservice.com/blog 2026</text><text x="130.0" y="254" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">checkout</text><line x1="130.0" y1="258" x2="130.0" y2="274" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,274 134.0,274 130.0,281" fill="#9ca3af"/><rect x="20" y="281" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="299" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Quote Center</text><text x="32" y="315" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Bulk / special order pricing</text><text x="36" y="329" font-family="Arial" font-size="10.5" fill="#374151">Submit full project scope</text><text x="36" y="343" font-family="Arial" font-size="10.5" fill="#374151">Receive consolidated quote</text><text x="20" y="380" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: servicetitan.com/blog 2026</text><text x="130.0" y="398" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">place order</text><line x1="130.0" y1="402" x2="130.0" y2="418" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,418 134.0,418 130.0,425" fill="#9ca3af"/><rect x="20" y="425" width="220" height="72" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="443" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Volume / Bulk Pricing</text><text x="32" y="459" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">$1,500+ orders</text><text x="36" y="473" font-family="Arial" font-size="10.5" fill="#374151">4,000+ bulk-eligible products</text><text x="20" y="510" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: dealfrontier.com 2026</text><line x1="130.0" y1="532" x2="130.0" y2="548" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,548 134.0,548 130.0,555" fill="#9ca3af"/><rect x="20" y="555" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="577" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Placed</text><line x1="130.0" y1="625" x2="130.0" y2="641" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,641 134.0,641 130.0,648" fill="#9ca3af"/><rect x="20" y="648" width="220" height="100" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="666" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Live Delivery Tracking</text><text x="32" y="682" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Big &amp; bulky deliveries</text><text x="36" y="696" font-family="Arial" font-size="10.5" fill="#374151">Minute-by-minute GPS tracking,</text><text x="42" y="710" font-family="Arial" font-size="10.5" fill="#374151">live ETA</text><text x="36" y="724" font-family="Arial" font-size="10.5" fill="#374151">Driver Handheld app integration</text><text x="20" y="761" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: smartservice.com/blog 2026</text></svg>
+    </div>
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-columns">
+        <div class="obs-col">
+          <h4 class="obs-strength">DOCUMENTED CAPABILITIES</h4>
+          
+        </div>
+        <div class="obs-col">
+          <h4 class="obs-gap">LIMITATIONS / NOT A DIRECT COMPETITOR</h4>
+          
+        </div>
+      </div>
+      <div class="not-enough-data">[Not enough data] — insufficient documented capabilities to rate this flow.</div>
+      
+    </div>
+    <div class="evidence-panel">
+      <h3>Evidence Panel</h3>
+      <table class="evidence-table"><thead><tr><th>Screen name</th><th>Source organization</th><th>Date</th></tr></thead><tbody><tr><td>Pro Xtra Account</td><td></td><td></td></tr><tr><td>AI List Builder</td><td>smartservice.com/blog 2026</td><td></td></tr><tr><td>Quote Center</td><td>servicetitan.com/blog 2026</td><td></td></tr><tr><td>Volume / Bulk Pricing</td><td>dealfrontier.com 2026</td><td></td></tr><tr><td>Order Placed</td><td></td><td></td></tr><tr><td>Live Delivery Tracking</td><td>smartservice.com/blog 2026</td><td></td></tr></tbody></table>
+    </div>
+    <div class="tab-footer">All screens sourced from: <a href="https://www.smartservice.com/blog/home-depot-pro-xtra-discounts" target="_blank" rel="noopener">SmartService / ServiceTitan</a> · 2026, <a href="https://www.servicetitan.com/blog/home-depot-pro-xtra" target="_blank" rel="noopener">ServiceTitan — Home Depot Pro Xtra</a> · 2026, <a href="https://www.homedepot.com/c/pro-special-order" target="_blank" rel="noopener">Home Depot — Special Orders for Pros</a> · —, <a href="https://www.dealfrontier.com/posts/home-depot-pro-xtra" target="_blank" rel="noopener">Deal Frontier</a> · 2026</div>
+    </div>
+<div class="tab-content" id="tab-amzn">
+    <div class="page-header">
+      <h1>Amazon Business — Order Creation Flow</h1>
+      <div class="page-subtitle">Amazon Business — External Reference · Global · researched July 2026</div>
+    </div>
+    <div class="ref-badge">🔍 External reference — Configurable, multi-level approval workflows tied to spend limits or order metad...</div>
+    <div class="pattern-callout"><strong>Why included:</strong> Evaluated for its formal multi-level purchasing-approval workflow — a pattern for larger contractors placing high-value orders, not because Amazon is a roofing-specialized competitor.<br><strong>Pattern to borrow:</strong> Configurable, multi-level approval workflows tied to spend limits or order metadata, with bulk approve/reject actions — Roof Hub&#x27;s order form currently has a CC-email field but no formal approval gate.</div>
+    <button class="copy-btn" onclick="copySVGById('svg-amzn', this)">📋 Copy SVG</button>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="flow-single-col">
+      <svg id="svg-amzn" viewBox="0 0 260 716" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Buyer Submits Order</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Amazon Business</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="108.0" y="109" width="44" height="44" fill="#1a1a2e" transform="rotate(45 130.0 131)"/><text x="130.0" y="135" font-family="Arial" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">Policy?</text><text x="130.0" y="167" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">notify</text><line x1="130.0" y1="171" x2="130.0" y2="187" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,187 134.0,187 130.0,194" fill="#9ca3af"/><rect x="20" y="194" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="212" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Approval Routing</text><text x="32" y="228" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">By buying policy</text><text x="36" y="242" font-family="Arial" font-size="10.5" fill="#374151">Spend limit, category, or Business</text><text x="42" y="256" font-family="Arial" font-size="10.5" fill="#374151">Order Info field triggers routing</text><text x="20" y="293" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: business.amazon.com/blog 2026</text><text x="130.0" y="311" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">reminders</text><line x1="130.0" y1="315" x2="130.0" y2="331" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,331 134.0,331 130.0,338" fill="#9ca3af"/><rect x="20" y="338" width="220" height="114" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="356" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Approver Review</text><text x="32" y="372" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Email + mobile app</text><text x="36" y="386" font-family="Arial" font-size="10.5" fill="#374151">Approve or reject singly</text><text x="36" y="400" font-family="Arial" font-size="10.5" fill="#374151">Bulk approve/reject multiple</text><text x="42" y="414" font-family="Arial" font-size="10.5" fill="#374151">orders</text><text x="36" y="428" font-family="Arial" font-size="10.5" fill="#374151">Edit orders, leave comments</text><text x="20" y="465" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: amazon.com Customer Service</text><text x="130.0" y="483" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">resolved</text><line x1="130.0" y1="487" x2="130.0" y2="503" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,503 134.0,503 130.0,510" fill="#9ca3af"/><rect x="20" y="510" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="528" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Reminders</text><text x="32" y="544" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Every 3 days until resolved</text><text x="36" y="558" font-family="Arial" font-size="10.5" fill="#374151">Auto-cancelled after 7-14 days if</text><text x="42" y="572" font-family="Arial" font-size="10.5" fill="#374151">unresolved</text><text x="20" y="609" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: amazon.com Customer Service</text><line x1="130.0" y1="631" x2="130.0" y2="647" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,647 134.0,647 130.0,654" fill="#9ca3af"/><rect x="20" y="654" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="676" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Approved / Rejected</text></svg>
+    </div>
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-columns">
+        <div class="obs-col">
+          <h4 class="obs-strength">DOCUMENTED CAPABILITIES</h4>
+          
+        </div>
+        <div class="obs-col">
+          <h4 class="obs-gap">LIMITATIONS / NOT A DIRECT COMPETITOR</h4>
+          
+        </div>
+      </div>
+      <div class="not-enough-data">[Not enough data] — insufficient documented capabilities to rate this flow.</div>
+      
+    </div>
+    <div class="evidence-panel">
+      <h3>Evidence Panel</h3>
+      <table class="evidence-table"><thead><tr><th>Screen name</th><th>Source organization</th><th>Date</th></tr></thead><tbody><tr><td>Buyer Submits Order</td><td></td><td></td></tr><tr><td>Policy?</td><td></td><td></td></tr><tr><td>Approval Routing</td><td>business.amazon.com/blog 2026</td><td></td></tr><tr><td>Approver Review</td><td>amazon.com Customer Service</td><td></td></tr><tr><td>Reminders</td><td>amazon.com Customer Service</td><td></td></tr><tr><td>Order Approved / Rejected</td><td></td><td></td></tr></tbody></table>
+    </div>
+    <div class="tab-footer">All screens sourced from: <a href="https://business.amazon.com/en/blog/reduce-back-forth-approval-workflows" target="_blank" rel="noopener">Amazon Business — Approval Workflows</a> · —, <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=202209070" target="_blank" rel="noopener">Amazon Customer Service — Multiple Order Approval</a> · —, <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=202208970" target="_blank" rel="noopener">Amazon Customer Service — Approval Policies</a> · —</div>
+    </div>
+<div class="tab-content" id="tab-suggested">
+    <div class="page-header">
+      <h1>✦ Suggested Ideal Flow — Roof Hub Order Creation</h1>
+      <div class="page-subtitle">Synthesized from S3 competitor research + S5-S7 findings · human validation required before prototyping</div>
+    </div>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="suggested-grid">
+      <div>
+        <div class="channel-title" style="color:#9FBF1A;">✦ SUGGESTED IDEAL FLOW</div>
+        <button class="copy-btn" onclick="copySVGById('svg-suggested', this)">📋 Copy SVG</button>
+        <svg id="svg-suggested" viewBox="0 0 260 1512" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Start New Order</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Suggested Ideal Flow</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">continue</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="128" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Address &amp; Delivery Method</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Delivery or pickup, map-based</text><text x="32" y="157" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">address</text><text x="36" y="171" font-family="Arial" font-size="10.5" fill="#374151">Branch, job account, delivery type</text><text x="42" y="185" font-family="Arial" font-size="10.5" fill="#374151">selection</text><text x="36" y="199" font-family="Arial" font-size="10.5" fill="#374151">Requested ship date &amp; delivery</text><text x="42" y="213" font-family="Arial" font-size="10.5" fill="#374151">window</text><text x="20" y="250" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Based on: Roof Hub current flow (unchanged)</text><text x="20" y="263" font-family="Arial" font-size="9" font-style="italic" font-weight="bold" fill="#6b7280">Based on: Current Flow</text><text x="130.0" y="281" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">add approval if over threshold</text><line x1="130.0" y1="285" x2="130.0" y2="301" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,301 134.0,301 130.0,308" fill="#9ca3af"/><rect x="20" y="308" width="220" height="128" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="326" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Bill of Material</text><text x="32" y="342" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Template, smart template, or</text><text x="32" y="356" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">catalog search</text><text x="36" y="370" font-family="Arial" font-size="10.5" fill="#374151">EagleView / measurement auto-</text><text x="42" y="384" font-family="Arial" font-size="10.5" fill="#374151">populate (kept)</text><text x="36" y="398" font-family="Arial" font-size="10.5" fill="#374151">AI-assisted BOM from text</text><text x="42" y="412" font-family="Arial" font-size="10.5" fill="#374151">description</text><text x="20" y="449" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Based on: Roof Hub + Home Depot Pro (S3)</text><text x="20" y="462" font-family="Arial" font-size="9" font-style="italic" font-weight="bold" fill="#c05621">Based on: Home Depot Pro, S3</text><line x1="130.0" y1="484" x2="130.0" y2="500" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,500 134.0,500 130.0,507" fill="#9ca3af"/><rect x="108.0" y="507" width="44" height="44" fill="#1a1a2e" transform="rotate(45 130.0 529)"/><text x="130.0" y="533" font-family="Arial" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">Over $ limit?</text><text x="130.0" y="565" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">approved</text><line x1="130.0" y1="569" x2="130.0" y2="585" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,585 134.0,585 130.0,592" fill="#9ca3af"/><rect x="20" y="592" width="220" height="100" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="610" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Approval Request</text><text x="32" y="626" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Multi-level, spend-based</text><text x="36" y="640" font-family="Arial" font-size="10.5" fill="#374151">Route to designated approver(s)</text><text x="36" y="654" font-family="Arial" font-size="10.5" fill="#374151">Bulk approve/reject for multiple</text><text x="42" y="668" font-family="Arial" font-size="10.5" fill="#374151">pending orders</text><text x="20" y="705" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Based on: Amazon Business, S3</text><text x="20" y="718" font-family="Arial" font-size="9" font-style="italic" font-weight="bold" fill="#232F3E">Based on: Amazon Business, S3</text><text x="130.0" y="736" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">review</text><line x1="130.0" y1="740" x2="130.0" y2="756" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,756 134.0,756 130.0,763" fill="#9ca3af"/><rect x="20" y="763" width="220" height="114" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="781" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Additional Information</text><text x="32" y="797" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Structured fields (not free</text><text x="32" y="811" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">text)</text><text x="36" y="825" font-family="Arial" font-size="10.5" fill="#374151">Structured &#x27;Instructions to</text><text x="42" y="839" font-family="Arial" font-size="10.5" fill="#374151">Branch&#x27; (dropdown + notes)</text><text x="36" y="853" font-family="Arial" font-size="10.5" fill="#374151">CC copy of order to (kept)</text><text x="20" y="890" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Based on: S5 pain points (fragmented communication)</text><text x="20" y="903" font-family="Arial" font-size="9" font-style="italic" font-weight="bold" fill="#6b7280">Based on: S5 finding</text><text x="130.0" y="921" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">submit</text><line x1="130.0" y1="925" x2="130.0" y2="941" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,941 134.0,941 130.0,948" fill="#9ca3af"/><rect x="20" y="948" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="966" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Review Order</text><text x="32" y="982" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Editable at every stage</text><text x="36" y="996" font-family="Arial" font-size="10.5" fill="#374151">Full edit capability — never one-</text><text x="42" y="1010" font-family="Arial" font-size="10.5" fill="#374151">way locked like QXO PRO+</text><text x="20" y="1047" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Based on: QXO PRO+ gap (S3)</text><text x="20" y="1060" font-family="Arial" font-size="9" font-style="italic" font-weight="bold" fill="#8B1E2B">Based on: QXO PRO+ gap, S3</text><text x="130.0" y="1078" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">track</text><line x1="130.0" y1="1082" x2="130.0" y2="1098" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,1098 134.0,1098 130.0,1105" fill="#9ca3af"/><rect x="20" y="1105" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="1123" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Order Confirmation</text><text x="32" y="1139" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Granular delivery tracking</text><text x="36" y="1153" font-family="Arial" font-size="10.5" fill="#374151">Live GPS/ETA tracking (not just</text><text x="42" y="1167" font-family="Arial" font-size="10.5" fill="#374151">AM/PM/Anytime)</text><text x="20" y="1204" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Based on: Home Depot Pro, S3</text><text x="20" y="1217" font-family="Arial" font-size="9" font-style="italic" font-weight="bold" fill="#c05621">Based on: Home Depot Pro, S3</text><line x1="130.0" y1="1239" x2="130.0" y2="1255" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,1255 134.0,1255 130.0,1262" fill="#9ca3af"/><rect x="20" y="1262" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="1284" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Tracked to Delivery</text><line x1="130.0" y1="1332" x2="130.0" y2="1348" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,1348 134.0,1348 130.0,1355" fill="#9ca3af"/><rect x="20" y="1355" width="220" height="130" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="1375" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Opportunity — no</text><text x="32" y="1390" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">competitor solves this</text><text x="32" y="1405" font-family="Arial" font-size="10" fill="#92400e">[Opportunity: unified</text><text x="32" y="1420" font-family="Arial" font-size="10" fill="#92400e">PO/invoice reconciliation view</text><text x="32" y="1435" font-family="Arial" font-size="10" fill="#92400e">after delivery — no competitor</text><text x="32" y="1450" font-family="Arial" font-size="10" fill="#92400e">in this research documents</text><text x="32" y="1465" font-family="Arial" font-size="10" fill="#92400e">this]</text><text x="20" y="1498" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Based on: S5 finding (PO/invoice mismatch pain point)</text></svg>
+      </div>
+      <div>
+        <div class="channel-title" style="color:#1b3a6b;">CURRENT FLOW — ROOF HUB</div>
+        <button class="copy-btn" onclick="copySVGById('svg-current', this)">📋 Copy SVG</button>
+        <svg id="svg-current" viewBox="0 0 260 1115" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Create New Order</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Roof Hub — current flow</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">continue</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="172" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Address and Delivery</text><text x="32" y="143" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Method</text><text x="32" y="159" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Delivery or Pick up at branch</text><text x="36" y="173" font-family="Arial" font-size="10.5" fill="#374151">Delivery address with map + pin</text><text x="42" y="187" font-family="Arial" font-size="10.5" fill="#374151">adjust</text><text x="36" y="201" font-family="Arial" font-size="10.5" fill="#374151">Branch, Job Account, Delivery Type</text><text x="42" y="215" font-family="Arial" font-size="10.5" fill="#374151">(Ground Drop/Roof Edge/Roof Load)</text><text x="36" y="229" font-family="Arial" font-size="10.5" fill="#374151">Requested Ship Date, Requested</text><text x="42" y="243" font-family="Arial" font-size="10.5" fill="#374151">Delivery Time (AM/PM/Anytime)</text><text x="36" y="257" font-family="Arial" font-size="10.5" fill="#374151">PO#, Job Name, Roof Pitch</text><text x="20" y="294" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: user-provided screenshots</text><text x="130.0" y="312" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">continue</text><line x1="130.0" y1="316" x2="130.0" y2="332" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,332 134.0,332 130.0,339" fill="#9ca3af"/><rect x="20" y="339" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="357" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Start Order (Optional)</text><text x="32" y="373" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Use a Template or Use Smart</text><text x="32" y="387" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Templates</text><text x="36" y="401" font-family="Arial" font-size="10.5" fill="#374151">Quick ways to pre-select materials</text><text x="20" y="438" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: user-provided screenshots</text><text x="130.0" y="456" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">continue</text><line x1="130.0" y1="460" x2="130.0" y2="476" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,476 134.0,476 130.0,483" fill="#9ca3af"/><rect x="20" y="483" width="220" height="156" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="501" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Bill of Material</text><text x="32" y="517" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">EagleView measurement auto-</text><text x="32" y="531" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">populate</text><text x="36" y="545" font-family="Arial" font-size="10.5" fill="#374151">Browse Full Catalog, Integrations,</text><text x="42" y="559" font-family="Arial" font-size="10.5" fill="#374151">Add Measurement</text><text x="36" y="573" font-family="Arial" font-size="10.5" fill="#374151">Item search with live pricing &amp;</text><text x="42" y="587" font-family="Arial" font-size="10.5" fill="#374151">availability</text><text x="36" y="601" font-family="Arial" font-size="10.5" fill="#374151">Reorder variant: Existing Items</text><text x="42" y="615" font-family="Arial" font-size="10.5" fill="#374151">from Original Order + New BOM</text><text x="20" y="652" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: user-provided screenshots</text><text x="20" y="665" font-family="Arial" font-size="9" font-style="italic" font-weight="bold" fill="#d97706">[Reconsider] — free-text “Instructions to Branch”</text><text x="130.0" y="683" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">continue</text><line x1="130.0" y1="687" x2="130.0" y2="703" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,703 134.0,703 130.0,710" fill="#9ca3af"/><rect x="20" y="710" width="220" height="128" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="728" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Additional Information</text><text x="32" y="744" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Free-text fields</text><text x="36" y="758" font-family="Arial" font-size="10.5" fill="#374151">Instructions to Branch (free text)</text><text x="36" y="772" font-family="Arial" font-size="10.5" fill="#374151">CC Copy of Order to (email list)</text><text x="36" y="786" font-family="Arial" font-size="10.5" fill="#374151">Show Prices on Order</text><text x="42" y="800" font-family="Arial" font-size="10.5" fill="#374151">Acknowledgment toggle</text><text x="36" y="814" font-family="Arial" font-size="10.5" fill="#374151">Attachments</text><text x="20" y="851" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: user-provided screenshots</text><text x="20" y="864" font-family="Arial" font-size="9" font-style="italic" font-weight="bold" fill="#d97706">[Reconsider] — no approval workflow</text><text x="130.0" y="882" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">submit</text><line x1="130.0" y1="886" x2="130.0" y2="902" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,902 134.0,902 130.0,909" fill="#9ca3af"/><rect x="20" y="909" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="927" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Review Order</text><text x="32" y="943" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Editable before submit</text><text x="36" y="957" font-family="Arial" font-size="10.5" fill="#374151">Order Info, Order Items table,</text><text x="42" y="971" font-family="Arial" font-size="10.5" fill="#374151">Total</text><text x="20" y="1008" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: user-provided screenshots</text><line x1="130.0" y1="1030" x2="130.0" y2="1046" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,1046 134.0,1046 130.0,1053" fill="#9ca3af"/><rect x="20" y="1053" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="1075" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Placed Successfully</text><text x="36" y="1091" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Confirmation number shown</text></svg>
+      </div>
+    </div>
+    <div class="why-this-flow">
+      <h3>Why This Flow</h3>
+      <div class="why-bullet">• Address &amp; Delivery Method — kept unchanged; already matches researched best practice — Source: Roof Hub current flow</div><div class="why-bullet">• Bill of Material — kept EagleView auto-populate, added AI-assisted BOM from text description — Source: Home Depot Pro (S3)</div><div class="why-bullet">• Approval Request — new structured step for orders over a spend threshold — Source: Amazon Business (S3)</div><div class="why-bullet">• Additional Information — structured &#x27;Instructions to Branch&#x27; field replacing free text — Source: S5 pain-point findings</div><div class="why-bullet">• Review Order — explicitly kept fully editable at every stage — Source: QXO PRO+ one-way-sync gap (S3)</div><div class="why-bullet">• Order Confirmation — upgraded to granular GPS/ETA delivery tracking — Source: Home Depot Pro (S3)</div><div class="why-bullet">• Opportunity node — unified PO/invoice reconciliation view — no competitor in this research documents this capability — Source: S5 pain-point findings</div>
+    </div>
+    <div class="tab-footer">Suggested flow is AI-synthesized from competitor research. It is a starting point for design, not a final specification. Human validation required before prototyping.<br>↗ AI-assisted research · Capmation · 2026</div>
+    </div>
+<div class="tab-content" id="tab-summary">
+    <div class="page-header">
+      <h1>📊 Summary — Competitor Flow Documentation</h1>
+      <div class="page-subtitle">Which competitors have documented digital flows vs. rely on manual/off-platform processes</div>
+    </div>
+    <table class="evidence-table">
+      <thead><tr><th>Competitor</th><th>Geo</th><th>Documented screens</th><th>Gap nodes</th><th>Key documented capability</th></tr></thead>
+      <tbody><tr><td>QXO PRO+</td><td>US</td><td>7</td><td>1</td><td>24/7 ordering from any device, deliveries scheduled to jobsite</td></tr><tr><td>ABC Supply</td><td>US</td><td>8</td><td>0</td><td>Integrates with 4 measurement providers (EagleView, GAF QuickMeasure, HOVER, Roofr)</td></tr><tr><td>AccuLynx</td><td>US</td><td>6</td><td>1</td><td>Only platform integrating 3 major distributors simultaneously: ABC Supply, QXO, and SRS Distribution — Roof Hub&#x27;s own parent</td></tr><tr><td>RSG</td><td>US</td><td>0</td><td>3</td><td>57 US branches, one-step distribution model for roofing contractors</td></tr><tr><td>SIG Roofing</td><td>EU</td><td>3</td><td>1</td><td>Confirmed account-based ordering portal (portal.sigroofing.co.uk) with basket &amp; account-switching functionality</td></tr></tbody>
+    </table>
+    <div class="why-this-flow">
+      <h3>Gap comparison</h3>
+      <div class="why-bullet">• QXO PRO+ and ABC Supply have fully documented digital ordering flows (multiple public help articles/tutorials).</div>
+      <div class="why-bullet">• AccuLynx's flow is documented as a cross-distributor aggregator, not a distributor's own storefront.</div>
+      <div class="why-bullet">• Roofing Supply Group (RSG) has <strong>no</strong> documented digital ordering flow — appears to rely on phone/rep-based ordering.</div>
+      <div class="why-bullet">• SIG Roofing has a confirmed login-gated portal, but its screen-level UX is undocumented publicly.</div>
+    </div>
+    <div class="tab-footer">↗ AI-assisted research · Capmation · 2026</div>
+    </div>
+<div class="tab-content" id="tab-comparison">
+    <div class="page-header">
+      <h1>⇄ Comparison — All Competitor Flows Side by Side</h1>
+      <div class="page-subtitle">Same vertical scale, scan horizontally across journey stages</div>
+    </div>
+    <div class="legend-bar">
+      <span><span class="legend-shape legend-screen"></span> Screen</span>
+      <span><span class="legend-shape legend-decision"></span> Decision</span>
+      <span><span class="legend-shape legend-gap"></span> Gap (no screen exists)</span>
+      <span><span class="legend-shape legend-error"></span> Error / dead end</span>
+      <span><span class="legend-shape legend-start"></span> Start</span>
+      <span><span class="legend-shape legend-end"></span> End / resolution</span>
+    </div>
+    <div class="stage-labels">Address & Delivery &nbsp;|&nbsp; Materials / BOM &nbsp;|&nbsp; Approval / Info &nbsp;|&nbsp; Review &nbsp;|&nbsp; Confirmation</div>
+    <div class="comparison-scroll"><div class="comparison-col">
+          <div class="comparison-col-header" style="background:#8B1E2B;">QXO PRO+ US
+            <button class="copy-btn copy-btn-sm" onclick="copySVGById('svg-cmp-qxo', this)">📋</button>
+          </div>
+          <svg id="svg-cmp-qxo" viewBox="0 0 260 1107" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Login / Select Contact</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">QXO PRO+ (formerly Beacon PRO+)</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">if report exists</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="100" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Measurement Check</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Check for EagleView / GAF</text><text x="32" y="157" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">QuickMeasure report</text><text x="36" y="171" font-family="Arial" font-size="10.5" fill="#374151">Premium residential report</text><text x="42" y="185" font-family="Arial" font-size="10.5" fill="#374151">required for Smart Order</text><text x="20" y="222" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: Roofle / becn.com</text><text x="130.0" y="240" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">select template</text><line x1="130.0" y1="244" x2="130.0" y2="260" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,260 134.0,260 130.0,267" fill="#9ca3af"/><rect x="20" y="267" width="220" height="88" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="285" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Order Materials / Smart</text><text x="32" y="301" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Order</text><text x="32" y="317" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Begin Smart Order button</text><text x="36" y="331" font-family="Arial" font-size="10.5" fill="#374151">Select a project template</text><text x="20" y="368" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: becn.com 2024</text><text x="130.0" y="386" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">next</text><line x1="130.0" y1="390" x2="130.0" y2="406" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,406 134.0,406 130.0,413" fill="#9ca3af"/><rect x="20" y="413" width="220" height="114" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="431" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Configure Order</text><text x="32" y="447" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Waste factor &amp; job details</text><text x="36" y="461" font-family="Arial" font-size="10.5" fill="#374151">Waste factor (default 10%)</text><text x="36" y="475" font-family="Arial" font-size="10.5" fill="#374151">Number of penetrations</text><text x="36" y="489" font-family="Arial" font-size="10.5" fill="#374151">Ice &amp; water shield: yes/no</text><text x="36" y="503" font-family="Arial" font-size="10.5" fill="#374151">Decking: yes/no</text><text x="20" y="540" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: becn.com 2024</text><text x="130.0" y="558" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">continue</text><line x1="130.0" y1="562" x2="130.0" y2="578" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,578 134.0,578 130.0,585" fill="#9ca3af"/><rect x="20" y="585" width="220" height="114" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="603" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Material Template</text><text x="32" y="619" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Auto-populated quantities</text><text x="36" y="633" font-family="Arial" font-size="10.5" fill="#374151">Items segmented by category</text><text x="42" y="647" font-family="Arial" font-size="10.5" fill="#374151">(shingles, underlayment, misc.)</text><text x="36" y="661" font-family="Arial" font-size="10.5" fill="#374151">Quantities calculated from</text><text x="42" y="675" font-family="Arial" font-size="10.5" fill="#374151">measurement data</text><text x="20" y="712" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: becn.com 2024</text><text x="130.0" y="730" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">place order</text><line x1="130.0" y1="734" x2="130.0" y2="750" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,750 134.0,750 130.0,757" fill="#9ca3af"/><rect x="20" y="757" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="775" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Checkout</text><text x="32" y="791" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Pre-filled from project</text><text x="36" y="805" font-family="Arial" font-size="10.5" fill="#374151">Project address pre-populated</text><text x="36" y="819" font-family="Arial" font-size="10.5" fill="#374151">Choose delivery/pickup date &amp; time</text><text x="20" y="856" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: becn.com 2024</text><line x1="130.0" y1="878" x2="130.0" y2="894" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,894 134.0,894 130.0,901" fill="#9ca3af"/><rect x="20" y="901" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="923" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Placed</text><text x="36" y="939" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">5–10 min total, ~6 steps</text><line x1="130.0" y1="971" x2="130.0" y2="987" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,987 134.0,987 130.0,994" fill="#9ca3af"/><rect x="20" y="994" width="220" height="86" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="1014" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Post-submission editing</text><text x="32" y="1029" font-family="Arial" font-size="10" fill="#92400e">[Gap — one-way sync: order</text><text x="32" y="1044" font-family="Arial" font-size="10" fill="#92400e">cannot be edited/removed once</text><text x="32" y="1059" font-family="Arial" font-size="10" fill="#92400e">sent; must contact rep]</text><text x="20" y="1093" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: JobNimbus Support</text></svg>
+          <div class="col-source-footer">Sources: Beacon/QXO — Smart Order, Hover Help Center — QXO Integration…</div>
+        </div><div class="comparison-col">
+          <div class="comparison-col-header" style="background:#1B3A6B;">ABC Supply US
+            <button class="copy-btn copy-btn-sm" onclick="copySVGById('svg-cmp-abc', this)">📋</button>
+          </div>
+          <svg id="svg-cmp-abc" viewBox="0 0 260 1093" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Login</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">myABCsupply (web or app)</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">select items</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Browse / Search Catalog</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">200,000+ products</text><text x="36" y="157" font-family="Arial" font-size="10.5" fill="#374151">Search by name, keyword, or</text><text x="42" y="171" font-family="Arial" font-size="10.5" fill="#374151">category</text><text x="20" y="208" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: Apple App Store listing</text><text x="130.0" y="226" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">or</text><line x1="130.0" y1="230" x2="130.0" y2="246" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,246 134.0,246 130.0,253" fill="#9ca3af"/><rect x="20" y="253" width="220" height="100" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="271" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Measurement Integration</text><text x="32" y="287" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">EagleView / QuickMeasure /</text><text x="32" y="301" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">HOVER / Roofr</text><text x="36" y="315" font-family="Arial" font-size="10.5" fill="#374151">Gather measurements, turn into</text><text x="42" y="329" font-family="Arial" font-size="10.5" fill="#374151">order items</text><text x="20" y="366" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: abcsupply.com 2021</text><text x="130.0" y="384" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">or convert</text><line x1="130.0" y1="388" x2="130.0" y2="404" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,404 134.0,404 130.0,411" fill="#9ca3af"/><rect x="20" y="411" width="220" height="116" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="429" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Build Order or Apply</text><text x="32" y="445" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Template</text><text x="32" y="461" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Order history &amp; favorites</text><text x="36" y="475" font-family="Arial" font-size="10.5" fill="#374151">Templates for frequently ordered</text><text x="42" y="489" font-family="Arial" font-size="10.5" fill="#374151">materials</text><text x="36" y="503" font-family="Arial" font-size="10.5" fill="#374151">Reorder from history</text><text x="20" y="540" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: abcsupply.com blog</text><text x="130.0" y="558" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">submit</text><line x1="130.0" y1="562" x2="130.0" y2="578" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,578 134.0,578 130.0,585" fill="#9ca3af"/><rect x="20" y="585" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="603" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Quote-to-Order Conversion</text><text x="32" y="619" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Convert active quotes</text><text x="36" y="633" font-family="Arial" font-size="10.5" fill="#374151">Real-time preferred pricing via</text><text x="42" y="647" font-family="Arial" font-size="10.5" fill="#374151">integration partners</text><text x="20" y="684" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: abcsupply.com 2021</text><text x="130.0" y="702" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">confirm</text><line x1="130.0" y1="706" x2="130.0" y2="722" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,722 134.0,722 130.0,729" fill="#9ca3af"/><rect x="20" y="729" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="747" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">24/7 Submit Order</text><text x="32" y="763" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Web or mobile</text><text x="36" y="777" font-family="Arial" font-size="10.5" fill="#374151">Adjust quantities</text><text x="36" y="791" font-family="Arial" font-size="10.5" fill="#374151">Select delivery location</text><text x="20" y="828" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: abcsupply.com press release 2020</text><line x1="130.0" y1="850" x2="130.0" y2="866" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,866 134.0,866 130.0,873" fill="#9ca3af"/><rect x="20" y="873" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="895" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Confirmed</text><text x="36" y="911" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">~5-10 min (customer-reported)</text><line x1="130.0" y1="943" x2="130.0" y2="959" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,959 134.0,959 130.0,966" fill="#9ca3af"/><rect x="20" y="966" width="220" height="100" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="984" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Delivery Tracking</text><text x="32" y="1000" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Post-order</text><text x="36" y="1014" font-family="Arial" font-size="10.5" fill="#374151">Track status of upcoming</text><text x="42" y="1028" font-family="Arial" font-size="10.5" fill="#374151">deliveries</text><text x="36" y="1042" font-family="Arial" font-size="10.5" fill="#374151">Retrieve delivery photos</text><text x="20" y="1079" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: RoofersCoffeeShop 2024</text></svg>
+          <div class="col-source-footer">Sources: ABC Supply — myABCsupply, Apple App Store — ABC Supply App…</div>
+        </div><div class="comparison-col">
+          <div class="comparison-col-header" style="background:#0F5132;">AccuLynx US
+            <button class="copy-btn copy-btn-sm" onclick="copySVGById('svg-cmp-acculynx', this)">📋</button>
+          </div>
+          <svg id="svg-cmp-acculynx" viewBox="0 0 260 981" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Build Estimate</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">AccuLynx template</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">pull pricing</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Item Search</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">By supplier item code</text><text x="36" y="157" font-family="Arial" font-size="10.5" fill="#374151">Search using code from supplier</text><text x="42" y="171" font-family="Arial" font-size="10.5" fill="#374151">site or invoice</text><text x="20" y="208" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: acculynx.com/acculynx-material-ordering</text><text x="130.0" y="226" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">convert</text><line x1="130.0" y1="230" x2="130.0" y2="246" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,246 134.0,246 130.0,253" fill="#9ca3af"/><rect x="20" y="253" width="220" height="130" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="271" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Live Pricing &amp;</text><text x="32" y="287" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Availability</text><text x="32" y="303" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">ABC Supply · QXO · SRS</text><text x="32" y="317" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Distribution</text><text x="36" y="331" font-family="Arial" font-size="10.5" fill="#374151">Real-time unique pricing, updated</text><text x="42" y="345" font-family="Arial" font-size="10.5" fill="#374151">daily</text><text x="36" y="359" font-family="Arial" font-size="10.5" fill="#374151">Real-time product availability</text><text x="20" y="396" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: acculynx.com integrations pages</text><text x="130.0" y="414" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">submit</text><line x1="130.0" y1="418" x2="130.0" y2="434" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,434 134.0,434 130.0,441" fill="#9ca3af"/><rect x="20" y="441" width="220" height="102" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="459" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Convert to Material Order</text><text x="32" y="475" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">/ PO</text><text x="32" y="491" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Estimate → material list</text><text x="36" y="505" font-family="Arial" font-size="10.5" fill="#374151">Quantities &amp; waste factors auto-</text><text x="42" y="519" font-family="Arial" font-size="10.5" fill="#374151">calculated</text><text x="20" y="556" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: acculynx.com/order-roofing-materials</text><text x="130.0" y="574" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">track</text><line x1="130.0" y1="578" x2="130.0" y2="594" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,594 134.0,594 130.0,601" fill="#9ca3af"/><rect x="20" y="601" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="619" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Submit to Supplier System</text><text x="32" y="635" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Direct to branch</text><text x="36" y="649" font-family="Arial" font-size="10.5" fill="#374151">Sales rep + branch manager</text><text x="42" y="663" font-family="Arial" font-size="10.5" fill="#374151">notified</text><text x="20" y="700" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: acculynx.com/acculynx-material-ordering</text><line x1="130.0" y1="722" x2="130.0" y2="738" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,738 134.0,738 130.0,745" fill="#9ca3af"/><rect x="20" y="745" width="220" height="52" rx="26" fill="#16a34a"/><text x="36" y="767" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Order Manager Tracking</text><text x="36" y="783" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Status, ETA, proof of delivery</text><line x1="130.0" y1="815" x2="130.0" y2="831" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,831 134.0,831 130.0,838" fill="#9ca3af"/><rect x="20" y="838" width="220" height="116" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="858" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Non-integrated</text><text x="32" y="873" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">distributors</text><text x="32" y="888" font-family="Arial" font-size="10" fill="#92400e">[Gap — no live pricing/one-</text><text x="32" y="903" font-family="Arial" font-size="10" fill="#92400e">click order for</text><text x="32" y="918" font-family="Arial" font-size="10" fill="#92400e">local/independent distributors</text><text x="32" y="933" font-family="Arial" font-size="10" fill="#92400e">outside ABC/QXO/SRS]</text><text x="20" y="967" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: RoofingSoftwareGuide 2026</text></svg>
+          <div class="col-source-footer">Sources: AccuLynx — Material Ordering, AccuLynx — QXO Integration…</div>
+        </div><div class="comparison-col">
+          <div class="comparison-col-header" style="background:#6B7280;">RSG US
+            <button class="copy-btn copy-btn-sm" onclick="copySVGById('svg-cmp-rsg', this)">📋</button>
+          </div>
+          <svg id="svg-cmp-rsg" viewBox="0 0 260 435" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="88" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="36" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ No digital ordering</text><text x="32" y="51" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">portal found</text><text x="32" y="66" font-family="Arial" font-size="10" fill="#92400e">No app, website order form, or</text><text x="32" y="81" font-family="Arial" font-size="10" fill="#92400e">account portal documented</text><text x="20" y="117" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: LinkedIn, RocketReach, Crunchbase (searched 3+ times)</text><line x1="130.0" y1="139" x2="130.0" y2="155" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,155 134.0,155 130.0,162" fill="#9ca3af"/><rect x="20" y="162" width="220" height="116" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="182" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Order process appears</text><text x="32" y="197" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">phone/rep-based</text><text x="32" y="212" font-family="Arial" font-size="10" fill="#92400e">57 US branches; one-step</text><text x="32" y="227" font-family="Arial" font-size="10" fill="#92400e">distribution model described</text><text x="32" y="242" font-family="Arial" font-size="10" fill="#92400e">only in company/marketing</text><text x="32" y="257" font-family="Arial" font-size="10" fill="#92400e">pages</text><text x="20" y="291" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: linkedin.com/company/roofing-supply-group-rsg-</text><line x1="130.0" y1="313" x2="130.0" y2="329" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,329 134.0,329 130.0,336" fill="#9ca3af"/><rect x="20" y="336" width="220" height="72" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="356" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ No mobile app documented</text><text x="32" y="371" font-family="Arial" font-size="10" fill="#92400e">Not found in App Store, Google</text><text x="32" y="386" font-family="Arial" font-size="10" fill="#92400e">Play, or company site</text><text x="20" y="421" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: web search, 3+ queries, no results</text></svg>
+          <div class="col-source-footer">Sources: LinkedIn — Roofing Supply Group, RocketReach — RSG Profile…</div>
+        </div><div class="comparison-col">
+          <div class="comparison-col-header" style="background:#0D6E6E;">SIG Roofing EU
+            <button class="copy-btn copy-btn-sm" onclick="copySVGById('svg-cmp-sig', this)">📋</button>
+          </div>
+          <svg id="svg-cmp-sig" viewBox="0 0 260 526" width="100%" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="16" width="220" height="52" rx="26" fill="#1b3a6b"/><text x="36" y="38" font-family="Arial" font-size="13" font-weight="bold" fill="#ffffff">Open Trade Account</text><text x="36" y="54" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.65)">Required before ordering</text><text x="130.0" y="82" font-family="Arial" font-size="10.5" font-style="italic" fill="#9ca3af" text-anchor="middle">browse</text><line x1="130.0" y1="86" x2="130.0" y2="102" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,102 134.0,102 130.0,109" fill="#9ca3af"/><rect x="20" y="109" width="220" height="86" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="127" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Login</text><text x="32" y="143" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">portal.sigroofing.co.uk</text><text x="36" y="157" font-family="Arial" font-size="10.5" fill="#374151">Account-based login confirmed</text><text x="36" y="171" font-family="Arial" font-size="10.5" fill="#374151">Basket / account-switching present</text><text x="20" y="208" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: portal.sigroofing.co.uk (login page)</text><line x1="130.0" y1="230" x2="130.0" y2="246" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,246 134.0,246 130.0,253" fill="#9ca3af"/><rect x="20" y="253" width="220" height="116" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/><text x="32" y="273" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">⚠ Checkout / basket</text><text x="32" y="288" font-family="Arial" font-size="12" font-weight="bold" fill="#d97706">screens</text><text x="32" y="303" font-family="Arial" font-size="10" fill="#92400e">[Gap — login-gated; no</text><text x="32" y="318" font-family="Arial" font-size="10" fill="#92400e">secondary walkthrough or</text><text x="32" y="333" font-family="Arial" font-size="10" fill="#92400e">screenshots found after 3+</text><text x="32" y="348" font-family="Arial" font-size="10" fill="#92400e">searches]</text><text x="20" y="382" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: search attempted, no secondary documentation found</text><line x1="130.0" y1="404" x2="130.0" y2="420" stroke="#9ca3af" stroke-width="1"/><polygon points="126.0,420 134.0,420 130.0,427" fill="#9ca3af"/><rect x="20" y="427" width="220" height="72" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/><text x="32" y="445" font-family="Arial" font-size="13" font-weight="bold" fill="#111827">Trade Club Points</text><text x="32" y="461" font-family="Arial" font-size="11" font-style="italic" fill="#0d6e6e">Loyalty program</text><text x="36" y="475" font-family="Arial" font-size="10.5" fill="#374151">Points earned per £ spent</text><text x="20" y="512" font-family="Arial" font-size="9" font-style="italic" fill="#9ca3af">Source: sigroofing.co.uk 2023</text></svg>
+          <div class="col-source-footer">Sources: SIG Roofing, SIG Roofing — Contractor Brochure (PDF)…</div>
+        </div></div>
+    <div class="tab-footer">↗ AI-assisted research · Capmation · 2026</div>
+    </div>
+<div class="tab-content" id="tab-modules">
+    <div class="page-header">
+      <h1>📦 Affected & Related Modules</h1>
+      <div class="page-subtitle">Based on research findings from this session</div>
+    </div>
+    <div class="review-checkpoint">⚠️ Human review required: module mapping reflects findings from secondary research only. Validate against actual product architecture before using for sprint planning or design briefs.</div>
+    <h3>Directly Affected Modules</h3>
+    <table class="evidence-table sortable">
+      <thead><tr><th>Module</th><th>Why affected</th><th>Research source</th><th>Priority</th></tr></thead>
+      <tbody><tr><td>Orders</td><td>Core Order Creation flow — direct scope of this research</td><td>S1-S9 (this session)</td><td><span class="priority-badge" style="background:#ef4444">High</span></td></tr><tr><td>Products / Catalog</td><td>BOM search &amp; browse — S3, S7 patterns apply here</td><td>S3, S7</td><td><span class="priority-badge" style="background:#ef4444">High</span></td></tr><tr><td>Deliveries</td><td>GPS/ETA tracking opportunity from S3, S5 pain points</td><td>S3 (Home Depot), S5</td><td><span class="priority-badge" style="background:#f59e0b">Med</span></td></tr><tr><td>Estimates</td><td>EagleView/QuickMeasure handoff into BOM — S3, S6</td><td>S3, S6</td><td><span class="priority-badge" style="background:#f59e0b">Med</span></td></tr></tbody>
+    </table>
+    <h3 style="margin-top:24px;">Adjacent / Related Modules</h3>
+    <table class="evidence-table sortable muted-table">
+      <thead><tr><th>Module</th><th>Relationship</th><th>What to watch for</th></tr></thead>
+      <tbody><tr><td>Accounts</td><td>Approval-workflow opportunity (S7/Amazon) needs a role/permission model</td><td>S3 (Amazon Business), S7</td></tr><tr><td>Invoices</td><td>PO/invoice mismatch pain point (S5) — reconciliation after delivery not visible in current screens</td><td>S5</td></tr></tbody>
+    </table>
+    <div class="tab-footer">↗ AI-assisted research · Capmation · 2026 — Sources: S1–S8 findings from this session</div>
+    </div>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('tab-active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('tab-active');
+}
+
+function filterGeo(geo, btn) {
+  document.querySelectorAll('.filter-group')[0].querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    const g = t.getAttribute('data-geo');
+    t.style.display = (geo === 'all' || g === 'all' || g === geo) ? '' : 'none';
+  });
+  resetToFirstVisible();
+}
+function filterType(type, btn) {
+  document.querySelectorAll('.filter-group')[1].querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    const ty = t.getAttribute('data-type');
+    const isStructural = (ty === 'suggested' || ty === 'summary' || ty === 'comparison' || ty === 'modules');
+    t.style.display = (type === 'all' || isStructural || ty === type) ? '' : 'none';
+  });
+  resetToFirstVisible();
+}
+function resetToFirstVisible() {
+  const visible = Array.from(document.querySelectorAll('.tab')).filter(t => t.style.display !== 'none');
+  if (visible.length) showTab(visible[0].getAttribute('data-tabid'), visible[0]);
+}
+
+function copySVG(tabId, btn) {
+  const tabContent = document.getElementById('tab-' + tabId);
+  if (!tabContent) return;
+  const svgEl = tabContent.querySelector('svg');
+  if (!svgEl) {
+    btn.textContent = '⚠ No SVG found';
+    setTimeout(() => { btn.textContent = '📋 Copy SVG'; }, 2000);
+    return;
+  }
+  doCopy(svgEl, btn);
+}
+
+function copySVGById(svgId, btn) {
+  const svgEl = document.getElementById(svgId);
+  if (!svgEl) return;
+  doCopy(svgEl, btn);
+}
+
+function doCopy(svgEl, btn) {
+  const serializer = new XMLSerializer();
+  let svgStr = serializer.serializeToString(svgEl);
+  if (!svgStr.startsWith('<?xml')) {
+    svgStr = '<?xml version="1.0" encoding="UTF-8"?>\\n' + svgStr;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(svgStr).then(() => {
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy SVG'; btn.classList.remove('copied'); }, 2000);
+    }).catch(() => fallbackCopy(svgStr, btn));
+  } else {
+    fallbackCopy(svgStr, btn);
+  }
+}
+
+function fallbackCopy(text, btn) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy SVG'; }, 2000);
+  } catch (e) {
+    btn.textContent = '✗ Copy failed';
+    setTimeout(() => { btn.textContent = '📋 Copy SVG'; }, 2000);
+  }
+  document.body.removeChild(ta);
+}
+
+// sortable tables (Modules tab)
+document.addEventListener('click', function(e) {
+  if (e.target.tagName === 'TH' && e.target.closest('.sortable')) {
+    const table = e.target.closest('table');
+    const idx = Array.from(e.target.parentNode.children).indexOf(e.target);
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const asc = e.target.getAttribute('data-asc') !== 'true';
+    rows.sort((a,b) => {
+      const at = a.children[idx].textContent.trim();
+      const bt = b.children[idx].textContent.trim();
+      return asc ? at.localeCompare(bt) : bt.localeCompare(at);
+    });
+    e.target.setAttribute('data-asc', asc);
+    rows.forEach(r => tbody.appendChild(r));
+  }
+});
+
+// initialize: show first tab
+window.addEventListener('DOMContentLoaded', () => {
+  const firstTab = document.querySelector('.tab');
+  if (firstTab) firstTab.click();
+});
+</script>
+
+</body>
+</html>
