@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Línea de Tiempo Mobile UX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0B14;
+  --panel:#15151F;
+  --panel-2:#1C1C29;
+  --line:#2A2A3A;
+  --text:#F4F1EA;
+  --text-dim:#8B8B9E;
+  --text-faint:#56566B;
+  --accent:#F4A300;
+
+  --c-redes:#2BB3A3;
+  --c-dispositivos:#4A3AFF;
+  --c-ux:#FE81E7;
+}
+:root[data-theme="light"]{
+  --bg:#F6F4EE;
+  --panel:#FFFFFF;
+  --panel-2:#EFEBE1;
+  --line:#DEDACC;
+  --text:#1B1A22;
+  --text-dim:#5B5A6C;
+  --text-faint:#98957F;
+  --accent:#C97F00;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0; height:100%;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;
+  overflow:hidden;
+  height:100%;
+  display:flex; flex-direction:column;
+  padding-bottom:var(--year-range-h, 150px);
+  transition:background .2s ease, color .2s ease;
+}
+.bg-noise{
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(74,58,255,0.07), transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(254,129,231,0.06), transparent 40%);
+}
+:root[data-theme="light"] .bg-noise{
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(74,58,255,0.05), transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(254,129,231,0.05), transparent 40%);
+}
+:root[data-theme="light"] .modal-overlay{ background:rgba(60,55,70,0.35); }
+
+/* ===== HEADER ===== */
+header{
+  position:relative; z-index:2;
+  padding:28px 40px 18px;
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:24px; flex-wrap:wrap;
+}
+.brand{display:flex; flex-direction:column; gap:2px;}
+.brand .eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--text-faint);
+}
+.brand h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:34px; letter-spacing:0.02em; margin:0;
+  line-height:1;
+}
+.brand h1 span{color:var(--accent);}
+.header-meta{
+  font-size:12px; color:var(--text-dim); text-align:right;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ===== CONTROLS ===== */
+.controls{
+  position:relative; z-index:3;
+  padding:18px 40px;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(21,21,31,0.06), transparent);
+}
+.search-box{
+  display:flex; align-items:center; gap:8px;
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:10px; padding:0 14px; height:46px;
+  min-width:220px; flex:0 1 260px;
+}
+.search-box svg{flex-shrink:0; opacity:0.5;}
+.search-box input{
+  background:transparent; border:none; outline:none;
+  color:var(--text); font-family:'Inter',sans-serif; font-size:14px;
+  width:100%; height:100%;
+}
+.search-box input::placeholder{color:var(--text-faint);}
+
+.toggle-group{display:flex; gap:8px;}
+.toggle-btn{
+  display:flex; align-items:center; gap:9px;
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:10px; padding:0 18px; height:46px;
+  cursor:pointer; transition:all .15s ease;
+  font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
+  color:var(--text-dim); white-space:nowrap;
+}
+.toggle-btn .dot{width:9px; height:9px; border-radius:50%; flex-shrink:0; background:var(--text-faint); transition:background .15s ease;}
+.toggle-btn:hover{border-color:var(--text-faint); color:var(--text);}
+.toggle-btn.active{
+  background:var(--btn-color, var(--panel-2));
+  border-color:var(--btn-color, var(--line));
+  color:#0B0B14;
+}
+.toggle-btn.active .dot{background:#0B0B14;}
+.toggle-btn.active[data-cat="Dispositivos"]{color:#FFFFFF;}
+.toggle-btn.active[data-cat="Dispositivos"] .dot{background:#FFFFFF;}
+
+.region-select-wrap{
+  display:flex; align-items:center; gap:8px;
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:10px; padding:0 14px; height:46px;
+  color:var(--text-faint);
+}
+.region-select-wrap svg{flex-shrink:0; opacity:0.6;}
+.region-select-wrap select{
+  background:transparent; border:none; outline:none;
+  color:var(--text-dim); font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
+  cursor:pointer; height:100%; max-width:200px;
+}
+.region-select-wrap select option{background:var(--panel-2); color:var(--text);}
+
+.clear-btn{
+  background:transparent; border:1px solid var(--line); border-radius:10px;
+  padding:0 16px; height:46px; cursor:pointer;
+  color:var(--text-faint); font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+  transition:all .15s ease;
+}
+.clear-btn:hover{color:var(--text); border-color:var(--text-faint);}
+
+.settings-group{
+  margin-left:auto;
+  display:flex; align-items:center; gap:8px;
+}
+.icon-btn{
+  width:46px; height:46px; border-radius:10px; flex-shrink:0;
+  background:var(--panel); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--text-dim); transition:all .15s ease;
+}
+.icon-btn:hover{color:var(--text); border-color:var(--text-faint);}
+.icon-btn svg{width:18px; height:18px;}
+.lang-pill{
+  display:flex; background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:3px; height:46px; align-items:center; flex-shrink:0;
+}
+.lang-pill button{
+  background:transparent; border:none; color:var(--text-faint);
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px;
+  padding:0 13px; height:100%; border-radius:7px; cursor:pointer; transition:all .15s ease;
+}
+.lang-pill button:hover{color:var(--text);}
+.lang-pill button.active{background:var(--panel-2); color:var(--text);}
+
+.result-count{
+  font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-faint);
+  padding:0 40px; margin-top:10px; flex-shrink:0;
+}
+.result-count b{color:var(--text);}
+
+/* ===== TIMELINE ===== */
+.timeline-wrap{
+  position:relative; z-index:1;
+  padding:24px 0;
+  flex:1; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+.scroll-progress-wrap{
+  position:absolute; top:0; left:40px; right:40px; height:3px;
+  background:var(--line); border-radius:999px; z-index:2;
+}
+.scroll-progress-bar{
+  position:absolute; top:0; left:0; height:100%; width:0%;
+  background:var(--accent); border-radius:999px;
+  transition:width .08s linear;
+}
+.scroll-position-label{
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);
+  background:var(--bg); padding:0 8px;
+}
+.timeline-scroll{
+  overflow-x:auto; overflow-y:hidden;
+  padding:0 40px;
+  flex:1;
+  scrollbar-width:thin; scrollbar-color:var(--line) transparent;
+}
+.timeline-scroll::-webkit-scrollbar{height:8px;}
+.timeline-scroll::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+.timeline-scroll::-webkit-scrollbar-track{background:transparent;}
+
+.timeline-track{
+  position:relative;
+  display:flex; align-items:stretch;
+  height:var(--track-h, 480px);
+  width:max-content;
+}
+.spine{
+  position:absolute; left:0; right:0; top:50%;
+  height:2px; background:var(--line); z-index:0;
+}
+
+.event-col{
+  position:relative;
+  display:flex; flex-direction:column;
+  width:220px; flex-shrink:0;
+  height:100%;
+  z-index:1;
+}
+.col-half{
+  height:50%; width:100%;
+  display:flex; flex-direction:column; align-items:center;
+  position:relative;
+}
+.col-half.half-top{justify-content:flex-end;}
+.col-half.half-bottom{justify-content:flex-start;}
+.event-col.top .half-top .card-slot{margin-bottom:calc(var(--conn-h, 30px) + 19px);}
+.event-col.bottom .half-bottom .card-slot{margin-top:calc(var(--conn-h, 30px) + 19px);}
+
+.connector{
+  position:absolute; left:50%; width:1px; background:var(--line);
+  transform:translateX(-50%); z-index:0;
+}
+.half-top .connector{bottom:0; height:var(--conn-h, 30px);}
+.half-bottom .connector{top:0; height:var(--conn-h, 30px);}
+
+.node{
+  position:absolute; left:50%; transform:translate(-50%,-50%);
+  width:38px; height:38px; border-radius:50%;
+  background:var(--node-color, var(--panel-2)); border:2px solid var(--bg);
+  z-index:3;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 0 1px var(--line);
+  cursor:pointer;
+  transition:transform .15s ease;
+}
+.half-top .node{bottom:0;}
+.half-bottom .node{top:0;}
+.node:hover{transform:translate(-50%,-50%) scale(1.12);}
+.node svg{width:19px; height:19px;}
+.node.imp-3{width:44px; height:44px; box-shadow:0 0 0 1px var(--line), 0 0 16px -2px var(--node-color, transparent);}
+.node.imp-3 svg{width:22px; height:22px;}
+
+.card-slot{width:100%; display:flex; justify-content:center;}
+.card{
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:13px; padding:14px 15px 13px;
+  width:202px; cursor:pointer; position:relative;
+  transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.card:hover{transform:translateY(-3px); border-color:var(--text-faint);}
+.card .cat-stripe{
+  position:absolute; left:0; top:0; bottom:0; width:4px;
+  border-radius:13px 0 0 13px;
+}
+.card .date{
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);
+  margin-bottom:6px; padding-left:6px;
+}
+.card .title{
+  font-size:14px; font-weight:700; line-height:1.3; margin:0 0 8px;
+  padding-left:6px;
+}
+.card .tags{display:flex; gap:5px; flex-wrap:wrap; padding-left:6px;}
+.card .tag{
+  font-size:9.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase;
+  padding:3px 7px; border-radius:5px; color:#0B0B14;
+}
+.card .imp-badge{
+  position:absolute; top:10px; right:10px;
+  font-size:9px; color:var(--text-faint); font-family:'JetBrains Mono',monospace;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed; inset:0; z-index:100;
+  background:rgba(5,5,10,0.78); backdrop-filter:blur(3px);
+  display:none; align-items:center; justify-content:center;
+  padding:30px;
+}
+.modal-overlay.open{display:flex;}
+.modal-card{
+  background:var(--panel-2); border:1px solid var(--line);
+  border-radius:18px; max-width:520px; width:100%;
+  padding:32px 32px 28px; position:relative;
+  box-shadow:0 30px 80px rgba(0,0,0,0.4);
+  max-height:85vh; overflow-y:auto;
+  animation:modalIn .18s ease;
+}
+@keyframes modalIn{from{opacity:0; transform:translateY(8px) scale(0.98);} to{opacity:1; transform:none;}}
+.modal-close{
+  position:absolute; top:18px; right:18px;
+  width:32px; height:32px; border-radius:50%;
+  background:var(--panel); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--text-dim); transition:all .15s ease;
+}
+.modal-close:hover{color:var(--text); border-color:var(--text-faint);}
+.modal-icon{
+  width:64px; height:64px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:18px;
+}
+.modal-icon svg{width:32px; height:32px;}
+.modal-date{
+  font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--text-faint);
+  margin-bottom:6px;
+}
+.modal-title{
+  font-size:24px; font-weight:800; line-height:1.2; margin:0 0 14px;
+}
+.modal-tags{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px;}
+.modal-tags .tag{
+  font-size:10.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase;
+  padding:4px 10px; border-radius:6px; color:#0B0B14;
+}
+.modal-desc{
+  font-size:15px; line-height:1.65; color:var(--text); margin:0 0 16px;
+}
+.modal-note{
+  font-size:13.5px; line-height:1.6; color:var(--text-dim);
+  background:rgba(127,127,127,0.08); border-left:2px solid var(--accent);
+  padding:10px 14px; border-radius:0 8px 8px 0; margin:0 0 18px;
+}
+.modal-note b{color:var(--accent); font-weight:700; text-transform:uppercase; font-size:10px; letter-spacing:0.06em; display:block; margin-bottom:4px;}
+.modal-meta{
+  display:flex; flex-direction:column; gap:6px;
+  padding-top:16px; border-top:1px solid var(--line);
+  font-size:12px; color:var(--text-faint);
+}
+.modal-meta b{color:var(--text-dim); font-weight:600;}
+
+.era-marker{
+  position:relative; flex-shrink:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  width:130px; z-index:1;
+}
+.era-marker .year-big{
+  font-family:'Bebas Neue',sans-serif; font-size:42px; color:var(--text);
+  line-height:1; white-space:nowrap;
+}
+.era-marker .era-label{
+  font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--text-faint);
+  text-transform:uppercase; letter-spacing:0.05em; margin-top:4px; text-align:center;
+  max-width:120px; white-space:normal;
+}
+
+.empty-state{
+  padding:80px 40px; text-align:center; color:var(--text-faint);
+  font-size:14px;
+}
+
+/* ===== YEAR SLIDER ===== */
+.year-range{
+  position:fixed; bottom:0; left:0; right:0;
+  z-index:20;
+  padding:14px 40px 0;
+  border-top:1px solid var(--line);
+  background:var(--bg);
+}
+.year-range-labels{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  margin-bottom:6px;
+}
+.year-range-side{display:flex; flex-direction:column; gap:2px;}
+.year-range-side.to{align-items:flex-end;}
+.year-range-eyebrow{
+  font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint);
+  text-transform:uppercase; letter-spacing:0.14em;
+}
+.year-range-value{
+  font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--text);
+  line-height:1;
+}
+.range-slider{
+  position:relative; height:40px; margin:6px 0 4px;
+}
+.range-track-bg{
+  position:absolute; top:50%; left:0; right:0; height:4px;
+  transform:translateY(-50%);
+  background:var(--line); border-radius:999px;
+}
+.range-track-fill{
+  position:absolute; top:50%; height:4px;
+  transform:translateY(-50%);
+  background:linear-gradient(90deg, var(--c-redes), var(--c-ux));
+  border-radius:999px;
+}
+.range-era-tick{
+  position:absolute; top:50%; transform:translate(-50%,-50%);
+  width:9px; height:9px; border-radius:50%;
+  background:var(--bg); border:2px solid var(--text-faint);
+  z-index:2; cursor:pointer;
+  transition:all .15s ease;
+}
+.range-era-tick:hover{border-color:var(--text); transform:translate(-50%,-50%) scale(1.3);}
+.range-era-labels{
+  position:relative; height:16px; margin-top:6px;
+}
+.range-era-label{
+  position:absolute; top:0; transform:translateX(-50%);
+  font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-faint);
+  white-space:nowrap; cursor:pointer; text-transform:uppercase; letter-spacing:0.04em;
+  transition:color .15s ease;
+}
+.range-era-label:hover{color:var(--accent);}
+.range-slider input[type="range"]{
+  position:absolute; top:0; left:0; width:100%; height:40px;
+  margin:0; background:transparent;
+  -webkit-appearance:none; appearance:none;
+  pointer-events:none;
+}
+.range-slider input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:22px; height:22px; border-radius:50%;
+  background:var(--bg); border:3px solid var(--text);
+  cursor:pointer; pointer-events:auto;
+  position:relative; z-index:3;
+  transition:transform .12s ease;
+}
+.range-slider input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+.range-slider input[type="range"]::-moz-range-thumb{
+  width:22px; height:22px; border-radius:50%;
+  background:var(--bg); border:3px solid var(--text);
+  cursor:pointer; pointer-events:auto;
+}
+.range-slider input[type="range"]::-webkit-slider-runnable-track{background:transparent;}
+.range-slider input[type="range"]::-moz-range-track{background:transparent;}
+
+footer{
+  padding:5px 40px 8px; text-align:center;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint);
+}
+
+@media (max-width: 700px){
+  header,.controls,.year-range{padding-left:18px; padding-right:18px;}
+  .timeline-scroll{padding-left:18px; padding-right:18px;}
+  .brand h1{font-size:26px;}
+}
+</style>
+</head>
+<body>
+<div class="bg-noise"></div>
+
+<header>
+  <div class="brand">
+    <span class="eyebrow" id="eyebrowText">Taller de Diseño Digital</span>
+    <h1 id="titleText">Línea de tiempo <span>Mobile UX</span></h1>
+  </div>
+  <div class="header-meta" id="headerMeta">86 eventos · 1947–2025</div>
+</header>
+
+<div class="controls">
+  <div class="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar evento...">
+  </div>
+
+  <div class="toggle-group" id="mainToggles">
+    <button class="toggle-btn" data-cat="Redes" style="--btn-color:var(--c-redes)">
+      <span class="dot"></span><span class="cat-label">Redes</span>
+    </button>
+    <button class="toggle-btn" data-cat="Dispositivos" style="--btn-color:var(--c-dispositivos)">
+      <span class="dot"></span><span class="cat-label">Dispositivos</span>
+    </button>
+    <button class="toggle-btn" data-cat="UX/Interacción" style="--btn-color:var(--c-ux)">
+      <span class="dot"></span><span class="cat-label">UX/Interacción</span>
+    </button>
+  </div>
+
+  <div class="region-select-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+    <select id="regionSelect">
+      <option value="">Todas las regiones</option>
+    </select>
+  </div>
+
+  <button class="clear-btn" id="clearBtn">Limpiar filtros</button>
+
+  <div class="settings-group">
+    <div class="lang-pill">
+      <button id="langEs" class="active">ES</button>
+      <button id="langEn">EN</button>
+    </div>
+    <button class="icon-btn" id="themeToggle" title="Cambiar a modo claro"></button>
+  </div>
+</div>
+
+<div class="result-count" id="resultCount"></div>
+
+<div class="timeline-wrap">
+  <div class="scroll-progress-wrap">
+    <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+  </div>
+  <div class="timeline-scroll" id="timelineScroll">
+    <div class="timeline-track" id="timelineTrack">
+      <div class="spine"></div>
+    </div>
+  </div>
+  <div class="scroll-position-label" id="scrollPositionLabel"></div>
+</div>
+
+<div class="year-range">
+  <div class="year-range-labels">
+    <div class="year-range-side from">
+      <span class="year-range-eyebrow" id="fromEyebrow">Desde</span>
+      <span class="year-range-value" id="yearFromLabel">1947</span>
+    </div>
+    <div class="year-range-side to">
+      <span class="year-range-eyebrow" id="toEyebrow">Hasta</span>
+      <span class="year-range-value" id="yearToLabel">2025</span>
+    </div>
+  </div>
+  <div class="range-slider">
+    <div class="range-track-bg"></div>
+    <div class="range-track-fill" id="rangeFill"></div>
+    <div id="eraTicks"></div>
+    <input type="range" id="rangeFrom" min="1947" max="2025" value="1947" step="1">
+    <input type="range" id="rangeTo" min="1947" max="2025" value="2025" step="1">
+  </div>
+  <div class="range-era-labels" id="eraLabels"></div>
+  <footer id="footerText">Coloripop · Datos: investigación histórica verificada, 1947–2025</footer>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+
+<script id="events-data" type="application/json">[{"id": "MOB-0001", "year": 1947, "era": "1947–1989: Orígenes de la telefonía móvil", "era_en": "1947–1989: Origins of mobile telephony", "title": "Concepto de red celular", "title_en": "Cellular network concept", "desc": "Ingenieros de Bell Labs (liderados por D.H. Ring) proponen la idea de dividir el territorio en celdas hexagonales con reutilización de frecuencias, la base teórica que haría posible la telefonía móvil masiva décadas después.", "desc_en": "Bell Labs engineers (led by D.H. Ring, building on W. Rae Young's idea) propose dividing territory into hexagonal cells with frequency reuse — the theoretical basis that would make mass mobile telephony possible decades later.", "category": "Redes", "category_en": "Networks", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Sin este modelo de celdas no existiría ningún ícono de señal en ninguna pantalla.", "note_en": "Without this cell model, no signal-bars icon would exist on any screen."}, {"id": "MOB-0002", "year": 1973, "era": "1947–1989: Orígenes de la telefonía móvil", "era_en": "1947–1989: Origins of mobile telephony", "title": "Primera llamada desde un celular portátil", "title_en": "First call from a portable mobile phone", "desc": "Martin Cooper, de Motorola, realiza la primera llamada desde un teléfono celular portátil de mano en una calle de Nueva York, llamando irónicamente a su rival de Bell Labs.", "desc_en": "Motorola's Martin Cooper makes the first call from a handheld portable cellular phone on a New York City street — fittingly, to his rival at Bell Labs.", "category": "Redes", "category_en": "Networks", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "La llamada más citada en la historia del diseño de producto móvil.", "note_en": "The most-cited phone call in the history of mobile product design."}, {"id": "UX-0025", "year": 1981, "era": "1947–1989: Orígenes de la telefonía móvil", "era_en": "1947–1989: Origins of mobile telephony", "title": "Menú hamburguesa", "title_en": "Hamburger menu", "desc": "Norm Cox diseña el ícono de tres líneas para el Xerox Star, el primer computador comercial con interfaz gráfica. Tres décadas más tarde, en la era del smartphone (hacia 2011), se populariza como el símbolo estándar para menús de navegación ocultos en pantallas pequeñas, con la app móvil de Facebook entre sus primeras adoptantes.", "desc_en": "Norm Cox designs the three-line icon for the Xerox Star, the first commercial computer with a graphical interface. Three decades later, in the smartphone era (around 2011), it's popularized as the standard symbol for hidden navigation menus on small screens, with Facebook's mobile app among its early adopters.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Uno de los íconos más criticados —y más usados— de toda la historia del diseño de interfaces: nació en un escritorio de oficina y no en un teléfono.", "note_en": "One of the most criticized — and most used — icons in the whole history of interface design: it was born on an office desktop, not on a phone."}, {"id": "MOB-0003", "year": 1983, "era": "1947–1989: Orígenes de la telefonía móvil", "era_en": "1947–1989: Origins of mobile telephony", "title": "Motorola DynaTAC sale a la venta", "title_en": "Motorola DynaTAC goes on sale", "desc": "El DynaTAC 8000X se convierte en el primer teléfono móvil comercial disponible al público: pesaba 790g, ofrecía 30 minutos de batería y costaba cerca de 3,995 USD.", "desc_en": "The DynaTAC 8000X becomes the first commercially available handheld mobile phone: it weighed 790g, offered 30 minutes of talk time, and cost around $3,995.", "category": "Redes", "category_en": "Networks", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "El 'ladrillo' que definió la silueta del teléfono móvil por una década.", "note_en": "The 'brick' that defined the mobile phone's silhouette for a decade."}, {"id": "MOB-0004", "year": 1989, "era": "1947–1989: Orígenes de la telefonía móvil", "era_en": "1947–1989: Origins of mobile telephony", "title": "Motorola MicroTAC y el teléfono plegable", "title_en": "Motorola MicroTAC introduces the flip phone", "desc": "El MicroTAC introduce el formato 'flip', que protege el teclado al cerrarse y reduce el tamaño del dispositivo, sentando la plantilla estética que dominaría los años 90 y 2000.", "desc_en": "The MicroTAC introduces the 'flip' form factor, protecting the keypad when closed and shrinking the device, setting the aesthetic template that would dominate the '90s and 2000s.", "category": "Redes", "category_en": "Networks", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Primer caso donde una bisagra mecánica se convierte en gesto de apertura/cierre de interfaz.", "note_en": "The first case of a mechanical hinge becoming an open/close interface gesture."}, {"id": "MOB-0005", "year": 1991, "era": "1991–1999: Digitalización y PDAs", "era_en": "1991–1999: Digitization and PDAs", "title": "Primera red comercial GSM", "title_en": "First commercial GSM network", "desc": "Radiolinja lanza en Finlandia la primera red GSM (2G) comercial del mundo, habilitando voz digital, roaming internacional y, poco después, los mensajes de texto.", "desc_en": "Radiolinja launches the world's first commercial GSM (2G) network in Finland, enabling digital voice, international roaming and, soon after, text messaging.", "category": "Redes", "category_en": "Networks", "importance": 3, "region": "Finlandia", "region_en": "Finland", "note": "El 2G es la infraestructura invisible que hizo posible el SMS y, luego, el email móvil.", "note_en": "2G is the invisible infrastructure that made SMS — and later mobile email — possible."}, {"id": "MOB-0006", "year": 1992, "era": "1991–1999: Digitalización y PDAs", "era_en": "1991–1999: Digitization and PDAs", "title": "Primer SMS de la historia", "title_en": "First SMS in history", "desc": "Neil Papworth envía 'Merry Christmas' por SMS desde una computadora a un teléfono Vodafone en el Reino Unido, inaugurando la mensajería de texto como paradigma de comunicación.", "desc_en": "Neil Papworth sends 'Merry Christmas' via SMS from a computer to a Vodafone phone in the UK, launching text messaging as a communication paradigm.", "category": "Redes", "category_en": "Networks", "importance": 3, "region": "Reino Unido", "region_en": "United Kingdom", "note": "160 caracteres de límite técnico terminaron creando toda una cultura de abreviaciones y emojis.", "note_en": "A 160-character technical limit ended up creating an entire culture of abbreviations and emoji."}, {"id": "DEV-0001", "year": 1993, "era": "1991–1999: Digitalización y PDAs", "era_en": "1991–1999: Digitization and PDAs", "title": "Apple Newton", "title_en": "Apple Newton", "desc": "Apple lanza el Newton MessagePad, la PDA que populariza el término y que apuesta por el reconocimiento de escritura y la interacción con lápiz óptico como entrada principal.", "desc_en": "Apple launches the Newton MessagePad, the PDA that popularized the term and bet on handwriting recognition and stylus interaction as its primary input.", "category": "Dispositivos", "category_en": "Devices", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Un fracaso comercial que, sin embargo, definió el vocabulario de 'asistente personal digital'.", "note_en": "A commercial failure that nonetheless defined the vocabulary of the 'personal digital assistant.'"}, {"id": "UX-0001", "year": 1993, "era": "1991–1999: Digitalización y PDAs", "era_en": "1991–1999: Digitization and PDAs", "title": "Reconocimiento de escritura (Apple Newton)", "title_en": "Handwriting recognition (Apple Newton)", "desc": "El Newton apuesta por el reconocimiento de escritura a mano como entrada principal, un intento ambicioso —pero poco confiable al inicio— de eliminar el teclado de la computación móvil.", "desc_en": "The Newton bets on handwriting recognition as its primary input — an ambitious but initially unreliable attempt to remove the keyboard from mobile computing.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Un patrón adelantado a su tiempo: la tecnología de reconocimiento no estaba lista para la ambición del diseño.", "note_en": "A pattern ahead of its time: recognition technology wasn't ready for the design's ambition."}, {"id": "DEV-0002", "year": 1994, "era": "1991–1999: Digitalización y PDAs", "era_en": "1991–1999: Digitization and PDAs", "title": "IBM Simon", "title_en": "IBM Simon", "desc": "El IBM Simon Personal Communicator combina teléfono, buscapersonas, fax y PDA con pantalla táctil, y es considerado ampliamente el primer smartphone de la historia.", "desc_en": "The IBM Simon Personal Communicator combines phone, pager, fax, and PDA with a touchscreen, and is widely regarded as the first smartphone in history.", "category": "Dispositivos", "category_en": "Devices", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "Trece años antes del iPhone, ya existía la idea de 'un dispositivo para todo'.", "note_en": "Thirteen years before the iPhone, the idea of 'one device for everything' already existed."}, {"id": "DEV-0003", "year": 1996, "era": "1991–1999: Digitalización y PDAs", "era_en": "1991–1999: Digitization and PDAs", "title": "Nokia 9000 Communicator", "title_en": "Nokia 9000 Communicator", "desc": "Nokia lanza el Communicator, que combina teléfono con teclado QWERTY completo en un cuerpo tipo almeja, orientado al email y la navegación temprana para uso corporativo.", "desc_en": "Nokia launches the Communicator, combining a phone with a full QWERTY keyboard in a clamshell body, aimed at email and early browsing for business use.", "category": "Dispositivos", "category_en": "Devices", "importance": 1, "region": "Finlandia", "region_en": "Finland", "note": "El teclado físico completo como respuesta al problema de escribir texto largo en un celular.", "note_en": "The full physical keyboard as an answer to the problem of typing long text on a phone."}, {"id": "UX-0002", "year": 1998, "era": "1991–1999: Digitalización y PDAs", "era_en": "1991–1999: Digitization and PDAs", "title": "Menús jerárquicos de Nokia", "title_en": "Nokia's hierarchical menus", "desc": "Nokia estandariza un sistema de menús jerárquicos navegados con D-pad, convirtiéndose en la plantilla de navegación de los feature phones durante toda la década siguiente.", "desc_en": "Nokia standardizes a hierarchical menu system navigated with a D-pad, becoming the navigation template for feature phones throughout the following decade.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Finlandia", "region_en": "Finland", "note": "El ancestro directo de cualquier menú de configuraciones anidado que usamos hoy.", "note_en": "The direct ancestor of every nested settings menu we still use today."}, {"id": "DEV-0004", "year": 2000, "era": "2000–2006: Prehistoria del smartphone", "era_en": "2000–2006: Smartphone prehistory", "title": "Primer teléfono con cámara", "title_en": "First camera phone", "desc": "El Sharp J-SH04, lanzado en Japón junto a J-Phone, es el primer teléfono con cámara integrada de venta masiva, sembrando la base de la cultura de fotografía y compartir imágenes desde el móvil.", "desc_en": "The Sharp J-SH04, launched in Japan alongside J-Phone, is the first mass-market phone with a built-in camera, planting the seed of mobile photo culture and image-sharing.", "category": "Dispositivos", "category_en": "Devices", "importance": 2, "region": "Japón", "region_en": "Japan", "note": "El origen técnico de cada selfie, historia e Instagram post que existiría después.", "note_en": "The technical origin of every selfie, story, and Instagram post that would ever exist."}, {"id": "DEV-0005", "year": 2000, "era": "2000–2006: Prehistoria del smartphone", "era_en": "2000–2006: Smartphone prehistory", "title": "Nokia 3310", "title_en": "Nokia 3310", "desc": "Nokia lanza el 3310, uno de los teléfonos más vendidos de la historia, célebre por su durabilidad, carcasas intercambiables y el juego Snake preinstalado.", "desc_en": "Nokia launches the 3310, one of the best-selling phones in history, famous for its durability, interchangeable covers, and the pre-installed game Snake.", "category": "Dispositivos", "category_en": "Devices", "importance": 1, "region": "Finlandia", "region_en": "Finland", "note": "Ícono cultural del diseño 'indestructible' de la era feature phone.", "note_en": "A cultural icon of the 'indestructible' design ethos of the feature-phone era."}, {"id": "UX-0003", "year": 2000, "era": "2000–2006: Prehistoria del smartphone", "era_en": "2000–2006: Smartphone prehistory", "title": "Teclas contextuales (soft keys)", "title_en": "Contextual soft keys", "desc": "Los teléfonos adoptan dos teclas físicas bajo la pantalla cuya función cambia según el contexto, indicada por etiquetas en pantalla, reduciendo la cantidad de botones dedicados necesarios.", "desc_en": "Phones adopt two physical keys below the screen whose function changes with context, indicated by on-screen labels, reducing the number of dedicated buttons needed.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Global", "region_en": "Global", "note": "Primer ejemplo masivo de un control físico cuyo significado lo define el software.", "note_en": "The first mass example of a physical control whose meaning is defined entirely by software."}, {"id": "MOB-0007", "year": 2001, "era": "2000–2006: Prehistoria del smartphone", "era_en": "2000–2006: Smartphone prehistory", "title": "Despliegue comercial de redes 3G", "title_en": "Commercial rollout of 3G networks", "desc": "NTT DoCoMo lanza en Japón la primera red 3G comercial del mundo, habilitando internet móvil, videollamadas y velocidades de datos que harían viables las apps intensivas en contenido.", "desc_en": "NTT DoCoMo launches the world's first commercial 3G network in Japan, enabling mobile internet, video calls, and data speeds that would make content-heavy apps viable.", "category": "Redes", "category_en": "Networks", "importance": 2, "region": "Japón", "region_en": "Japan", "note": "Sin 3G, un ícono de App Store hubiera sido solo una promesa técnica.", "note_en": "Without 3G, an App Store icon would have been nothing more than a technical promise."}, {"id": "DEV-0006", "year": 2002, "era": "2000–2006: Prehistoria del smartphone", "era_en": "2000–2006: Smartphone prehistory", "title": "BlackBerry 5810", "title_en": "BlackBerry 5810", "desc": "RIM lanza el primer BlackBerry con función de llamadas (requería auricular), enfocado en email corporativo instantáneo con teclado QWERTY físico compacto.", "desc_en": "RIM launches the first BlackBerry with calling capability (it required a headset), focused on instant corporate email with a compact physical QWERTY keyboard.", "category": "Dispositivos", "category_en": "Devices", "importance": 1, "region": "Canadá", "region_en": "Canada", "note": "El teclado de pulgares (thumb-typing) que definiría la escritura móvil corporativa por años.", "note_en": "The thumb-typing keyboard that would define corporate mobile writing for years."}, {"id": "UX-0004", "year": 2004, "era": "2000–2006: Prehistoria del smartphone", "era_en": "2000–2006: Smartphone prehistory", "title": "Click Wheel del iPod", "title_en": "iPod Click Wheel", "desc": "La rueda del iPod combina desplazamiento físico con sensado capacitivo, permitiendo navegar listas largas con un solo pulgar; un antecedente directo del pensamiento gestual del iPhone.", "desc_en": "The iPod's wheel combines physical scrolling with capacitive sensing, letting users navigate long lists with a single thumb — a direct precursor to the iPhone's gestural thinking.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "La velocidad de giro determina la velocidad de scroll: física traducida en interacción digital.", "note_en": "Spin speed determines scroll speed: physics translated directly into digital interaction."}, {"id": "DEV-0007", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Primer iPhone", "title_en": "First iPhone", "desc": "Apple lanza el primer iPhone, eliminando el teclado físico en favor de una pantalla táctil capacitiva multitouch, redefiniendo de raíz el hardware y la interacción móvil.", "desc_en": "Apple launches the first iPhone, dropping the physical keyboard in favor of a capacitive multitouch touchscreen, redefining mobile hardware and interaction from the ground up.", "category": "Dispositivos", "category_en": "Devices", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "El punto de quiebre que separa 'antes' y 'después' en el diseño de interacción móvil.", "note_en": "The turning point that splits mobile interaction design into a clear 'before' and 'after.'"}, {"id": "UX-0005", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Tap", "title_en": "Tap", "desc": "El iPhone establece el 'tap' como la unidad fundamental de interacción táctil, reemplazando el clic de botón físico como gesto base de toda interfaz móvil.", "desc_en": "The iPhone establishes the tap as the fundamental unit of touch interaction, replacing the physical button click as the base gesture of every mobile interface.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "El gesto más simple y más usado en la historia del diseño de interfaces.", "note_en": "The simplest, most-used gesture in the entire history of interface design."}, {"id": "UX-0006", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Multitouch", "title_en": "Multitouch", "desc": "La pantalla capacitiva multitouch del iPhone (basada en tecnología de FingerWorks adquirida por Apple) permite múltiples puntos de contacto simultáneos, habilitando gestos que ningún teléfono soportaba antes.", "desc_en": "The iPhone's capacitive multitouch screen (built on FingerWorks technology Apple acquired) allows multiple simultaneous touch points, enabling gestures no phone had supported before.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "Multitouch es la infraestructura técnica detrás de casi todos los gestos posteriores de esta lista.", "note_en": "Multitouch is the technical infrastructure behind almost every gesture that follows on this list."}, {"id": "UX-0007", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Swipe (deslizar)", "title_en": "Swipe", "desc": "El gesto de deslizar debuta como patrón de navegación central en el iPhone, usado para desbloquear, pasar entre pantallas de inicio y descartar elementos.", "desc_en": "The swipe gesture debuts as a core navigation pattern on the iPhone, used to unlock the phone, move between home screens, and dismiss elements.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "Un gesto direccional que hoy dispara desde 'siguiente historia' hasta 'match' en apps de citas.", "note_en": "A directional gesture that today triggers everything from 'next story' to a 'match' on dating apps."}, {"id": "UX-0008", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Pinch-to-zoom", "title_en": "Pinch-to-zoom", "desc": "El iPhone introduce el pellizco con dos dedos para escalar contenido directamente, reemplazando los botones de zoom con una metáfora de manipulación directa.", "desc_en": "The iPhone introduces the two-finger pinch to scale content directly, replacing zoom buttons with a direct-manipulation metaphor.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "El gesto que hizo obsoletos los botones '+' y '−' de zoom de una sola vez.", "note_en": "The gesture that made '+' and '−' zoom buttons obsolete overnight."}, {"id": "UX-0009", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Scroll con inercia (momentum)", "title_en": "Momentum scrolling", "desc": "El desplazamiento del iPhone incorpora física de inercia: las listas siguen moviéndose y desaceleran naturalmente tras un 'flick', haciendo que las listas digitales se sientan tangibles.", "desc_en": "iPhone scrolling incorporates inertia physics: lists keep moving and decelerate naturally after a flick, making digital lists feel tangible.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Bas Ording programó este efecto; se dice que fue una de las demos que convenció internamente del proyecto iPhone.", "note_en": "Bas Ording programmed this effect; it's said to be one of the demos that won internal support for the iPhone project."}, {"id": "UX-0010", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Rebote elástico (rubber-banding)", "title_en": "Rubber-band scrolling", "desc": "Apple patenta el efecto de 'rebote elástico' al hacer scroll más allá del límite de una lista, dando retroalimentación visual instantánea de que se llegó al final del contenido.", "desc_en": "Apple patents the 'rubber-band' bounce-back effect when scrolling past a list's edge, giving instant visual feedback that the end of the content has been reached.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Feedback visual sin texto: el propio movimiento le explica al usuario dónde está el límite.", "note_en": "Feedback with no text at all: the motion itself tells the user where the limit is."}, {"id": "UX-0011", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Slide to unlock", "title_en": "Slide to unlock", "desc": "El deslizador para desbloquear del iPhone se convierte en uno de los patrones de interfaz más reconocidos de la década, usando una metáfora física de deslizamiento para prevenir desbloqueos accidentales.", "desc_en": "The iPhone's slide-to-unlock becomes one of the most recognized interface patterns of the decade, using a physical sliding metaphor to prevent accidental unlocks.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "Tan icónico que Apple lo patentó y litigó activamente para protegerlo.", "note_en": "So iconic that Apple patented it and actively litigated to protect it."}, {"id": "UX-0012", "year": 2007, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Autocorrección moderna", "title_en": "Modern autocorrect", "desc": "El iPhone se lanza con autocorrección en tiempo real sobre un teclado por software sin teclas físicas, una compensación necesaria del diseño de pantalla completa.", "desc_en": "The iPhone ships with real-time autocorrect running on a software keyboard with no physical keys — a necessary trade-off of the full-screen design.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "El primer gran ejemplo de un sistema que 'adivina' la intención del usuario en tiempo real.", "note_en": "The first major example of a system that 'guesses' user intent in real time."}, {"id": "DEV-0008", "year": 2008, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "HTC Dream", "title_en": "HTC Dream", "desc": "El HTC Dream (T-Mobile G1) se lanza como el primer teléfono comercial con Android, abriendo un segundo gran ecosistema móvil junto a iOS.", "desc_en": "The HTC Dream (T-Mobile G1) launches as the first commercial Android phone, opening a second major mobile ecosystem alongside iOS.", "category": "Dispositivos", "category_en": "Devices", "importance": 2, "region": "Estados Unidos / Taiwán", "region_en": "United States / Taiwan", "note": "El inicio de la fragmentación (y la riqueza) del diseño multiplataforma Android vs. iOS.", "note_en": "The start of the fragmentation — and the richness — of Android vs. iOS multi-platform design."}, {"id": "UX-0013", "year": 2008, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Doble tap para zoom", "title_en": "Double-tap to zoom", "desc": "Con la apertura de la App Store, las apps estandarizan el doble tap como atajo rápido de zoom en imágenes y contenido web, complementando los gestos de pellizco.", "desc_en": "With the App Store's launch, apps standardize double-tap as a quick zoom shortcut on images and web content, complementing pinch gestures.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Un atajo de 'segunda velocidad' que complementa, sin reemplazar, el gesto de pellizco.", "note_en": "A 'second gear' shortcut that complements, rather than replaces, the pinch gesture."}, {"id": "UX-0014", "year": 2008, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Gesto de rotar", "title_en": "Rotate gesture", "desc": "Se formaliza el gesto de rotar con dos dedos para girar fotos y mapas, ampliando el vocabulario multitouch más allá del pellizco y el tap.", "desc_en": "The two-finger rotate gesture is formalized for turning photos and maps, expanding the multitouch vocabulary beyond pinch and tap.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Global", "region_en": "Global", "note": "Un gesto poco usado pero conceptualmente clave: demuestra que multitouch puede leer ángulo, no solo distancia.", "note_en": "A rarely used but conceptually key gesture: proof that multitouch can read angle, not just distance."}, {"id": "UX-0015", "year": 2008, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Gestos de dos dedos", "title_en": "Two-finger gestures", "desc": "Patrones como el tap con dos dedos para alejar zoom o el scroll con dos dedos en mapas se expanden a medida que más apps se diseñan pensando exclusivamente en pantallas táctiles.", "desc_en": "Patterns like two-finger tap to zoom out or two-finger scroll on maps expand as more apps are designed exclusively for touchscreens.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Global", "region_en": "Global", "note": "Cada dedo adicional multiplica el vocabulario gestual disponible para el diseñador.", "note_en": "Every extra finger multiplies the gestural vocabulary available to the designer."}, {"id": "UX-0016", "year": 2008, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "UX con acelerómetro", "title_en": "Accelerometer UX", "desc": "Las apps comienzan a usar el acelerómetro integrado para detectar orientación y movimiento del dispositivo, habilitando auto-rotación y juegos o herramientas controladas al inclinar el teléfono.", "desc_en": "Apps begin using the built-in accelerometer to detect device orientation and motion, enabling auto-rotate and games or tools controlled by tilting the phone.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "La primera vez que el propio cuerpo del teléfono —no solo su pantalla— se vuelve un input.", "note_en": "The first time the phone's own body — not just its screen — becomes an input."}, {"id": "MOB-0008", "year": 2009, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Expansión global de 4G LTE", "title_en": "Global expansion of 4G LTE", "desc": "TeliaSonera lanza las primeras redes LTE (4G) comerciales en Estocolmo y Oslo, con velocidades que habilitarían streaming de video fluido, apps pesadas y una UX centrada en la nube.", "desc_en": "TeliaSonera launches the first commercial LTE (4G) networks in Stockholm and Oslo, with speeds that would enable smooth video streaming, heavy apps, and cloud-centric UX.", "category": "Redes", "category_en": "Networks", "importance": 2, "region": "Suecia / Noruega", "region_en": "Sweden / Norway", "note": "El salto de velocidad que permitió pensar el celular como una computadora de bolsillo real.", "note_en": "The speed leap that let people start thinking of the phone as a real pocket computer."}, {"id": "UX-0017", "year": 2009, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Pull-to-refresh", "title_en": "Pull-to-refresh", "desc": "Loren Brichter diseña el gesto de 'tirar para refrescar' para la app Tweetie, convirtiendo un deslizamiento hacia abajo y soltar en el estándar de la industria para actualizar contenido manualmente.", "desc_en": "Loren Brichter designs the 'pull to refresh' gesture for the Tweetie app, turning a swipe-down-and-release into the industry standard for manually updating content.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "Un solo diseñador independiente creó un patrón que hoy usan miles de millones de personas al día.", "note_en": "A single independent designer created a pattern billions of people now use every day."}, {"id": "UX-0018", "year": 2009, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Notificaciones push", "title_en": "Push notifications", "desc": "Apple introduce las notificaciones push en iOS, permitiendo que las apps alerten a los usuarios fuera de la propia app, cambiando fundamentalmente cómo funciona el reenganche (re-engagement) móvil.", "desc_en": "Apple introduces push notifications on iOS, letting apps alert users outside the app itself — fundamentally changing how mobile re-engagement works.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "La base técnica de toda la economía de la atención móvil que vendría después.", "note_en": "The technical foundation for the entire mobile attention economy that would follow."}, {"id": "UX-0019", "year": 2009, "era": "2007–2009: La revolución táctil (iPhone)", "era_en": "2007–2009: The touch revolution (iPhone)", "title": "Feedback háptico moderno", "title_en": "Modern haptic feedback", "desc": "Teléfonos como el Palm Pre y otros smartphones de la época comienzan a usar motores de vibración precisos para dar confirmación táctil de toques y eventos, sumando una capa física al UI táctil.", "desc_en": "Phones like the Palm Pre and other contemporaries begin using precise vibration motors to give tactile confirmation of taps and events, adding a physical layer to touch UI.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Sentir un 'clic' que en realidad no existe físicamente: el placebo táctil bien diseñado.", "note_en": "Feeling a 'click' that doesn't physically exist: the well-designed tactile placebo."}, {"id": "DEV-0009", "year": 2010, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Primer iPad", "title_en": "First iPad", "desc": "Apple lanza el iPad original, creando la categoría masiva de tablets y obligando al diseño de interfaz a pensar en lienzos táctiles mucho más grandes que un teléfono.", "desc_en": "Apple launches the original iPad, creating the mass tablet category and forcing interface design to think in touch canvases far bigger than a phone.", "category": "Dispositivos", "category_en": "Devices", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "El nacimiento del diseño 'responsive' pensado en tres tamaños: móvil, tablet y desktop.", "note_en": "The birth of 'responsive' design thought out across three sizes: phone, tablet, and desktop."}, {"id": "UX-0020", "year": 2010, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Long press (mantener presionado)", "title_en": "Long press", "desc": "El long press se estandariza como gesto para menús contextuales y acciones secundarias, ampliando el set de gestos táctiles más allá del tap y el swipe.", "desc_en": "Long press (press-and-hold) becomes standardized as a gesture for contextual menus and secondary actions, expanding the touch gesture set beyond tap and swipe.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "El equivalente táctil del clic derecho de mouse: acciones 'ocultas' descubribles con tiempo, no con un botón extra.", "note_en": "The touch equivalent of a mouse right-click: 'hidden' actions discoverable with time, not an extra button."}, {"id": "UX-0021", "year": 2010, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Scroll infinito", "title_en": "Infinite scroll", "desc": "Apps y feeds (primeros clientes móviles de Twitter/Facebook) adoptan el scroll infinito, cargando automáticamente más contenido al acercarse al final en lugar de paginar.", "desc_en": "Apps and feeds (early mobile Twitter/Facebook clients) adopt infinite scroll, automatically loading more content near the bottom instead of paginating.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "Uno de los patrones más debatidos de la UX moderna por su relación con el diseño adictivo.", "note_en": "One of modern UX's most debated patterns, given its ties to addictive design."}, {"id": "UX-0022", "year": 2010, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Swipe-to-delete", "title_en": "Swipe-to-delete", "desc": "Apps de mail y listas popularizan un deslizamiento horizontal que revela una acción de eliminar, convirtiendo una tarea destructiva común en un gesto liviano y descubrible.", "desc_en": "Mail and list apps popularize a horizontal swipe that reveals a delete action, turning a common destructive task into a light, discoverable gesture.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "Ocultar una acción destructiva detrás de un gesto reduce el ruido visual sin perder funcionalidad.", "note_en": "Hiding a destructive action behind a gesture reduces visual clutter without losing functionality."}, {"id": "UX-0023", "year": 2010, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Shake-to-undo", "title_en": "Shake-to-undo", "desc": "iOS introduce 'agitar para deshacer', usando el acelerómetro para disparar un cuadro de confirmación de deshacer, un ejemplo temprano de gestos de movimiento mapeados a acciones del sistema.", "desc_en": "iOS introduces shake-to-undo, using the accelerometer to trigger an undo confirmation box — an early example of motion gestures mapped to system-level actions.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Un gesto físico poco descubrible: gran ejemplo de por qué el 'easter egg' no siempre es buena UX.", "note_en": "A physical gesture with poor discoverability: a great example of why 'Easter eggs' aren't always good UX."}, {"id": "UX-0024", "year": 2011, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Swipe-to-archive", "title_en": "Swipe-to-archive", "desc": "Gmail y otras apps de correo extienden los gestos de deslizar agregando 'archivar' como alternativa a eliminar, reflejando un patrón de swipe contextual cada vez más maduro en interfaces de lista.", "desc_en": "Gmail and other mail apps extend swipe gestures by adding 'archive' as an alternative to delete, reflecting an increasingly mature pattern of contextual swipe actions in list interfaces.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Un mismo gesto (swipe) puede significar cosas distintas según la app: la consistencia se vuelve un reto de diseño.", "note_en": "The same gesture (swipe) can mean different things depending on the app: consistency becomes a design challenge."}, {"id": "UX-0026", "year": 2011, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Siri", "title_en": "Siri", "desc": "Apple lanza Siri como asistente de voz integrado en el iPhone 4S, masificando la interacción conversacional y por voz como una forma legítima de uso móvil cotidiano.", "desc_en": "Apple launches Siri as a built-in voice assistant on the iPhone 4S, mainstreaming conversational, voice-first interaction as a legitimate everyday way to use a phone.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "El primer asistente de voz que millones de personas usaron simplemente por curiosidad, no por necesidad.", "note_en": "The first voice assistant millions of people used purely out of curiosity, not necessity."}, {"id": "UX-0027", "year": 2011, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Interfaces basadas en tarjetas", "title_en": "Card-based interfaces", "desc": "Google (con Google+ y luego Android) populariza la 'tarjeta' como unidad de contenido autocontenida, un patrón que definiría más adelante el lenguaje visual de Material Design.", "desc_en": "Google (with Google+ and later Android) popularizes the 'card' as a self-contained content unit, a pattern that would later define Material Design's visual language.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Las tarjetas resolvieron el problema de mostrar contenido heterogéneo de forma consistente en un solo feed.", "note_en": "Cards solved the problem of showing heterogeneous content consistently within a single feed."}, {"id": "UX-0028", "year": 2012, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Google Now", "title_en": "Google Now", "desc": "Google Now introduce información predictiva basada en tarjetas, mostrada proactivamente antes de que el usuario busque, un ejemplo temprano y masivo de UX anticipatoria y contextual.", "desc_en": "Google Now introduces predictive, card-based information surfaced proactively before the user searches — an early, mainstream example of anticipatory, contextual UX.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "El primer intento serio de una interfaz que 'sabe lo que necesitas antes de que lo pidas'.", "note_en": "The first serious attempt at an interface that 'knows what you need before you ask for it.'"}, {"id": "UX-0029", "year": 2012, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Navegación por swipe desde el borde", "title_en": "Edge-swipe navigation", "desc": "Apps y gestos del sistema comienzan a usar deslizamientos desde el borde de la pantalla (por ejemplo, 'atrás') como forma de agregar navegación sin ocupar espacio visible en pantalla.", "desc_en": "Apps and system gestures begin using swipes from the screen's edge (for example, 'back') as a way to add navigation without taking up visible screen space.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Global", "region_en": "Global", "note": "Navegación invisible hasta que se necesita: el borde de la pantalla se vuelve territorio funcional.", "note_en": "Invisible navigation until you need it: the screen's edge becomes functional territory."}, {"id": "UX-0030", "year": 2012, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Diseño mobile responsive", "title_en": "Responsive mobile design", "desc": "Los principios de diseño web responsive de Ethan Marcotte alcanzan adopción masiva a medida que crece el tráfico móvil, imponiendo 'mobile-first', grillas fluidas y breakpoints como práctica estándar.", "desc_en": "Ethan Marcotte's responsive web design principles reach mass adoption as mobile traffic grows, cementing 'mobile-first' thinking, fluid grids, and breakpoints as standard practice.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "El momento en que diseñar 'para una pantalla' dejó de tener sentido como enfoque de trabajo.", "note_en": "The moment designing 'for one screen' stopped making sense as a way of working."}, {"id": "UX-0031", "year": 2013, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Touch ID", "title_en": "Touch ID", "desc": "Apple introduce el sensor de huella Touch ID en el iPhone 5S, reemplazando la entrada de PIN por autenticación biométrica integrada directamente en el botón de inicio.", "desc_en": "Apple introduces the Touch ID fingerprint sensor on the iPhone 5S, replacing PIN entry with biometric authentication built directly into the home button.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "La biometría deja de ser ciencia ficción y se vuelve un gesto cotidiano: apoyar el pulgar.", "note_en": "Biometrics stop being science fiction and become an everyday gesture: resting your thumb."}, {"id": "UX-0032", "year": 2013, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Interfaces con parallax", "title_en": "Parallax interfaces", "desc": "El rediseño de iOS 7 introduce un efecto parallax donde íconos y fondo se desplazan según la inclinación del dispositivo, agregando una sensación sutil de profundidad a un lenguaje visual recién 'aplanado'.", "desc_en": "iOS 7's redesign introduces a parallax effect where icons and wallpaper shift relative to the device's tilt, adding a subtle sense of depth to a newly 'flattened' visual language.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Profundidad simulada con movimiento, justo cuando el diseño visual abandonaba las sombras y texturas skeuomórficas.", "note_en": "Simulated depth through motion, right as visual design was abandoning skeuomorphic shadows and textures."}, {"id": "UX-0034", "year": 2014, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Floating Action Button (FAB)", "title_en": "Floating Action Button (FAB)", "desc": "Material Design de Google introduce el FAB, un botón circular elevado reservado para la acción más importante de una pantalla, con posición y jerarquía visual estandarizadas.", "desc_en": "Google's Material Design introduces the FAB, an elevated circular button reserved for a screen's single most important action, with standardized position and visual hierarchy.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Un solo botón, una sola acción: el FAB fuerza a priorizar en el diseño de cada pantalla.", "note_en": "One button, one action: the FAB forces every screen's design to prioritize."}, {"id": "UX-0035", "year": 2014, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Material Motion", "title_en": "Material Motion", "desc": "Material Design formaliza principios de movimiento (transiciones con significado, efecto ripple) que explican cómo los objetos se mueven y transforman entre estados de la interfaz.", "desc_en": "Material Design formalizes motion principles (meaningful transitions, the ripple effect) that explain how objects move and transform between interface states.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "El movimiento deja de ser decoración y pasa a comunicar relaciones jerárquicas entre elementos.", "note_en": "Motion stops being decoration and starts communicating hierarchical relationships between elements."}, {"id": "UX-0036", "year": 2014, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Microinteracciones", "title_en": "Microinteractions", "desc": "El concepto de 'microinteracciones' (popularizado por el libro de Dan Saffer) impulsa a pensar pequeños momentos de feedback —switches, pull-to-refresh, likes— como oportunidades reales de diseño.", "desc_en": "The concept of 'microinteractions' (popularized by Dan Saffer's book) pushes designers to treat small feedback moments — switches, pull-to-refresh, likes — as real design opportunities.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Los detalles pequeños —un ícono de corazón que 'rebota'— se vuelven disciplina de diseño propia.", "note_en": "Small details — a heart icon that 'bounces' — become their own design discipline."}, {"id": "UX-0037", "year": 2014, "era": "2010–2014: Gestos, tarjetas y Material Design", "era_en": "2010–2014: Gestures, cards and Material Design", "title": "Búsqueda por voz", "title_en": "Voice search", "desc": "La búsqueda por voz se convierte en una entrada móvil de primera clase a medida que Google y otros mejoran el reconocimiento de voz en el dispositivo más allá de comandos simples.", "desc_en": "Voice search becomes a first-class mobile input as Google and others improve on-device voice recognition beyond simple commands.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Global", "region_en": "Global", "note": "Hablarle al teléfono deja de sentirse raro y empieza a sentirse simplemente más rápido.", "note_en": "Talking to your phone stops feeling strange and starts feeling simply faster."}, {"id": "DEV-0010", "year": 2015, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Apple Watch", "title_en": "Apple Watch", "desc": "Apple lanza su primer wearable, el Apple Watch, llevando pantalla táctil, Digital Crown y feedback háptico a la muñeca y expandiendo el diseño UX hacia pantallas diminutas.", "desc_en": "Apple launches its first wearable, the Apple Watch, bringing a touchscreen, Digital Crown, and haptic feedback to the wrist and extending UX design onto tiny screens.", "category": "Dispositivos", "category_en": "Devices", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Diseñar para una pantalla de 4cm exige repensar cada patrón táctil desde cero.", "note_en": "Designing for a 4cm screen forces every touch pattern to be rethought from scratch."}, {"id": "UX-0033", "year": 2015, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Peek & Pop", "title_en": "Peek & Pop", "desc": "Con 3D Touch en el iPhone 6s, Apple introduce Peek & Pop: presionar con fuerza sobre un elemento muestra una vista previa ('peek') y presionar más fuerte la abre por completo ('pop').", "desc_en": "With 3D Touch on the iPhone 6s, Apple introduces Peek & Pop: pressing firmly on an item shows a preview ('peek'), and pressing harder opens it fully ('pop').", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Nota de investigación: el archivo original ubicaba este hito en 2013, pero Peek & Pop se lanzó junto con 3D Touch en 2015; se corrigió el año para mantener precisión histórica.", "note_en": "Research note: the original source file placed this milestone in 2013, but Peek & Pop actually launched with 3D Touch in 2015; the year was corrected here for historical accuracy."}, {"id": "UX-0038", "year": 2015, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Digital Crown", "title_en": "Digital Crown", "desc": "La corona digital del Apple Watch, un dial físico giratorio, se diseña para hacer scroll y zoom en una pantalla diminuta sin que el dedo tape la vista, uniendo la herencia analógica del reloj con la UX digital.", "desc_en": "The Apple Watch's Digital Crown, a physical rotating dial, is designed to scroll and zoom on a tiny screen without a finger blocking the view, merging the watch's analog heritage with digital UX.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Resolver 'dedo gordo, pantalla chica' recurriendo a un control mecánico, no solo táctil.", "note_en": "Solving 'big finger, small screen' by reaching for a mechanical control, not just a touch one."}, {"id": "UX-0039", "year": 2015, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Force Touch", "title_en": "Force Touch", "desc": "Apple Watch y los trackpads de MacBook introducen Force Touch, una capa sensible a la presión que agrega una dimensión de entrada de 'clic más fuerte' más allá de la ubicación del toque.", "desc_en": "The Apple Watch and MacBook trackpads introduce Force Touch, a pressure-sensitive layer that adds a 'press harder' input dimension beyond just touch location.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Presión como nueva variable de entrada: no solo dónde tocás, sino con cuánta fuerza.", "note_en": "Pressure as a new input variable: not just where you touch, but how hard."}, {"id": "UX-0040", "year": 2015, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "3D Touch", "title_en": "3D Touch", "desc": "El iPhone 6s introduce 3D Touch, pantallas sensibles a la presión que habilitan las vistas previas de Peek & Pop y Acciones Rápidas desde la pantalla de inicio (descontinuado más adelante en favor de Haptic Touch).", "desc_en": "The iPhone 6s introduces 3D Touch, pressure-sensitive screens enabling Peek & Pop previews and Quick Actions from the home screen (later discontinued in favor of Haptic Touch).", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Una tecnología ambiciosa que terminó siendo reemplazada: no todo patrón innovador sobrevive al mercado.", "note_en": "An ambitious technology that ended up being replaced: not every innovative pattern survives the market."}, {"id": "UX-0041", "year": 2015, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Live Photos", "title_en": "Live Photos", "desc": "Apple introduce Live Photos, que capturan unos segundos de movimiento y sonido alrededor de una foto fija, difuminando la línea entre foto y video en la UX de cámara.", "desc_en": "Apple introduces Live Photos, capturing a few seconds of motion and sound around a still image, blurring the line between photo and video in camera UX.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Un nuevo formato híbrido que exigió repensar cómo se visualiza y comparte una 'foto'.", "note_en": "A new hybrid format that forced a rethink of how a 'photo' is viewed and shared."}, {"id": "UX-0042", "year": 2016, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Chatbots", "title_en": "Chatbots", "desc": "Facebook Messenger y otras plataformas abren sus plataformas de bots, masificando la interfaz conversacional (chatbots) como capa de interacción con servicios dentro de apps de mensajería.", "desc_en": "Facebook Messenger and other platforms open up bot platforms, mainstreaming the conversational interface (chatbot) as a layer for interacting with services inside messaging apps.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "El chat, pensado para hablar con personas, se convierte también en la interfaz para hablar con software.", "note_en": "Chat, designed for talking to people, also becomes the interface for talking to software."}, {"id": "UX-0043", "year": 2016, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Pokémon GO y AR masiva", "title_en": "Pokémon GO and mass-market AR", "desc": "Pokémon GO de Niantic se convierte en la primera experiencia de realidad aumentada móvil masiva, superponiendo elementos de juego sobre la cámara y popularizando la interacción AR basada en ubicación.", "desc_en": "Niantic's Pokémon GO becomes the first mass-market mobile augmented-reality experience, overlaying game elements onto the camera feed and popularizing location-based AR interaction.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos / Japón", "region_en": "United States / Japan", "note": "Millones de personas caminando con el teléfono en alto: la primera vez que AR salió del laboratorio a la calle.", "note_en": "Millions of people walking around with their phone held up: the first time AR left the lab and hit the street."}, {"id": "UX-0044", "year": 2016, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Reacciones animadas", "title_en": "Animated reactions", "desc": "Facebook lanza Reacciones basadas en emoji (más allá del 'Me gusta'), y Messenger/iMessage suman reacciones tipo tapback, agregando gestos livianos de respuesta emocional a la mensajería.", "desc_en": "Facebook launches emoji-based Reactions (beyond 'Like'), and Messenger/iMessage add tapback-style reactions, adding lightweight emotional-response gestures to messaging.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Responder con un gesto en vez de escribir: la eficiencia emocional como patrón de diseño.", "note_en": "Responding with a gesture instead of typing: emotional efficiency as a design pattern."}, {"id": "UX-0045", "year": 2017, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Navegación gestual (iPhone X)", "title_en": "Gesture navigation (iPhone X)", "desc": "El iPhone X elimina por completo el botón de inicio y lo reemplaza con un sistema de deslizamientos desde el borde (swipe-up para ir a inicio, mantener para el multitarea), el primer sistema de navegación totalmente gestual en un teléfono masivo.", "desc_en": "The iPhone X removes the home button entirely, replacing it with a system of edge swipes (swipe-up for home, swipe-and-hold for the app switcher) — the first fully gesture-based navigation system on a mainstream phone.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "Quitar un botón físico obligó a rediseñar, de una sola vez, todo el sistema de navegación de iOS.", "note_en": "Removing one physical button forced a complete, one-shot redesign of iOS's entire navigation system."}, {"id": "UX-0046", "year": 2017, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Face ID", "title_en": "Face ID", "desc": "Apple reemplaza Touch ID por Face ID en el iPhone X, usando una cámara TrueDepth infrarroja para autenticación por reconocimiento facial, ligada directamente al nuevo diseño sin botón físico.", "desc_en": "Apple replaces Touch ID with Face ID on the iPhone X, using an infrared TrueDepth camera for facial-recognition authentication, tied directly to the new buttonless design.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 3, "region": "Estados Unidos", "region_en": "United States", "note": "Mirar el teléfono para desbloquearlo: la autenticación más rápida jamás diseñada, hasta que dejás de mirarlo.", "note_en": "Looking at your phone to unlock it: the fastest authentication ever designed — until you stop looking at it."}, {"id": "UX-0047", "year": 2017, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Animoji", "title_en": "Animoji", "desc": "La cámara TrueDepth del iPhone X habilita los Animoji, personajes animados que reflejan en tiempo real las expresiones faciales del usuario.", "desc_en": "The iPhone X's TrueDepth camera enables Animoji, animated characters that mirror the user's facial expressions in real time.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Sensado facial usado para expresión lúdica, no solo para seguridad: el mismo hardware, dos propósitos.", "note_en": "Facial sensing used for playful expression, not just security: the same hardware, two purposes."}, {"id": "UX-0048", "year": 2017, "era": "2015–2017: Biometría y navegación gestual", "era_en": "2015–2017: Biometrics and gesture navigation", "title": "Interfaces conscientes de la atención", "title_en": "Attention-aware interfaces", "desc": "El iPhone X usa su sensor frontal para detectar cuándo el usuario está mirando la pantalla, atenuando notificaciones o manteniendo la pantalla encendida solo mientras hay atención sostenida.", "desc_en": "The iPhone X uses its front sensor to detect when the user is looking at the screen, dimming notifications or keeping the display on only while attention is sustained.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Un patrón temprano de diseño que responde a la mirada humana, no solo al toque.", "note_en": "An early design pattern that responds to the human gaze, not just to touch."}, {"id": "UX-0049", "year": 2018, "era": "2018–2019: Gestos totales y modo oscuro", "era_en": "2018–2019: Full gestures and dark mode", "title": "Memoji", "title_en": "Memoji", "desc": "Apple extiende los Animoji hacia los Memoji, permitiendo construir un avatar animado y personalizable del propio usuario para usar en mensajería.", "desc_en": "Apple extends Animoji into Memoji, letting users build a customizable, animated avatar of themselves for use in messaging.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "La identidad visual personal entra a la mensajería como un elemento diseñable, no solo una foto de perfil.", "note_en": "Personal visual identity enters messaging as a designable element, not just a profile photo."}, {"id": "UX-0050", "year": 2018, "era": "2018–2019: Gestos totales y modo oscuro", "era_en": "2018–2019: Full gestures and dark mode", "title": "Haptic Touch", "title_en": "Haptic Touch", "desc": "Apple reemplaza el sensible a presión 3D Touch por Haptic Touch, una alternativa basada en mantener presionado más vibración, más fácil de implementar en un rango más amplio de hardware.", "desc_en": "Apple replaces pressure-sensitive 3D Touch with Haptic Touch, a long-press-plus-vibration alternative that's easier to implement across a much wider range of hardware.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "A veces simplificar una tecnología (de presión a tiempo) mejora la consistencia del ecosistema completo.", "note_en": "Sometimes simplifying a technology (from pressure to time) improves consistency across the whole ecosystem."}, {"id": "UX-0051", "year": 2018, "era": "2018–2019: Gestos totales y modo oscuro", "era_en": "2018–2019: Full gestures and dark mode", "title": "Navegación gesture-first", "title_en": "Gesture-first navigation", "desc": "Android 9 Pie introduce un nuevo sistema de navegación basado en gestos (indicador de inicio en forma de píldora), con Google siguiendo el camino abierto por el iPhone X para reducir botones en pantalla.", "desc_en": "Android 9 Pie introduces a new gesture-based navigation system (a pill-shaped home indicator), with Google following the path opened by the iPhone X to reduce on-screen buttons.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "La convergencia de patrones entre iOS y Android acelera cuando un gesto exitoso se copia rápido.", "note_en": "The convergence of patterns between iOS and Android accelerates whenever a successful gesture gets copied fast."}, {"id": "DEV-0011", "year": 2019, "era": "2018–2019: Gestos totales y modo oscuro", "era_en": "2018–2019: Full gestures and dark mode", "title": "Samsung Galaxy Fold", "title_en": "Samsung Galaxy Fold", "desc": "Samsung lanza el primer smartphone plegable de producción masiva, introduciendo desafíos de diseño alrededor de layouts adaptativos y continuidad entre estados de pantalla.", "desc_en": "Samsung launches the first mass-produced foldable smartphone, introducing design challenges around adaptive layouts and continuity across screen states.", "category": "Dispositivos", "category_en": "Devices", "importance": 2, "region": "Corea del Sur", "region_en": "South Korea", "note": "Los patrones de 'continuidad' al plegar/desplegar se volverían un nuevo territorio de la UX.", "note_en": "'Continuity' patterns for folding/unfolding would become an entirely new UX frontier."}, {"id": "MOB-0009", "year": 2019, "era": "2018–2019: Gestos totales y modo oscuro", "era_en": "2018–2019: Full gestures and dark mode", "title": "Despliegue comercial de 5G", "title_en": "Commercial rollout of 5G", "desc": "Corea del Sur y Estados Unidos (Verizon) lanzan las primeras redes 5G comerciales, prometiendo latencia ultra baja que habilitaría realidad aumentada, cloud gaming e interfaces IoT más densas.", "desc_en": "South Korea and the United States (Verizon) launch the first commercial 5G networks, promising ultra-low latency that would enable augmented reality, cloud gaming, and denser IoT interfaces.", "category": "Redes", "category_en": "Networks", "importance": 2, "region": "Corea del Sur / Estados Unidos", "region_en": "South Korea / United States", "note": "La latencia baja del 5G es lo que hace viables las interacciones AR en tiempo real.", "note_en": "5G's low latency is what makes real-time AR interactions viable."}, {"id": "UX-0052", "year": 2019, "era": "2018–2019: Gestos totales y modo oscuro", "era_en": "2018–2019: Full gestures and dark mode", "title": "Navegación gestual de Android", "title_en": "Android gesture navigation", "desc": "Android 10 finaliza una navegación completamente gestual (deslizamientos desde el borde para atrás/inicio/apps recientes), permitiendo desactivar por completo la barra de navegación de tres botones.", "desc_en": "Android 10 finalizes fully gestural navigation (edge swipes for back/home/recent apps), letting users disable the traditional three-button nav bar entirely.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Dos ecosistemas distintos convergen, con matices, en el mismo lenguaje gestual de navegación.", "note_en": "Two distinct ecosystems converge, with nuances, on the same gestural navigation language."}, {"id": "UX-0053", "year": 2019, "era": "2018–2019: Gestos totales y modo oscuro", "era_en": "2018–2019: Full gestures and dark mode", "title": "UX para pantallas plegables", "title_en": "Foldable UX", "desc": "Con el Galaxy Fold y dispositivos similares, el diseño debe resolver la 'continuidad': apps que se redimensionan en vivo mientras la pantalla se despliega, y nuevos patrones de multitarea en pantallas plegadas más grandes.", "desc_en": "With the Galaxy Fold and similar devices, design has to solve for 'continuity': apps resizing live as the screen unfolds, and new multitasking patterns for larger folded screens.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Corea del Sur", "region_en": "South Korea", "note": "Diseñar para un dispositivo que cambia de forma de tamaño en medio del uso es un problema nuevo por completo.", "note_en": "Designing for a device that changes shape and size mid-use is an entirely new kind of problem."}, {"id": "UX-0054", "year": 2019, "era": "2018–2019: Gestos totales y modo oscuro", "era_en": "2018–2019: Full gestures and dark mode", "title": "Modo oscuro (Dark Mode)", "title_en": "Dark Mode", "desc": "iOS 13 y Android 10 lanzan modo oscuro a nivel de todo el sistema, obligando a todo el ecosistema de diseño a soportar temas de color claro y oscuro como expectativa básica.", "desc_en": "iOS 13 and Android 10 both ship system-wide Dark Mode, forcing the entire design ecosystem to support light and dark color themes as a baseline expectation.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "De opción estética a requisito de accesibilidad y ahorro de batería: el modo oscuro cambió el proceso de diseño de sistemas de color.", "note_en": "From aesthetic option to accessibility and battery-saving requirement: Dark Mode changed how color systems get designed."}, {"id": "DEV-0012", "year": 2020, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "iPad Pro con LiDAR", "title_en": "iPad Pro with LiDAR", "desc": "Apple incorpora un escáner LiDAR al iPad Pro, habilitando detección de profundidad para una colocación e interacción de objetos de realidad aumentada mucho más precisa.", "desc_en": "Apple adds a LiDAR scanner to the iPad Pro, enabling depth sensing for far more precise placement and interaction with augmented-reality objects.", "category": "Dispositivos", "category_en": "Devices", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Profundidad de sensor = objetos AR que finalmente 'se quedan quietos' en el mundo real.", "note_en": "Sensor depth = AR objects that finally 'stay put' in the real world."}, {"id": "UX-0055", "year": 2020, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Widgets interactivos", "title_en": "Interactive widgets", "desc": "iOS 14 rediseña los widgets de pantalla de inicio para mostrar información viva y de un vistazo (y más adelante controles interactivos), moviendo la pantalla de inicio de íconos estáticos hacia contenido dinámico.", "desc_en": "iOS 14 redesigns home-screen widgets to show live, glanceable information (and later interactive controls), moving the home screen from static icons toward dynamic content.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "La pantalla de inicio pasa de ser un directorio de apps a ser, en sí misma, una superficie de información.", "note_en": "The home screen goes from being an app directory to becoming, in itself, an information surface."}, {"id": "UX-0056", "year": 2020, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Arrastrar y soltar múltiples ítems", "title_en": "Multi-item drag & drop", "desc": "iPadOS perfecciona el drag & drop para soportar tomar varios ítems a la vez y moverlos entre apps, extendiendo gestos de multitarea de nivel escritorio hacia las tablets.", "desc_en": "iPadOS refines drag-and-drop to support picking up several items at once and moving them between apps, extending desktop-class multitasking gestures to tablets.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Un gesto que traslada metáforas de productividad de escritorio a un dispositivo pensado originalmente para consumo.", "note_en": "A gesture that carries desktop productivity metaphors onto a device originally designed for consumption."}, {"id": "UX-0057", "year": 2020, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Interacciones con LiDAR", "title_en": "LiDAR interactions", "desc": "Los iPad/iPhone con LiDAR permiten que las apps de realidad aumentada coloquen objetos virtuales con comprensión de profundidad casi instantánea y precisa, mejorando oclusión y realismo en la UX de AR.", "desc_en": "LiDAR-equipped iPads/iPhones let AR apps place virtual objects with near-instant, accurate depth understanding, improving occlusion and realism in AR UX.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Estados Unidos", "region_en": "United States", "note": "Cuanto mejor entiende el sensor el mundo real, menos 'trucos' de diseño necesita disimular en AR.", "note_en": "The better the sensor understands the real world, the fewer design 'tricks' AR needs to hide."}, {"id": "UX-0058", "year": 2021, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Live Text", "title_en": "Live Text", "desc": "iOS 15 introduce Live Text, permitiendo que la cámara o cualquier foto reconozca texto y deje seleccionarlo, copiarlo o accionarlo directamente dentro de una imagen en tiempo real.", "desc_en": "iOS 15 introduces Live Text, letting the camera or any photo recognize text and let users select, copy, or act on it directly within an image in real time.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "La cámara deja de ser solo captura y se convierte en una herramienta de lectura e interacción con texto.", "note_en": "The camera stops being just a capture tool and becomes a text-reading and interaction tool."}, {"id": "UX-0059", "year": 2021, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Design tokens", "title_en": "Design tokens", "desc": "Los sistemas de diseño multiplataforma formalizan cada vez más los 'design tokens' (valores nombrados de color, espaciado, tipografía) para que una sola fuente de verdad guíe una UI consistente en iOS, Android y web.", "desc_en": "Cross-platform design systems increasingly formalize 'design tokens' (named values for color, spacing, typography) so a single source of truth can drive consistent UI across iOS, Android, and web.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 1, "region": "Global", "region_en": "Global", "note": "Menos un gesto visible y más una infraestructura invisible que hace posible la consistencia entre plataformas.", "note_en": "Less a visible gesture and more an invisible infrastructure that makes cross-platform consistency possible."}, {"id": "UX-0060", "year": 2022, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Dynamic Island", "title_en": "Dynamic Island", "desc": "Apple convierte el recorte de cámara frontal del iPhone 14 Pro en la Dynamic Island, un área interactiva que cambia de forma para mostrar actividades en vivo y notificaciones de manera contextual.", "desc_en": "Apple turns the iPhone 14 Pro's front-camera cutout into the Dynamic Island, a shape-shifting interactive area that surfaces live activities and notifications contextually.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Estados Unidos", "region_en": "United States", "note": "Convertir una 'limitación' de hardware (el recorte de cámara) en una oportunidad de interacción con marca propia.", "note_en": "Turning a hardware 'limitation' (the camera cutout) into a branded interaction opportunity."}, {"id": "UX-0061", "year": 2022, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Passkeys", "title_en": "Passkeys", "desc": "Apple, Google y Microsoft adoptan el estándar de passkeys de la FIDO Alliance, reemplazando contraseñas escritas por inicio de sesión biométrico/criptográfico basado en el dispositivo, en las plataformas móviles.", "desc_en": "Apple, Google, and Microsoft adopt the FIDO Alliance's passkey standard, replacing typed passwords with device-based biometric/cryptographic sign-in across mobile platforms.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "El objetivo de décadas de UX de seguridad —eliminar la contraseña— empieza finalmente a ser realidad.", "note_en": "A decades-long UX security goal — eliminating the password — finally starts to become reality."}, {"id": "DEV-0013", "year": 2023, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Dispositivos con IA on-device", "title_en": "On-device AI devices", "desc": "Smartphones como Google Pixel y Samsung Galaxy S24 comienzan a incluir chips neuronales dedicados para ejecutar funciones de IA generativa localmente, cambiando las expectativas de privacidad y latencia en la UX móvil.", "desc_en": "Smartphones such as the Google Pixel and Samsung Galaxy S24 begin shipping dedicated neural chips to run generative-AI features locally, changing privacy and latency expectations in mobile UX.", "category": "Dispositivos", "category_en": "Devices", "importance": 2, "region": "Global", "region_en": "Global", "note": "Procesar IA en el dispositivo, no en la nube, es la nueva frontera de diseño de confianza.", "note_en": "Processing AI on the device, not in the cloud, is the new frontier of trust-centered design."}, {"id": "UX-0062", "year": 2023, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Interfaces de IA generativa", "title_en": "Generative AI interfaces", "desc": "Las apps comienzan a incorporar interfaces de chat/prompt con IA generativa (al estilo ChatGPT) directamente en la UX móvil para creación de contenido, búsqueda y asistencia.", "desc_en": "Apps begin embedding generative-AI chat/prompt interfaces (ChatGPT-style) directly into mobile UX for content creation, search, and assistance.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "El campo de texto de búsqueda evoluciona hacia una conversación abierta con un modelo de lenguaje.", "note_en": "The search text field evolves into an open-ended conversation with a language model."}, {"id": "UX-0063", "year": 2023, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "UX de IA on-device", "title_en": "On-device AI UX", "desc": "Los fabricantes llevan funciones de IA (transcripción, resúmenes, generación de imágenes) a ejecutarse en el propio dispositivo mediante chips neuronales dedicados, cambiando las expectativas de UX en velocidad, disponibilidad offline y privacidad.", "desc_en": "Manufacturers push AI features (transcription, summarization, image generation) to run on the device itself via dedicated neural chips, changing UX expectations around speed, offline availability, and privacy.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "La IA que corre sin conexión cambia el contrato de confianza entre usuario y dispositivo.", "note_en": "AI that runs offline changes the trust contract between user and device."}, {"id": "UX-0064", "year": 2025, "era": "2020–2025: IA, multimodalidad y pantallas adaptativas", "era_en": "2020–2025: AI, multimodality and adaptive screens", "title": "Interfaces multimodales adaptativas", "title_en": "Adaptive multimodal interfaces", "desc": "Las interfaces móviles combinan cada vez más voz, texto, cámara y gestos de forma intercambiable dentro de un mismo flujo, permitiendo cambiar de modalidad de entrada a mitad de tarea mientras sistemas de IA interpretan la intención entre modalidades.", "desc_en": "Mobile interfaces increasingly combine voice, text, camera, and gesture interchangeably within a single flow, letting users switch input modality mid-task while AI systems interpret intent across modalities.", "category": "UX/Interacción", "category_en": "UX/Interaction", "importance": 2, "region": "Global", "region_en": "Global", "note": "El futuro cercano de la UX: menos 'elegir el botón correcto' y más 'expresar la intención de la forma que sea más natural'.", "note_en": "The near future of UX: less 'pick the right button' and more 'express your intent however feels most natural.'"}]</script>
+<script>
+// Iconografía por categoría — estilo línea, 24x24 viewBox, stroke-based
+const CATEGORY_ICONS = {
+  'Redes': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/>
+    <ellipse cx="12" cy="12" rx="4" ry="9"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <path d="M4.5 7 H19.5"/>
+    <path d="M4.5 17 H19.5"/>
+  </svg>`,
+
+  'Dispositivos': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="7" y="2.5" width="10" height="19" rx="2.2"/>
+    <line x1="10" y1="19" x2="14" y2="19"/>
+  </svg>`,
+
+  'UX/Interacción': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4" width="18" height="13" rx="1.5"/>
+    <line x1="3" y1="8" x2="21" y2="8"/>
+    <path d="M8.5 12.8 L10.5 14.8 L15 10.2"/>
+  </svg>`
+};
+
+const SUN_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="4.2" y1="4.2" x2="6" y2="6"/><line x1="18" y1="18" x2="19.8" y2="19.8"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/><line x1="4.2" y1="19.8" x2="6" y2="18"/><line x1="18" y1="6" x2="19.8" y2="4.2"/></svg>`;
+const MOON_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>`;
+
+// ===== CONFIG =====
+const CATEGORY_COLORS = {
+  'Redes': 'var(--c-redes)',
+  'Dispositivos': 'var(--c-dispositivos)',
+  'UX/Interacción': 'var(--c-ux)'
+};
+// Color de texto/ícono con contraste seguro sobre cada color de categoría.
+// Dispositivos (#4A3AFF) es demasiado oscuro para texto oscuro (ratio ~3:1, falla AA);
+// Redes y UX/Interacción sí tienen suficiente contraste con texto oscuro (ratio > 7:1).
+const CATEGORY_TEXT = {
+  'Redes': '#0B0B14',
+  'Dispositivos': '#FFFFFF',
+  'UX/Interacción': '#0B0B14'
+};
+const MAIN_CATS = ['Redes', 'Dispositivos', 'UX/Interacción'];
+
+const EVENTS = JSON.parse(document.getElementById('events-data').textContent);
+const YEAR_MIN = Math.min(...EVENTS.map(e => e.year));
+const YEAR_MAX = Math.max(...EVENTS.map(e => e.year));
+
+// ===== I18N =====
+const STR = {
+  es: {
+    eyebrow: "Taller de Diseño Digital",
+    titleHTML: 'Línea de tiempo <span>Mobile UX</span>',
+    searchPlaceholder: "Buscar evento...",
+    allRegions: "Todas las regiones",
+    clearFilters: "Limpiar filtros",
+    from: "Desde",
+    to: "Hasta",
+    footer: "Coloripop · Datos: investigación histórica verificada, 1947–2025",
+    emptyState: "No hay eventos que coincidan con estos filtros.",
+    designNote: "Nota de diseño",
+    regionLabel: "Región / origen",
+    importanceLabel: "Importancia",
+    refIdLabel: "ID de referencia",
+    themeToLight: "Cambiar a modo claro",
+    themeToDark: "Cambiar a modo oscuro",
+    showing: (n, total) => `Mostrando <b>${n}</b> de ${total} eventos`,
+    headerMeta: (n, from, to) => `${n} eventos · ${from}–${to}`,
+    categories: { 'Redes':'Redes', 'Dispositivos':'Dispositivos', 'UX/Interacción':'UX/Interacción' }
+  },
+  en: {
+    eyebrow: "Digital Design Workshop",
+    titleHTML: 'Mobile UX <span>Timeline</span>',
+    searchPlaceholder: "Search event...",
+    allRegions: "All regions",
+    clearFilters: "Clear filters",
+    from: "From",
+    to: "To",
+    footer: "Coloripop — Data: verified historical research, 1947–2025",
+    emptyState: "No events match these filters.",
+    designNote: "Design note",
+    regionLabel: "Region / origin",
+    importanceLabel: "Importance",
+    refIdLabel: "Reference ID",
+    themeToLight: "Switch to light mode",
+    themeToDark: "Switch to dark mode",
+    showing: (n, total) => `Showing <b>${n}</b> of ${total} events`,
+    headerMeta: (n, from, to) => `${n} events · ${from}–${to}`,
+    categories: { 'Redes':'Networks', 'Dispositivos':'Devices', 'UX/Interacción':'UX/Interaction' }
+  }
+};
+
+// ===== STATE =====
+let activeFilters = new Set();
+let searchQuery = '';
+let yearFrom = YEAR_MIN;
+let yearTo = YEAR_MAX;
+let selectedRegion = '';
+let currentLang = 'es';
+let currentTheme = 'dark';
+
+// generic bilingual field getter: title/title_en, desc/desc_en, note/note_en, era/era_en, region/region_en, category/category_en
+function L(ev, field){
+  return currentLang === 'es' ? ev[field] : ev[field + '_en'];
+}
+
+// ===== THEME =====
+function setTheme(theme){
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('themeToggle');
+  btn.innerHTML = currentTheme === 'dark' ? SUN_ICON : MOON_ICON;
+  btn.title = currentTheme === 'dark' ? STR[currentLang].themeToLight : STR[currentLang].themeToDark;
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+});
+
+// ===== LANGUAGE =====
+function applyStaticStrings(){
+  const s = STR[currentLang];
+  document.documentElement.lang = currentLang;
+  document.getElementById('eyebrowText').textContent = s.eyebrow;
+  document.getElementById('titleText').innerHTML = s.titleHTML;
+  document.getElementById('searchInput').placeholder = s.searchPlaceholder;
+  document.getElementById('clearBtn').textContent = s.clearFilters;
+  document.getElementById('fromEyebrow').textContent = s.from;
+  document.getElementById('toEyebrow').textContent = s.to;
+  document.getElementById('footerText').textContent = s.footer;
+  document.querySelectorAll('#mainToggles .toggle-btn').forEach(btn => {
+    btn.querySelector('.cat-label').textContent = s.categories[btn.dataset.cat];
+  });
+  const btn = document.getElementById('themeToggle');
+  btn.title = currentTheme === 'dark' ? s.themeToLight : s.themeToDark;
+}
+
+function setLang(lang){
+  currentLang = lang;
+  document.getElementById('langEs').classList.toggle('active', lang === 'es');
+  document.getElementById('langEn').classList.toggle('active', lang === 'en');
+  applyStaticStrings();
+  buildRegionOptions();
+  refreshEraTooltips();
+  render();
+}
+document.getElementById('langEs').addEventListener('click', () => setLang('es'));
+document.getElementById('langEn').addEventListener('click', () => setLang('en'));
+
+// ===== REGION FILTER =====
+const regionSelect = document.getElementById('regionSelect');
+function buildRegionOptions(){
+  const previousValue = selectedRegion;
+  const counts = {};
+  EVENTS.forEach(ev => { counts[ev.region] = (counts[ev.region] || 0) + 1; });
+  const regions = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+  regionSelect.innerHTML = '';
+  const defaultOpt = document.createElement('option');
+  defaultOpt.value = '';
+  defaultOpt.textContent = STR[currentLang].allRegions;
+  regionSelect.appendChild(defaultOpt);
+  regions.forEach(r => {
+    const label = currentLang === 'es' ? r : (EVENTS.find(e => e.region === r).region_en);
+    const opt = document.createElement('option');
+    opt.value = r;
+    opt.textContent = `${label} (${counts[r]})`;
+    regionSelect.appendChild(opt);
+  });
+  regionSelect.value = previousValue;
+}
+regionSelect.addEventListener('change', () => {
+  selectedRegion = regionSelect.value;
+  render();
+});
+
+// ===== MAIN TOGGLES =====
+document.querySelectorAll('#mainToggles .toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cat = btn.dataset.cat;
+    toggleFilter(cat);
+    btn.classList.toggle('active', activeFilters.has(cat));
+  });
+});
+
+function toggleFilter(cat){
+  if(activeFilters.has(cat)) activeFilters.delete(cat);
+  else activeFilters.add(cat);
+  render();
+}
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  activeFilters.clear();
+  searchQuery = '';
+  yearFrom = YEAR_MIN;
+  yearTo = YEAR_MAX;
+  selectedRegion = '';
+  regionSelect.value = '';
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  rangeFrom.value = YEAR_MIN;
+  rangeTo.value = YEAR_MAX;
+  updateRangeUI();
+  render();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim().toLowerCase();
+  render();
+});
+
+// ===== FILTER LOGIC =====
+function getFiltered(){
+  let result = EVENTS.filter(ev => ev.year >= yearFrom && ev.year <= yearTo);
+  if(activeFilters.size > 0){
+    result = result.filter(ev => activeFilters.has(ev.category));
+  }
+  if(selectedRegion){
+    result = result.filter(ev => ev.region === selectedRegion);
+  }
+  if(searchQuery){
+    result = result.filter(ev =>
+      L(ev,'title').toLowerCase().includes(searchQuery) ||
+      L(ev,'desc').toLowerCase().includes(searchQuery) ||
+      L(ev,'era').toLowerCase().includes(searchQuery) ||
+      String(ev.year).includes(searchQuery) ||
+      (ev.id && ev.id.toLowerCase().includes(searchQuery))
+    );
+  }
+  return result;
+}
+
+// ===== RENDER TIMELINE =====
+function highlightMatch(text){
+  if(!searchQuery) return escapeHTML(text);
+  const escaped = escapeHTML(text);
+  const idx = escaped.toLowerCase().indexOf(searchQuery.toLowerCase());
+  if(idx === -1) return escaped;
+  return escaped.slice(0, idx) + '<mark>' + escaped.slice(idx, idx + searchQuery.length) + '</mark>' + escaped.slice(idx + searchQuery.length);
+}
+function escapeHTML(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function buildCard(ev){
+  const color = CATEGORY_COLORS[ev.category];
+  const textColor = CATEGORY_TEXT[ev.category];
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <span class="cat-stripe" style="background:${color}"></span>
+    <span class="imp-badge">${'★'.repeat(ev.importance)}</span>
+    <div class="date">${ev.year}</div>
+    <div class="title">${highlightMatch(L(ev,'title'))}</div>
+    <div class="tags"><span class="tag" style="background:${color}; color:${textColor}">${L(ev,'category')}</span></div>
+  `;
+  card.addEventListener('click', () => openModal(ev));
+  return card;
+}
+
+function buildNode(ev){
+  const node = document.createElement('div');
+  node.className = 'node imp-' + ev.importance;
+  node.style.setProperty('--node-color', CATEGORY_COLORS[ev.category]);
+  node.style.color = CATEGORY_TEXT[ev.category];
+  node.innerHTML = CATEGORY_ICONS[ev.category] || '';
+  node.addEventListener('click', () => openModal(ev));
+  return node;
+}
+
+// ===== MODAL =====
+function openModal(ev){
+  const overlay = document.getElementById('modalOverlay');
+  const card = document.getElementById('modalCard');
+  const color = CATEGORY_COLORS[ev.category];
+  const textColor = CATEGORY_TEXT[ev.category];
+  const s = STR[currentLang];
+
+  card.innerHTML = `
+    <div class="modal-close" id="modalCloseBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <div class="modal-icon" style="background:${color}; color:${textColor}">${CATEGORY_ICONS[ev.category] || ''}</div>
+    <div class="modal-date">${ev.year} · ${L(ev,'era')}</div>
+    <h2 class="modal-title">${L(ev,'title')}</h2>
+    <div class="modal-tags"><span class="tag" style="background:${color}; color:${textColor}">${L(ev,'category')}</span></div>
+    <p class="modal-desc">${L(ev,'desc')}</p>
+    <div class="modal-note"><b>${s.designNote}</b>${L(ev,'note')}</div>
+    <div class="modal-meta">
+      <span><b>${s.regionLabel}:</b> ${L(ev,'region') || '—'}</span>
+      <span><b>${s.importanceLabel}:</b> ${'★'.repeat(ev.importance)}${'☆'.repeat(3-ev.importance)}</span>
+      <span><b>${s.refIdLabel}:</b> ${ev.id}</span>
+    </div>
+  `;
+  overlay.classList.add('open');
+  document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'modalOverlay') closeModal();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeModal();
+});
+
+function render(){
+  const filtered = getFiltered();
+  const track = document.getElementById('timelineTrack');
+  const resultCount = document.getElementById('resultCount');
+  const headerMeta = document.getElementById('headerMeta');
+  const s = STR[currentLang];
+
+  resultCount.innerHTML = s.showing(filtered.length, EVENTS.length);
+  if(filtered.length){
+    headerMeta.textContent = s.headerMeta(filtered.length, filtered[0].year, filtered[filtered.length-1].year);
+  }
+
+  track.innerHTML = '<div class="spine"></div>';
+
+  if(filtered.length === 0){
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.style.width = '100%';
+    empty.textContent = s.emptyState;
+    track.appendChild(empty);
+    return;
+  }
+
+  let lastEra = null;
+  let alternate = 0;
+
+  filtered.forEach((ev) => {
+    const eraLabel = L(ev,'era');
+    if(eraLabel !== lastEra){
+      const marker = document.createElement('div');
+      marker.className = 'era-marker';
+      marker.innerHTML = `
+        <span class="year-big">${ev.year}</span>
+        <span class="era-label">${eraLabel}</span>
+      `;
+      track.appendChild(marker);
+      lastEra = eraLabel;
+    }
+
+    const col = document.createElement('div');
+    const isTop = alternate % 2 === 0;
+    col.className = 'event-col ' + (isTop ? 'top' : 'bottom');
+    col.dataset.year = ev.year;
+
+    const connH = ev.importance === 3 ? 26 : 22;
+    col.style.setProperty('--conn-h', connH + 'px');
+
+    const halfTop = document.createElement('div');
+    halfTop.className = 'col-half half-top';
+    const halfBottom = document.createElement('div');
+    halfBottom.className = 'col-half half-bottom';
+
+    const activeHalf = isTop ? halfTop : halfBottom;
+
+    const connector = document.createElement('div');
+    connector.className = 'connector';
+    activeHalf.appendChild(connector);
+
+    activeHalf.appendChild(buildNode(ev));
+
+    const slot = document.createElement('div');
+    slot.className = 'card-slot';
+    slot.appendChild(buildCard(ev));
+    activeHalf.appendChild(slot);
+
+    col.appendChild(halfTop);
+    col.appendChild(halfBottom);
+
+    track.appendChild(col);
+    alternate++;
+  });
+
+  updateScrollProgress();
+}
+
+// ===== YEAR RANGE SLIDER =====
+const rangeFrom = document.getElementById('rangeFrom');
+const rangeTo = document.getElementById('rangeTo');
+const yearFromLabel = document.getElementById('yearFromLabel');
+const yearToLabel = document.getElementById('yearToLabel');
+const rangeFill = document.getElementById('rangeFill');
+const eraTicksWrap = document.getElementById('eraTicks');
+const eraLabelsWrap = document.getElementById('eraLabels');
+const MIN_GAP = 1;
+
+rangeFrom.min = YEAR_MIN; rangeFrom.max = YEAR_MAX; rangeFrom.value = YEAR_MIN;
+rangeTo.min = YEAR_MIN; rangeTo.max = YEAR_MAX; rangeTo.value = YEAR_MAX;
+
+// eraStarts: one entry per distinct era, short label = leading year range (identical in both languages)
+const eraStarts = [];
+const seenEras = new Set();
+EVENTS.slice().sort((a,b) => a.year - b.year).forEach(ev => {
+  if(!seenEras.has(ev.era)){
+    seenEras.add(ev.era);
+    eraStarts.push({
+      year: ev.year,
+      shortLabel: ev.era.split(':')[0],
+      era_es: ev.era,
+      era_en: ev.era_en
+    });
+  }
+});
+
+const eraTickEls = [];
+function buildEraTicks(){
+  const min = YEAR_MIN, max = YEAR_MAX;
+  eraStarts.forEach(e => {
+    const pct = ((e.year - min) / (max - min)) * 100;
+
+    const tick = document.createElement('div');
+    tick.className = 'range-era-tick';
+    tick.style.left = pct + '%';
+    tick.addEventListener('click', () => jumpToEra(e.year));
+    eraTicksWrap.appendChild(tick);
+
+    const label = document.createElement('div');
+    label.className = 'range-era-label';
+    label.style.left = pct + '%';
+    label.textContent = e.shortLabel;
+    label.addEventListener('click', () => jumpToEra(e.year));
+    eraLabelsWrap.appendChild(label);
+
+    eraTickEls.push({ tick, label, era_es: e.era_es, era_en: e.era_en });
+  });
+  refreshEraTooltips();
+}
+function refreshEraTooltips(){
+  eraTickEls.forEach(({tick, label, era_es, era_en}) => {
+    const full = currentLang === 'es' ? era_es : era_en;
+    tick.title = full;
+    label.title = full;
+  });
+}
+
+function jumpToEra(year){
+  yearFrom = year;
+  if(yearTo <= yearFrom) yearTo = YEAR_MAX;
+  rangeFrom.value = yearFrom;
+  rangeTo.value = yearTo;
+  updateRangeUI();
+  render();
+}
+
+function updateRangeUI(){
+  const min = Number(rangeFrom.min);
+  const max = Number(rangeFrom.max);
+  const pctFrom = ((yearFrom - min) / (max - min)) * 100;
+  const pctTo = ((yearTo - min) / (max - min)) * 100;
+  rangeFill.style.left = pctFrom + '%';
+  rangeFill.style.width = (pctTo - pctFrom) + '%';
+  yearFromLabel.textContent = yearFrom;
+  yearToLabel.textContent = yearTo;
+}
+
+rangeFrom.addEventListener('input', () => {
+  yearFrom = Math.min(Number(rangeFrom.value), yearTo - MIN_GAP);
+  rangeFrom.value = yearFrom;
+  updateRangeUI();
+  render();
+});
+rangeTo.addEventListener('input', () => {
+  yearTo = Math.max(Number(rangeTo.value), yearFrom + MIN_GAP);
+  rangeTo.value = yearTo;
+  updateRangeUI();
+  render();
+});
+
+// ===== SCROLL PROGRESS INDICATOR =====
+const timelineScrollEl = document.getElementById('timelineScroll');
+const scrollProgressBar = document.getElementById('scrollProgressBar');
+const scrollPositionLabel = document.getElementById('scrollPositionLabel');
+
+function updateScrollProgress(){
+  const el = timelineScrollEl;
+  const maxScroll = el.scrollWidth - el.clientWidth;
+  const pct = maxScroll > 0 ? (el.scrollLeft / maxScroll) * 100 : 0;
+  scrollProgressBar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+
+  const viewportCenter = el.scrollLeft + el.clientWidth / 2;
+  const cols = el.querySelectorAll('.event-col');
+  let closest = null;
+  let closestDist = Infinity;
+  cols.forEach(col => {
+    const colCenter = col.offsetLeft + col.offsetWidth / 2;
+    const dist = Math.abs(colCenter - viewportCenter);
+    if(dist < closestDist){ closestDist = dist; closest = col; }
+  });
+  scrollPositionLabel.textContent = closest ? closest.dataset.year : '';
+}
+
+timelineScrollEl.addEventListener('scroll', updateScrollProgress, { passive: true });
+window.addEventListener('resize', updateScrollProgress);
+
+// ===== TRACK HEIGHT SYNC =====
+function syncTrackHeight(){
+  const h = timelineScrollEl.clientHeight;
+  if(h > 0){
+    document.getElementById('timelineTrack').style.setProperty('--track-h', h + 'px');
+  }
+}
+
+const yearRangeEl = document.querySelector('.year-range');
+function syncYearRangeHeight(){
+  const h = yearRangeEl.getBoundingClientRect().height;
+  if(h > 0){
+    document.documentElement.style.setProperty('--year-range-h', h + 'px');
+  }
+  syncTrackHeight();
+}
+if(typeof ResizeObserver !== 'undefined'){
+  const trackResizeObserver = new ResizeObserver(() => syncYearRangeHeight());
+  trackResizeObserver.observe(timelineScrollEl);
+  trackResizeObserver.observe(yearRangeEl);
+} else {
+  window.addEventListener('resize', syncYearRangeHeight);
+}
+window.addEventListener('resize', syncYearRangeHeight);
+
+// ===== INIT =====
+setTheme('light');
+buildRegionOptions();
+buildEraTicks();
+updateRangeUI();
+syncYearRangeHeight();
+render();
+
+</script>
+</body>
+</html>
