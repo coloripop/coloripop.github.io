@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Screen Flow Analysis: Order Templates — RoofHub</title>
+<style>
+  :root{
+    --navy:#0A2342;
+    --lime:#9FBF1A;
+    --frost:#E3E3E3;
+    --white:#FFFFFF;
+    --gray-text:#4b5563;
+    --gray-border:#e5e7eb;
+    --amber:#b45309;
+    --amber-bg:#fffbeb;
+    --green:#166534;
+    --red:#b91c1c;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Montserrat,Arial,sans-serif;color:var(--navy);background:#f7f7f8;}
+  h1,h2{font-family:Paralucent,Montserrat,Arial,sans-serif;}
+  header.gheader{background:var(--navy);color:#fff;padding:20px 28px 0 28px;}
+  .brand-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .brand-row img{height:22px;width:auto;display:inline-block;}
+  .gheader h1{font-size:20px;margin:4px 0 2px 0;}
+  .gheader .sub{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:4px;}
+  .gheader .note{font-size:11.5px;color:rgba(255,255,255,.55);margin-bottom:14px;}
+  .filters{display:flex;gap:18px;font-size:12px;color:rgba(255,255,255,.7);padding-bottom:10px;}
+  .filters select{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:3px 6px;font-size:12px;}
+
+  .tab-bar{background:var(--navy);display:flex;align-items:center;gap:6px;padding:10px 24px;flex-wrap:wrap;}
+  .tab{border:none;cursor:pointer;font-family:Montserrat,Arial,sans-serif;font-size:12.5px;padding:7px 14px;border-radius:6px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.55);display:flex;align-items:center;gap:6px;}
+  .tab.active{background:var(--navy);color:#fff;box-shadow:0 0 0 1.5px rgba(255,255,255,.4);}
+  .tab .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+  .tab-sep{width:1px;height:18px;background:rgba(255,255,255,.18);margin:0 4px;}
+  .tab-bar-end{height:1px;background:#e5e7eb;}
+
+  .content{padding:26px 30px 60px 30px;max-width:1200px;margin:0 auto;}
+  .page-h1{font-size:19px;margin:0 0 2px 0;color:var(--navy);}
+  .page-sub{font-size:13px;color:var(--gray-text);margin-bottom:16px;}
+  .disclosure-note{font-size:10.5px;color:#9CA3AF;text-align:right;margin-top:-6px;margin-bottom:10px;}
+
+  .legend-bar{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--gray-text);background:#fafafa;border:1px solid var(--gray-border);border-radius:6px;padding:8px 14px;margin-bottom:20px;}
+  .legend-bar span{display:inline-flex;align-items:center;gap:5px;}
+
+  .flow-wrap{display:flex;gap:0;align-items:flex-start;overflow-x:auto;}
+  .flow-col{width:300px;flex-shrink:0;}
+  .channel-title{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--navy);margin-bottom:6px;}
+  .col-divider{width:1px;background:var(--gray-border);align-self:stretch;margin:0 24px;flex-shrink:0;}
+
+  .copy-btn{background:#fff;border:1px solid var(--gray-border);border-radius:4px;font-size:11px;padding:4px 9px;cursor:pointer;margin-bottom:8px;color:var(--navy);}
+  .copy-btn:hover{background:#f3f4f6;}
+
+  .ux-observations{display:flex;gap:40px;margin-top:26px;flex-wrap:wrap;border-top:1px solid var(--gray-border);padding-top:18px;}
+  .ux-col{flex:1;min-width:260px;}
+  .ux-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;}
+  .ux-label.green{color:var(--green);}
+  .ux-label.amber{color:var(--amber);}
+  .ux-col ul{margin:0;padding-left:18px;font-size:12.5px;line-height:1.6;}
+  .ratings{width:100%;margin-top:18px;}
+  .rating-row{display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:6px;}
+  .rating-label{width:60px;color:var(--gray-text);}
+  .bar-track{flex:1;height:7px;background:#eee;border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--navy);}
+  .rating-score{width:34px;text-align:right;color:var(--navy);font-weight:600;}
+  .footer-src{font-size:10.5px;color:#9ca3af;font-style:italic;margin-top:14px;}
+
+  table.scorecard{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px;}
+  table.scorecard th,table.scorecard td{border:1px solid var(--gray-border);padding:8px 10px;text-align:left;}
+  table.scorecard th{background:var(--navy);color:#fff;font-size:11.5px;text-transform:uppercase;}
+  table.scorecard tr:nth-child(even){background:#fafafa;}
+  table.scorecard tr.winner{background:#f2f7e6;font-weight:600;}
+
+  .ext-badge{font-size:10px;background:#f3f4f6;color:var(--gray-text);border-radius:10px;padding:2px 8px;margin-left:6px;}
+  .card{background:#fff;border:1px solid var(--gray-border);border-radius:8px;padding:16px 18px;margin-bottom:16px;}
+  .callout{background:var(--amber-bg);border:1px dashed var(--amber);border-radius:6px;padding:10px 14px;font-size:12px;color:#78350f;margin-bottom:16px;}
+  .review-checkpoint{background:#f2f7e6;border-left:4px solid var(--lime);border-radius:4px;padding:10px 14px;font-size:12px;color:var(--navy);margin-top:16px;}
+  .empty-state{border:1.5px dashed var(--gray-border);border-radius:8px;padding:30px;text-align:center;color:#9ca3af;font-size:12.5px;}
+  a{color:#1d4ed8;}
+  .badge-new{background:#e6f0ff;color:#1d4ed8;font-size:9.5px;border-radius:8px;padding:1px 6px;margin-left:6px;}
+  .badge-reconsider{background:#fff3e0;color:#b45309;font-size:9.5px;border-radius:8px;padding:1px 6px;margin-left:6px;}
+  .tabpanel{display:none;}
+  .tabpanel.active{display:block;}
+  .footer{text-align:center;font-size:11px;color:#9ca3af;padding:24px;}
+</style>
+</head>
+<body>
+
+<header class="gheader">
+  <div class="brand-row">
+    <img id="brandlogo" src="" alt="Capmation">
+  </div>
+  <h1>User Screen Flow Analysis: Order Template Creation — B2B Roofing Materials Procurement</h1>
+  <div class="sub">RoofHub (SRS Distribution) · Order Templates feature · US scope · July 27, 2026 · Prepared by Capmation</div>
+  <div class="note">All screens documented from real sources found via web search in this session. Gaps are shown explicitly, never invented.</div>
+  <div class="filters">
+    <span>Geography: <select disabled><option>US only</option></select></span>
+    <span>Type: <select id="typeFilter" onchange="filterTabs()"><option value="all">All</option><option value="direct">Direct competitors</option><option value="external">External references</option></select></span>
+  </div>
+</header>
+
+<nav class="tab-bar" id="tabbar">
+  <button class="tab active" data-tab="beacon" data-type="direct" onclick="showTab('beacon')"><span class="dot" style="background:#c0392b"></span>Beacon PRO+</button>
+  <button class="tab" data-tab="abc" data-type="direct" onclick="showTab('abc')"><span class="dot" style="background:#1d4ed8"></span>myABCsupply</button>
+  <div class="tab-sep"></div>
+  <button class="tab" data-tab="amazon" data-type="external" onclick="showTab('amazon')">🔍 Amazon Business</button>
+  <button class="tab" data-tab="hd" data-type="external" onclick="showTab('hd')">🔍 Home Depot Pro Xtra</button>
+  <button class="tab" data-tab="walmart" data-type="external" onclick="showTab('walmart')">🔍 Walmart Business</button>
+  <div class="tab-sep"></div>
+  <button class="tab" data-tab="suggested" onclick="showTab('suggested')">✦ Suggested Flow</button>
+  <button class="tab" data-tab="summary" onclick="showTab('summary')">📊 Summary</button>
+  <button class="tab" data-tab="comparison" onclick="showTab('comparison')">⇄ Comparison</button>
+  <button class="tab" data-tab="modules" onclick="showTab('modules')">📦 Modules</button>
+</nav>
+<div class="tab-bar-end"></div>
+
+<div class="content">
+
+<!-- BEACON -->
+<div class="tabpanel active" id="panel-beacon">
+  <div class="page-h1">Beacon PRO+ (QXO) — Smart Order Template Flow</div>
+  <div class="page-sub">Beacon Building Products · Beacon PRO+ e-commerce platform, Smart Order + EagleView integration · Sourced May–July 2024, RoofersCoffeeShop Mar 2026</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div id="legend-beacon"></div>
+  <button class="copy-btn" onclick="copySVGById('svg-beacon', this)">📋 Copy SVG</button>
+  <div id="svg-beacon"></div>
+  <div class="ux-observations">
+    <div class="ux-col">
+      <div class="ux-label green">EXISTING ASSETS</div>
+      <ul>
+        <li>Templates can be selected and applied directly from EagleView measurement data, auto-populating quantities <span style="color:#9ca3af">(Beacon/BECN · May 2024)</span></li>
+        <li>Materials list is segmented by category (top-down: shingles → underlayment → misc) rather than one flat list <span style="color:#9ca3af">(Beacon/BECN · May 2024)</span></li>
+        <li>Checkout pre-populates the project address from the source project <span style="color:#9ca3af">(Beacon/BECN · May 2024)</span></li>
+        <li>Full flow from EagleView report to placed order documented at 5–10 minutes / six steps <span style="color:#9ca3af">(Beacon/BECN · May 2024)</span></li>
+      </ul>
+    </div>
+    <div class="ux-col">
+      <div class="ux-label amber">GAPS FOUND</div>
+      <ul>
+        <li>⚠ No public documentation of the order confirmation screen — shown as a Gap node</li>
+        <li>⚠ No documentation found on whether an existing template can be duplicated without overwriting the original</li>
+      </ul>
+      <div class="ratings">
+        <div class="rating-row"><span class="rating-label">Ease</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="rating-score">4/5</span></div>
+        <div class="rating-row"><span class="rating-label">Speed</span><div class="bar-track"><div class="bar-fill" style="width:90%"></div></div><span class="rating-score">4.5/5</span></div>
+        <div class="rating-row"><span class="rating-label">Trust</span><div class="bar-track"><div class="bar-fill" style="width:70%"></div></div><span class="rating-score">3.5/5</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-src">Sources: Beacon/BECN "Smart Order" (May 2024) · BusinessWire EagleView integration (Jul 2024) · RoofersCoffeeShop "Future of smart materials ordering" (Mar 2026) · Roofle Beacon Pro+ integration guide</div>
+</div>
+
+<!-- ABC SUPPLY -->
+<div class="tabpanel" id="panel-abc">
+  <div class="page-h1">myABCsupply — Order Template Flow</div>
+  <div class="page-sub">ABC Supply Co. · myABCsupply web + mobile app · Sourced 2020–2022, app store listing current as of Feb 2026</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div id="legend-abc"></div>
+  <button class="copy-btn" onclick="copySVGById('svg-abc', this)">📋 Copy SVG</button>
+  <div id="svg-abc"></div>
+  <div class="ux-observations">
+    <div class="ux-col">
+      <div class="ux-label green">EXISTING ASSETS</div>
+      <ul>
+        <li>App store listing explicitly markets templates as cutting "ordering time in half" <span style="color:#9ca3af">(Apple App Store)</span></li>
+        <li>myABCsupply integrates with EagleView, GAF QuickMeasure, HOVER, and Roofr to turn measurements into orders <span style="color:#9ca3af">(ABC Supply · Aug 2021)</span></li>
+        <li>A dedicated help-center tutorial and YouTube walkthrough exist specifically for "How to Create an Order Template" <span style="color:#9ca3af">(ABC Supply News & Events)</span></li>
+      </ul>
+    </div>
+    <div class="ux-col">
+      <div class="ux-label amber">GAPS FOUND</div>
+      <ul>
+        <li>⚠ The tutorial page title is documented but the step-by-step screen content is not publicly described in text — shown as partial documentation</li>
+        <li>⚠ No public source documents the template review/edit screen</li>
+        <li>⚠ No public source documents the save/confirmation screen</li>
+      </ul>
+      <div class="ratings">
+        <div class="rating-row"><span class="rating-label">Ease</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span class="rating-score">3/5</span></div>
+        <div class="rating-row"><span class="rating-label">Speed</span><div class="bar-track"><div class="bar-fill" style="width:70%"></div></div><span class="rating-score">3.5/5</span></div>
+        <div class="rating-row"><span class="rating-label">Trust</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span class="rating-score">3/5</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-src">Sources: ABC Supply App Store listing · ABC Supply "How To Create An Order Template" (news-events) · ABC Supply myABCsupply page (Aug 2021) · ABC Supply Interiors ordering page</div>
+</div>
+
+<!-- AMAZON -->
+<div class="tabpanel" id="panel-amazon">
+  <div class="page-h1">Amazon Business — Reorder Lists <span class="ext-badge">External reference</span></div>
+  <div class="page-sub">Included for: named, shareable, permissioned reorder-list pattern distinct from one-time shopping lists</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div id="legend-amazon"></div>
+  <button class="copy-btn" onclick="copySVGById('svg-amazon', this)">📋 Copy SVG</button>
+  <div id="svg-amazon"></div>
+  <div class="ux-observations">
+    <div class="ux-col">
+      <div class="ux-label green">EXISTING ASSETS</div>
+      <ul>
+        <li>Reorder Lists keep items visible after purchase (vs. Shopping Lists, which filter purchased items out) <span style="color:#9ca3af">(Amazon Business)</span></li>
+        <li>Lists can be shared with "buy only" or "edit and buy" permissions across a team <span style="color:#9ca3af">(Amazon Business)</span></li>
+        <li>Items can be bulk-added via spreadsheet upload, ASIN, or keyword search <span style="color:#9ca3af">(Amazon Business training doc)</span></li>
+      </ul>
+    </div>
+    <div class="ux-col">
+      <div class="ux-label amber">GAPS FOUND</div>
+      <ul>
+        <li>⚠ No documentation found on live price/stock refresh behavior when reordering from a list</li>
+      </ul>
+      <div class="ratings" style="margin-top:4px;">
+        <div style="font-size:11px;color:#9ca3af;">Ratings not applicable — external context, not a direct competitor</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-src">Sources: Amazon Business "Procurement Shopping Lists" · Amazon Business Lists Training Video · Amazon Business List User Guide (Buffalo.edu)</div>
+</div>
+
+<!-- HOME DEPOT -->
+<div class="tabpanel" id="panel-hd">
+  <div class="page-h1">Home Depot Pro Xtra — AI Material List Builder <span class="ext-badge">External reference</span></div>
+  <div class="page-sub">Included for: AI-assisted template creation from a project description or spreadsheet, not just from a past order</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div id="legend-hd"></div>
+  <button class="copy-btn" onclick="copySVGById('svg-hd', this)">📋 Copy SVG</button>
+  <div id="svg-hd"></div>
+  <div class="ux-observations">
+    <div class="ux-col">
+      <div class="ux-label green">EXISTING ASSETS</div>
+      <ul>
+        <li>Material List Builder AI builds a complete job list from a project description, spreadsheet, uploaded document, or a job template <span style="color:#9ca3af">(Home Depot corporate news, 2026)</span></li>
+        <li>Saved lists stay in the list builder tool for pulling up on recurring jobs without starting from scratch <span style="color:#9ca3af">(Home Depot corporate news)</span></li>
+        <li>Free to all Pro Xtra members within the Project Planning tool <span style="color:#9ca3af">(Home Depot corporate news)</span></li>
+      </ul>
+    </div>
+    <div class="ux-col">
+      <div class="ux-label amber">GAPS FOUND</div>
+      <ul>
+        <li>⚠ No documentation found describing template sharing/permission controls (unlike Amazon Business)</li>
+      </ul>
+      <div style="font-size:11px;color:#9ca3af;margin-top:10px;">Ratings not applicable — external context, not a direct competitor</div>
+    </div>
+  </div>
+  <div class="footer-src">Sources: The Home Depot corporate newsroom, "AI-Powered Material Lists" · SmartService "Home Depot Pro Xtra Discounts" · homedepot.com Pro Resource Center</div>
+</div>
+
+<!-- WALMART -->
+<div class="tabpanel" id="panel-walmart">
+  <div class="page-h1">Walmart Business — My Items <span class="ext-badge">External reference</span></div>
+  <div class="page-sub">Included for: lightweight, low-friction reorder-from-history as a simpler complement to full templates</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div id="legend-walmart"></div>
+  <button class="copy-btn" onclick="copySVGById('svg-walmart', this)">📋 Copy SVG</button>
+  <div id="svg-walmart"></div>
+  <div class="ux-observations">
+    <div class="ux-col">
+      <div class="ux-label green">EXISTING ASSETS</div>
+      <ul>
+        <li>"My Items" lets a buyer reorder an item directly or add it to a list in one action <span style="color:#9ca3af">(Walmart Business Help)</span></li>
+      </ul>
+    </div>
+    <div class="ux-col">
+      <div class="ux-label amber">GAPS FOUND</div>
+      <ul>
+        <li>⚠ No further public documentation found on list naming, sharing, or template conversion — shown as a Gap node</li>
+      </ul>
+      <div style="font-size:11px;color:#9ca3af;margin-top:10px;">Ratings not applicable — external context, not a direct competitor</div>
+    </div>
+  </div>
+  <div class="footer-src">Sources: business.walmart.com Help — "My Items"</div>
+</div>
+
+<!-- SUGGESTED FLOW -->
+<div class="tabpanel" id="panel-suggested">
+  <div class="page-h1">✦ Suggested Flow — RoofHub Order Template Creation</div>
+  <div class="page-sub">Current Flow reflects the screenshots provided by the team (internal, primary source) · Suggested Flow nodes cite their research basis</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div class="legend-bar">
+    <span>🆕 New (from research)</span><span>♻️ Reconsider (documented friction)</span><span>= Unchanged</span>
+  </div>
+  <div class="flow-wrap">
+    <div class="flow-col" style="width:320px;">
+      <div class="channel-title">CURRENT FLOW (ROOFHUB — INTERNAL SCREENSHOTS)</div>
+      <button class="copy-btn" onclick="copySVGById('svg-current', this)">📋 Copy SVG</button>
+      <div id="svg-current"></div>
+    </div>
+    <div class="col-divider"></div>
+    <div class="flow-col" style="width:320px;">
+      <div class="channel-title">SUGGESTED FLOW</div>
+      <button class="copy-btn" onclick="copySVGById('svg-suggested', this)">📋 Copy SVG</button>
+      <div id="svg-suggested"></div>
+    </div>
+  </div>
+  <div class="ux-observations" style="margin-top:10px;">
+    <div class="ux-col" style="min-width:100%;">
+      <div class="ux-label green">WHY THIS FLOW</div>
+      <ul>
+        <li><b>Duplicate template action</b> — addresses documented gap that saved carts/templates elsewhere can't be duplicated without overwriting the original <span style="color:#9ca3af">(Optimum7/BigCommerce · Jul 2025)</span></li>
+        <li><b>AI-assisted creation from spreadsheet/photo</b> — mirrors Home Depot Pro Xtra's Material List Builder AI <span style="color:#9ca3af">(Home Depot corporate news · 2026)</span></li>
+        <li><b>Role/visibility setting on save</b> — addresses documented need for branch-level vs. company-wide "standard" templates <span style="color:#9ca3af">(Optimum7/BigCommerce · Jul 2025)</span></li>
+        <li><b>Live price/stock indicator on template load</b> — addresses documented risk of stale pricing across branches <span style="color:#9ca3af">(Super Arbor · Jun 2026)</span></li>
+        <li><b>Quick actions on confirmation (Use in Order / Duplicate)</b> — mirrors Beacon PRO+'s "save for future revisions" pattern <span style="color:#9ca3af">(Beacon/BECN · May 2024)</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="review-checkpoint">Human review checkpoint: Suggested Flow nodes are derived from secondary research only, not from RoofHub usage data or user testing. Validate against actual contractor workflows and RoofHub's product roadmap before using this for design briefs or sprint planning.</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="tabpanel" id="panel-summary">
+  <div class="page-h1">📊 Research Summary</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div class="card">
+    <b>Scope:</b> Order Templates feature within RoofHub (SRS Distribution), a B2B construction materials procurement platform for roofing contractors. US only. Deep-dive analysis for a client proposal.
+  </div>
+  <div class="card">
+    <b>Direct competitors benchmarked:</b> Beacon PRO+ / QXO (Smart Order + EagleView), ABC Supply / myABCsupply.<br>
+    <b>External references:</b> Amazon Business (Reorder Lists), Home Depot Pro Xtra (AI Material List Builder), Walmart Business (My Items).<br>
+    <b>Excluded:</b> eBay — no documented buyer-facing reorder/template feature was found; its "templates" are seller-side listing templates, a different capability.
+  </div>
+  <table class="scorecard">
+    <tr><th>Competitor</th><th>Geo</th><th>Template creation basis</th><th>Live measurement integration</th><th>Key differentiator</th><th>Ease</th><th>Speed</th><th>Trust</th></tr>
+    <tr class="winner"><td>Beacon PRO+ (QXO)</td><td>🇺🇸</td><td>Select existing template + customize</td><td>EagleView (auto-populated quantities)</td><td>Segmented, top-down materials list; sub-1-minute order from measurement report</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐</td></tr>
+    <tr><td>myABCsupply</td><td>🇺🇸</td><td>Manual template builder</td><td>EagleView, GAF QuickMeasure, HOVER, Roofr</td><td>Widest measurement-tool integration breadth (4 partners)</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td></tr>
+    <tr><td colspan="8" style="font-size:11px;color:#9ca3af;">External references (excluded from winner row): Amazon Business, Home Depot Pro Xtra, Walmart Business — see individual tabs</td></tr>
+  </table>
+  <div class="footer-src">Full source list: see .docx report references chapter.</div>
+</div>
+
+<!-- COMPARISON -->
+<div class="tabpanel" id="panel-comparison">
+  <div class="page-h1">⇄ Comparison — Beacon PRO+ vs. myABCsupply</div>
+  <div class="page-sub">Same vertical scale, side by side</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div class="legend-bar" id="legend-comparison"></div>
+  <div class="flow-wrap">
+    <div class="flow-col" style="width:300px;">
+      <div class="channel-title">BEACON PRO+</div>
+      <div id="svg-comp-beacon"></div>
+    </div>
+    <div class="col-divider"></div>
+    <div class="flow-col" style="width:300px;">
+      <div class="channel-title">MYABCSUPPLY</div>
+      <div id="svg-comp-abc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODULES -->
+<div class="tabpanel" id="panel-modules">
+  <div class="page-h1">📦 Affected / Related Modules</div>
+  <div class="disclosure-note">↗ AI-assisted research · Capmation · 2026</div>
+  <div class="review-checkpoint" style="margin-bottom:16px;">Human review checkpoint: Module mapping reflects findings from secondary research only. Validate against RoofHub's actual product architecture before using for sprint planning or design briefs.</div>
+  <h3 style="font-size:14px;">Affected modules</h3>
+  <table class="scorecard">
+    <tr><th>Module</th><th>Why affected</th><th>Research source</th><th>Priority</th></tr>
+    <tr><td>Template creation / edit UI</td><td>No documented way to duplicate a template without overwriting the original</td><td>S5: Optimum7/BigCommerce (Jul 2025)</td><td>High</td></tr>
+    <tr><td>Catalog / product browse (within templates)</td><td>Beacon segments the materials list by category top-down; RoofHub's current flow uses a flat searchable table</td><td>S3: Beacon/BECN (May 2024)</td><td>Med</td></tr>
+    <tr><td>Pricing engine surfaced in templates</td><td>Documented risk of stock-outs and price mismatches across branches when templates go stale</td><td>S5: Super Arbor (Jun 2026)</td><td>High</td></tr>
+  </table>
+  <h3 style="font-size:14px;">Related modules</h3>
+  <table class="scorecard">
+    <tr><th>Related module</th><th>Relationship</th><th>What to watch for</th></tr>
+    <tr><td>Estimates</td><td>Templates feed directly into "Save Template &amp; Create Estimate"</td><td>Changes to template structure could affect estimate generation</td></tr>
+    <tr><td>Job Accounts / Branch selection</td><td>Templates are filtered and priced by job account and branch, per the current flow screenshots</td><td>Role-based template visibility (S7 opportunity) would need to key off this field</td></tr>
+    <tr><td>Order checkout</td><td>Templates are the upstream source for orders placed downstream</td><td>Live price/stock sync changes would need to reconcile with checkout pricing logic</td></tr>
+  </table>
+</div>
+
+</div>
+<div class="footer">Secondary Research · Order Templates — RoofHub · Capmation · July 27, 2026</div>
+
+<script>
+function svgNS(){return "http://www.w3.org/2000/svg";}
+
+function buildFlow(containerId, nodes, width){
+  width = width || 280;
+  var padX = 10, nodeW = width - 2*padX;
+  var y = 20, gap = 46;
+  var positions = [];
+  var totalHeight = 20;
+  // measure heights
+  nodes.forEach(function(n){
+    var h;
+    if(n.type==='start' || n.type==='end'){ h = 34; }
+    else { h = 46 + (n.sub? n.sub.length*14: 0) + (n.source? 14:0); }
+    n._h = h;
+    totalHeight += h + gap;
+  });
+  totalHeight += 10;
+
+  var svg = document.createElementNS(svgNS(),"svg");
+  svg.setAttribute("viewBox","0 0 "+width+" "+totalHeight);
+  svg.setAttribute("width","100%");
+  svg.setAttribute("height", Math.min(totalHeight,900));
+  svg.setAttribute("xmlns", svgNS());
+
+  var defs = document.createElementNS(svgNS(),"defs");
+  var marker = document.createElementNS(svgNS(),"marker");
+  marker.setAttribute("id","arrow-"+containerId);
+  marker.setAttribute("markerWidth","8");
+  marker.setAttribute("markerHeight","8");
+  marker.setAttribute("refX","4");
+  marker.setAttribute("refY","4");
+  marker.setAttribute("orient","auto");
+  var path = document.createElementNS(svgNS(),"path");
+  path.setAttribute("d","M0,0 L8,4 L0,8 Z");
+  path.setAttribute("fill","#9ca3af");
+  marker.appendChild(path);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  var cy = 20;
+  nodes.forEach(function(n,i){
+    var x = padX;
+    var h = n._h;
+    var fill = "#ffffff", stroke = "#d1d5db", dash="";
+    var titleColor = "#0A2342";
+    if(n.type==='start'){ fill="#0A2342"; stroke="#0A2342"; titleColor="#ffffff"; }
+    if(n.type==='end'){ fill="#166534"; stroke="#166534"; titleColor="#ffffff"; }
+    if(n.type==='gap'){ fill="#fffbeb"; stroke="#b45309"; dash="4,3"; }
+    if(n.type==='dead'){ stroke="#b91c1c"; }
+
+    // transition label above node (except first)
+    if(i>0){
+      var lbl = document.createElementNS(svgNS(),"text");
+      lbl.setAttribute("x", x+nodeW/2);
+      lbl.setAttribute("y", cy-8);
+      lbl.setAttribute("text-anchor","middle");
+      lbl.setAttribute("font-size","9");
+      lbl.setAttribute("font-style","italic");
+      lbl.setAttribute("fill","#9ca3af");
+      lbl.textContent = n.transition || "";
+      svg.appendChild(lbl);
+      var line = document.createElementNS(svgNS(),"line");
+      line.setAttribute("x1", x+nodeW/2); line.setAttribute("y1", cy-gap+ (nodes[i-1]._h) );
+      line.setAttribute("x2", x+nodeW/2); line.setAttribute("y2", cy-2);
+      line.setAttribute("stroke","#9ca3af");
+      line.setAttribute("marker-end","url(#arrow-"+containerId+")");
+      svg.appendChild(line);
+    }
+
+    var rect = document.createElementNS(svgNS(),"rect");
+    rect.setAttribute("x",x); rect.setAttribute("y",cy);
+    rect.setAttribute("width",nodeW); rect.setAttribute("height",h);
+    rect.setAttribute("rx", n.type==='start'||n.type==='end' ? h/2 : 6);
+    rect.setAttribute("fill",fill);
+    rect.setAttribute("stroke",stroke);
+    rect.setAttribute("stroke-width","1.3");
+    if(dash) rect.setAttribute("stroke-dasharray",dash);
+    svg.appendChild(rect);
+
+    var title = document.createElementNS(svgNS(),"text");
+    title.setAttribute("x", x+12);
+    title.setAttribute("y", cy + (n.type==='start'||n.type==='end' ? h/2+4 : 18));
+    title.setAttribute("font-size", n.type==='start'||n.type==='end' ? "11" : "11.5");
+    title.setAttribute("font-weight","700");
+    title.setAttribute("fill", titleColor);
+    title.textContent = (n.icon? n.icon+" ":"") + n.title;
+    svg.appendChild(title);
+
+    if(n.badge){
+      var b = document.createElementNS(svgNS(),"text");
+      b.setAttribute("x", x+nodeW-10);
+      b.setAttribute("y", cy+18);
+      b.setAttribute("text-anchor","end");
+      b.setAttribute("font-size","8.5");
+      b.setAttribute("font-weight","700");
+      b.setAttribute("fill", n.badge==="NEW" ? "#1d4ed8" : "#b45309");
+      b.textContent = n.badge;
+      svg.appendChild(b);
+    }
+
+    if(n.sub){
+      n.sub.forEach(function(s,si){
+        var st = document.createElementNS(svgNS(),"text");
+        st.setAttribute("x", x+14);
+        st.setAttribute("y", cy+34+si*14);
+        st.setAttribute("font-size","9.5");
+        st.setAttribute("fill", n.type==='gap' ? "#92400e" : "#4b5563");
+        st.textContent = (n.type==='gap'?"⬡ ":"□ ") + s;
+        svg.appendChild(st);
+      });
+    }
+    if(n.source){
+      var srcT = document.createElementNS(svgNS(),"text");
+      srcT.setAttribute("x", x+12);
+      srcT.setAttribute("y", cy+h-8);
+      srcT.setAttribute("font-size","8.5");
+      srcT.setAttribute("font-style","italic");
+      srcT.setAttribute("fill","#9ca3af");
+      srcT.textContent = n.source;
+      svg.appendChild(srcT);
+    }
+    cy += h + gap;
+  });
+
+  document.getElementById(containerId).innerHTML = "";
+  document.getElementById(containerId).appendChild(svg);
+}
+
+function copySVGById(id, btn){
+  var svg = document.getElementById(id).querySelector("svg");
+  if(!svg){return;}
+  var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + svg.outerHTML;
+  function done(ok){ btn.textContent = ok? "✓ Copied" : "Copy failed"; setTimeout(function(){btn.textContent="📋 Copy SVG";},1500); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(xml).then(function(){done(true);}, function(){fallbackCopy(xml,done);});
+  } else { fallbackCopy(xml,done); }
+}
+function fallbackCopy(text, cb){
+  var ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); cb(true); } catch(e){ cb(false); }
+  document.body.removeChild(ta);
+}
+
+var legendHTML = '<span>▭ Screen</span><span>◆ Decision</span><span style="color:#b45309">⬡ Gap</span><span style="color:#b91c1c">▭ Error</span><span>● Start</span><span>● End</span>';
+["beacon","abc","amazon","hd","walmart"].forEach(function(id){
+  var el = document.getElementById("legend-"+id);
+  if(el) el.className="legend-bar"; if(el) el.innerHTML = legendHTML;
+});
+document.getElementById("legend-comparison").innerHTML = legendHTML;
+
+// ---- FLOW DATA ----
+buildFlow("svg-beacon", [
+  {type:"start", title:"Login / Beacon PRO+ Dashboard", source:"RoofersCoffeeShop · Mar 2026"},
+  {type:"screen", title:'"Begin Smart Order" button', sub:["On the project's EagleView premium report"], source:"Beacon/BECN · May 2024", transition:"select project"},
+  {type:"screen", title:"Select a Template", sub:["Choose which Beacon PRO+ template to use"], source:"Beacon/BECN · May 2024", transition:"choose"},
+  {type:"screen", title:"Waste Factor & Customization", sub:["Auto-set to 10%, editable per line"], source:"Beacon/BECN · May 2024", transition:"adjust"},
+  {type:"screen", title:"Segmented Materials List", sub:["Categories: shingles → underlayment → misc"], source:"Beacon/BECN · May 2024", transition:"review"},
+  {type:"screen", title:"Save Template — or — Continue to Checkout", sub:["Save new project template for future revisions"], source:"Beacon/BECN · May 2024", transition:"decide"},
+  {type:"screen", title:"Checkout", sub:["Address pre-populated","Choose delivery date/time"], source:"Beacon/BECN · May 2024", transition:"checkout"},
+  {type:"gap", title:"Order Confirmation", sub:["No public source describes this screen"], transition:"place order"},
+  {type:"end", title:"Order Placed"}
+], 300);
+
+buildFlow("svg-abc", [
+  {type:"start", title:"Login (myABCsupply)", source:"ABC Supply"},
+  {type:"screen", title:"Order Template Entry Point", sub:["From myABCsupply account area"], source:"ABC Supply tutorial page", transition:"navigate"},
+  {type:"gap", title:"Template Naming / Item Selection", sub:["Tutorial title confirmed; step detail not public"], transition:"create"},
+  {type:"gap", title:"Template Review / Edit", sub:["No public walkthrough found"], transition:"review"},
+  {type:"gap", title:"Save / Confirmation", sub:["No public walkthrough found"], transition:"save"},
+  {type:"end", title:"Template Available for Reorder"}
+], 300);
+
+buildFlow("svg-amazon", [
+  {type:"start", title:"Lists menu → Create a List", source:"Amazon Business"},
+  {type:"screen", title:"Choose List Type", sub:["Reorder List (recurring) or Shopping List (one-time)"], source:"Amazon Business", transition:"select type"},
+  {type:"screen", title:"Add Items", sub:["Search, ASIN/ISBN, URL, or spreadsheet upload"], source:"Amazon Business training doc", transition:"populate"},
+  {type:"screen", title:"Set Sharing Permissions", sub:["Private, Buy only, or Edit and Buy"], source:"Amazon Business", transition:"share"},
+  {type:"end", title:"List Saved — Ready to Reorder"}
+], 300);
+
+buildFlow("svg-hd", [
+  {type:"start", title:"Pro Xtra — Project Planning Tool", source:"Home Depot corporate news"},
+  {type:"screen", title:"Input Project Source", sub:["Description, spreadsheet, doc, or job template"], source:"Home Depot corporate news", transition:"input"},
+  {type:"screen", title:"AI Product Recommendations", sub:["Preferred pricing + inventory availability populate"], source:"Home Depot corporate news", transition:"review"},
+  {type:"screen", title:"Saved Material List", sub:["Stays in list builder tool for future jobs"], source:"Home Depot corporate news", transition:"save"},
+  {type:"end", title:"Reorder From Saved List"}
+], 300);
+
+buildFlow("svg-walmart", [
+  {type:"start", title:"My Items", source:"Walmart Business Help"},
+  {type:"screen", title:"Reorder or Add to List", sub:["One action from the item row"], source:"Walmart Business Help", transition:"choose action"},
+  {type:"gap", title:"List Management Detail", sub:["No further public documentation found"]},
+  {type:"end", title:"Item Reordered / Added"}
+], 300);
+
+// Current flow (RoofHub, from screenshots - primary/internal source)
+var currentFlowNodes = [
+  {type:"start", title:"Templates List", source:"RoofHub screenshot (internal)"},
+  {type:"screen", title:'"Create New Template" Modal', sub:["Smart Templates","Start from an Invoice","Start from Scratch"], source:"RoofHub screenshot (internal)", transition:"click Create New"},
+  {type:"screen", title:"Enter Template Information", sub:["Name, filter by, job account, pricing note"], source:"RoofHub screenshot (internal)", transition:"fill in"},
+  {type:"screen", title:"Material / Labor / Other Charges Tabs", sub:["Browse full catalog, add line items"], source:"RoofHub screenshot (internal)", badge:"RECONSIDER", transition:"add items"},
+  {type:"screen", title:"Add CC Email & Branch Instructions", sub:["Optional"], source:"RoofHub screenshot (internal)", transition:"optional"},
+  {type:"screen", title:"Save Template — or — Save & Create Estimate", source:"RoofHub screenshot (internal)", transition:"save"},
+  {type:"end", title:"Template Created"}
+];
+buildFlow("svg-current", currentFlowNodes, 320);
+
+var suggestedFlowNodes = [
+  {type:"start", title:"Templates List", sub:["+ Duplicate action on each row"], badge:"NEW", source:"S5: Optimum7/BigCommerce · Jul 2025"},
+  {type:"screen", title:'"Create New Template" Modal', sub:["Smart Templates / Invoice / Scratch","+ AI from spreadsheet or photo"], badge:"NEW", source:"S6: Home Depot Pro Xtra", transition:"click Create New"},
+  {type:"screen", title:"Enter Template Info + Visibility", sub:["+ Branch-only vs. company-wide toggle"], badge:"NEW", source:"S7: Optimum7/BigCommerce", transition:"fill in + set scope"},
+  {type:"screen", title:"Material / Labor / Other Charges", sub:["+ Live price & stock indicator per line"], badge:"NEW", source:"S5: Super Arbor · Jun 2026", transition:"add items"},
+  {type:"screen", title:"Save Template", sub:["Shows 'last synced' price timestamp"], badge:"NEW", source:"S5: Optimum7/BigCommerce", transition:"save"},
+  {type:"end", title:"Confirmation — Use in Order / Duplicate", sub:["Quick actions surfaced immediately"], source:"S3: Beacon/BECN · May 2024"}
+];
+buildFlow("svg-suggested", suggestedFlowNodes, 320);
+
+buildFlow("svg-comp-beacon", [
+  {type:"start", title:"Login / Dashboard"},
+  {type:"screen", title:"Begin Smart Order"},
+  {type:"screen", title:"Select Template"},
+  {type:"screen", title:"Waste Factor / Customize"},
+  {type:"screen", title:"Segmented Materials List"},
+  {type:"screen", title:"Save Template / Checkout"},
+  {type:"screen", title:"Checkout"},
+  {type:"gap", title:"Order Confirmation"},
+  {type:"end", title:"Order Placed"}
+], 280);
+buildFlow("svg-comp-abc", [
+  {type:"start", title:"Login"},
+  {type:"screen", title:"Order Template Entry"},
+  {type:"gap", title:"Naming / Item Selection"},
+  {type:"gap", title:"Template Review / Edit"},
+  {type:"gap", title:"Save / Confirmation"},
+  {type:"end", title:"Template Available"}
+], 280);
+
+// ---- TABS ----
+function showTab(name){
+  document.querySelectorAll(".tabpanel").forEach(function(p){p.classList.remove("active");});
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+  document.getElementById("panel-"+name).classList.add("active");
+  document.querySelector('.tab[data-tab="'+name+'"]').classList.add("active");
+}
+function filterTabs(){
+  var v = document.getElementById("typeFilter").value;
+  document.querySelectorAll(".tab[data-type]").forEach(function(t){
+    t.style.display = (v==="all" || t.getAttribute("data-type")===v) ? "flex" : "none";
+  });
+}
+
+// Load logo (inline SVG as data URI-free — set via fetch not available offline, so inline base64 fallback)
+document.getElementById("brandlogo").src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwNSIgaGVpZ2h0PSI1MDAiIHZpZXdCb3g9IjAgMCAyNDA1IDUwMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzIyXzIzKSI+CjxtYXNrIGlkPSJtYXNrMF8yMl8yMyIgc3R5bGU9Im1hc2stdHlwZTpsdW1pbmFuY2UiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjAiIHk9IjAiIHdpZHRoPSIyNDA1IiBoZWlnaHQ9IjUwMCI+CjxwYXRoIGQ9Ik0yNDA1IDBIMFY1MDBIMjQwNVYwWiIgZmlsbD0id2hpdGUiLz4KPC9tYXNrPgo8ZyBtYXNrPSJ1cmwoI21hc2swXzIyXzIzKSI+CjxwYXRoIGQ9Ik03OTIuMDM3IDMxNS43MTdDNzQ0LjEwNyAzMTUuNzE3IDczNS42MzEgMjgxLjEwNSA3MzUuNjMxIDIzNi43MThDNzM1LjYzMSAxOTIuNzA2IDc0NC4xMDcgMTU3LjcyNiA3OTIuMDM3IDE1Ny43MjZDODI5LjI3NyAxNTcuNzI2IDg0Mi4xODYgMTc3LjY2MSA4NDUuNTA0IDIwNi45OTZIODk4Ljk3Qzg5OC45NyAxNTcuMzQgODcwLjIgMTEzLjMyOCA3OTIuMDM3IDExMy4zMjhDNzAzLjE4NSAxMTMuMzI4IDY4Mi45MDMgMTcwLjg5MiA2ODIuOTAzIDIzNi43MThDNjgyLjkwMyAzMDIuNTUxIDcwMi4wOCAzNjAuMTE1IDc5Mi4wMzcgMzYwLjExNUM4NzEuMzE2IDM2MC4xMTUgODk5LjMzIDMxOC43MzQgODk5LjMzIDI2Ni4wNjFIODQ1LjUwNEM4NDEuODIgMjk2LjE2MiA4MjkuNjU1IDMxNS43MTcgNzkyLjAzNyAzMTUuNzE3WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEwMDQuMDIgMzE5Ljg1NUM5NzkuMzE2IDMxOS44NTUgOTY5LjM2NCAzMTAuNDU0IDk2OS4zNjQgMjk3LjI4OEM5NjkuMzY0IDI4Ny4xMzQgOTc3LjExNSAyODAuNzMyIDEwMDMuMjkgMjc3LjcyTDEwNDUuNjkgMjcyLjgzMUMxMDQ1LjMxIDI5OC4wNDIgMTAzOC4zMSAzMTkuODU1IDEwMDQuMDIgMzE5Ljg1NVpNMTAwNi42IDE2MS40NzlDOTM4Ljc1OCAxNjEuNDc5IDkyMi45MSAxOTMuNDU5IDkyMi45MSAyMzIuOTU1TDk3My4wNTkgMjMyLjU4MkM5NzMuMDU5IDIxMy43NjcgOTgwLjc5MSAyMDEuMzU1IDEwMDcuNzEgMjAxLjM1NUMxMDM1LjczIDIwMS4zNTUgMTA0NS4zMSAyMTIuMjc0IDEwNDUuNjkgMjM4LjIyNUw5OTUuNTQzIDI0Mi43MzZDOTQwLjIzNSAyNDcuNjI2IDkxNi42MzUgMjYzLjQzIDkxNi42MzUgMjk5LjkyQzkxNi42MzUgMzQxLjMwMSA5NDkuODI2IDM2MC4xMTcgOTkxLjg1OSAzNjAuMTE3QzEwMzAuMiAzNjAuMTE3IDEwNTIuMzIgMzQzLjkzMyAxMDYzLjM5IDMyNi4yNTdMMTA3NC44MSAzNTcuMDk5SDEwOTYuMTlWMjQ4LjAxMkMxMDk2LjE5IDE5Ni44NDQgMTA4NS4xMyAxNjEuNDc5IDEwMDYuNiAxNjEuNDc5WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyMTQuOTMgMzE2Ljg1NkMxMTc4Ljc5IDMxNi44NTYgMTE3My42MyAyOTMuNTE4IDExNzMuNjMgMjYxLjU1QzExNzMuNjMgMjI3LjY5MiAxMTc5LjkxIDIwMy42MTMgMTIxNS42NyAyMDMuNjEzQzEyNDkuOTYgMjAzLjYxMyAxMjU5LjE3IDIyOC40NDQgMTI1OS4xNyAyNjEuNTVDMTI1OS4xNyAyOTQuNjU3IDEyNDkuOTYgMzE2Ljg1NiAxMjE0LjkzIDMxNi44NTZaTTEyMjkuMzEgMTYxLjQ3OUMxMTg4LjAyIDE2MS40NzkgMTE2OC40OCAxNzYuOTA5IDExNTYuNjcgMTk2LjQ3N0wxMTQ1LjYyIDE2NC40OUgxMTIzLjg2VjQzMi4zMzhIMTE3NC4wMVYzMzYuNDExQzExODEuNzUgMzQ3LjY5OCAxMTk4LjMzIDM2MC4xMTcgMTIzMC43OCAzNjAuMTE3QzEyOTAuNTIgMzYwLjExNyAxMzEwLjggMzEzLjQ1OCAxMzEwLjggMjYxLjU1QzEzMTAuOCAyMTAuNzY4IDEyODguNjYgMTYxLjQ3OSAxMjI5LjMxIDE2MS40NzlaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTUzNi4yNSAxNjEuNDc5QzE1MDEuNTggMTYxLjQ3OSAxNDg2LjQ2IDE3OC40MTUgMTQ4MC4yMSAxOTAuMDc1QzE0NzAuMjMgMTcxLjI1OSAxNDUyLjkxIDE2MS40NzkgMTQyNy44NCAxNjEuNDc5QzEzOTIuMDggMTYxLjQ3OSAxMzc0LjAxIDE4MC4yOTQgMTM2Ni4yOCAxOTYuMDlMMTM1NC44NCAxNjQuNDlIMTMzMy4xVjM1Ny4wOTlIMTM4My42VjIzOS43MzdDMTM4My42IDIyMC45MjMgMTM4OS4xMyAyMDUuMTE5IDE0MTIuNzIgMjA1LjExOUMxNDM2LjMyIDIwNS4xMTkgMTQ0MC4zOCAyMjAuNTQ5IDE0NDAuMzggMjM4Ljk4NFYzNTcuMDk5SDE0OTEuNjJWMjM4Ljk4NEMxNDkxLjYyIDIyMC4xNjkgMTQ5Ni43OSAyMDUuMTE5IDE1MjAuMDIgMjA1LjExOUMxNTQzLjYyIDIwNS4xMTkgMTU0Ny42NyAyMjAuNTQ5IDE1NDcuNjcgMjM4Ljk4NFYzNTcuMDk5SDE1OTguOTJWMjQyLjM2OUMxNTk4LjkyIDE5OS40NzUgMTU4Ny44NiAxNjEuNDc5IDE1MzYuMjUgMTYxLjQ3OVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xNzA0Ljk4IDMxOS44NTVDMTY4MC4yNiAzMTkuODU1IDE2NzAuMzIgMzEwLjQ1NCAxNjcwLjMyIDI5Ny4yODhDMTY3MC4zMiAyODcuMTM0IDE2NzguMDYgMjgwLjczMiAxNzA0LjI0IDI3Ny43MkwxNzQ2LjY0IDI3Mi44MzFDMTc0Ni4yNiAyOTguMDQyIDE3MzkuMjcgMzE5Ljg1NSAxNzA0Ljk4IDMxOS44NTVaTTE3MDcuNTUgMTYxLjQ3OUMxNjM5LjcgMTYxLjQ3OSAxNjIzLjg2IDE5My40NTkgMTYyMy44NiAyMzIuOTU1TDE2NzQgMjMyLjU4MkMxNjc0IDIxMy43NjcgMTY4MS43NCAyMDEuMzU1IDE3MDguNjYgMjAxLjM1NUMxNzM2LjY4IDIwMS4zNTUgMTc0Ni4yNiAyMTIuMjc0IDE3NDYuNjQgMjM4LjIyNUwxNjk2LjQ5IDI0Mi43MzZDMTY0MS4xOSAyNDcuNjI2IDE2MTcuNTkgMjYzLjQzIDE2MTcuNTkgMjk5LjkyQzE2MTcuNTkgMzQxLjMwMSAxNjUwLjc3IDM2MC4xMTcgMTY5Mi44MSAzNjAuMTE3QzE3MzEuMTUgMzYwLjExNyAxNzUzLjI3IDM0My45MzMgMTc2NC4zMyAzMjYuMjU3TDE3NzUuNzcgMzU3LjA5OUgxNzk3LjE0VjI0OC4wMTJDMTc5Ny4xNCAxOTYuODQ0IDE3ODYuMDggMTYxLjQ3OSAxNzA3LjU1IDE2MS40NzlaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTg4My43IDExNi4zNDNIMTgzNC42N1YxNjUuMjQ2TDE4MDcuMDEgMTgxLjA1VjIwNi42MjdIMTgzNC42N1YyOTMuMTQ4QzE4MzQuNjcgMzUyLjU5IDE4NjYuMzYgMzY0LjYyMyAxOTMzLjQ2IDM1OC45NzRWMzE2Ljg1MkMxODk4LjA3IDMxOS40ODQgMTg4NS4xNyAzMTQuMjA4IDE4ODUuMTcgMjkyLjc4MVYyMDYuNjI3SDE5MzMuNDZWMTY0LjQ5M0gxODgzLjdWMTE2LjM0M1oiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yMDAwLjY2IDE2NC40OTVIMTk0OS43OFYzNTcuMTAzSDIwMDAuNjZWMTY0LjQ5NVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xOTc1LjIxIDgwLjIyMDdDMTk1Ni40MSA4MC4yMjA3IDE5NDIuNzggODUuNDk3MSAxOTQyLjc4IDEwNi45NDRDMTk0Mi43OCAxMjguMDA0IDE5NTUuNjcgMTMzLjI2MSAxOTc1LjIxIDEzMy4yNjFDMTk5NC4wMSAxMzMuMjYxIDIwMDYuOTIgMTI4LjAwNCAyMDA2LjkyIDEwNi45NDRDMjAwNi45MiA4NS40OTcxIDE5OTQuMDEgODAuMjIwNyAxOTc1LjIxIDgwLjIyMDdaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjExMi42IDMxNi4xMDRDMjA3OC42NyAzMTYuMTA0IDIwNjkuMDkgMjkyLjM5MiAyMDY5LjA5IDI2MC40MjRDMjA2OS4wOSAyMjguODExIDIwNzguNjcgMjA1LjExOSAyMTEzLjM0IDIwNS4xMTlDMjE0OC43MyAyMDUuMTE5IDIxNTcuNTggMjI5Ljk1IDIxNTcuNTggMjYwLjQyNEMyMTU3LjU4IDI5Mi43NzcgMjE0Ny4yNSAzMTYuMTA0IDIxMTIuNiAzMTYuMTA0Wk0yMTEzLjM0IDE2MS40NzlDMjAzOS45OCAxNjEuNDc5IDIwMTkuMzIgMjA5LjYzIDIwMTkuMzIgMjYwLjQyNEMyMDE5LjMyIDMxMS41OCAyMDM5LjYgMzYwLjExNyAyMTEyLjYgMzYwLjExN0MyMTg1Ljk4IDM2MC4xMTcgMjIwNy4zNSAzMTIuMzMyIDIyMDcuMzUgMjYwLjQyNEMyMjA3LjM1IDIwOS42MyAyMTg1Ljk4IDE2MS40NzkgMjExMy4zNCAxNjEuNDc5WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTIzMzIuMzcgMTYxLjQ3OUMyMjkxLjA3IDE2MS40NzkgMjI3NC4xMSAxNzQuNjQ0IDIyNjEuMjEgMTk0LjU4NkwyMjQ5LjQxIDE2NC40OUgyMjI4LjRWMzU3LjA5OUgyMjc4LjlWMjQ5LjEzMkMyMjc4LjkgMjIxLjI4OSAyMjg1LjkyIDIwNC43MzkgMjMxNy42MiAyMDQuNzM5QzIzNDguOTYgMjA0LjczOSAyMzU0LjQ4IDIyMC41NDkgMjM1NC40OCAyNDguMDEyVjM1Ny4wOTlIMjQwNVYyNTIuMTVDMjQwNSAxOTguMzU2IDIzOTIuMDkgMTYxLjQ3OSAyMzMyLjM3IDE2MS40NzlaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTQ4LjY1IDI0OS44NDhMMjkzLjUxNyAxMDIuMDQ0SDEwNy45OTNDOTguNzAzMiAxMDIuMDQ0IDg5Ljc5MjEgMTA1LjgwOCA4My4yMjA3IDExMi41MTNMMTAuMjU0NCAxODYuOTYyQzMuNjg5MjYgMTkzLjY2MSAwIDIwMi43NDYgMCAyMTIuMjI0VjI4Ny40NjRDMCAyOTYuOTQzIDMuNjg5MjYgMzA2LjAzNSAxMC4yNjA3IDMxMi43MzlMNDguNjM1OSAzNTEuODk0TDE5My43OTMgNTAwTDI5My44MDggMzk3Ljk1NEwxNDguNjUgMjQ5Ljg0OFoiIGZpbGw9IiM5RkJGMkEiLz4KPG1hc2sgaWQ9Im1hc2sxXzIyXzIzIiBzdHlsZT0ibWFzay10eXBlOmx1bWluYW5jZSIgbWFza1VuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeD0iNjMiIHk9IjI0OSIgd2lkdGg9IjIzMSIgaGVpZ2h0PSIyNTEiPgo8cGF0aCBkPSJNNzMuMzkxMSAzMjYuNjM1QzU5LjcxODYgMzQwLjU4NSA1OS43MTg2IDM2My4xOTcgNzMuMzkxMSAzNzcuMTU0TDE5My43OTUgNDk5Ljk5NkwyOTMuODEgMzk3Ljk1TDE0OC42NTMgMjQ5Ljg1TDczLjM5MTEgMzI2LjYzNVoiIGZpbGw9IndoaXRlIi8+CjwvbWFzaz4KPGcgbWFzaz0idXJsKCNtYXNrMV8yMl8yMykiPgo8cGF0aCBkPSJNMjkzLjgxIDI0OS44NUg1OS43MTg4VjQ5OS45OTZIMjkzLjgxVjI0OS44NVoiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8yMl8yMykiLz4KPC9nPgo8cGF0aCBkPSJNNTc3LjA2MiAxODcuMjY1TDUzOC42ODcgMTQ4LjExMUwzOTMuNTMgMC4wMDQ4ODI4MUwyOTMuNTE1IDEwMi4wNTJMNDM4LjY3MiAyNTAuMTU4TDI5My44MDUgMzk3Ljk2Mkg0NzkuMzI5QzQ4OC42MiAzOTcuOTYyIDQ5Ny41MyAzOTQuMTk3IDUwNC4xMDIgMzg3LjQ5M0w1NzcuMDY5IDMxMy4wMzdDNTgzLjYzNCAzMDYuMzM5IDU4Ny4zMjIgMjk3LjI1MyA1ODcuMzIyIDI4Ny43ODFWMjEyLjU0QzU4Ny4zMjIgMjAzLjA2MyA1ODMuNjM0IDE5My45NyA1NzcuMDYyIDE4Ny4yNjVaIiBmaWxsPSIjOUZCRjJBIi8+CjxtYXNrIGlkPSJtYXNrMl8yMl8yMyIgc3R5bGU9Im1hc2stdHlwZTpsdW1pbmFuY2UiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjI5MyIgeT0iMCIgd2lkdGg9IjIzMiIgaGVpZ2h0PSIyNTEiPgo8cGF0aCBkPSJNMjkzLjUxNSAxMDIuMDUzTDQzOC42NzIgMjUwLjE2TDUxMy45MzQgMTczLjM2OEM1MjcuNiAxNTkuNDE4IDUyNy42IDEzNi44IDUxMy45MzQgMTIyLjg1TDM5My41MyAwTDI5My41MTUgMTAyLjA1M1oiIGZpbGw9IndoaXRlIi8+CjwvbWFzaz4KPGcgbWFzaz0idXJsKCNtYXNrMl8yMl8yMykiPgo8cGF0aCBkPSJNNTI3LjYgMEgyOTMuNTE1VjI1MC4xNkg1MjcuNlYwWiIgZmlsbD0idXJsKCNwYWludDFfbGluZWFyXzIyXzIzKSIvPgo8L2c+CjwvZz4KPC9nPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyXzIyXzIzIiB4MT0iNjMuMTM2NSIgeTE9IjM3NC45MjQiIHgyPSIyOTMuODA3IiB5Mj0iMzc0LjkyNCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjNzlBRDQyIi8+CjxzdG9wIG9mZnNldD0iMC4wNTc3NzI3IiBzdG9wLWNvbG9yPSIjNzlBRDQyIi8+CjxzdG9wIG9mZnNldD0iMC4zMjg0MzgiIHN0b3AtY29sb3I9IiM4Q0I2M0UiLz4KPHN0b3Agb2Zmc2V0PSIwLjUyNDEzNiIgc3RvcC1jb2xvcj0iIzlFQkYzQiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM5RUJGM0IiLz4KPC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDFfbGluZWFyXzIyXzIzIiB4MT0iMjkzLjUxNSIgeTE9IjEyNS4wOCIgeDI9IjUyNC4xODUiIHkyPSIxMjUuMDgiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzlFQkYzQiIvPgo8c3RvcCBvZmZzZXQ9IjAuNDc1ODY0IiBzdG9wLWNvbG9yPSIjOUVCRjNCIi8+CjxzdG9wIG9mZnNldD0iMC45NDIyMjciIHN0b3AtY29sb3I9IiM3OUFENDIiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNzlBRDQyIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxjbGlwUGF0aCBpZD0iY2xpcDBfMjJfMjMiPgo8cmVjdCB3aWR0aD0iMjQwNSIgaGVpZ2h0PSI1MDAiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==";
+</script>
+</body>
+</html>
