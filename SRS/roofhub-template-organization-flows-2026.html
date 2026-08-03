@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Screen Flow Analysis: Template Organization — Roof Hub Benchmark</title>
+<style>
+  :root{
+    --navy:#0A2342; --lime:#9FBF1A; --frost:#E3E3E3; --white:#FFFFFF;
+    --gray:#6b7280; --amber:#d97706; --amberbg:#fffbeb; --red:#dc2626; --redbg:#fef9f9; --teal:#0d6e6e;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:Montserrat, Arial, sans-serif; background:#f7f9fb; color:var(--navy);}
+  .global-header{background:var(--navy); color:#fff; padding:20px 28px 0;}
+  .global-header h1{margin:0 0 4px; font-size:22px; font-weight:700;}
+  .global-header .sub{font-size:12.5px; color:rgba(255,255,255,.7); margin-bottom:14px;}
+  .global-header .note{font-size:11px; color:rgba(255,255,255,.55); margin-bottom:14px;}
+  .tab-bar{display:flex; align-items:center; gap:6px; padding:0 28px 14px; flex-wrap:wrap; background:var(--navy);}
+  .tab-btn{border:none; cursor:pointer; font-family:Montserrat,Arial,sans-serif; font-size:12.5px; padding:7px 14px; border-radius:6px;
+    background:rgba(255,255,255,.08); color:rgba(255,255,255,.55); display:flex; align-items:center; gap:6px;}
+  .tab-btn.active{background:var(--navy); color:#fff; box-shadow:0 0 0 1.5px rgba(255,255,255,.4);}
+  .tab-btn .dot{width:7px; height:7px; border-radius:50%; display:inline-block;}
+  .tab-sep{width:1px; height:18px; background:rgba(255,255,255,.18); margin:0 4px;}
+  .tab-bar-end{height:1px; background:#e5e7eb;}
+  .content{padding:24px 28px 60px; max-width:1400px; margin:0 auto;}
+  .page-header h1{font-size:24px; margin:0 0 2px; color:var(--navy); font-weight:700;}
+  .page-header .subtitle{font-size:13px; color:var(--gray); margin-bottom:16px;}
+  .legend-bar{display:inline-flex; gap:16px; align-items:center; background:#fff; border:1px solid #e5e7eb; padding:8px 14px; border-radius:6px; font-size:11px; margin-bottom:18px; flex-wrap:wrap;}
+  .legend-bar span{display:inline-flex; align-items:center; gap:5px;}
+  .legend-screen,.legend-error{display:inline-block; width:12px; height:9px; border:1.3px solid var(--gray); border-radius:2px;}
+  .legend-error{border-color:var(--red);}
+  .legend-decision{display:inline-block; width:9px; height:9px; background:#1a1a2e; transform:rotate(45deg);}
+  .legend-gap{display:inline-block; width:12px; height:9px; border:1.3px dashed var(--amber); border-radius:2px; background:var(--amberbg);}
+  .legend-start{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--navy);}
+  .legend-end{display:inline-block; width:9px; height:9px; border-radius:50%; background:#16a34a;}
+  .flow-cols{display:flex; gap:0; align-items:flex-start; overflow-x:auto;}
+  .flow-col-wrap{width:300px; flex-shrink:0;}
+  .channel-title{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:700; color:var(--navy); margin-bottom:6px;}
+  .col-divider{width:1px; background:#e5e7eb; margin:0 24px; flex-shrink:0; align-self:stretch;}
+  .copy-btn{border:1px solid #d1d5db; background:#fff; border-radius:5px; font-size:11px; padding:5px 10px; cursor:pointer; margin-bottom:8px; font-family:Montserrat,Arial,sans-serif; color:var(--navy);}
+  .copy-btn.copied{background:#ecfdf5; border-color:#16a34a; color:#16a34a;}
+  .flow-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .flow-header h2{font-size:16px; margin:0; color:var(--navy);}
+  .node{width:100%; margin:0 auto 4px;}
+  .arrowzone{text-align:center; font-size:10.5px; color:#9ca3af; font-style:italic; padding:4px 0;}
+  .arrowzone .arrow{font-size:12px;}
+  .screen-node{background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; text-align:center;}
+  .screen-node .title{font-weight:700; font-size:13.5px; color:#111827;}
+  .screen-node .subtitle{font-size:11px; color:var(--teal); font-style:italic; margin-top:2px;}
+  .screen-node .subitem{border:1px solid #e5e7eb; border-radius:5px; background:#f9fafb; padding:4px 9px; font-size:10.5px; text-align:left; margin-top:5px;}
+  .screen-node .subitem.unavail{color:#9ca3af;}
+  .screen-node .srctag{font-size:9px; font-style:italic; color:#9ca3af; margin-top:6px;}
+  .gap-node{border:1.5px dashed var(--amber); background:var(--amberbg); border-radius:6px; padding:8px 10px; min-height:44px;}
+  .gap-node .title{font-weight:700; font-size:11.5px; color:var(--amber);}
+  .gap-node .desc{font-size:10px; color:#6b7280; margin-top:2px;}
+  .pill{border-radius:999px; width:180px; height:48px; margin:0 auto; display:flex; align-items:center; justify-content:center; flex-direction:column;}
+  .pill.start{background:var(--navy); color:#fff;}
+  .pill.end{background:#16a34a; color:#fff;}
+  .pill .t{font-weight:700; font-size:12.5px;}
+  .pill .s{font-size:10px; opacity:.7;}
+  .ux-obs{margin-top:22px; border-top:1px solid #e5e7eb; padding-top:16px;}
+  .ux-obs h3{font-size:14px; margin:0 0 10px;}
+  .ux-cols{display:flex; gap:24px; flex-wrap:wrap;}
+  .ux-col{flex:1; min-width:260px;}
+  .ux-col .lbl{font-size:10px; text-transform:uppercase; font-weight:700; margin-bottom:6px;}
+  .ux-col.pos .lbl{color:#16a34a;} .ux-col.neg .lbl{color:var(--amber);}
+  .ux-col li{font-size:12px; margin-bottom:6px; list-style:none; padding-left:18px; position:relative;}
+  .ux-col.pos li:before{content:"✓"; position:absolute; left:0; color:#16a34a;}
+  .ux-col.neg li:before{content:"⚠"; position:absolute; left:0; color:var(--amber);}
+  .ratings{margin-top:14px;}
+  .rating-row{display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:12px;}
+  .rating-row .lbl{width:50px;}
+  .bar-bg{flex:1; height:8px; background:#f1f2f4; border-radius:4px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:4px;}
+  .rating-row .score{width:34px; text-align:right; font-weight:700;}
+  .src-footer{font-size:10.5px; font-style:italic; color:#9ca3af; margin-top:14px;}
+  .evidence{margin-top:24px;}
+  .evidence h3{font-size:14px; margin-bottom:8px;}
+  table.evtable{width:100%; border-collapse:collapse; font-size:11.5px;}
+  table.evtable th{background:var(--navy); color:#fff; text-align:left; padding:6px 8px; font-size:11px;}
+  table.evtable td{border-bottom:1px solid #e5e7eb; padding:6px 8px; vertical-align:top;}
+  table.evtable a{color:var(--navy);}
+  .ref-badge{display:inline-block; background:#eef2ff; color:#4338ca; font-size:11px; padding:3px 8px; border-radius:5px; margin-bottom:10px;}
+  .callout{background:#eef2ff; border-left:3px solid #4338ca; padding:10px 14px; font-size:12.5px; margin-bottom:16px; border-radius:4px;}
+  .review-checkpoint{background:#fffbeb; border-left:3px solid var(--amber); padding:12px 16px; font-size:13px; margin-bottom:20px; border-radius:4px; color:#92400e;}
+  .stage-labels{display:flex; margin-bottom:6px;}
+  .stage-labels span{font-size:10px; color:var(--gray); text-transform:uppercase; letter-spacing:.05em;}
+  .comparison-col{min-width:280px; border-right:1px solid #e5e7eb; padding:0 16px;}
+  .comparison-col-header{padding:8px 10px; border-radius:6px 6px 0 0; color:#fff; font-size:12px; font-weight:700; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .col-source-footer{font-size:10px; color:#9ca3af; font-style:italic; margin-top:10px;}
+  .modtable{width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:22px;}
+  .modtable th{background:var(--navy); color:#fff; text-align:left; padding:8px 10px; cursor:pointer;}
+  .modtable td{border-bottom:1px solid #e5e7eb; padding:8px 10px;}
+  .modtable tr:nth-child(even) td{background:#fafafa;}
+  .prio{padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700;}
+  .prio.high{background:#fdeeee; color:#b91c1c;} .prio.med{background:#fdf6e9; color:#d97706;} .prio.low{background:#f1f2f4; color:#6b7280;}
+  .summary-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .summary-card{background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:16px;}
+  .summary-card h4{margin:0 0 8px; font-size:13px;}
+  .summary-card p{font-size:12px; color:#374151; margin:0 0 4px;}
+  .gap-cell{color:var(--amber); font-style:italic;}
+  [data-tabcontent]{display:none;}
+  [data-tabcontent].active{display:block;}
+</style>
+</head>
+<body>
+
+<div class="global-header">
+  <h1>User Screen Flow Analysis: Template Organization — Roof Hub Benchmark</h1>
+  <div class="sub">Secondary research scope: template organization &amp; management in B2B ordering platforms · US · July 30, 2026 · Capmation</div>
+  <div class="note">All screens documented from real sources found in this session. Gaps shown explicitly — nothing is invented.</div>
+</div>
+<div class="tab-bar" id="tabbar">
+  <button class="tab-btn active" data-tab="abc"><span class="dot" style="background:#c8102e"></span>ABC Supply</button>
+  <button class="tab-btn" data-tab="beacon"><span class="dot" style="background:#003865"></span>Beacon PRO+</button>
+  <span class="tab-sep"></span>
+  <button class="tab-btn" data-tab="sap">🔍 SAP Ariba</button>
+  <button class="tab-btn" data-tab="amazon">🔍 Amazon Business</button>
+  <button class="tab-btn" data-tab="hd">🔍 Home Depot Pro</button>
+  <button class="tab-btn" data-tab="od">🔍 Office Depot Business</button>
+  <span class="tab-sep"></span>
+  <button class="tab-btn" data-tab="suggested">✦ Suggested Flow</button>
+  <button class="tab-btn" data-tab="summary">📊 Summary</button>
+  <button class="tab-btn" data-tab="comparison">⇄ Comparison</button>
+  <button class="tab-btn" data-tab="modules">📦 Modules</button>
+</div>
+<div class="tab-bar-end"></div>
+
+<div class="content">
+
+<!-- ===================== ABC SUPPLY ===================== -->
+<div data-tabcontent id="tab-abc" class="active">
+  <div class="flow-header">
+    <div>
+      <h2>ABC Supply — myABCsupply Order Template Flow</h2>
+      <div style="font-size:12px;color:#6b7280;">ABC Supply Co., Inc. · Largest wholesale roofing distributor in North America, 1,000+ branches · Nov 2021–Aug 2023</div>
+    </div>
+    <button class="copy-btn" onclick="copySVG('abc', this)">📋 Copy SVG</button>
+  </div>
+  <div class="legend-bar">
+    <span><span class="legend-screen"></span>Screen</span>
+    <span><span class="legend-decision"></span>Decision</span>
+    <span><span class="legend-gap"></span>Gap (no screen exists)</span>
+    <span><span class="legend-error"></span>Error / dead end</span>
+    <span><span class="legend-start"></span>Start</span>
+    <span><span class="legend-end"></span>End / resolution</span>
+  </div>
+  <div class="flow-col-wrap">
+    <svg id="svg-abc" viewBox="0 0 300 560" xmlns="http://www.w3.org/2000/svg" width="300">
+      <defs><marker id="arrABC" markerWidth="6" markerHeight="6" refX="3" refY="5" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#9ca3af"/></marker></defs>
+      <rect x="60" y="10" width="180" height="44" rx="22" fill="#0A2342"/>
+      <text x="150" y="28" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Open myABCsupply</text>
+      <text x="150" y="42" text-anchor="middle" font-size="10" fill="#ffffffb0" font-family="Montserrat,Arial">Desktop or mobile app</text>
+      <line x1="150" y1="54" x2="150" y2="92" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrABC)"/>
+      <text x="150" y="70" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">navigate to ordering</text>
+
+      <rect x="10" y="92" width="280" height="86" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="112" text-anchor="middle" font-size="13.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">[My Templates — exact screen name not found]</text>
+      <text x="150" y="126" text-anchor="middle" font-size="11" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Template feature</text>
+      <rect x="24" y="134" width="252" height="16" rx="5" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="30" y="145" font-size="10.5" fill="#111827" font-family="Montserrat,Arial">Built ahead of time from frequent orders</text>
+      <text x="150" y="170" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: ABC Supply customer story · 2022</text>
+      <line x1="150" y1="178" x2="150" y2="216" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrABC)"/>
+      <text x="150" y="196" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">select a template</text>
+
+      <rect x="10" y="216" width="280" height="96" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="236" text-anchor="middle" font-size="13.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">[Template Detail — drop-down selection]</text>
+      <text x="150" y="250" text-anchor="middle" font-size="11" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Color / quantity selection</text>
+      <rect x="24" y="258" width="252" height="16" rx="5" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="30" y="269" font-size="10.5" fill="#111827" font-family="Montserrat,Arial">Select different colors from drop-down</text>
+      <rect x="24" y="278" width="252" height="16" rx="5" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="30" y="289" font-size="10.5" fill="#111827" font-family="Montserrat,Arial">Select quantities from drop-down</text>
+      <text x="150" y="304" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: ABC Supply customer story · Roofsimple · 2021</text>
+      <line x1="150" y1="312" x2="150" y2="350" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrABC)"/>
+      <text x="150" y="330" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">continue to review</text>
+
+      <rect x="60" y="350" width="180" height="60" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="76" y="374" font-size="11" fill="#d97706">⚠</text>
+      <text x="150" y="376" text-anchor="middle" font-size="12" font-weight="700" fill="#d97706" font-family="Montserrat,Arial">Order Review — not documented</text>
+      <text x="150" y="392" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Montserrat,Arial">No public source describes this screen</text>
+      <line x1="150" y1="410" x2="150" y2="448" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrABC)"/>
+      <text x="150" y="428" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">place order</text>
+
+      <rect x="60" y="448" width="180" height="48" rx="24" fill="#16a34a"/>
+      <text x="150" y="466" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Order Placed</text>
+      <text x="150" y="480" text-anchor="middle" font-size="10" fill="#ffffffb0" font-family="Montserrat,Arial">In under 1 minute, per user report</text>
+    </svg>
+  </div>
+
+  <div class="ux-obs">
+    <h3>UX Observations — Screen-Level Analysis</h3>
+    <div class="ux-cols">
+      <div class="ux-col pos">
+        <div class="lbl">Strengths</div>
+        <ul>
+          <li>Templates cut ordering time to under a minute for frequent users</li>
+          <li>Low product-knowledge requirement — teammates can cover for each other</li>
+          <li>Order history and favorites complement templates for fast reorder</li>
+        </ul>
+      </div>
+      <div class="ux-col neg">
+        <div class="lbl">Gaps</div>
+        <ul>
+          <li>Template creation flow only documented via video — screen-by-screen UI copy unavailable</li>
+          <li>No public documentation of template organization/categorization beyond "My Templates"</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ratings">
+      <div class="rating-row"><span class="lbl">Ease</span><div class="bar-bg"><div class="bar-fill" style="width:80%;background:#0d6e6e;"></div></div><span class="score">4/5</span></div>
+      <div class="rating-row"><span class="lbl">Speed</span><div class="bar-bg"><div class="bar-fill" style="width:80%;background:#0d6e6e;"></div></div><span class="score">4/5</span></div>
+      <div class="rating-row"><span class="lbl">Trust</span><div class="bar-bg"><div class="bar-fill" style="width:80%;background:#0d6e6e;"></div></div><span class="score">4/5</span></div>
+    </div>
+    <div class="src-footer">Ratings based on documented customer-story outcomes, not independent UX testing of the live product.</div>
+  </div>
+
+  <div class="evidence">
+    <h3>Evidence Panel</h3>
+    <table class="evtable">
+      <tr><th>Screen name</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>My Templates</td><td>ABC Supply customer story (Sunshine Roof Services)</td><td><a href="https://www.abcsupply.com/news-events/myabcsupply-makes-managing-orders-online-easier-for-sunshine-roof-services/" target="_blank" rel="noopener">abcsupply.com</a></td><td>Nov 2022</td></tr>
+      <tr><td>Template Detail</td><td>ABC Supply customer story (Roofsimple)</td><td><a href="https://www.abcsupply.com/news-events/myabcsupply-changing-the-game-and-lightening-the-load/" target="_blank" rel="noopener">abcsupply.com</a></td><td>Nov 2021</td></tr>
+      <tr><td class="gap-cell">Order Review</td><td class="gap-cell">[Gap] — not found after 2 searches</td><td>—</td><td>Jul 30, 2026</td></tr>
+      <tr><td>Order Placed</td><td>ABC Supply customer story (Aegis Exteriors)</td><td><a href="https://www.abcsupply.com/news-events/aegis-exteriors-saves-hours-a-week-with-myabcsupply-online-ordering/" target="_blank" rel="noopener">abcsupply.com</a></td><td>Aug 2023</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: abcsupply.com customer stories (2021–2023), ABC Supply Google Play listing.</div>
+</div>
+
+<!-- ===================== BEACON PRO+ ===================== -->
+<div data-tabcontent id="tab-beacon">
+  <div class="flow-header">
+    <div>
+      <h2>Beacon PRO+ (QXO) — Smart Order Flow</h2>
+      <div style="font-size:12px;color:#6b7280;">Beacon Building Products (QXO) · EagleView-integrated Smart Order · May 2024</div>
+    </div>
+    <button class="copy-btn" onclick="copySVG('beacon', this)">📋 Copy SVG</button>
+  </div>
+  <div class="legend-bar">
+    <span><span class="legend-screen"></span>Screen</span>
+    <span><span class="legend-decision"></span>Decision</span>
+    <span><span class="legend-gap"></span>Gap (no screen exists)</span>
+    <span><span class="legend-error"></span>Error / dead end</span>
+    <span><span class="legend-start"></span>Start</span>
+    <span><span class="legend-end"></span>End / resolution</span>
+  </div>
+  <div class="flow-col-wrap">
+    <svg id="svg-beacon" viewBox="0 0 300 700" xmlns="http://www.w3.org/2000/svg" width="300">
+      <defs><marker id="arrBCN" markerWidth="6" markerHeight="6" refX="3" refY="5" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#9ca3af"/></marker></defs>
+      <rect x="60" y="10" width="180" height="44" rx="22" fill="#0A2342"/>
+      <text x="150" y="28" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Beacon PRO+ page</text>
+      <text x="150" y="42" text-anchor="middle" font-size="10" fill="#ffffffb0" font-family="Montserrat,Arial">"Begin Smart Order" button visible</text>
+      <line x1="150" y1="54" x2="150" y2="92" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrBCN)"/>
+      <text x="150" y="70" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">click Begin Smart Order</text>
+
+      <rect x="10" y="92" width="280" height="72" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="114" text-anchor="middle" font-size="13.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Select Template</text>
+      <text x="150" y="128" text-anchor="middle" font-size="11" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Choose from saved templates</text>
+      <text x="150" y="156" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: Beacon (BeaconBits) · May 2024</text>
+      <line x1="150" y1="164" x2="150" y2="202" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrBCN)"/>
+      <text x="150" y="182" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">pulls EagleView report</text>
+
+      <rect x="10" y="202" width="280" height="110" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="222" text-anchor="middle" font-size="13.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Materials List</text>
+      <text x="150" y="236" text-anchor="middle" font-size="11" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Segmented top-down by roof category</text>
+      <rect x="24" y="244" width="252" height="16" rx="5" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="30" y="255" font-size="10.5" fill="#111827" font-family="Montserrat,Arial">Shingles → Underlayment → Misc.</text>
+      <rect x="24" y="264" width="252" height="16" rx="5" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="30" y="275" font-size="10.5" fill="#111827" font-family="Montserrat,Arial">Misc. category for easy-to-forget items</text>
+      <text x="150" y="298" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: Beacon (BeaconBits) · May 2024</text>
+      <line x1="150" y1="312" x2="150" y2="350" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrBCN)"/>
+      <text x="150" y="330" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">adjust per line</text>
+
+      <rect x="10" y="350" width="280" height="88" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="370" text-anchor="middle" font-size="13.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Waste Factor Adjustment</text>
+      <text x="150" y="384" text-anchor="middle" font-size="11" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Default auto-set to 10%</text>
+      <rect x="24" y="392" width="252" height="16" rx="5" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="30" y="403" font-size="10.5" fill="#111827" font-family="Montserrat,Arial">Editable per line item</text>
+      <text x="150" y="424" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: Beacon (BeaconBits) · May 2024</text>
+      <line x1="150" y1="438" x2="150" y2="476" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrBCN)"/>
+      <text x="150" y="456" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">optional</text>
+
+      <rect x="60" y="476" width="180" height="60" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <polygon points="150,476 240,506 150,536 60,506" fill="#1a1a2e" opacity="0.06"/>
+      <text x="150" y="500" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Save as new template?</text>
+      <text x="150" y="516" text-anchor="middle" font-size="10" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Documented option before checkout</text>
+      <line x1="150" y1="536" x2="150" y2="574" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrBCN)"/>
+      <text x="150" y="554" text-anchor="middle" font-size="10.5" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">continue to checkout</text>
+
+      <rect x="10" y="574" width="280" height="68" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="596" text-anchor="middle" font-size="13.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Checkout</text>
+      <text x="150" y="610" text-anchor="middle" font-size="11" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Project address pre-populated</text>
+      <text x="150" y="632" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: Beacon (BeaconBits) · May 2024</text>
+      <line x1="150" y1="642" x2="150" y2="656" stroke="#9ca3af" stroke-width="1" marker-end="url(#arrBCN)"/>
+
+      <rect x="60" y="656" width="180" height="40" rx="20" fill="#16a34a"/>
+      <text x="150" y="680" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Order Placed — 5–10 min total</text>
+    </svg>
+  </div>
+
+  <div class="ux-obs">
+    <h3>UX Observations — Screen-Level Analysis</h3>
+    <div class="ux-cols">
+      <div class="ux-col pos">
+        <div class="lbl">Strengths</div>
+        <ul>
+          <li>Guided, auto-populated material list from a real measurement source (EagleView)</li>
+          <li>Category segmentation reduces cognitive load vs. a flat list</li>
+          <li>Waste factor defaults reduce manual math errors</li>
+          <li>Full flow documented end-to-end, 5–10 minutes, six steps</li>
+        </ul>
+      </div>
+      <div class="ux-col neg">
+        <div class="lbl">Gaps</div>
+        <ul>
+          <li>Plain "create a template from scratch" flow (without EagleView) not documented step-by-step</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ratings">
+      <div class="rating-row"><span class="lbl">Ease</span><div class="bar-bg"><div class="bar-fill" style="width:80%;background:#0d6e6e;"></div></div><span class="score">4/5</span></div>
+      <div class="rating-row"><span class="lbl">Speed</span><div class="bar-bg"><div class="bar-fill" style="width:100%;background:#0d6e6e;"></div></div><span class="score">5/5</span></div>
+      <div class="rating-row"><span class="lbl">Trust</span><div class="bar-bg"><div class="bar-fill" style="width:80%;background:#0d6e6e;"></div></div><span class="score">4/5</span></div>
+    </div>
+    <div class="src-footer">Ratings based on documented product-page/blog description of Smart Order, not independent UX testing.</div>
+  </div>
+
+  <div class="evidence">
+    <h3>Evidence Panel</h3>
+    <table class="evtable">
+      <tr><th>Screen name</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Select Template</td><td>Beacon (BeaconBits)</td><td><a href="https://www.becn.com/beaconbits/build-your-business/smart-order-how-beacon-pro-makes-it-easier-to-order-roofing-project-materials" target="_blank" rel="noopener">becn.com</a></td><td>May 2024</td></tr>
+      <tr><td>Materials List</td><td>Beacon (BeaconBits)</td><td><a href="https://www.becn.com/beaconbits/build-your-business/smart-order-how-beacon-pro-makes-it-easier-to-order-roofing-project-materials" target="_blank" rel="noopener">becn.com</a></td><td>May 2024</td></tr>
+      <tr><td>Waste Factor Adjustment</td><td>Beacon (BeaconBits)</td><td><a href="https://www.becn.com/beaconbits/build-your-business/smart-order-how-beacon-pro-makes-it-easier-to-order-roofing-project-materials" target="_blank" rel="noopener">becn.com</a></td><td>May 2024</td></tr>
+      <tr><td>Checkout</td><td>Beacon (BeaconBits)</td><td><a href="https://www.becn.com/beaconbits/build-your-business/smart-order-how-beacon-pro-makes-it-easier-to-order-roofing-project-materials" target="_blank" rel="noopener">becn.com</a></td><td>May 2024</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: becn.com/beaconbits (May 2024), HBS Dealer (Oct 2022).</div>
+</div>
+
+<!-- ===================== EXTERNAL REFERENCES ===================== -->
+<div data-tabcontent id="tab-sap">
+  <div class="flow-header">
+    <div><h2>SAP Ariba — Purchase Order Templates</h2><div style="font-size:12px;color:#6b7280;">SAP · Enterprise procurement suite</div></div>
+    <button class="copy-btn" onclick="copySVG('sap', this)">📋 Copy SVG</button>
+  </div>
+  <span class="ref-badge">🔍 External reference — not a direct competitor</span>
+  <div class="callout">Pattern to borrow: build and fully approve one template first, then create further templates by copying that validated template — reduces setup risk vs. building several templates in parallel.</div>
+  <div class="legend-bar">
+    <span><span class="legend-screen"></span>Screen</span><span><span class="legend-gap"></span>Gap</span><span><span class="legend-start"></span>Start</span><span><span class="legend-end"></span>End</span>
+  </div>
+  <div class="flow-col-wrap">
+    <svg id="svg-sap" viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" width="300">
+      <defs><marker id="arrSAP" markerWidth="6" markerHeight="6" refX="3" refY="5" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#9ca3af"/></marker></defs>
+      <rect x="60" y="10" width="180" height="40" rx="20" fill="#0A2342"/>
+      <text x="150" y="34" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Create first template</text>
+      <line x1="150" y1="50" x2="150" y2="88" stroke="#9ca3af" marker-end="url(#arrSAP)"/>
+      <text x="150" y="68" text-anchor="middle" font-size="10" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">get it approved</text>
+      <rect x="10" y="88" width="280" height="62" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="112" text-anchor="middle" font-size="13" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Approved Template</text>
+      <text x="150" y="134" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: SAP Learning</text>
+      <line x1="150" y1="150" x2="150" y2="188" stroke="#9ca3af" marker-end="url(#arrSAP)"/>
+      <text x="150" y="168" text-anchor="middle" font-size="10" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">select "Copy"</text>
+      <rect x="60" y="188" width="180" height="40" rx="20" fill="#16a34a"/>
+      <text x="150" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Montserrat,Arial">New Template (duplicate)</text>
+    </svg>
+  </div>
+  <div class="src-footer">Source: SAP Learning · learning.sap.com/learning-journeys/introducing-sap-ariba-contracts/creating-project-templates</div>
+</div>
+
+<div data-tabcontent id="tab-amazon">
+  <div class="flow-header">
+    <div><h2>Amazon Business — Shopping Lists &amp; Reorder</h2><div style="font-size:12px;color:#6b7280;">Amazon Business · List types by purchase intent</div></div>
+    <button class="copy-btn" onclick="copySVG('amazon', this)">📋 Copy SVG</button>
+  </div>
+  <span class="ref-badge">🔍 External reference — not a direct competitor</span>
+  <div class="callout">Pattern to borrow: separate lists by intent (Reorder = repeat purchases; Shopping = one-time), with admin-marked "Preferred" lists guiding buyers.</div>
+  <div class="legend-bar"><span><span class="legend-screen"></span>Screen</span><span><span class="legend-decision"></span>Decision</span><span><span class="legend-start"></span>Start</span></div>
+  <div class="flow-col-wrap">
+    <svg id="svg-amazon" viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" width="300">
+      <defs><marker id="arrAMZ" markerWidth="6" markerHeight="6" refX="3" refY="5" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#9ca3af"/></marker></defs>
+      <rect x="60" y="10" width="180" height="40" rx="20" fill="#0A2342"/>
+      <text x="150" y="34" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Lists dropdown</text>
+      <line x1="150" y1="50" x2="150" y2="88" stroke="#9ca3af" marker-end="url(#arrAMZ)"/>
+      <text x="150" y="68" text-anchor="middle" font-size="10" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">choose list type</text>
+      <rect x="10" y="88" width="280" height="76" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Reorder List vs. Shopping List</text>
+      <rect x="24" y="118" width="252" height="16" rx="5" fill="#f9fafb" stroke="#e5e7eb"/>
+      <text x="30" y="129" font-size="10" fill="#111827" font-family="Montserrat,Arial">Reorder: item stays after purchase</text>
+      <text x="150" y="150" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: Amazon Business Help Center</text>
+      <line x1="150" y1="164" x2="150" y2="202" stroke="#9ca3af" marker-end="url(#arrAMZ)"/>
+      <text x="150" y="182" text-anchor="middle" font-size="10" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">admin marks Preferred</text>
+      <rect x="60" y="202" width="180" height="40" rx="20" fill="#16a34a"/>
+      <text x="150" y="226" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Guided purchase</text>
+    </svg>
+  </div>
+  <div class="src-footer">Source: business.amazon.com/success-studio/videos/business-lists · amazon.com Help Center</div>
+</div>
+
+<div data-tabcontent id="tab-hd">
+  <div class="flow-header">
+    <div><h2>The Home Depot Pro (Pro Xtra) — Lists &amp; Purchase History</h2><div style="font-size:12px;color:#6b7280;">The Home Depot · Pro loyalty program</div></div>
+    <button class="copy-btn" onclick="copySVG('hd', this)">📋 Copy SVG</button>
+  </div>
+  <span class="ref-badge">🔍 External reference — not a direct competitor</span>
+  <div class="callout">Pattern to borrow: frame lists as "collections of go-to gear," with simple filtering to quickly find past transactions or buy again.</div>
+  <div class="legend-bar"><span><span class="legend-screen"></span>Screen</span><span><span class="legend-start"></span>Start</span></div>
+  <div class="flow-col-wrap">
+    <svg id="svg-hd" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg" width="300">
+      <defs><marker id="arrHD" markerWidth="6" markerHeight="6" refX="3" refY="5" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#9ca3af"/></marker></defs>
+      <rect x="60" y="10" width="180" height="40" rx="20" fill="#0A2342"/>
+      <text x="150" y="34" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Pro Resource Center</text>
+      <line x1="150" y1="50" x2="150" y2="88" stroke="#9ca3af" marker-end="url(#arrHD)"/>
+      <text x="150" y="68" text-anchor="middle" font-size="10" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">build collection</text>
+      <rect x="10" y="88" width="280" height="62" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="112" text-anchor="middle" font-size="13" font-weight="700" fill="#111827" font-family="Montserrat,Arial">"Go-to gear" Collections</text>
+      <text x="150" y="134" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: homedepot.com/pro_resource_center</text>
+      <line x1="150" y1="150" x2="150" y2="188" stroke="#9ca3af" marker-end="url(#arrHD)"/>
+      <rect x="60" y="188" width="180" height="24" rx="12" fill="#16a34a"/>
+    </svg>
+  </div>
+  <div class="src-footer">Source: homedepot.com/c/pro_resource_center · homedepot.com/c/view-your-purchase-history</div>
+</div>
+
+<div data-tabcontent id="tab-od">
+  <div class="flow-header">
+    <div><h2>Office Depot Business — Saved Lists</h2><div style="font-size:12px;color:#6b7280;">ODP Business Solutions · Saved / Shopping Lists</div></div>
+    <button class="copy-btn" onclick="copySVG('od', this)">📋 Copy SVG</button>
+  </div>
+  <span class="ref-badge">🔍 External reference — not a direct competitor</span>
+  <div class="callout">Pattern to borrow: explicit "Add to Shopping List" action on every product, distinct from "Add to Cart"; items movable between lists.</div>
+  <div class="legend-bar"><span><span class="legend-screen"></span>Screen</span><span><span class="legend-start"></span>Start</span></div>
+  <div class="flow-col-wrap">
+    <svg id="svg-od" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg" width="300">
+      <defs><marker id="arrOD" markerWidth="6" markerHeight="6" refX="3" refY="5" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#9ca3af"/></marker></defs>
+      <rect x="60" y="10" width="180" height="40" rx="20" fill="#0A2342"/>
+      <text x="150" y="34" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Product / search page</text>
+      <line x1="150" y1="50" x2="150" y2="88" stroke="#9ca3af" marker-end="url(#arrOD)"/>
+      <text x="150" y="68" text-anchor="middle" font-size="10" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">click "Add to Shopping List"</text>
+      <rect x="10" y="88" width="280" height="62" rx="10" fill="#fff" stroke="#e5e7eb"/>
+      <text x="150" y="112" text-anchor="middle" font-size="13" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Saved List</text>
+      <text x="150" y="134" text-anchor="middle" font-size="9" font-style="italic" fill="#9ca3af" font-family="Montserrat,Arial">Source: Office Depot Business User Guide</text>
+      <line x1="150" y1="150" x2="150" y2="188" stroke="#9ca3af" marker-end="url(#arrOD)"/>
+      <rect x="60" y="188" width="180" height="24" rx="12" fill="#16a34a"/>
+    </svg>
+  </div>
+  <div class="src-footer">Source: gvsu.edu/cms4/asset/.../office_depot_user_guide.pdf</div>
+</div>
+
+<!-- ===================== SUGGESTED FLOW ===================== -->
+<div data-tabcontent id="tab-suggested">
+  <div class="flow-header">
+    <div><h2>✦ Suggested Flow — Roof Hub Template Organization</h2><div style="font-size:12px;color:#6b7280;">Synthesized from S3 competitor/reference research · Current Flow from uploaded Roof Hub screenshots</div></div>
+    <button class="copy-btn" onclick="copySVGById('svg-suggested-col', this)">📋 Copy SVG</button>
+  </div>
+  <div class="legend-bar">
+    <span><span class="legend-screen"></span>Screen</span><span><span class="legend-gap"></span>Opportunity — no competitor solves this</span>
+  </div>
+  <div style="display:flex; gap:0; align-items:flex-start;">
+    <div style="width:300px; flex-shrink:0;">
+      <div class="channel-title">✦ Suggested Flow</div>
+      <svg id="svg-suggested-col" viewBox="0 0 300 520" xmlns="http://www.w3.org/2000/svg" width="300">
+        <defs><marker id="arrSUG" markerWidth="6" markerHeight="6" refX="3" refY="5" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#9ca3af"/></marker></defs>
+        <rect x="10" y="10" width="280" height="60" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="150" y="32" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Templates Library</text>
+        <text x="150" y="46" text-anchor="middle" font-size="9.5" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Research basis: current Roof Hub screen</text>
+        <text x="264" y="24" font-size="9" fill="#16a34a" font-family="Montserrat,Arial">[kept]</text>
+        <line x1="150" y1="70" x2="150" y2="104" stroke="#9ca3af" marker-end="url(#arrSUG)"/>
+
+        <rect x="10" y="104" width="280" height="60" rx="10" fill="#fff" stroke="#0d9488" stroke-width="1.5"/>
+        <text x="150" y="126" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Filter: Standing / Job-specific</text>
+        <text x="150" y="140" text-anchor="middle" font-size="9.5" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Research basis: Amazon Business (S3)</text>
+        <text x="264" y="118" font-size="9" fill="#0d9488" font-family="Montserrat,Arial">[New]</text>
+        <line x1="150" y1="164" x2="150" y2="198" stroke="#9ca3af" marker-end="url(#arrSUG)"/>
+
+        <rect x="10" y="198" width="280" height="60" rx="10" fill="#fff" stroke="#0d9488" stroke-width="1.5"/>
+        <text x="150" y="220" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Search Templates</text>
+        <text x="150" y="234" text-anchor="middle" font-size="9.5" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Research basis: McMaster-Carr/Grainger (S6)</text>
+        <text x="264" y="212" font-size="9" fill="#0d9488" font-family="Montserrat,Arial">[New]</text>
+        <line x1="150" y1="258" x2="150" y2="292" stroke="#9ca3af" marker-end="url(#arrSUG)"/>
+
+        <rect x="10" y="292" width="280" height="60" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="150" y="314" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Template Detail</text>
+        <text x="150" y="328" text-anchor="middle" font-size="9.5" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Research basis: current Roof Hub screen</text>
+        <text x="264" y="306" font-size="9" fill="#16a34a" font-family="Montserrat,Arial">[kept]</text>
+        <line x1="150" y1="352" x2="150" y2="386" stroke="#9ca3af" marker-end="url(#arrSUG)"/>
+
+        <rect x="10" y="386" width="280" height="54" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="150" y="406" text-anchor="middle" font-size="11.5" font-weight="700" fill="#d97706" font-family="Montserrat,Arial">Stale-Item Flag</text>
+        <text x="150" y="420" text-anchor="middle" font-size="9.5" fill="#6b7280" font-family="Montserrat,Arial">Opportunity — no competitor solves this (S5/S7)</text>
+        <line x1="150" y1="440" x2="150" y2="470" stroke="#9ca3af" marker-end="url(#arrSUG)"/>
+
+        <rect x="60" y="470" width="180" height="40" rx="20" fill="#16a34a"/>
+        <text x="150" y="494" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Montserrat,Arial">Use in Order</text>
+      </svg>
+    </div>
+    <div style="width:1px; background:#e5e7eb; align-self:stretch; margin:0 24px;"></div>
+    <div style="width:300px; flex-shrink:0;">
+      <div class="channel-title">Current Flow (Roof Hub)</div>
+      <svg viewBox="0 0 300 520" xmlns="http://www.w3.org/2000/svg" width="300">
+        <rect x="10" y="10" width="280" height="60" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="150" y="32" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Templates (grid)</text>
+        <text x="150" y="46" text-anchor="middle" font-size="9.5" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Brand tabs · favorites star</text>
+        <line x1="150" y1="70" x2="150" y2="104" stroke="#9ca3af"/>
+
+        <rect x="10" y="104" width="280" height="46" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="150" y="122" text-anchor="middle" font-size="11.5" font-weight="700" fill="#d97706" font-family="Montserrat,Arial">⚠ No template search</text>
+        <text x="150" y="136" text-anchor="middle" font-size="9.5" fill="#6b7280" font-family="Montserrat,Arial">[Reconsider]</text>
+        <line x1="150" y1="150" x2="150" y2="184" stroke="#9ca3af"/>
+
+        <rect x="10" y="184" width="280" height="60" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="150" y="206" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Save As A Template</text>
+        <text x="150" y="220" text-anchor="middle" font-size="9.5" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Manual line-by-line build</text>
+        <line x1="150" y1="244" x2="150" y2="278" stroke="#9ca3af"/>
+
+        <rect x="10" y="278" width="280" height="60" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="150" y="300" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Edit Template</text>
+        <text x="150" y="314" text-anchor="middle" font-size="9.5" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">Includes branch-availability warnings</text>
+        <line x1="150" y1="338" x2="150" y2="372" stroke="#9ca3af"/>
+
+        <rect x="10" y="372" width="280" height="46" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="150" y="390" text-anchor="middle" font-size="11.5" font-weight="700" fill="#d97706" font-family="Montserrat,Arial">⚠ "Product not sold at this branch"</text>
+        <text x="150" y="404" text-anchor="middle" font-size="9.5" fill="#6b7280" font-family="Montserrat,Arial">[Reconsider] — surfaced only when template opened</text>
+        <line x1="150" y1="418" x2="150" y2="452" stroke="#9ca3af"/>
+
+        <rect x="10" y="452" width="280" height="58" rx="10" fill="#fff" stroke="#e5e7eb"/>
+        <text x="150" y="474" text-anchor="middle" font-size="12.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Use in Order</text>
+        <text x="150" y="488" text-anchor="middle" font-size="9.5" font-style="italic" fill="#0d6e6e" font-family="Montserrat,Arial">From uploaded Roof Hub screenshots</text>
+      </svg>
+    </div>
+  </div>
+  <div class="ux-obs">
+    <h3>Why this flow</h3>
+    <ul style="font-size:12.5px; color:#374151; padding-left:20px;">
+      <li>Standing/Job-specific filter and Search both come directly from S3 findings (Amazon Business, McMaster-Carr/Grainger) — not invented.</li>
+      <li>Stale-item flagging responds to a maintenance pain point visible in Roof Hub's own screenshots (S5), and no competitor source documents a proactive fix — a genuine opportunity gap.</li>
+      <li>Current Flow column is drawn directly from the uploaded Roof Hub screenshots and your written description of the existing flow — nothing here is inferred.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== SUMMARY ===================== -->
+<div data-tabcontent id="tab-summary">
+  <div class="page-header"><h1>📊 Summary</h1><div class="subtitle">Key documented capability per competitor/reference, and where public documentation stops</div></div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h4>ABC Supply (myABCsupply)</h4>
+      <p>Manual template creation with drop-down color/quantity selection; strong customer-story evidence of time savings.</p>
+      <p class="gap-cell">Gap: template-creation screens documented only via video, not text.</p>
+    </div>
+    <div class="summary-card">
+      <h4>Beacon PRO+ (QXO)</h4>
+      <p>Guided Smart Order flow: auto-populated, category-segmented, waste-factor-aware — fully documented end-to-end.</p>
+      <p class="gap-cell">Gap: plain manual template-creation flow (without EagleView) not documented step-by-step.</p>
+    </div>
+    <div class="summary-card">
+      <h4>🔍 Amazon Business</h4>
+      <p>Intent-based list types (Reorder vs. Shopping) with admin-curated "Preferred" lists.</p>
+    </div>
+    <div class="summary-card">
+      <h4>🔍 SAP Ariba</h4>
+      <p>Template-duplication best practice: approve one, then copy it for others.</p>
+    </div>
+    <div class="summary-card">
+      <h4>🔍 Home Depot Pro</h4>
+      <p>"Collections of go-to gear" framing with simple purchase-history filtering.</p>
+    </div>
+    <div class="summary-card">
+      <h4>🔍 Office Depot Business</h4>
+      <p>Explicit "Add to Shopping List" distinct from "Add to Cart"; items movable between lists.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== COMPARISON ===================== -->
+<div data-tabcontent id="tab-comparison">
+  <div class="page-header"><h1>⇄ Comparison</h1><div class="subtitle">Direct competitors side by side, at the same vertical scale, aligned by journey stage</div></div>
+  <div class="legend-bar">
+    <span><span class="legend-screen"></span>Screen</span><span><span class="legend-gap"></span>Gap</span><span><span class="legend-start"></span>Start</span><span><span class="legend-end"></span>End</span>
+  </div>
+  <div class="stage-labels"><span style="margin-left:10px;">Initiation</span><span style="margin-left:190px;">Selection</span><span style="margin-left:190px;">Processing</span><span style="margin-left:140px;">Resolution</span></div>
+  <div style="display:flex; gap:0; overflow-x:auto; min-width:100%;">
+    <div class="comparison-col" style="min-width:280px;">
+      <div class="comparison-col-header" style="background:#c8102e;">ABC Supply 🇺🇸
+        <button class="copy-btn" onclick="copySVGById('svg-cmp-abc', this)" style="margin:0;">📋</button>
+      </div>
+      <svg id="svg-cmp-abc" viewBox="0 0 280 480" xmlns="http://www.w3.org/2000/svg" width="280">
+        <rect x="50" y="10" width="180" height="36" rx="18" fill="#0A2342"/><text x="140" y="32" text-anchor="middle" font-size="11" fill="#fff" font-family="Montserrat,Arial">Open myABCsupply</text>
+        <rect x="10" y="66" width="260" height="60" rx="8" fill="#fff" stroke="#e5e7eb"/><text x="140" y="90" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">My Templates</text><text x="140" y="106" text-anchor="middle" font-size="9" fill="#0d6e6e" font-family="Montserrat,Arial">[exact name not found]</text>
+        <rect x="10" y="146" width="260" height="70" rx="8" fill="#fff" stroke="#e5e7eb"/><text x="140" y="172" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Template Detail</text><text x="140" y="188" text-anchor="middle" font-size="9" fill="#0d6e6e" font-family="Montserrat,Arial">Drop-down color/qty</text>
+        <rect x="50" y="236" width="180" height="60" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/><text x="140" y="262" text-anchor="middle" font-size="11" font-weight="700" fill="#d97706" font-family="Montserrat,Arial">Order Review</text><text x="140" y="278" text-anchor="middle" font-size="9" fill="#6b7280" font-family="Montserrat,Arial">[Gap]</text>
+        <rect x="50" y="316" width="180" height="36" rx="18" fill="#16a34a"/><text x="140" y="338" text-anchor="middle" font-size="11" fill="#fff" font-family="Montserrat,Arial">Order Placed</text>
+      </svg>
+      <div class="col-source-footer">abcsupply.com customer stories, 2021–2023</div>
+    </div>
+    <div class="comparison-col" style="min-width:280px;">
+      <div class="comparison-col-header" style="background:#003865;">Beacon PRO+ 🇺🇸
+        <button class="copy-btn" onclick="copySVGById('svg-cmp-beacon', this)" style="margin:0;">📋</button>
+      </div>
+      <svg id="svg-cmp-beacon" viewBox="0 0 280 480" xmlns="http://www.w3.org/2000/svg" width="280">
+        <rect x="50" y="10" width="180" height="36" rx="18" fill="#0A2342"/><text x="140" y="32" text-anchor="middle" font-size="11" fill="#fff" font-family="Montserrat,Arial">Begin Smart Order</text>
+        <rect x="10" y="66" width="260" height="50" rx="8" fill="#fff" stroke="#e5e7eb"/><text x="140" y="94" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Select Template</text>
+        <rect x="10" y="136" width="260" height="80" rx="8" fill="#fff" stroke="#e5e7eb"/><text x="140" y="160" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Materials List</text><text x="140" y="178" text-anchor="middle" font-size="9" fill="#0d6e6e" font-family="Montserrat,Arial">Category-segmented</text><text x="140" y="192" text-anchor="middle" font-size="9" fill="#0d6e6e" font-family="Montserrat,Arial">Waste factor: 10% default</text>
+        <rect x="10" y="236" width="260" height="60" rx="8" fill="#fff" stroke="#e5e7eb"/><text x="140" y="262" text-anchor="middle" font-size="11.5" font-weight="700" fill="#111827" font-family="Montserrat,Arial">Checkout</text><text x="140" y="278" text-anchor="middle" font-size="9" fill="#0d6e6e" font-family="Montserrat,Arial">Address pre-populated</text>
+        <rect x="50" y="316" width="180" height="36" rx="18" fill="#16a34a"/><text x="140" y="338" text-anchor="middle" font-size="11" fill="#fff" font-family="Montserrat,Arial">Order Placed (5–10 min)</text>
+      </svg>
+      <div class="col-source-footer">becn.com/beaconbits, May 2024</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODULES ===================== -->
+<div data-tabcontent id="tab-modules">
+  <div class="page-header"><h1>📦 Affected / Related Modules</h1></div>
+  <div class="review-checkpoint">⚠️ Human review required: module mapping reflects findings from secondary research only. Validate against actual product architecture before using for sprint planning or design briefs.</div>
+  <h3 style="font-size:14px;">Affected Modules</h3>
+  <table class="modtable" id="tbl-affected">
+    <tr><th onclick="sortTable('tbl-affected',0)">Module</th><th onclick="sortTable('tbl-affected',1)">Why affected</th><th onclick="sortTable('tbl-affected',2)">Research source</th><th onclick="sortTable('tbl-affected',3)">Priority</th></tr>
+    <tr><td>Templates (Tools)</td><td>Direct target of this research — categorization, search, filtering, maintenance</td><td>S3: Amazon/Home Depot patterns; S5: flat grid observation</td><td><span class="prio high">High</span></td></tr>
+    <tr><td>Orders</td><td>Template-to-order flow ("Use in Order") is the primary conversion path templates feed into</td><td>S3: Beacon Smart Order; S6: McMaster-Carr pattern</td><td><span class="prio med">Medium</span></td></tr>
+    <tr><td>Products</td><td>Branch-level availability drives the "product not sold at this branch" maintenance issue</td><td>S5: screenshot observation</td><td><span class="prio med">Medium</span></td></tr>
+    <tr><td>Estimates / Quotes</td><td>Potential future source for auto-generating templates (Smart Order pattern)</td><td>S3: Beacon Smart Order</td><td><span class="prio low">Low — future opportunity</span></td></tr>
+  </table>
+  <h3 style="font-size:14px;">Related Modules</h3>
+  <table class="modtable" id="tbl-related" style="background:#fcfcfd;">
+    <tr><th onclick="sortTable('tbl-related',0)">Related module</th><th onclick="sortTable('tbl-related',1)">Relationship</th><th onclick="sortTable('tbl-related',2)">What to watch for</th></tr>
+    <tr><td>Locations / branch selection</td><td>Templates are filtered by a specific branch; branch changes can invalidate items</td><td>Template validity checks when a user switches default branch</td></tr>
+    <tr><td>Job Account</td><td>Templates are tied to a Job Account; account-based vs. product-type grouping are competing mental models</td><td>Category/folder design should reconcile with existing account-based filtering, not replace it</td></tr>
+  </table>
+</div>
+
+</div>
+
+<script>
+function setActiveTab(id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('[data-tabcontent]').forEach(el=>el.classList.toggle('active', el.id==='tab-'+id));
+}
+document.getElementById('tabbar').addEventListener('click', e=>{
+  const btn = e.target.closest('.tab-btn');
+  if(!btn) return;
+  setActiveTab(btn.dataset.tab);
+});
+
+function fallbackCopy(text, btn){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText='position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); btn.textContent='✓ Copied!'; setTimeout(()=>{btn.textContent='📋 Copy SVG';},2000);}
+  catch(e){ btn.textContent='✗ Copy failed'; setTimeout(()=>{btn.textContent='📋 Copy SVG';},2000); }
+  document.body.removeChild(ta);
+}
+function serialize(svgEl){
+  const s = new XMLSerializer();
+  let str = s.serializeToString(svgEl);
+  if(!str.startsWith('<?xml')) str = '<?xml version="1.0" encoding="UTF-8"?>\n' + str;
+  return str;
+}
+function copySVG(tabId, btn){
+  const tabContent = document.getElementById('tab-'+tabId);
+  if(!tabContent) return;
+  const svgEl = tabContent.querySelector('svg');
+  if(!svgEl){ btn.textContent='⚠ No SVG found'; setTimeout(()=>{btn.textContent='📋 Copy SVG';},2000); return; }
+  const str = serialize(svgEl);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(str).then(()=>{
+      btn.textContent='✓ Copied!'; btn.classList.add('copied');
+      setTimeout(()=>{btn.textContent='📋 Copy SVG'; btn.classList.remove('copied');},2000);
+    }).catch(()=>fallbackCopy(str,btn));
+  } else { fallbackCopy(str,btn); }
+}
+function copySVGById(svgId, btn){
+  const svgEl = document.getElementById(svgId);
+  if(!svgEl) return;
+  const str = serialize(svgEl);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(str).then(()=>{
+      btn.textContent='✓ Copied!'; setTimeout(()=>{btn.textContent='📋';},2000);
+    }).catch(()=>fallbackCopy(str,btn));
+  } else { fallbackCopy(str,btn); }
+}
+function sortTable(tableId, col){
+  const table = document.getElementById(tableId);
+  const rows = Array.from(table.rows).slice(1);
+  const asc = table.dataset.sortCol==String(col) && table.dataset.sortDir!=='asc';
+  rows.sort((a,b)=>{
+    const x = a.cells[col].innerText.trim(), y = b.cells[col].innerText.trim();
+    return asc ? x.localeCompare(y) : y.localeCompare(x);
+  });
+  rows.forEach(r=>table.appendChild(r));
+  table.dataset.sortCol = col; table.dataset.sortDir = asc?'asc':'desc';
+}
+</script>
+</body>
+</html>

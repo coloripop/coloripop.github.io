@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Screen Flow Analysis: Reusable Order Templates — Roof Hub</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Montserrat, Arial, sans-serif; color:#111827; background:#f9fafb; }
+  .page-header { background:#1b3a6b; color:#fff; padding:24px 32px 0 32px; }
+  .page-header h1 { margin:0 0 4px 0; font-size:22px; }
+  .page-header .sub { font-size:13px; color:rgba(255,255,255,0.7); margin-bottom:4px; }
+  .page-header .note { font-size:11.5px; color:rgba(255,255,255,0.55); margin-bottom:16px; }
+  .tab-bar { background:#1b3a6b; display:flex; align-items:center; gap:6px; padding:0 32px 12px 32px; flex-wrap:wrap; }
+  .tab-btn { border:none; cursor:pointer; padding:7px 14px; border-radius:6px; font-size:12.5px; font-family:Montserrat,Arial,sans-serif; background:rgba(255,255,255,.08); color:rgba(255,255,255,.55); display:flex; align-items:center; gap:6px; }
+  .tab-btn.active { background:#1b3a6b; color:#fff; box-shadow: 0 0 0 1.5px rgba(255,255,255,.4); }
+  .tab-sep { width:1px; height:18px; background:rgba(255,255,255,.18); margin: 0 4px; }
+  .dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+  .tab-bar-end { height:1px; background:#e5e7eb; }
+  .content-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 32px 60px 32px; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+  .flow-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+  .flow-header h1 { font-size: 20px; margin:0; color:#111827; }
+  .flow-header h2 { font-size: 15px; margin:0; color:#111827; }
+  .flow-subtitle { font-size:12.5px; color:#6b7280; margin-top:4px; }
+  .copy-btn { background:#0d6e6e; color:#fff; border:none; border-radius:6px; padding:7px 12px; font-size:12px; cursor:pointer; font-family:Montserrat,Arial,sans-serif; height:36px; }
+  .copy-btn.small { height:26px; padding:4px 8px; font-size:10.5px; margin-left:8px; }
+  .copy-btn.copied { background:#16a34a; }
+  .badge-ref { display:inline-block; background:#eef2ff; color:#4338ca; font-size:11.5px; padding:4px 10px; border-radius:6px; margin-bottom:12px; }
+  .legend-bar { display:flex; gap:16px; align-items:center; background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:8px 14px; font-size:11px; margin-bottom:16px; flex-wrap:wrap; color:#374151; }
+  .legend-shape { display:inline-block; width:10px; height:10px; margin-right:4px; vertical-align:middle; }
+  .legend-shape.screen { border:1px solid #e5e7eb; background:#fff; }
+  .legend-shape.decision { background:#1a1a2e; transform:rotate(45deg); }
+  .legend-shape.gap { border:1.5px dashed #f59e0b; background:#fffbeb; }
+  .legend-shape.error { border:1.5px solid #ef4444; background:#fef9f9; }
+  .legend-shape.start { border-radius:50%; background:#1b3a6b; }
+  .legend-shape.end { border-radius:50%; background:#16a34a; }
+  .flow-evidence-row { display:flex; gap:32px; align-items:flex-start; }
+  .flow-col-wrap { width:260px; flex-shrink:0; }
+  .flow-col { width:100%; }
+  .flow-col svg { width:100%; display:block; }
+  .evidence-panel { flex:1; background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:16px; }
+  .evidence-panel h3 { font-size:13px; margin:0 0 10px 0; color:#111827; }
+  .evidence-table, .mod-table, .summary-table { width:100%; border-collapse:collapse; font-size:11.5px; }
+  .evidence-table th, .mod-table th, .summary-table th { text-align:left; background:#f3f4f6; padding:6px 8px; font-size:10.5px; color:#374151; text-transform:uppercase; letter-spacing:0.03em; }
+  .evidence-table td, .mod-table td, .summary-table td { padding:7px 8px; border-bottom:1px solid #f3f4f6; vertical-align:top; }
+  .evidence-table a, .mod-table a, .summary-table a, .callout a { color:#0d6e6e; text-decoration:underline; }
+  .callout { margin-top:12px; background:#f0fdfa; border:1px solid #99f6e4; border-radius:6px; padding:10px 12px; font-size:12px; color:#0f766e; }
+  .ux-observations { margin-top:28px; }
+  .ux-observations h3 { font-size:14px; margin-bottom:12px; }
+  .obs-cols { display:flex; gap:32px; }
+  .obs-col { flex:1; }
+  .obs-label { font-size:10px; text-transform:uppercase; letter-spacing:0.05em; font-weight:700; margin-bottom:8px; }
+  .obs-label.strengths { color:#16a34a; }
+  .obs-label.gaps { color:#d97706; }
+  .obs-bullet { font-size:12.5px; color:#111827; margin-bottom:6px; }
+  .ratings { margin-top:18px; }
+  .ratings-label { font-size:10px; text-transform:uppercase; letter-spacing:0.05em; font-weight:700; color:#374151; margin-bottom:8px; }
+  .rating-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .rating-label { width:50px; font-size:12px; color:#374151; }
+  .rating-track { flex:1; height:8px; background:#f3f4f6; border-radius:4px; overflow:hidden; max-width:220px; }
+  .rating-fill { height:100%; }
+  .rating-score { font-size:12px; color:#374151; width:36px; text-align:right; }
+  .not-enough { font-size:11.5px; color:#9ca3af; font-style:italic; }
+  .footer-source { margin-top:20px; font-size:11px; color:#9ca3af; font-style:italic; }
+  .two-col { display:flex; gap:0; align-items:flex-start; }
+  .col-wrap { width:300px; flex-shrink:0; }
+  .col-title { font-size:12px; font-weight:700; color:#1b3a6b; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.03em; }
+  .col-divider { width:1px; background:#e5e7eb; align-self:stretch; margin:0 24px; }
+  .why-flow { margin-top:28px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:16px; }
+  .why-flow h3 { font-size:13px; margin:0 0 10px 0; }
+  .why-flow ul { margin:0; padding-left:18px; font-size:12.5px; color:#374151; }
+  .why-flow li { margin-bottom:6px; }
+  .stage-labels { display:flex; gap:24px; font-size:11px; color:#6b7280; margin-bottom:8px; padding-left:8px; }
+  .comparison-row { display:flex; gap:0; overflow-x:auto; }
+  .comparison-col { min-width:280px; border-right:1px solid #e5e7eb; padding-right:20px; margin-right:20px; }
+  .comparison-col-header { color:#fff; font-size:12.5px; font-weight:600; padding:8px 12px; border-radius:6px 6px 0 0; display:flex; justify-content:space-between; align-items:center; }
+  .col-source-footer { font-size:10.5px; color:#9ca3af; font-style:italic; margin-top:8px; }
+  .review-checkpoint { background:#fffbeb; border:1px solid #f59e0b; border-radius:8px; padding:12px 16px; font-size:12.5px; color:#92400e; margin-bottom:20px; }
+  .mod-h3 { font-size:14px; margin:20px 0 10px 0; color:#111827; }
+  .mod-table { margin-bottom:8px; }
+  .mod-table tr:nth-child(even) td { background:#fafafa; }
+  .mod-table.muted td { background:#fcfcfc; color:#4b5563; }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <h1>User Screen Flow Analysis: Reusable Order Templates — Roof Hub</h1>
+  <div class="sub">Client proposal · US · July 30, 2026 · Capmation</div>
+  <div class="note">All screens documented from real sources. Gaps shown explicitly.</div>
+</div>
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="abc"><span class="dot" style="background:#c8102e;"></span>ABC Supply</button>
+  <button class="tab-btn" data-tab="beacon"><span class="dot" style="background:#0d6e6e;"></span>Beacon PRO+/QXO</button>
+  <span class="tab-sep"></span>
+  <button class="tab-btn" data-tab="sap">🔍 SAP Ariba</button>
+  <button class="tab-btn" data-tab="amazon">🔍 Amazon Business</button>
+  <button class="tab-btn" data-tab="hd">🔍 Home Depot Pro</button>
+  <button class="tab-btn" data-tab="od">🔍 Office Depot Business</button>
+  <span class="tab-sep"></span>
+  <button class="tab-btn" data-tab="suggested">✦ Suggested Flow</button>
+  <button class="tab-btn" data-tab="summary">📊 Summary</button>
+  <button class="tab-btn" data-tab="comparison">⇄ Comparison</button>
+  <button class="tab-btn" data-tab="modules">📦 Modules</button>
+</div>
+<div class="tab-bar-end"></div>
+<div class="content-wrap">
+  <div class="tab-content" id="tab-abc">
+    <div class="flow-header">
+      <div>
+        <h1>ABC Supply — Template Creation (myABCsupply)</h1>
+        <div class="flow-subtitle">North America's largest wholesale roofing distributor · 2022–2023</div>
+      </div>
+      <button class="copy-btn" onclick="copySVGById('svg-abc', this)">📋 Copy SVG</button>
+    </div>
+    <div class="legend-bar">
+    <span><span class="legend-shape screen"></span> Screen</span>
+    <span><span class="legend-shape decision"></span> Decision</span>
+    <span><span class="legend-shape gap"></span> Gap (no screen exists)</span>
+    <span><span class="legend-shape error"></span> Error / dead end</span>
+    <span><span class="legend-shape start"></span> Start</span>
+    <span><span class="legend-shape end"></span> End / resolution</span>
+  </div>
+    <div class="flow-evidence-row">
+      <div class="flow-col-wrap"><div class="flow-col"><svg id="svg-abc" viewBox="0 0 240 638" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">myABCsupply</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">Contractor Center</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">opens template tool</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="109" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">[Template entry point]</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">exact UI copy not found</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#9ca3af">□ Template tool</text>
+  
+      <text x="120" y="93" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">ABC Supply blog</text>
+      
+    </g></g>
+<text x="120" y="251" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">picks item variants</text>
+<line x1="120" y1="255" x2="120" y2="273" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,273 124,273 120,279" fill="#9ca3af"/>
+<g transform="translate(0,281)"><g>
+      <rect x="10" y="0" width="220" height="131" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Color / Quantity Selection</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">dropdown menus</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Select color (dropdown)</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Select quantity (dropdown)</text>
+  
+      <text x="120" y="115" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">ABC Supply — Aegis Exteriors case study</text>
+      
+    </g></g>
+<text x="120" y="432" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">presumed save step</text>
+<line x1="120" y1="436" x2="120" y2="454" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,454 124,454 120,460" fill="#9ca3af"/>
+<g transform="translate(0,462)"><g>
+      <rect x="20" y="0" width="200" height="58" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text x="30" y="22" font-family="Montserrat,Arial,sans-serif" font-size="11" font-weight="bold" fill="#d97706">⚠ Save / Name Template</text>
+      <text x="30" y="38" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280">not documented after 2 searches</text>
+      <text x="30" y="50" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280"></text>
+    </g></g>
+<text x="120" y="540" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="544" x2="120" y2="562" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,562 124,562 120,568" fill="#9ca3af"/>
+<g transform="translate(0,570)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Template Ready</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">used for repeat orders</text>
+    </g></g></svg></div></div>
+      <div class="evidence-panel">
+        <h3>Evidence Panel</h3>
+        <table class="evidence-table">
+    <thead><tr><th>Screen name</th><th>Source</th><th>Date</th></tr></thead>
+    <tbody><tr><td>[Template entry point]</td><td><a href="https://www.abcsupply.com/news-events/order-template/" target="_blank" rel="noopener">ABC Supply</a></td><td>Nov 2022</td></tr><tr><td>Color/Quantity Selection</td><td><a href="https://www.abcsupply.com/news-events/aegis-exteriors-saves-hours-a-week-with-myabcsupply-online-ordering/" target="_blank" rel="noopener">ABC Supply</a></td><td>Aug 2023</td></tr><tr><td>[Gap] Save/Name Template</td><td>not found after 2 searches</td><td>Jul 2026</td></tr></tbody>
+  </table>
+      </div>
+    </div>
+    
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-cols">
+        <div class="obs-col">
+          <div class="obs-label strengths">STRENGTHS</div>
+          <div class="obs-bullet">✓ Template feature explicitly credited with reducing repeat-order time to under a minute (contractor testimonial)</div>
+        </div>
+        <div class="obs-col">
+          <div class="obs-label gaps">GAPS</div>
+          <div class="obs-bullet">⚠ Exact template creation screen names/fields not documented after 2 targeted searches</div>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="ratings-label">RATINGS</div>
+        <div class="rating-row"><span class="rating-label">Ease</span><div class="rating-track"><div class="rating-fill" style="width:60%;background:#0d6e6e;"></div></div><span class="rating-score">3/5</span></div>
+        <div class="rating-row"><span class="rating-label">Speed</span><div class="rating-track"><div class="rating-fill" style="width:80%;background:#0d6e6e;"></div></div><span class="rating-score">4/5</span></div>
+        <div class="rating-row"><span class="rating-label">Trust</span><span class="not-enough">[Not enough data]</span></div>
+      </div>
+    </div>
+    <div class="footer-source">All screens sourced from: <a href="https://www.abcsupply.com" target="_blank" rel="noopener">ABC Supply</a> · Nov 2022, Aug 2023</div>
+  </div>
+  <div class="tab-content" id="tab-beacon">
+    <div class="flow-header">
+      <div>
+        <h1>Beacon PRO+ / QXO — Template Creation & Smart Order</h1>
+        <div class="flow-subtitle">One of the largest roofing distributors in the US; rebranded post-QXO acquisition · 2024–2026</div>
+      </div>
+      <button class="copy-btn" onclick="copySVGById('svg-beacon', this)">📋 Copy SVG</button>
+    </div>
+    <div class="legend-bar">
+    <span><span class="legend-shape screen"></span> Screen</span>
+    <span><span class="legend-shape decision"></span> Decision</span>
+    <span><span class="legend-shape gap"></span> Gap (no screen exists)</span>
+    <span><span class="legend-shape error"></span> Error / dead end</span>
+    <span><span class="legend-shape start"></span> Start</span>
+    <span><span class="legend-shape end"></span> End / resolution</span>
+  </div>
+    <div class="flow-evidence-row">
+      <div class="flow-col-wrap"><div class="flow-col"><svg id="svg-beacon" viewBox="0 0 240 892" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Beacon PRO+ / QXO</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">Templates</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">initiates creation</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="109" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">New Template</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">button</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Click 'New Template'</text>
+  
+      <text x="120" y="93" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">JobNimbus Support</text>
+      
+    </g></g>
+<text x="120" y="251" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">names &amp; confirms</text>
+<line x1="120" y1="255" x2="120" y2="273" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,273 124,273 120,279" fill="#9ca3af"/>
+<g transform="translate(0,281)"><g>
+      <rect x="10" y="0" width="220" height="131" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Name the Template</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">text field</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Enter template name</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Select Create</text>
+  
+      <text x="120" y="115" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">JobNimbus Support</text>
+      
+    </g></g>
+<text x="120" y="432" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">assigns account</text>
+<line x1="120" y1="436" x2="120" y2="454" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,454 124,454 120,460" fill="#9ca3af"/>
+<g transform="translate(0,462)"><g>
+      <rect x="10" y="0" width="220" height="109" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Job Account</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">assignment</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Select Job Account to assign template</text>
+  
+      <text x="120" y="93" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">JobNimbus Support</text>
+      
+    </g></g>
+<text x="120" y="591" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">builds item list</text>
+<line x1="120" y1="595" x2="120" y2="613" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,613 124,613 120,619" fill="#9ca3af"/>
+<g transform="translate(0,621)"><g>
+      <rect x="10" y="0" width="220" height="153" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Add Product</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">catalog search</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Select Add Product</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Select Product + variation</text>
+  
+    <rect x="18" y="101" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="114" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Confirm via 'Select Product' (top right)</text>
+  
+      <text x="120" y="137" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">JobNimbus Support</text>
+      
+    </g></g>
+<text x="120" y="794" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="798" x2="120" y2="816" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,816 124,816 120,822" fill="#9ca3af"/>
+<g transform="translate(0,824)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Template Saved</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">reusable for future orders</text>
+    </g></g></svg></div></div>
+      <div class="evidence-panel">
+        <h3>Evidence Panel</h3>
+        <table class="evidence-table">
+    <thead><tr><th>Screen name</th><th>Source</th><th>Date</th></tr></thead>
+    <tbody><tr><td>New Template</td><td><a href="https://support.jobnimbus.com/how-do-i-link-my-beacon-templates-with-jobnimbus" target="_blank" rel="noopener">JobNimbus Support</a></td><td>n.d.</td></tr><tr><td>Name the Template</td><td><a href="https://support.jobnimbus.com/how-do-i-link-my-beacon-templates-with-jobnimbus" target="_blank" rel="noopener">JobNimbus Support</a></td><td>n.d.</td></tr><tr><td>Job Account</td><td><a href="https://support.jobnimbus.com/how-do-i-link-my-beacon-templates-with-jobnimbus" target="_blank" rel="noopener">JobNimbus Support</a></td><td>n.d.</td></tr><tr><td>Add Product</td><td><a href="https://support.jobnimbus.com/how-do-i-link-my-beacon-templates-with-jobnimbus" target="_blank" rel="noopener">JobNimbus Support</a></td><td>n.d.</td></tr><tr><td>Smart Order (alt.)</td><td><a href="https://www.becn.com/beaconbits/build-your-business/smart-order-how-beacon-pro-makes-it-easier-to-order-roofing-project-materials" target="_blank" rel="noopener">Beacon Building Products</a></td><td>May 2024</td></tr></tbody>
+  </table>
+      </div>
+    </div>
+    <div class="flow-header" style="margin-top:24px;"><h2 style="font-size:15px;">Alternate starting point: Smart Order (EagleView-driven)</h2><button class="copy-btn" onclick="copySVGById('svg-beacon-alt', this)">📋 Copy SVG</button></div><div class="flow-col-wrap"><div class="flow-col"><svg id="svg-beacon-alt" viewBox="0 0 240 689" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Smart Order</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">alt. starting point</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">from EagleView report</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="109" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Begin Smart Order</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">button</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Click 'Begin Smart Order'</text>
+  
+      <text x="120" y="93" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">Beacon Building Products</text>
+      
+    </g></g>
+<text x="120" y="251" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">customizes order</text>
+<line x1="120" y1="255" x2="120" y2="273" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,273 124,273 120,279" fill="#9ca3af"/>
+<g transform="translate(0,281)"><g>
+      <rect x="10" y="0" width="220" height="131" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Select Template</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">auto-populated</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Choose template</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Waste factor auto-set to 10% (editable)</text>
+  
+      <text x="120" y="115" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">Beacon Building Products</text>
+      
+    </g></g>
+<text x="120" y="432" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">reviews &amp; edits lines</text>
+<line x1="120" y1="436" x2="120" y2="454" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,454 124,454 120,460" fill="#9ca3af"/>
+<g transform="translate(0,462)"><g>
+      <rect x="10" y="0" width="220" height="109" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Categorized Materials List</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">top-down by category</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Shingles → Underlayment → Misc.</text>
+  
+      <text x="120" y="93" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">Beacon Building Products</text>
+      
+    </g></g>
+<text x="120" y="591" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="595" x2="120" y2="613" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,613 124,613 120,619" fill="#9ca3af"/>
+<g transform="translate(0,621)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Save Template / Checkout</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">5–10 min, 6 steps total</text>
+    </g></g></svg></div></div>
+    <div class="ux-observations">
+      <h3>UX Observations — Screen-Level Analysis</h3>
+      <div class="obs-cols">
+        <div class="obs-col">
+          <div class="obs-label strengths">STRENGTHS</div>
+          <div class="obs-bullet">✓ Smart Order completes in 5–10 minutes across 6 steps end-to-end</div><div class="obs-bullet">✓ Waste factor auto-set to 10%, editable per line</div>
+        </div>
+        <div class="obs-col">
+          <div class="obs-label gaps">GAPS</div>
+          <div class="obs-bullet">⚠ [Not enough data] on friction points for the manual New Template path specifically</div>
+        </div>
+      </div>
+      <div class="ratings">
+        <div class="ratings-label">RATINGS</div>
+        <div class="rating-row"><span class="rating-label">Ease</span><div class="rating-track"><div class="rating-fill" style="width:80%;background:#0d6e6e;"></div></div><span class="rating-score">4/5</span></div>
+        <div class="rating-row"><span class="rating-label">Speed</span><div class="rating-track"><div class="rating-fill" style="width:100%;background:#0d6e6e;"></div></div><span class="rating-score">5/5</span></div>
+        <div class="rating-row"><span class="rating-label">Trust</span><span class="not-enough">[Not enough data]</span></div>
+      </div>
+    </div>
+    <div class="footer-source">All screens sourced from: <a href="https://support.jobnimbus.com/how-do-i-link-my-beacon-templates-with-jobnimbus" target="_blank" rel="noopener">JobNimbus Support</a> · <a href="https://www.becn.com/beaconbits/build-your-business/smart-order-how-beacon-pro-makes-it-easier-to-order-roofing-project-materials" target="_blank" rel="noopener">Beacon Building Products</a> · May 2024</div>
+  </div>
+  <div class="tab-content" id="tab-sap">
+    <div class="flow-header">
+      <div>
+        <h1>SAP Ariba — Requisition & Approval Governance</h1>
+        <div class="flow-subtitle">External reference · not a self-serve template builder</div>
+      </div>
+      <button class="copy-btn" onclick="copySVGById('svg-sap', this)">📋 Copy SVG</button>
+    </div>
+    <div class="badge-ref">🔍 External reference — approval routing and requisition governance for larger, multi-approver B2B orders</div>
+    <div class="legend-bar">
+    <span><span class="legend-shape screen"></span> Screen</span>
+    <span><span class="legend-shape decision"></span> Decision</span>
+    <span><span class="legend-shape gap"></span> Gap (no screen exists)</span>
+    <span><span class="legend-shape error"></span> Error / dead end</span>
+    <span><span class="legend-shape start"></span> Start</span>
+    <span><span class="legend-shape end"></span> End / resolution</span>
+  </div>
+    <div class="flow-evidence-row">
+      <div class="flow-col-wrap"><div class="flow-col"><svg id="svg-sap" viewBox="0 0 240 638" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">SAP Ariba</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">Buying &amp; Invoicing</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">submits for approval</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="109" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Purchase Requisition</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">buyer-facing entry point</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Create requisition (not a self-serve template)</text>
+  
+      <text x="120" y="93" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">SAP Learning</text>
+      
+    </g></g>
+<text x="120" y="251" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">approval routing</text>
+<line x1="120" y1="255" x2="120" y2="273" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,273 124,273 120,279" fill="#9ca3af"/>
+<g transform="translate(0,281)"><g>
+      <rect x="20" y="0" width="200" height="58" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text x="30" y="22" font-family="Montserrat,Arial,sans-serif" font-size="11" font-weight="bold" fill="#d97706">⚠ Buyer-facing Template UI</text>
+      <text x="30" y="38" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280">template layer is admin-side, not</text>
+      <text x="30" y="50" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280">documented for buyers</text>
+    </g></g>
+<text x="120" y="359" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">approved</text>
+<line x1="120" y1="363" x2="120" y2="381" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,381 124,381 120,387" fill="#9ca3af"/>
+<g transform="translate(0,389)"><g>
+      <rect x="10" y="0" width="220" height="131" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Approval Workflow</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">governance</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Multi-approver routing</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Compliance checks</text>
+  
+      <text x="120" y="115" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">SAP Learning</text>
+      
+    </g></g>
+<text x="120" y="540" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="544" x2="120" y2="562" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,562 124,562 120,568" fill="#9ca3af"/>
+<g transform="translate(0,570)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Purchase Order Generated</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">routed to supplier</text>
+    </g></g></svg></div></div>
+      <div class="evidence-panel">
+        <h3>Evidence Panel</h3>
+        <table class="evidence-table">
+    <thead><tr><th>Screen name</th><th>Source</th><th>Date</th></tr></thead>
+    <tbody><tr><td>Purchase Requisition</td><td><a href="https://learning.sap.com/courses/sap-ariba-procurement-overview-1/exploring-purchase-orders" target="_blank" rel="noopener">SAP Learning</a></td><td>n.d.</td></tr><tr><td>[Gap] Buyer-facing Template UI</td><td>not found — template layer is admin-side</td><td>Jul 2026</td></tr></tbody>
+  </table>
+        <div class="callout">Pattern to borrow: approval routing and requisition governance for larger, multi-approver B2B orders</div>
+      </div>
+    </div>
+    <div class="footer-source">All screens sourced from: <a href="https://learning.sap.com/courses/sap-ariba-procurement-overview-1/exploring-purchase-orders" target="_blank" rel="noopener">SAP Learning</a> · n.d.</div>
+  </div>
+  <div class="tab-content" id="tab-amazon">
+    <div class="flow-header">
+      <div>
+        <h1>Amazon Business — List Creation</h1>
+        <div class="flow-subtitle">External reference · list & reorder UX</div>
+      </div>
+      <button class="copy-btn" onclick="copySVGById('svg-amazon', this)">📋 Copy SVG</button>
+    </div>
+    <div class="badge-ref">🔍 External reference — explicit list-type choice (Reorder vs. Shopping) plus bulk spreadsheet/CSV upload for large item sets</div>
+    <div class="legend-bar">
+    <span><span class="legend-shape screen"></span> Screen</span>
+    <span><span class="legend-shape decision"></span> Decision</span>
+    <span><span class="legend-shape gap"></span> Gap (no screen exists)</span>
+    <span><span class="legend-shape error"></span> Error / dead end</span>
+    <span><span class="legend-shape start"></span> Start</span>
+    <span><span class="legend-shape end"></span> End / resolution</span>
+  </div>
+    <div class="flow-evidence-row">
+      <div class="flow-col-wrap"><div class="flow-col"><svg id="svg-amazon" viewBox="0 0 240 530" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Amazon Business</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">Lists</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">names list</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="109" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Create a List</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">Lists menu</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Choose type: Reorder List or Shopping List</text>
+  
+      <text x="120" y="93" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">Amazon Business List User Guide</text>
+      
+    </g></g>
+<text x="120" y="251" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">populates list</text>
+<line x1="120" y1="255" x2="120" y2="273" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,273 124,273 120,279" fill="#9ca3af"/>
+<g transform="translate(0,281)"><g>
+      <rect x="10" y="0" width="220" height="131" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Add Items</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">3 input methods</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Search / ASIN / keyword</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Bulk upload via XLS/XLSX template</text>
+  
+      <text x="120" y="115" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">Amazon Business List User Guide</text>
+      
+    </g></g>
+<text x="120" y="432" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="436" x2="120" y2="454" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,454 124,454 120,460" fill="#9ca3af"/>
+<g transform="translate(0,462)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">List Saved</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">reorder anytime</text>
+    </g></g></svg></div></div>
+      <div class="evidence-panel">
+        <h3>Evidence Panel</h3>
+        <table class="evidence-table">
+    <thead><tr><th>Screen name</th><th>Source</th><th>Date</th></tr></thead>
+    <tbody><tr><td>Create a List</td><td><a href="https://www.suu.edu/purchasing/pdf/amazon-how-to-lists.pdf" target="_blank" rel="noopener">Amazon Business List User Guide</a></td><td>n.d.</td></tr><tr><td>Add Items (bulk upload)</td><td><a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=G6VSJRGSHC8MKZ6W" target="_blank" rel="noopener">Amazon Business</a></td><td>n.d.</td></tr></tbody>
+  </table>
+        <div class="callout">Pattern to borrow: explicit list-type choice (Reorder vs. Shopping) plus bulk spreadsheet/CSV upload for large item sets</div>
+      </div>
+    </div>
+    <div class="footer-source">All screens sourced from: <a href="https://www.suu.edu/purchasing/pdf/amazon-how-to-lists.pdf" target="_blank" rel="noopener">Amazon Business List User Guide</a> · n.d.</div>
+  </div>
+  <div class="tab-content" id="tab-hd">
+    <div class="flow-header">
+      <div>
+        <h1>The Home Depot Pro — AI-Assisted List Building</h1>
+        <div class="flow-subtitle">External reference · Material List Builder AI</div>
+      </div>
+      <button class="copy-btn" onclick="copySVGById('svg-hd', this)">📋 Copy SVG</button>
+    </div>
+    <div class="badge-ref">🔍 External reference — natural-language / AI-assisted template creation as a faster alternative to manual field-by-field building</div>
+    <div class="legend-bar">
+    <span><span class="legend-shape screen"></span> Screen</span>
+    <span><span class="legend-shape decision"></span> Decision</span>
+    <span><span class="legend-shape gap"></span> Gap (no screen exists)</span>
+    <span><span class="legend-shape error"></span> Error / dead end</span>
+    <span><span class="legend-shape start"></span> Start</span>
+    <span><span class="legend-shape end"></span> End / resolution</span>
+  </div>
+    <div class="flow-evidence-row">
+      <div class="flow-col-wrap"><div class="flow-col"><svg id="svg-hd" viewBox="0 0 240 501" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Home Depot Pro</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">Project Planning</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">auto-populates</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="153" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Material List Builder AI</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">natural-language entry</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Type or dictate request</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Import list from spreadsheet/email</text>
+  
+    <rect x="18" y="101" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="114" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Or start from built-in template</text>
+  
+      <text x="120" y="137" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">Retail Dive</text>
+      
+    </g></g>
+<text x="120" y="295" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">generates list</text>
+<line x1="120" y1="299" x2="120" y2="317" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,317 124,317 120,323" fill="#9ca3af"/>
+<g transform="translate(0,325)"><g>
+      <rect x="20" y="0" width="200" height="58" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text x="30" y="22" font-family="Montserrat,Arial,sans-serif" font-size="11" font-weight="bold" fill="#d97706">⚠ Exact screen fields</text>
+      <text x="30" y="38" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280">not documented after 2 searches</text>
+      <text x="30" y="50" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280"></text>
+    </g></g>
+<text x="120" y="403" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="407" x2="120" y2="425" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,425 124,425 120,431" fill="#9ca3af"/>
+<g transform="translate(0,433)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">List with Preferred Pricing</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">ready to order</text>
+    </g></g></svg></div></div>
+      <div class="evidence-panel">
+        <h3>Evidence Panel</h3>
+        <table class="evidence-table">
+    <thead><tr><th>Screen name</th><th>Source</th><th>Date</th></tr></thead>
+    <tbody><tr><td>Material List Builder AI</td><td><a href="https://www.retaildive.com/news/home-depot-material-list-builder-ai-tool/810883/" target="_blank" rel="noopener">Retail Dive</a></td><td>2026</td></tr><tr><td>[Gap] exact screen fields</td><td>not found after 2 searches</td><td>Jul 2026</td></tr></tbody>
+  </table>
+        <div class="callout">Pattern to borrow: natural-language / AI-assisted template creation as a faster alternative to manual field-by-field building</div>
+      </div>
+    </div>
+    <div class="footer-source">All screens sourced from: <a href="https://www.retaildive.com/news/home-depot-material-list-builder-ai-tool/810883/" target="_blank" rel="noopener">Retail Dive</a> · 2026</div>
+  </div>
+  <div class="tab-content" id="tab-od">
+    <div class="flow-header">
+      <div>
+        <h1>Office Depot Business — Shared vs. Personal Lists</h1>
+        <div class="flow-subtitle">External reference · list management UX</div>
+      </div>
+      <button class="copy-btn" onclick="copySVGById('svg-od', this)">📋 Copy SVG</button>
+    </div>
+    <div class="badge-ref">🔍 External reference — the Company-Wide vs. Personal list distinction</div>
+    <div class="legend-bar">
+    <span><span class="legend-shape screen"></span> Screen</span>
+    <span><span class="legend-shape decision"></span> Decision</span>
+    <span><span class="legend-shape gap"></span> Gap (no screen exists)</span>
+    <span><span class="legend-shape error"></span> Error / dead end</span>
+    <span><span class="legend-shape start"></span> Start</span>
+    <span><span class="legend-shape end"></span> End / resolution</span>
+  </div>
+    <div class="flow-evidence-row">
+      <div class="flow-col-wrap"><div class="flow-col"><svg id="svg-od" viewBox="0 0 240 479" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Office Depot Business</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">My Lists</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">names list</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="131" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Create New List</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">list type choice</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Company-Wide (admin-maintained, all users)</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Personal (single user)</text>
+  
+      <text x="120" y="115" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">Office Depot Business User Guide</text>
+      
+    </g></g>
+<text x="120" y="273" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">adds items</text>
+<line x1="120" y1="277" x2="120" y2="295" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,295 124,295 120,301" fill="#9ca3af"/>
+<g transform="translate(0,303)"><g>
+      <rect x="20" y="0" width="200" height="58" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text x="30" y="22" font-family="Montserrat,Arial,sans-serif" font-size="11" font-weight="bold" fill="#d97706">⚠ Exact field layout</text>
+      <text x="30" y="38" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280">not documented after 2 searches</text>
+      <text x="30" y="50" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280"></text>
+    </g></g>
+<text x="120" y="381" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="385" x2="120" y2="403" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,403 124,403 120,409" fill="#9ca3af"/>
+<g transform="translate(0,411)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">List Saved</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">reorder via My Lists</text>
+    </g></g></svg></div></div>
+      <div class="evidence-panel">
+        <h3>Evidence Panel</h3>
+        <table class="evidence-table">
+    <thead><tr><th>Screen name</th><th>Source</th><th>Date</th></tr></thead>
+    <tbody><tr><td>Create New List</td><td><a href="https://www.gvsu.edu/cms4/asset/EE24AE20-9C2A-818B-AADA1C899F328A1B/office_depot_user_guide.pdf" target="_blank" rel="noopener">Office Depot Business User Guide</a></td><td>n.d.</td></tr><tr><td>[Gap] exact field layout</td><td>not found after 2 searches</td><td>Jul 2026</td></tr></tbody>
+  </table>
+        <div class="callout">Pattern to borrow: the Company-Wide vs. Personal list distinction</div>
+      </div>
+    </div>
+    <div class="footer-source">All screens sourced from: <a href="https://www.gvsu.edu/cms4/asset/EE24AE20-9C2A-818B-AADA1C899F328A1B/office_depot_user_guide.pdf" target="_blank" rel="noopener">Office Depot Business User Guide</a> · n.d.</div>
+  </div>
+  <div class="tab-content" id="tab-suggested">
+  <div class="flow-header">
+    <div><h1>✦ Suggested Ideal Flow — Roof Hub Templates</h1><div class="flow-subtitle">Synthesized from S3 competitor research · Jul 2026</div></div>
+    <button class="copy-btn" onclick="copySVGById('svg-suggested', this)">📋 Copy SVG</button>
+  </div>
+  <div class="legend-bar">
+    <span><span class="legend-shape screen"></span> Screen</span>
+    <span><span class="legend-shape decision"></span> Decision</span>
+    <span><span class="legend-shape gap"></span> Gap (no screen exists)</span>
+    <span><span class="legend-shape error"></span> Error / dead end</span>
+    <span><span class="legend-shape start"></span> Start</span>
+    <span><span class="legend-shape end"></span> End / resolution</span>
+  </div>
+  <div class="two-col">
+    <div class="col-wrap">
+      <div class="col-title">✦ Suggested Ideal Flow</div>
+      <div class="flow-col"><svg id="svg-suggested" viewBox="0 0 240 912" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Roof Hub Templates</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">Create a New Template</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">picks method</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="153" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Starting Point Choice</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">Based on: Beacon PRO+ Smart Order, Home Depot Pro</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Start from Scratch</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Bulk / Spreadsheet Import [New]</text>
+  
+    <rect x="18" y="101" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="114" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">AI-assisted / Measurement-driven [New]</text>
+  
+      <text x="120" y="137" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">S3: Beacon PRO+, Home Depot Pro</text>
+      
+    </g></g>
+<text x="120" y="295" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">sets ownership</text>
+<line x1="120" y1="299" x2="120" y2="317" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,317 124,317 120,323" fill="#9ca3af"/>
+<g transform="translate(0,325)"><g>
+      <rect x="10" y="0" width="220" height="153" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Template Info</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">Based on: current Roof Hub flow</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Template Name</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Job Account</text>
+  
+    <rect x="18" y="101" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="114" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Shared vs. Personal toggle [New]</text>
+  
+      <text x="120" y="137" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">S3: Office Depot Business</text>
+      
+    </g></g>
+<text x="120" y="498" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">populates items</text>
+<line x1="120" y1="502" x2="120" y2="520" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,520 124,520 120,526" fill="#9ca3af"/>
+<g transform="translate(0,528)"><g>
+      <rect x="10" y="0" width="220" height="131" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Add Materials</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">Based on: Amazon Business bulk upload</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Manual row entry (existing)</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Bulk CSV/XLS upload [New]</text>
+  
+      <text x="120" y="115" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">S3: Amazon Business, Office Depot Business</text>
+      
+    </g></g>
+<text x="120" y="679" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="683" x2="120" y2="701" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,701 124,701 120,707" fill="#9ca3af"/>
+<g transform="translate(0,709)"><g>
+      <rect x="10" y="0" width="220" height="85" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" font-weight="bold" fill="#d97706">✦ Opportunity</text>
+      <text x="120" y="34" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#d97706">Smart quantity suggestions</text>
+      <text x="120" y="48" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9.5" fill="#6b7280">no competitor researched solves</text><text x="120" y="61" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9.5" fill="#6b7280">this for roofing SKUs</text><text x="120" y="74" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9.5" fill="#6b7280">specifically</text>
+    </g></g>
+<text x="120" y="814" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="818" x2="120" y2="836" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,836 124,836 120,842" fill="#9ca3af"/>
+<g transform="translate(0,844)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Save Template &amp; Create Estimate</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">existing Roof Hub capability</text>
+    </g></g></svg></div>
+    </div>
+    <div class="col-divider"></div>
+    <div class="col-wrap">
+      <div class="col-title">Current Flow — Roof Hub</div>
+      <div class="flow-col"><svg id="svg-current" viewBox="0 0 240 1002" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Templates Gallery</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">Roof Hub</text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">picks method</text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="153" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">How would you like to create template?</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">modal</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Smart Templates (AI-generated)</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Start from a Template</text>
+  
+    <rect x="18" y="101" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="114" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Start from Scratch</text>
+  
+      <text x="120" y="137" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">User-provided screenshots</text>
+      
+    </g></g>
+<text x="120" y="295" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">fills header info</text>
+<line x1="120" y1="299" x2="120" y2="317" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,317 124,317 120,323" fill="#9ca3af"/>
+<g transform="translate(0,325)"><g>
+      <rect x="10" y="0" width="220" height="175" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Create a New Template</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">Template Information</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">New Template Name</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Brief Description</text>
+  
+    <rect x="18" y="101" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="114" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Filter Items By</text>
+  
+    <rect x="18" y="123" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="136" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Job Account</text>
+  
+      <text x="120" y="159" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">User-provided screenshots</text>
+      
+    </g></g>
+<text x="120" y="520" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">adds line items</text>
+<line x1="120" y1="524" x2="120" y2="542" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,542 124,542 120,548" fill="#9ca3af"/>
+<g transform="translate(0,550)"><g>
+      <rect x="10" y="0" width="220" height="153" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Material / Labor / Other Charges tabs</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">manual entry</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#9ca3af">□ Bulk import [Reconsider]</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Row-by-row item entry</text>
+  
+    <rect x="18" y="101" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="114" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Browse Full Catalog</text>
+  
+      <text x="120" y="137" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">User-provided screenshots</text>
+      
+    </g></g>
+<text x="120" y="723" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af">sets notifications</text>
+<line x1="120" y1="727" x2="120" y2="745" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,745 124,745 120,751" fill="#9ca3af"/>
+<g transform="translate(0,753)"><g>
+      <rect x="10" y="0" width="220" height="131" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">CC Email &amp; Branch Instructions</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">footer section</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Add CC Email</text>
+  
+    <rect x="18" y="79" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="92" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Instructions to Branch</text>
+  
+      <text x="120" y="115" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">User-provided screenshots</text>
+      
+    </g></g>
+<text x="120" y="904" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="908" x2="120" y2="926" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,926 124,926 120,932" fill="#9ca3af"/>
+<g transform="translate(0,934)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Save Template &amp; Create Estimate</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)">existing capability</text>
+    </g></g></svg></div>
+    </div>
+  </div>
+  <div class="why-flow">
+    <h3>Why this flow</h3>
+    <ul>
+      <li>Starting Point Choice — adds bulk import and AI-assisted paths — Source: Beacon PRO+ Smart Order, Home Depot Pro Material List Builder AI</li>
+      <li>Shared vs. Personal toggle — closes the gap vs. Office Depot Business's Company-Wide/Personal split — Source: Office Depot Business</li>
+      <li>Bulk CSV/XLS upload — mirrors Amazon Business and Office Depot Business — Source: Amazon Business, Office Depot Business</li>
+      <li>Smart quantity suggestions — flagged as an opportunity; no competitor researched documents an equivalent for roofing SKUs</li>
+    </ul>
+  </div>
+  <div class="footer-source">Suggested flow is AI-synthesized from competitor research. It is a starting point for design, not a final specification. Human validation required before prototyping. · ↗ AI-assisted research · Capmation · 2026</div>
+</div>
+  <div class="tab-content" id="tab-summary">
+  <div class="flow-header"><div><h1>📊 Summary</h1><div class="flow-subtitle">Side-by-side capability comparison</div></div></div>
+  <table class="summary-table">
+    <thead><tr><th>Competitor</th><th>Digital template flow documented?</th><th>Key documented capability</th></tr></thead>
+    <tbody>
+      <tr><td>ABC Supply</td><td>✓ Partial (feature confirmed, screens undocumented)</td><td>Dropdown-based color/qty reuse — <a href="https://www.abcsupply.com/news-events/aegis-exteriors-saves-hours-a-week-with-myabcsupply-online-ordering/" target="_blank" rel="noopener">ABC Supply</a></td></tr>
+      <tr><td>Beacon PRO+ / QXO</td><td>✓ Full flow documented</td><td>Measurement-driven Smart Order starting point — <a href="https://www.becn.com/beaconbits/build-your-business/smart-order-how-beacon-pro-makes-it-easier-to-order-roofing-project-materials" target="_blank" rel="noopener">Beacon Building Products</a></td></tr>
+      <tr><td>🔍 SAP Ariba</td><td>✗ Governance flow, not a template UI</td><td>Approval routing for multi-approver orders — <a href="https://learning.sap.com/courses/sap-ariba-procurement-overview-1/exploring-purchase-orders" target="_blank" rel="noopener">SAP Learning</a></td></tr>
+      <tr><td>🔍 Amazon Business</td><td>✓ Full flow documented</td><td>List-type choice + bulk XLS upload — <a href="https://www.suu.edu/purchasing/pdf/amazon-how-to-lists.pdf" target="_blank" rel="noopener">Amazon Business</a></td></tr>
+      <tr><td>🔍 Home Depot Pro</td><td>✓ Partial (concept confirmed, screens undocumented)</td><td>Natural-language / AI list building — <a href="https://www.retaildive.com/news/home-depot-material-list-builder-ai-tool/810883/" target="_blank" rel="noopener">Retail Dive</a></td></tr>
+      <tr><td>🔍 Office Depot Business</td><td>✓ Partial (list types confirmed, fields undocumented)</td><td>Company-Wide vs. Personal list split — <a href="https://www.gvsu.edu/cms4/asset/EE24AE20-9C2A-818B-AADA1C899F328A1B/office_depot_user_guide.pdf" target="_blank" rel="noopener">Office Depot Business</a></td></tr>
+    </tbody>
+  </table>
+</div>
+  <div class="tab-content" id="tab-comparison">
+  <div class="flow-header"><div><h1>⇄ Comparison</h1><div class="flow-subtitle">All direct competitor flows, side by side</div></div></div>
+  <div class="legend-bar">
+    <span><span class="legend-shape screen"></span> Screen</span>
+    <span><span class="legend-shape decision"></span> Decision</span>
+    <span><span class="legend-shape gap"></span> Gap (no screen exists)</span>
+    <span><span class="legend-shape error"></span> Error / dead end</span>
+    <span><span class="legend-shape start"></span> Start</span>
+    <span><span class="legend-shape end"></span> End / resolution</span>
+  </div>
+  <div class="stage-labels"><span>Initiation</span><span>Naming/Account</span><span>Item Selection</span><span>Resolution</span></div>
+  <div class="comparison-row">
+    <div class="comparison-col">
+      <div class="comparison-col-header" style="background:#c8102e;">ABC Supply 🇺🇸 <button class="copy-btn small" onclick="copySVGById('svg-cmp-abc', this)">📋 Copy SVG</button></div>
+      <div class="flow-col"><svg id="svg-cmp-abc" viewBox="0 0 240 601" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">myABCsupply</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)"></text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="109" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">[Template entry point]</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#0d6e6e">exact UI copy not found</text>
+      
+    <rect x="18" y="57" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="70" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#9ca3af">□ Template tool</text>
+  
+      <text x="120" y="93" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">ABC Supply blog</text>
+      
+    </g></g>
+<text x="120" y="251" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="255" x2="120" y2="273" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,273 124,273 120,279" fill="#9ca3af"/>
+<g transform="translate(0,281)"><g>
+      <rect x="10" y="0" width="220" height="94" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Color/Qty Selection</text>
+      
+      
+    <rect x="18" y="42" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="55" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Dropdown menus</text>
+  
+      <text x="120" y="78" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">ABC Supply case study</text>
+      
+    </g></g>
+<text x="120" y="395" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="399" x2="120" y2="417" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,417 124,417 120,423" fill="#9ca3af"/>
+<g transform="translate(0,425)"><g>
+      <rect x="20" y="0" width="200" height="58" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text x="30" y="22" font-family="Montserrat,Arial,sans-serif" font-size="11" font-weight="bold" fill="#d97706">⚠ Save/Name Template</text>
+      <text x="30" y="38" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280">not documented</text>
+      <text x="30" y="50" font-family="Montserrat,Arial,sans-serif" font-size="10" fill="#6b7280"></text>
+    </g></g>
+<text x="120" y="503" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="507" x2="120" y2="525" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,525 124,525 120,531" fill="#9ca3af"/>
+<g transform="translate(0,533)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Template Ready</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)"></text>
+    </g></g></svg></div>
+      <div class="col-source-footer">ABC Supply · Nov 2022, Aug 2023</div>
+    </div>
+    <div class="comparison-col">
+      <div class="comparison-col-header" style="background:#0d6e6e;">Beacon PRO+/QXO 🇺🇸 <button class="copy-btn small" onclick="copySVGById('svg-cmp-beacon', this)">📋 Copy SVG</button></div>
+      <div class="flow-col"><svg id="svg-cmp-beacon" viewBox="0 0 240 766" width="100%" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0,20)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#1b3a6b"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Beacon PRO+ / QXO</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)"></text>
+    </g></g>
+<text x="120" y="92" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="96" x2="120" y2="114" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,114 124,114 120,120" fill="#9ca3af"/>
+<g transform="translate(0,122)"><g>
+      <rect x="10" y="0" width="220" height="94" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">New Template</text>
+      
+      
+    <rect x="18" y="42" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="55" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Click button</text>
+  
+      <text x="120" y="78" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">JobNimbus Support</text>
+      
+    </g></g>
+<text x="120" y="236" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="240" x2="120" y2="258" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,258 124,258 120,264" fill="#9ca3af"/>
+<g transform="translate(0,266)"><g>
+      <rect x="10" y="0" width="220" height="94" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Name Template</text>
+      
+      
+    <rect x="18" y="42" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="55" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Enter name, Create</text>
+  
+      <text x="120" y="78" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">JobNimbus Support</text>
+      
+    </g></g>
+<text x="120" y="380" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="384" x2="120" y2="402" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,402 124,402 120,408" fill="#9ca3af"/>
+<g transform="translate(0,410)"><g>
+      <rect x="10" y="0" width="220" height="94" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Job Account</text>
+      
+      
+    <rect x="18" y="42" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="55" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Assign account</text>
+  
+      <text x="120" y="78" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">JobNimbus Support</text>
+      
+    </g></g>
+<text x="120" y="524" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="528" x2="120" y2="546" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,546 124,546 120,552" fill="#9ca3af"/>
+<g transform="translate(0,554)"><g>
+      <rect x="10" y="0" width="220" height="94" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+      <text x="120" y="20" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#111827">Add Product</text>
+      
+      
+    <rect x="18" y="42" width="204" height="18" rx="5" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="26" y="55" font-family="Montserrat,Arial,sans-serif" font-size="10.5" fill="#374151">Select product + variation</text>
+  
+      <text x="120" y="78" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="9" font-style="italic" fill="#9ca3af">JobNimbus Support</text>
+      
+    </g></g>
+<text x="120" y="668" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="10.5" font-style="italic" fill="#9ca3af"></text>
+<line x1="120" y1="672" x2="120" y2="690" stroke="#9ca3af" stroke-width="1"/>
+<polygon points="116,690 124,690 120,696" fill="#9ca3af"/>
+<g transform="translate(0,698)"><g>
+      <rect x="20" y="0" width="200" height="52" rx="26" fill="#16a34a"/>
+      <text x="120" y="22" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Template Saved</text>
+      <text x="120" y="38" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.65)"></text>
+    </g></g></svg></div>
+      <div class="col-source-footer">JobNimbus Support · n.d.</div>
+    </div>
+  </div>
+</div>
+  <div class="tab-content" id="tab-modules">
+  <div class="flow-header"><div><h1>📦 Modules</h1><div class="flow-subtitle">Affected & Related Modules — based on research findings from this session</div></div></div>
+  <div class="review-checkpoint">⚠️ Human review required: module mapping reflects findings from secondary research only. Validate against actual product architecture before using for sprint planning or design briefs.</div>
+  <h3 class="mod-h3">Directly Affected Modules</h3>
+  <table class="mod-table">
+  <thead><tr><th>Module</th><th>Why affected</th><th>Research source</th><th>Priority</th></tr></thead>
+  <tbody><tr><td>Template Creation (Material/Labor/Other Charges tabs)</td><td>No bulk/import path found vs. 2 external references</td><td>S3: Amazon Business, Office Depot Business</td><td><span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">High</span></td></tr><tr><td>Template naming & Job Account assignment</td><td>No shared-vs-personal toggle, unlike Office Depot Business</td><td>S3: Office Depot Business</td><td><span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">Medium</span></td></tr><tr><td>Template starting point (blank vs. assisted)</td><td>Home Depot Pro & Beacon Smart Order offer faster starts</td><td>S3: Home Depot Pro, Beacon PRO+</td><td><span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">Medium</span></td></tr></tbody>
+</table>
+  <h3 class="mod-h3">Adjacent / Related Modules</h3>
+  <table class="mod-table muted">
+  <thead><tr><th>Related module</th><th>Relationship</th><th>What to watch for</th></tr></thead>
+  <tbody><tr><td>Order / Estimate creation flow</td><td>Templates feed directly into estimates via 'Save Template & Create Estimate'</td><td>Change compatibility with downstream estimate generation</td></tr><tr><td>Catalog / Product search</td><td>Bulk-import/AI creation depends on reliable product matching</td><td>Import/AI matching accuracy affects template quality</td></tr></tbody>
+</table>
+  <div class="footer-source">↗ AI-assisted research · Capmation · 2026 — Sources: S1–S8 findings from this session</div>
+</div>
+</div>
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const id = btn.getAttribute('data-tab');
+    document.getElementById('tab-' + id).classList.add('active');
+  });
+});
+document.getElementById('tab-abc').classList.add('active');
+
+function copySVGById(svgId, btn) {
+  const svgEl = document.getElementById(svgId);
+  if (!svgEl) { btn.textContent = '⚠ No SVG found'; setTimeout(()=>{btn.textContent='📋 Copy SVG';},2000); return; }
+  const serializer = new XMLSerializer();
+  let svgStr = serializer.serializeToString(svgEl);
+  if (!svgStr.startsWith('<?xml')) { svgStr = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgStr; }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(svgStr).then(() => {
+      btn.textContent = '✓ Copied!'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy SVG'; btn.classList.remove('copied'); }, 2000);
+    }).catch(() => fallbackCopy(svgStr, btn));
+  } else { fallbackCopy(svgStr, btn); }
+}
+function fallbackCopy(text, btn) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); btn.textContent = '✓ Copied!'; setTimeout(()=>{btn.textContent='📋 Copy SVG';},2000); }
+  catch (e) { btn.textContent = '✗ Copy failed'; setTimeout(()=>{btn.textContent='📋 Copy SVG';},2000); }
+  document.body.removeChild(ta);
+}
+</script>
+</body>
+</html>
