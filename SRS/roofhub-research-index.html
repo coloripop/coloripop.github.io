@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Secondary Research Register — Roof Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf9f7;
+    --grid-line: rgba(118,33,35,0.045);
+    --ink:#141414;
+    --ink-soft:#5c5c5c;
+    --maroon:#762123;
+    --maroon-dim: rgba(118,33,35,0.10);
+    --maroon-dim-strong: rgba(118,33,35,0.18);
+    --line:#dcdcd8;
+    --card:#ffffff;
+    --shadow: 0 1px 2px rgba(20,20,20,0.06), 0 8px 20px rgba(20,20,20,0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/32px 32px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/32px 32px,
+      var(--paper);
+    color: var(--ink);
+    font-family:'Montserrat', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header / title block */
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    gap: 24px; flex-wrap: wrap;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 18px; margin-bottom: 28px;
+  }
+  .header-left{ display:flex; flex-direction:column; align-items:flex-start; gap:14px; }
+  .logo{ height: 34px; width: auto; display:inline-block; }
+  .logo svg{ height: 100%; width: auto; display:block; }
+  .eyebrow{
+    font-family:'Montserrat', sans-serif;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--maroon); font-weight:700; margin-bottom:4px;
+  }
+  h1{
+    font-family:'Montserrat', sans-serif; font-weight:800; text-transform: uppercase;
+    letter-spacing: 0.005em; font-size: clamp(24px, 3.6vw, 34px);
+    margin:0; line-height: 1.08; color: var(--ink);
+  }
+  .subhead{ color: var(--ink-soft); font-size: 14px; margin-top:6px; max-width: 520px; font-weight:500; }
+  .stamp{
+    font-family:'Montserrat', sans-serif; font-size:11px; text-align:right;
+    border: 1.5px solid var(--ink); border-radius: 3px; padding: 8px 12px;
+    color: var(--ink); line-height:1.6; white-space:nowrap; font-weight:600;
+  }
+  .stamp b{ display:block; font-size:11px; letter-spacing:0.08em; color: var(--maroon); text-transform:uppercase; }
+
+  /* Controls */
+  .controls{
+    display:flex; gap:14px; align-items:center; flex-wrap:wrap;
+    margin-bottom: 22px;
+  }
+  .search{
+    flex: 1 1 260px; position:relative;
+  }
+  .search input{
+    width:100%; padding: 11px 14px 11px 36px;
+    border: 1.5px solid var(--line); border-radius: 4px;
+    font-family:'Montserrat', sans-serif; font-size:14px;
+    background: var(--card); color: var(--ink);
+  }
+  .search input:focus{ outline: 2px solid var(--maroon); outline-offset: 1px; border-color: var(--maroon); }
+  .search::before{
+    content:"⌕"; position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    color: var(--ink-soft); font-size:16px; pointer-events:none;
+  }
+  .pills{ display:flex; gap:8px; flex-wrap:wrap; }
+  .pill{
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size:11.5px; letter-spacing:0.03em; text-transform:uppercase;
+    padding: 8px 13px; border-radius: 999px; border: 1.5px solid var(--line);
+    background: var(--card); color: var(--ink-soft); cursor:pointer;
+    transition: all .12s ease;
+  }
+  .pill:hover{ border-color: var(--maroon); color: var(--maroon); }
+  .pill.active{ background: var(--ink); border-color: var(--ink); color:#fff; }
+
+  .add-btn{
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:0.03em;
+    background: var(--maroon); color:#fff; border:none; border-radius:4px;
+    padding: 11px 18px; cursor:pointer;
+    box-shadow: var(--shadow);
+    transition: transform .1s ease, filter .1s ease;
+  }
+  .add-btn:hover{ filter: brightness(1.12); }
+  .add-btn:active{ transform: translateY(1px); }
+
+  .count-row{
+    font-family:'Montserrat', sans-serif; font-size:12px; font-weight:600; color: var(--ink-soft);
+    margin-bottom: 16px;
+  }
+
+  /* Grid */
+  .grid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+  }
+
+  .card{
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 6px;
+    box-shadow: var(--shadow);
+    display:flex; flex-direction:column; overflow:hidden;
+    position: relative;
+    transition: border-color .12s ease, transform .12s ease;
+  }
+  .card:hover{ border-color: var(--maroon); }
+
+  .card-top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--line);
+    background: repeating-linear-gradient(135deg, rgba(20,20,20,0.02) 0 6px, transparent 6px 12px);
+  }
+  .idx{
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size:11.5px;
+    color:#fff; background: var(--ink); padding: 3px 8px; border-radius: 3px;
+    letter-spacing: 0.03em;
+  }
+  .cat-tag{
+    font-family:'Montserrat', sans-serif; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.06em; padding: 3px 8px; border-radius: 3px;
+    background: var(--maroon-dim); color: var(--maroon); font-weight:700;
+  }
+
+  .card-body{ padding: 14px 16px 8px; flex:1; }
+  .card-title{
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size: 17px;
+    line-height:1.25; margin: 0 0 6px; color: var(--ink);
+  }
+  .card-desc{ font-size: 13px; color: var(--ink-soft); line-height:1.5; margin:0; font-weight:500; }
+
+  .tag-row{ display:flex; flex-wrap:wrap; gap:6px; padding: 10px 16px 0; }
+  .tag{
+    font-family:'Montserrat', sans-serif; font-weight:600; font-size:10.5px; color: var(--ink-soft);
+    border: 1px solid var(--line); padding: 2px 7px; border-radius: 999px;
+  }
+
+  .card-foot{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 16px 14px; margin-top: 10px;
+  }
+  .date{ font-family:'Montserrat', sans-serif; font-weight:600; font-size:11.5px; color: var(--ink-soft); }
+  .foot-actions{ display:flex; align-items:center; gap:10px; }
+  .icon-btn{
+    background:none; border:none; cursor:pointer; font-size:14px; color: var(--ink-soft);
+    padding:2px 4px; line-height:1;
+  }
+  .icon-btn:hover{ color: var(--maroon); }
+  .open-btn{
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:0.02em;
+    color: var(--ink); background:none; border: 1.5px solid var(--ink);
+    border-radius: 4px; padding: 6px 12px; cursor:pointer; text-decoration:none;
+    display:inline-flex; align-items:center; gap:5px;
+    transition: all .12s ease;
+  }
+  .open-btn:hover{ background: var(--ink); color:#fff; }
+  .figjam-btn{ border-color: var(--maroon); color: var(--maroon); }
+  .figjam-btn:hover{ background: var(--maroon); color:#fff; }
+  .figjam-icon{ display:block; flex-shrink:0; }
+
+  .empty{
+    text-align:center; padding: 60px 20px; color: var(--ink-soft);
+    font-family:'Montserrat', sans-serif; font-weight:600; font-size:13px;
+    border: 1.5px dashed var(--line); border-radius: 6px;
+  }
+
+  /* Modal */
+  .overlay{
+    position:fixed; inset:0; background: rgba(20,20,20,0.45);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:20px;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background: var(--paper); border: 1.5px solid var(--ink); border-radius: 6px;
+    width: 100%; max-width: 480px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    max-height: 90vh; overflow-y:auto;
+  }
+  .modal h2{
+    font-family:'Montserrat', sans-serif; text-transform:uppercase; font-weight:800; font-size:19px;
+    margin: 0 0 16px; border-bottom: 2px solid var(--ink); padding-bottom:10px;
+  }
+  .field{ margin-bottom: 14px; }
+  .field label{
+    display:block; font-family:'Montserrat', sans-serif; font-weight:700; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.06em; color: var(--ink-soft); margin-bottom:5px;
+  }
+  .field input, .field select, .field textarea{
+    width:100%; padding: 9px 10px; border: 1.5px solid var(--line); border-radius:4px;
+    font-family:'Montserrat', sans-serif; font-size:14px; background:#fff; color:var(--ink);
+  }
+  .field textarea{ resize: vertical; min-height: 56px; }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:2px solid var(--maroon); outline-offset:1px; border-color:var(--maroon); }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top: 18px; }
+  .btn-secondary{
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size:12.5px; text-transform:uppercase; background:none;
+    border: 1.5px solid var(--line); border-radius:4px; padding: 9px 16px; cursor:pointer; color: var(--ink-soft);
+  }
+  .btn-secondary:hover{ border-color: var(--ink); color: var(--ink); }
+  .btn-primary{
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size:12.5px; text-transform:uppercase;
+    background: var(--maroon); color:#fff; border:none; border-radius:4px; padding: 9px 18px; cursor:pointer;
+  }
+  .btn-primary:hover{ filter: brightness(1.12); }
+  .error-msg{ color:#b3311c; font-size:12px; font-family:'Montserrat', sans-serif; font-weight:600; margin-top:6px; display:none; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color:#fff; padding: 10px 18px; border-radius:5px;
+    font-family:'Montserrat', sans-serif; font-weight:600; font-size:12.5px; opacity:0; pointer-events:none;
+    transition: all .25s ease; z-index: 60;
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 520px){
+    .stamp{ text-align:left; }
+    header{ flex-direction:column; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="overlay open" id="authOverlay">
+  <div class="modal" style="max-width:380px; text-align:center;">
+    <span class="logo" aria-label="Capmation logo" style="display:inline-block; margin-bottom:14px;">
+      <svg viewBox="0 0 452 217" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M65.4671 171.853L55.5318 150.511H48.4159V171.853H35.2583V112.929H59.6939C71.6431 112.929 79.5645 120.714 79.5645 131.586C79.5645 141.787 73.5228 146.887 68.1523 148.498L80.1016 171.853H65.4671ZM57.6799 123.264H48.4159V140.176H57.6799C62.7819 140.176 66.1384 136.686 66.1384 131.72C66.1384 126.485 62.9161 123.264 57.6799 123.264Z" fill="black"/>
+        <path d="M110.042 111.855C127.228 111.855 137.432 124.874 137.432 142.323C137.432 159.907 127.228 172.792 110.042 172.792C92.9912 172.792 82.7873 159.907 82.7873 142.323C82.7873 124.874 92.9912 111.855 110.042 111.855ZM110.042 122.458C101.047 122.458 96.3477 131.049 96.3477 142.458C96.3477 153.732 101.181 162.457 110.042 162.457C119.038 162.457 124.006 153.732 124.006 142.458C124.006 131.049 119.172 122.458 110.042 122.458Z" fill="black"/>
+        <path d="M167.237 111.855C184.423 111.855 194.627 124.874 194.627 142.323C194.627 159.907 184.423 172.792 167.237 172.792C150.186 172.792 139.982 159.907 139.982 142.323C139.982 124.874 150.186 111.855 167.237 111.855ZM167.237 122.458C158.242 122.458 153.543 131.049 153.543 142.458C153.543 153.732 158.376 162.457 167.237 162.457C176.233 162.457 181.2 153.732 181.2 142.458C181.2 131.049 176.233 122.458 167.237 122.458Z" fill="black"/>
+        <path d="M199.728 171.853V112.929H237.187V123.264H212.886V136.82H236.516V147.021H212.886V171.853H199.728Z" fill="black"/>
+        <path d="M293.845 171.853V146.753H272.095V171.853H258.937V112.929H272.095V136.284H293.845V112.929H307.137V171.853H293.845Z" fill="#762123"/>
+        <path d="M314.789 112.929H328.081V151.585C328.081 158.565 331.841 162.457 338.822 162.457C345.804 162.457 349.563 158.565 349.563 151.585V112.929H362.855V151.585C362.855 165.142 353.725 172.927 338.956 172.927C324.188 172.927 315.058 165.142 315.058 151.585V112.929H314.789Z" fill="#762123"/>
+        <path d="M370.374 171.853V112.929H397.495C409.176 112.929 414.815 119.908 414.815 127.962C414.815 135.344 410.25 140.176 404.342 141.518C411.055 142.458 415.889 148.632 415.889 156.014C415.889 165.007 410.25 171.987 398.435 171.987H370.374V171.853ZM383.532 136.82H394.273C398.972 136.82 401.254 133.868 401.254 129.975C401.254 126.083 398.972 122.995 394.273 122.995H383.532V136.82ZM383.532 161.786H394.81C399.777 161.786 402.328 158.967 402.328 154.404C402.328 150.377 399.777 147.021 394.81 147.021H383.532V161.786Z" fill="#762123"/>
+        <path d="M42.7768 96.0162H113.398C115.546 96.0162 117.56 95.6136 119.574 94.9425L257.058 44.8771C257.461 44.7429 257.461 44.0718 256.924 44.0718H186.302C184.154 44.0718 182.14 44.4744 180.126 45.1456L42.5083 95.0767C42.1055 95.3451 42.2398 96.0162 42.7768 96.0162Z" fill="#762123"/>
+        <path d="M268.872 47.4277L231.95 60.8501C231.547 60.9843 231.547 61.5212 231.95 61.6554L323.114 94.8086C325.128 95.4797 327.142 95.8824 329.29 95.8824H399.911C400.448 95.8824 400.583 95.2113 400.045 95.0771L269.141 47.4277C269.006 47.4277 269.006 47.4277 268.872 47.4277Z" fill="black"/>
+      </svg>
+    </span>
+    <h2 style="border-bottom:none; padding-bottom:0;">Restricted Access</h2>
+    <p style="color:var(--ink-soft); font-size:13px; font-weight:500; margin:-6px 0 16px;">This register is limited to the Roof Hub project team. Enter the access password to continue.</p>
+    <form id="authForm">
+      <div class="field" style="text-align:left;">
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" autocomplete="off" required />
+      </div>
+      <div class="error-msg" id="authError">Incorrect password. Try again.</div>
+      <div class="modal-actions" style="justify-content:center; margin-top:16px;">
+        <button type="submit" class="btn-primary" style="width:100%;">Unlock Register</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="wrap" id="mainContent" style="display:none;">
+  <header>
+    <div class="header-left">
+      <span class="logo" aria-label="Capmation logo">
+        <svg viewBox="0 0 452 217" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M65.4671 171.853L55.5318 150.511H48.4159V171.853H35.2583V112.929H59.6939C71.6431 112.929 79.5645 120.714 79.5645 131.586C79.5645 141.787 73.5228 146.887 68.1523 148.498L80.1016 171.853H65.4671ZM57.6799 123.264H48.4159V140.176H57.6799C62.7819 140.176 66.1384 136.686 66.1384 131.72C66.1384 126.485 62.9161 123.264 57.6799 123.264Z" fill="black"/>
+          <path d="M110.042 111.855C127.228 111.855 137.432 124.874 137.432 142.323C137.432 159.907 127.228 172.792 110.042 172.792C92.9912 172.792 82.7873 159.907 82.7873 142.323C82.7873 124.874 92.9912 111.855 110.042 111.855ZM110.042 122.458C101.047 122.458 96.3477 131.049 96.3477 142.458C96.3477 153.732 101.181 162.457 110.042 162.457C119.038 162.457 124.006 153.732 124.006 142.458C124.006 131.049 119.172 122.458 110.042 122.458Z" fill="black"/>
+          <path d="M167.237 111.855C184.423 111.855 194.627 124.874 194.627 142.323C194.627 159.907 184.423 172.792 167.237 172.792C150.186 172.792 139.982 159.907 139.982 142.323C139.982 124.874 150.186 111.855 167.237 111.855ZM167.237 122.458C158.242 122.458 153.543 131.049 153.543 142.458C153.543 153.732 158.376 162.457 167.237 162.457C176.233 162.457 181.2 153.732 181.2 142.458C181.2 131.049 176.233 122.458 167.237 122.458Z" fill="black"/>
+          <path d="M199.728 171.853V112.929H237.187V123.264H212.886V136.82H236.516V147.021H212.886V171.853H199.728Z" fill="black"/>
+          <path d="M293.845 171.853V146.753H272.095V171.853H258.937V112.929H272.095V136.284H293.845V112.929H307.137V171.853H293.845Z" fill="#762123"/>
+          <path d="M314.789 112.929H328.081V151.585C328.081 158.565 331.841 162.457 338.822 162.457C345.804 162.457 349.563 158.565 349.563 151.585V112.929H362.855V151.585C362.855 165.142 353.725 172.927 338.956 172.927C324.188 172.927 315.058 165.142 315.058 151.585V112.929H314.789Z" fill="#762123"/>
+          <path d="M370.374 171.853V112.929H397.495C409.176 112.929 414.815 119.908 414.815 127.962C414.815 135.344 410.25 140.176 404.342 141.518C411.055 142.458 415.889 148.632 415.889 156.014C415.889 165.007 410.25 171.987 398.435 171.987H370.374V171.853ZM383.532 136.82H394.273C398.972 136.82 401.254 133.868 401.254 129.975C401.254 126.083 398.972 122.995 394.273 122.995H383.532V136.82ZM383.532 161.786H394.81C399.777 161.786 402.328 158.967 402.328 154.404C402.328 150.377 399.777 147.021 394.81 147.021H383.532V161.786Z" fill="#762123"/>
+          <path d="M42.7768 96.0162H113.398C115.546 96.0162 117.56 95.6136 119.574 94.9425L257.058 44.8771C257.461 44.7429 257.461 44.0718 256.924 44.0718H186.302C184.154 44.0718 182.14 44.4744 180.126 45.1456L42.5083 95.0767C42.1055 95.3451 42.2398 96.0162 42.7768 96.0162Z" fill="#762123"/>
+          <path d="M268.872 47.4277L231.95 60.8501C231.547 60.9843 231.547 61.5212 231.95 61.6554L323.114 94.8086C325.128 95.4797 327.142 95.8824 329.29 95.8824H399.911C400.448 95.8824 400.583 95.2113 400.045 95.0771L269.141 47.4277C269.006 47.4277 269.006 47.4277 268.872 47.4277Z" fill="black"/>
+        </svg>
+      </span>
+      <div>
+        <div class="eyebrow">Capmation · Internal Working Tool</div>
+        <h1>Secondary Research Register</h1>
+        <div class="subhead">Roof Hub — B2B roofing procurement platform. Living index of competitive UX research reports.</div>
+      </div>
+    </div>
+    <div class="stamp">
+      <b>Register status</b>
+      Entries: <span id="stampCount">—</span><br/>
+      Last added: <span id="stampLatest">—</span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="Search title, scope, or tag…" />
+    </div>
+    <div class="pills" id="categoryPills"></div>
+    <button class="add-btn" id="addBtn">+ Add Report</button>
+  </div>
+
+  <div class="count-row" id="countRow"></div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none;">No reports match this filter — adjust search or add a new entry.</div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modalTitle">Add Report</h2>
+    <form id="reportForm">
+      <input type="hidden" id="reportId" />
+      <div class="field">
+        <label for="fTitle">Title</label>
+        <input type="text" id="fTitle" required placeholder="e.g. Roof Hub Order Returns — Competitor Flow Viewer" />
+      </div>
+      <div class="field">
+        <label for="fUrl">Report URL</label>
+        <input type="url" id="fUrl" required placeholder="https://…" />
+      </div>
+      <div class="field">
+        <label for="fCategory">Category</label>
+        <select id="fCategory">
+          <option>Returns</option>
+          <option>Catalog</option>
+          <option>Order Creation</option>
+          <option>Templates</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fDate">Date (YYYY-MM-DD)</label>
+        <input type="date" id="fDate" required />
+      </div>
+      <div class="field">
+        <label for="fDesc">Scope / description</label>
+        <textarea id="fDesc" placeholder="One or two lines on what this report covers"></textarea>
+      </div>
+      <div class="field">
+        <label for="fTags">Tags (comma-separated)</label>
+        <input type="text" id="fTags" placeholder="e.g. Screen-level UX, Mobile, Benchmark" />
+      </div>
+      <div class="field">
+        <label for="fFigjam">FigJam board URL (optional)</label>
+        <input type="url" id="fFigjam" placeholder="https://www.figma.com/board/…" />
+      </div>
+      <div class="error-msg" id="formError">Title, URL, and date are required.</div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Save Entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'roofhub-research-reports';
+const DATA_VERSION = 17;
+const CATEGORIES = ['All','Returns','Catalog','Order Creation','Templates','Other'];
+
+const DEFAULT_REPORTS = [
+  {
+    id: 'r1',
+    title: 'Roof Hub — Order Returns Competitor Flow',
+    url: 'https://coloripop.github.io/SRS/roof-hub-returns-flows-2026.html',
+    category: 'Returns',
+    date: '2026-06-15',
+    description: 'Business-level returns flow benchmarking: Roof Hub vs. myABCsupply, Beacon PRO+, plus Grainger, Amazon Business, and Home Depot Pro as UX references.',
+    tags: ['Business Flow','Competitor Benchmark','Order Returns'],
+    figjam: 'https://www.figma.com/board/ZFIeQ6CYbtKwscHLHPRVhv/Order-Returns?node-id=0-1&t=hb5CqxaKfYDZviEn-1'
+  },
+  {
+    id: 'r2',
+    title: 'Roof Hub — Order Returns Screen-Level Flows',
+    url: 'https://coloripop.github.io/SRS/roof-hub-returns-ux-flows-2026.html',
+    category: 'Returns',
+    date: '2026-06-16',
+    description: 'Screen-by-screen mobile and web returns UX across Roof Hub, myABCsupply, and Beacon PRO+, with Grainger, Amazon Business, Home Depot Pro, and Walmart as external references.',
+    tags: ['Screen-Level UX','Mobile + Web','Order Returns'],
+    figjam: 'https://www.figma.com/board/ZFIeQ6CYbtKwscHLHPRVhv/Order-Returns?node-id=0-1&t=hb5CqxaKfYDZviEn-1'
+  },
+  {
+    id: 'r3',
+    title: 'Roof Hub — Product Catalog',
+    url: 'https://coloripop.github.io/SRS/roofhub-catalog-ux-flows-2026.html',
+    category: 'Catalog',
+    date: '2026-07-22',
+    description: 'Catalog entry, search/browse, product selection, and add-to-cart flow analysis across direct competitors and external references.',
+    tags: ['Catalog','Search & Browse'],
+    figjam: 'https://www.figma.com/board/MxovksU0976lbOqYeRphJl/Catalog-Research?node-id=0-1&t=UBOzP5ROOznLvBo1-1'
+  },
+  {
+    id: 'r4',
+    title: 'Roof Hub — Order Creation',
+    url: 'https://coloripop.github.io/SRS/roofhub-order-creation-flows-2026.html',
+    category: 'Order Creation',
+    date: '2026-07-24',
+    description: 'Order creation flows across QXO PRO+, ABC Supply, AccuLynx, RSG, and SIG Roofing (US + Europe), with a synthesized suggested ideal flow for Roof Hub.',
+    tags: ['Order Creation','Multi-Distributor','Suggested Flow'],
+    figjam: 'https://www.figma.com/board/6p03Uu46lkR6RfpK02jjpF/Order-Creation-Report?node-id=0-1&t=jCpIzGGmDdvYuCNm-1'
+  },
+  {
+    id: 'r5',
+    title: 'Roof Hub — Template Creation',
+    url: 'https://coloripop.github.io/SRS/roofhub-template-creation-flows-2026.html',
+    category: 'Templates',
+    date: '2026-07-30',
+    description: 'Template creation flows across ABC Supply and Beacon PRO+/QXO, with SAP Ariba, Amazon Business, Home Depot Pro, and Office Depot Business as references.',
+    tags: ['Template Creation','Client Proposal'],
+    figjam: 'https://www.figma.com/board/umjr4nEulOCor10TPLyhCk/Templates-Research-Report?node-id=21-59&t=eZlC4DoNThleXj5i-1'
+  },
+  {
+    id: 'r6',
+    title: 'Roof Hub — Template Organization',
+    url: 'https://coloripop.github.io/SRS/roofhub-template-organization-flows-2026.html',
+    category: 'Templates',
+    date: '2026-07-30',
+    description: 'How users browse, categorize, search, and maintain order templates as libraries grow — includes stale-item flagging and library organization patterns.',
+    tags: ['Template Organization','Library Management'],
+    figjam: 'https://www.figma.com/board/umjr4nEulOCor10TPLyhCk/Templates-Research-Report?node-id=21-60&t=eZlC4DoNThleXj5i-1'
+  }
+];
+
+let reports = [];
+let activeCategory = 'All';
+let searchTerm = '';
+
+function uid(){ return 'r' + Date.now() + Math.floor(Math.random()*1000); }
+
+async function loadReports(){
+  let stored = null;
+  try{
+    const result = await window.storage.get(STORAGE_KEY, false);
+    stored = result ? JSON.parse(result.value) : null;
+  } catch(e){
+    stored = null;
+  }
+
+  const defaultIds = new Set(DEFAULT_REPORTS.map(r=>r.id));
+
+  if(!stored || stored.version !== DATA_VERSION){
+    // Preserve any manually-added reports (ids outside the built-in set),
+    // but always refresh the built-in ones to the latest defaults.
+    const customReports = stored && Array.isArray(stored.reports)
+      ? stored.reports.filter(r => !defaultIds.has(r.id))
+      : [];
+    reports = [...DEFAULT_REPORTS, ...customReports];
+    await saveReports();
+  } else {
+    reports = stored.reports;
+  }
+  render();
+}
+
+async function saveReports(){
+  try{
+    const payload = JSON.stringify({ version: DATA_VERSION, reports });
+    const res = await window.storage.set(STORAGE_KEY, payload, false);
+    if(!res){ showToast('Save failed — storage unavailable.'); }
+  } catch(e){
+    showToast('Save failed — storage unavailable.');
+  }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+function formatDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+
+function renderPills(){
+  const container = document.getElementById('categoryPills');
+  container.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const el = document.createElement('button');
+    el.className = 'pill' + (cat === activeCategory ? ' active' : '');
+    el.textContent = cat;
+    el.onclick = () => { activeCategory = cat; render(); };
+    container.appendChild(el);
+  });
+}
+
+function matchesFilter(r){
+  const catOk = activeCategory === 'All' || r.category === activeCategory;
+  if(!catOk) return false;
+  if(!searchTerm) return true;
+  const hay = (r.title + ' ' + r.description + ' ' + (r.tags||[]).join(' ')).toLowerCase();
+  return hay.includes(searchTerm.toLowerCase());
+}
+
+function render(){
+  renderPills();
+
+  const sorted = [...reports].sort((a,b)=> new Date(b.date) - new Date(a.date));
+  const filtered = sorted.filter(matchesFilter);
+
+  document.getElementById('stampCount').textContent = reports.length;
+  const latest = sorted[0];
+  document.getElementById('stampLatest').textContent = latest ? formatDate(latest.date) : '—';
+  document.getElementById('countRow').textContent =
+    filtered.length === reports.length
+      ? `Showing all ${reports.length} report${reports.length===1?'':'s'}`
+      : `Showing ${filtered.length} of ${reports.length} reports`;
+
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyState');
+  grid.innerHTML = '';
+
+  if(filtered.length === 0){
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  filtered.forEach((r)=>{
+    const overallIdx = sorted.indexOf(r);
+    const label = 'R-' + String(sorted.length - overallIdx).padStart(2,'0');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="idx">${label}</span>
+        <span class="cat-tag">${escapeHtml(r.category)}</span>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">${escapeHtml(r.title)}</h3>
+        <p class="card-desc">${escapeHtml(r.description || '')}</p>
+      </div>
+      <div class="tag-row">${(r.tags||[]).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+      <div class="card-foot">
+        <span class="date">${formatDate(r.date)}</span>
+        <div class="foot-actions">
+          ${r.figjam ? `<button class="open-btn figjam-btn" data-action="figjam" data-url="${escapeAttr(r.figjam)}"><svg class="figjam-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M19 18.5H21V22H18.5C16.567 22 15 20.433 15 18.5C15 16.567 16.567 15 18.5 15H19"></path><path d="M11.5 15V22"></path><path d="M3.5 22L3.5 15H7.5M6.5 18.5H4"></path><path d="M4 11L4 4C4 2.89543 4.89543 2 6 2L13 2L20 9L20 11"></path><path d="M13 2V9H20" stroke-linecap="butt"></path></g></svg>FigJam</button>` : ''}
+          <button class="open-btn" data-action="open" data-url="${escapeAttr(r.url)}"><svg class="figjam-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10"><polygon points="3 23 3 1 21 1 21 23 3 23"></polygon><polygon points="12 4 7 7 7 8 17 8 17 7 12 4"></polygon><line x1="8" y1="12" x2="8" y2="8"></line><line x1="12" y1="12" x2="12" y2="8"></line><line x1="16" y1="12" x2="16" y2="8"></line><line x1="7" y1="15" x2="17" y2="15"></line><line x1="7" y1="19" x2="12" y2="19"></line></g></svg>Open</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+function escapeAttr(str){
+  return (str||'').replace(/"/g,'&quot;');
+}
+
+// Event delegation for card actions
+document.getElementById('grid').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  if(btn.dataset.action === 'open' || btn.dataset.action === 'figjam'){
+    window.open(btn.dataset.url, '_blank', 'noopener');
+  }
+});
+
+// Search & filter
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+  render();
+});
+
+// Modal handling
+const overlay = document.getElementById('overlay');
+const form = document.getElementById('reportForm');
+
+function openModal(existing){
+  document.getElementById('formError').style.display = 'none';
+  if(existing){
+    document.getElementById('modalTitle').textContent = 'Edit Report';
+    document.getElementById('reportId').value = existing.id;
+    document.getElementById('fTitle').value = existing.title;
+    document.getElementById('fUrl').value = existing.url;
+    document.getElementById('fCategory').value = existing.category;
+    document.getElementById('fDate').value = existing.date;
+    document.getElementById('fDesc').value = existing.description || '';
+    document.getElementById('fTags').value = (existing.tags||[]).join(', ');
+    document.getElementById('fFigjam').value = existing.figjam || '';
+  } else {
+    document.getElementById('modalTitle').textContent = 'Add Report';
+    form.reset();
+    document.getElementById('reportId').value = '';
+    document.getElementById('fDate').value = new Date().toISOString().slice(0,10);
+  }
+  overlay.classList.add('open');
+  document.getElementById('fTitle').focus();
+}
+
+function closeModal(){
+  overlay.classList.remove('open');
+}
+
+document.getElementById('addBtn').onclick = () => openModal(null);
+document.getElementById('cancelBtn').onclick = closeModal;
+overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal(); });
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const title = document.getElementById('fTitle').value.trim();
+  const url = document.getElementById('fUrl').value.trim();
+  const date = document.getElementById('fDate').value;
+  const category = document.getElementById('fCategory').value;
+  const description = document.getElementById('fDesc').value.trim();
+  const tags = document.getElementById('fTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const figjam = document.getElementById('fFigjam').value.trim();
+  const id = document.getElementById('reportId').value;
+
+  if(!title || !url || !date){
+    document.getElementById('formError').style.display = 'block';
+    return;
+  }
+
+  if(id){
+    const idx = reports.findIndex(r=>r.id === id);
+    reports[idx] = { id, title, url, category, date, description, tags, figjam };
+    showToast('Entry updated.');
+  } else {
+    reports.push({ id: uid(), title, url, category, date, description, tags, figjam });
+    showToast('Entry added to register.');
+  }
+  await saveReports();
+  closeModal();
+  render();
+});
+
+loadReports();
+
+const REGISTER_PASSWORD = 'SRS2024';
+document.getElementById('authForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const entered = document.getElementById('authPassword').value;
+  const errorEl = document.getElementById('authError');
+  if(entered === REGISTER_PASSWORD){
+    document.getElementById('authOverlay').classList.remove('open');
+    document.getElementById('mainContent').style.display = 'block';
+    errorEl.style.display = 'none';
+  } else {
+    errorEl.style.display = 'block';
+    document.getElementById('authPassword').value = '';
+    document.getElementById('authPassword').focus();
+  }
+});
+document.getElementById('authPassword').focus();
+</script>
+</body>
+</html>
