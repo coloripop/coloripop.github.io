@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credit Card Payment UX — Designer Checklist</title>
+<style>
+  :root{
+    --navy:#171717;
+    --lime:#762123;
+    --frost:#E3E3E3;
+    --gray:#6b7280;
+    --amber:#f59e0b;
+    --amberbg:#fffbeb;
+    --amberdk:#92400e;
+    --red:#dc2626;
+    --green:#16a34a;
+    --teal:#0d6e6e;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Montserrat,Arial,sans-serif;color:#111827;background:#f7f8fa;}
+  .wrap{max-width:980px;margin:0 auto;}
+
+  /* Header */
+  .gheader{background:#ffffff;color:#171717;padding:26px 32px 24px 32px;border-bottom:4px solid var(--lime);}
+  .gheader img{height:28px;display:block;margin-bottom:14px;}
+  .gheader h1{font-size:24px;margin:0 0 6px 0;font-weight:700;color:#171717;}
+  .gheader .sub{font-size:12.5px;color:#4b5563;margin-bottom:2px;}
+  .gheader .note{font-size:11.5px;color:#9ca3af;margin-top:10px;}
+  .related-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .related-links a{background:#f3f4f6;border:1px solid #e5e7eb;color:#171717;text-decoration:none;font-size:11.5px;padding:6px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;font-weight:600;}
+  .related-links a:hover{background:#eef0f2;}
+
+  /* KPI dashboard */
+  .kpi-section{padding:26px 32px 6px 32px;}
+  .kpi-section h2{font-size:15px;color:var(--navy);margin:0 0 4px 0;}
+  .kpi-section .sub{font-size:11.5px;color:var(--gray);margin-bottom:16px;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .kpi-card{background:#fff;border:1px solid var(--frost);border-radius:10px;padding:14px 12px;text-align:center;}
+  .kpi-card .num{font-size:22px;font-weight:700;color:var(--navy);}
+  .kpi-card .lbl{font-size:9.5px;color:var(--gray);margin-top:4px;line-height:1.35;}
+  .kpi-card .src{font-size:8px;color:#9ca3af;margin-top:6px;font-style:italic;}
+  @media (max-width:820px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+
+  /* Progress */
+  .progress-bar-wrap{padding:6px 32px 0 32px;}
+  .progress-track{background:#fff;border:1px solid var(--frost);border-radius:20px;height:10px;overflow:hidden;}
+  .progress-fill{background:var(--lime);height:100%;width:0%;transition:width .3s;}
+  .progress-label{font-size:11px;color:var(--gray);margin-top:6px;text-align:right;}
+
+  /* Accordion */
+  .accordion-section{padding:22px 32px;}
+  details.category{background:#fff;border:1px solid var(--frost);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+  details.category > summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;font-weight:700;color:var(--navy);font-size:15px;background:#fff;}
+  details.category > summary::-webkit-details-marker{display:none;}
+  details.category > summary .cat-left{display:flex;align-items:center;gap:10px;}
+  details.category > summary .cat-badge{background:var(--navy);color:#fff;font-size:10.5px;font-weight:700;border-radius:5px;padding:2px 8px;}
+  details.category > summary .cat-count{font-size:11px;color:var(--gray);font-weight:400;}
+  details.category > summary .chevron{transition:transform .2s;color:var(--gray);font-size:13px;}
+  details.category[open] > summary .chevron{transform:rotate(90deg);}
+  details.category > summary:hover{background:#fafbf6;}
+  .cat-ac{font-size:10.5px;color:var(--gray);font-style:italic;font-weight:400;padding:0 18px 12px 18px;margin-top:-6px;border-bottom:1px solid #f1f2f4;}
+  .cat-body{padding:6px 18px 18px 18px;}
+
+  .check-item{border:1px solid #eef0f2;border-radius:8px;padding:12px 14px;margin-bottom:10px;background:#fcfdfb;}
+  .check-item:last-child{margin-bottom:0;}
+  .check-head{display:flex;align-items:flex-start;gap:8px;cursor:pointer;flex-wrap:wrap;}
+  .check-box{width:18px;height:18px;border:2px solid var(--lime);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;font-weight:700;transition:all .15s;}
+  .check-item.checked .check-box{background:var(--lime);color:#fff;}
+  .check-title{font-weight:600;font-size:13.5px;color:#111827;flex:1 1 220px;}
+  .check-item.checked .check-title{color:#9ca3af;text-decoration:line-through;}
+  .kpi-badge{background:#eef2ff;color:#4338ca;font-size:9.5px;font-weight:700;border-radius:10px;padding:2px 8px;white-space:nowrap;}
+  .device-badge{font-size:9.5px;font-weight:700;border-radius:10px;padding:2px 8px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+  .device-badge.web{background:#e0f2fe;color:#075985;}
+  .device-badge.mobile{background:#fce7f3;color:#9d174d;}
+  .device-badge.both{background:#ecfdf5;color:#047857;}
+  .priority-badge{font-size:9px;font-weight:700;border-radius:10px;padding:2px 8px;white-space:nowrap;text-transform:uppercase;}
+  .priority-badge.high{background:#fee2e2;color:#b91c1c;}
+  .priority-badge.med{background:#fef3c7;color:#92400e;}
+  .check-desc{font-size:12.5px;color:#374151;margin:8px 0 8px 28px;line-height:1.55;}
+  .check-example{font-size:11.5px;color:#1f2937;background:#fbeaea;border-left:3px solid var(--lime);padding:7px 10px;margin:0 0 8px 28px;border-radius:0 5px 5px 0;}
+  .check-example b{color:var(--teal);}
+  .check-ref{font-size:10.5px;color:var(--gray);margin-left:28px;}
+  .check-ref a{color:var(--teal);text-decoration:none;}
+  .check-ref a:hover{text-decoration:underline;}
+  .check-module{font-size:10px;color:#4338ca;margin-left:28px;margin-top:4px;background:#eef2ff;display:inline-block;padding:2px 8px;border-radius:10px;}
+
+  .oq-item{border:1px solid #eef0f2;border-radius:8px;padding:12px 14px;margin-bottom:10px;background:#fffbf5;border-left:3px solid var(--amber);}
+  .oq-item .oq-owner{font-size:9.5px;font-weight:700;text-transform:uppercase;color:var(--amberdk);background:var(--amberbg);border-radius:10px;padding:2px 8px;margin-bottom:6px;display:inline-block;}
+  .oq-item p{font-size:12.5px;color:#374151;margin:4px 0 0 0;line-height:1.5;}
+
+  .review-checkpoint{background:var(--amberbg);border:1.5px solid var(--amber);border-radius:8px;padding:14px 18px;font-size:12.5px;color:var(--amberdk);margin:0 32px 20px 32px;}
+
+  .footer-note{font-size:11px;color:var(--gray);padding:20px 32px 40px 32px;border-top:1px solid var(--frost);margin-top:10px;text-align:center;}
+
+  h2.section-title{font-size:13px;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;padding:0 32px;margin:26px 0 -6px 0;}
+
+  .print-btn{background:var(--navy);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:Montserrat,Arial,sans-serif;}
+  .print-btn:hover{background:#123a6b;}
+
+  .device-filter-row{padding:10px 32px 0 32px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .device-filter-btn{background:#fff;border:1px solid var(--frost);border-radius:16px;padding:5px 12px;font-size:11px;color:#374151;cursor:pointer;font-family:Montserrat,Arial,sans-serif;}
+  .device-filter-btn:hover{background:#f9fafb;}
+  .device-filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .check-item.filtered-out{display:none;}
+  .cat-empty-note{font-size:11px;color:var(--gray);font-style:italic;padding:8px 0;}
+
+  @media print{
+    .print-btn, .device-filter-row, .related-links{display:none !important;}
+    details.category{break-inside:avoid;}
+    .check-item{break-inside:avoid;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="gheader">
+    <svg height="28" width="82.8" viewBox="0 0 213 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">
+<path d="M16.8337 71.2252L11.2973 59.3294H7.332V71.2252H0V38.3808H13.6166C20.2752 38.3808 24.6894 42.7201 24.6894 48.7803C24.6894 54.4663 21.3226 57.3093 18.33 58.2071L24.9886 71.2252H16.8337ZM12.4943 44.1417H7.332V53.5685H12.4943C15.3373 53.5685 17.2078 51.6233 17.2078 48.8551C17.2078 45.9372 15.4122 44.1417 12.4943 44.1417Z" fill="#171717"/>
+<path d="M41.673 37.7822C51.2495 37.7822 56.9355 45.0394 56.9355 54.7655C56.9355 64.5665 51.2495 71.7488 41.673 71.7488C32.1713 71.7488 26.4853 64.5665 26.4853 54.7655C26.4853 45.0394 32.1713 37.7822 41.673 37.7822ZM41.673 43.6927C36.6603 43.6927 34.0417 48.481 34.0417 54.8403C34.0417 61.1249 36.7351 65.988 41.673 65.988C46.6857 65.988 49.4539 61.1249 49.4539 54.8403C49.4539 48.481 46.7605 43.6927 41.673 43.6927Z" fill="#171717"/>
+<path d="M73.5444 37.7822C83.1209 37.7822 88.807 45.0394 88.807 54.7655C88.807 64.5665 83.1209 71.7488 73.5444 71.7488C64.0428 71.7488 58.3567 64.5665 58.3567 54.7655C58.3567 45.0394 64.0428 37.7822 73.5444 37.7822ZM73.5444 43.6927C68.5317 43.6927 65.9132 48.481 65.9132 54.8403C65.9132 61.1249 68.6066 65.988 73.5444 65.988C78.5571 65.988 81.3253 61.1249 81.3253 54.8403C81.3253 48.481 78.5571 43.6927 73.5444 43.6927Z" fill="#171717"/>
+<path d="M91.65 71.2252V38.3808H112.524V44.1417H98.982V51.6981H112.15V57.3841H98.982V71.2252H91.65Z" fill="#171717"/>
+<path d="M144.096 71.2252V57.2345H131.976V71.2252H124.644V38.3808H131.976V51.3988H144.096V38.3808H151.503V71.2252H144.096Z" fill="#762123"/>
+<path d="M155.767 38.3808H163.174V59.9279C163.174 63.8183 165.269 65.988 169.159 65.988C173.05 65.988 175.144 63.8183 175.144 59.9279V38.3808H182.551V59.9279C182.551 67.4843 177.464 71.8237 169.234 71.8237C161.004 71.8237 155.917 67.4843 155.917 59.9279V38.3808H155.767Z" fill="#762123"/>
+<path d="M186.741 71.2252V38.3808H201.854C208.363 38.3808 211.505 42.2712 211.505 46.7602C211.505 50.8751 208.962 53.5685 205.67 54.3167C209.411 54.8404 212.104 58.2819 212.104 62.3968C212.104 67.4095 208.962 71.3 202.378 71.3H186.741V71.2252ZM194.073 51.6981H200.058C202.677 51.6981 203.949 50.0521 203.949 47.8825C203.949 45.7128 202.677 43.992 200.058 43.992H194.073V51.6981ZM194.073 65.6139H200.358C203.126 65.6139 204.547 64.0428 204.547 61.499C204.547 59.2545 203.126 57.3841 200.358 57.3841H194.073V65.6139Z" fill="#762123"/>
+<path d="M4.18968 28.9539H43.5431C44.7401 28.9539 45.8624 28.7295 46.9846 28.3554L123.596 0.448898C123.821 0.374082 123.821 0 123.522 0H84.1683C82.9713 0 81.849 0.224449 80.7268 0.598531L4.04005 28.4302C3.8156 28.5798 3.89042 28.9539 4.18968 28.9539Z" fill="#762123"/>
+<path d="M130.18 1.87042L109.605 9.35205C109.381 9.42687 109.381 9.72613 109.605 9.80095L160.406 28.2806C161.528 28.6547 162.65 28.8791 163.847 28.8791H203.201C203.5 28.8791 203.575 28.505 203.275 28.4302L130.33 1.87042C130.255 1.87042 130.255 1.87042 130.18 1.87042Z" fill="#171717"/>
+</svg>
+    <h1>Credit Card Payment UX — Designer Checklist</h1>
+    <div class="sub">For the UI designer building the Roof Hub Credit Card payment flow · Web · Mobile · Mobile Web</div>
+    <div class="sub">Distilled from this session's secondary research — PPTX report, screen-flow viewer, and validated industry research</div>
+    <div class="related-links">
+      <a href="secondary-research-credit-card-payment-ux-2026-08-13.pptx">📊 Full research deck (.pptx)</a>
+      <a href="secondary-research-credit-card-payment-ux-flows-2026-08-13.html">🌐 Screen flow viewer (.html)</a>
+    </div>
+    <div class="note">Check off each item as your designs address it. Every recommendation links back to its source — click through before making a final call.</div>
+  </div>
+
+  <div class="kpi-section">
+    <h2>Key metrics &amp; KPIs found for this feature</h2>
+    <div class="sub">Use these to prioritize and to justify design decisions to Product/Engineering</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 0 addressed</div>
+  </div>
+
+  <div style="padding:14px 32px 0 32px;display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:#6b7280;align-items:center;justify-content:space-between;">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <span style="font-weight:600;">Device badges:</span>
+      <span class="device-badge web">🖥 Web/Desktop</span>
+      <span class="device-badge mobile">📱 Mobile &amp; Mobile Web</span>
+      <span class="device-badge both">🖥📱 All platforms</span>
+    </div>
+    <button id="printBtn" class="print-btn">🖨️ Print / Export PDF</button>
+  </div>
+
+  <div class="device-filter-row">
+    <span style="font-weight:600;font-size:11px;color:#374151;">Filter by device:</span>
+    <button class="device-filter-btn active" data-filter="all">All items</button>
+    <button class="device-filter-btn" data-filter="web">🖥 Web/Desktop only</button>
+    <button class="device-filter-btn" data-filter="mobile">📱 Mobile &amp; Mobile Web only</button>
+  </div>
+
+  <div class="accordion-section" id="accordionRoot"></div>
+
+  <div class="review-checkpoint">
+    ⚠️ <b>Human review checkpoint:</b> this checklist reflects secondary research only — practitioner case studies are marked directional, methodological research (Baymard, NN/g, academic) is marked validated. Confirm module mapping against Roof Hub's actual architecture with Engineering before finalizing designs.
+  </div>
+
+  <div class="footer-note">
+    ↗ AI-assisted research · Capmation · August 2026 — Companion to the Credit Card Payment UX research deck and screen-flow viewer from this session.
+  </div>
+</div>
+
+<script>
+const NAVY = "#171717";
+
+const kpis = [
+  { num: "26%", lbl: "abandon checkout solely because it's too long/complex", src: "Baymard Institute" },
+  { num: "19–25%", lbl: "of abandonment tied to security/trust concerns", src: "Baymard Institute" },
+  { num: "80–85%", lbl: "mobile checkout abandonment vs. ~66–70% desktop", src: "Baymard Institute" },
+  { num: "6+4", lbl: "max PAN digits displayable under PCI DSS masking", src: "PCI Security Standards Council" },
+  { num: "53%", lbl: "of sites skip Luhn validation on card number field", src: "Baymard Institute" },
+  { num: "15–30%", lbl: "conversion lift from a recognized trust badge, correctly placed", src: "Baymard Institute" },
+  { num: "1.72x", lbl: "conversion lift from an express/1-tap checkout (Shop Pay)", src: "Shopify / Swipesum" },
+  { num: "<5 sec", lbl: "typical end-to-end time for a biometric/tokenized payment", src: "Apple Pay Transaction Flow" },
+];
+
+document.getElementById("kpiGrid").innerHTML = kpis.map(k => `
+  <div class="kpi-card">
+    <div class="num">${k.num}</div>
+    <div class="lbl">${k.lbl}</div>
+    <div class="src">${k.src}</div>
+  </div>
+`).join("");
+
+// ---------- Checklist data, grouped by acceptance criterion ----------
+const categories = [
+  {
+    id: "flow",
+    title: "End-to-end flow documented",
+    ac: "Acceptance criterion: \"The end-to-end credit card payment flow for orders is researched and documented.\"",
+    items: [
+      {
+        title: "Use the Suggested Ideal Flow as your design baseline",
+        desc: "Start from the ✦ Suggested Flow tab in the screen-flow viewer rather than the current Roof Hub design — it already incorporates express options, validation, masking, processing, and decline recovery in the right order.",
+        example: "<b>Example:</b> Payment step → Express options shown first → (if new card) Card entry → Masked confirmation → Processing → Approved/Declined → Confirmation.",
+        ref: { text: "Screen Flow Viewer — ✦ Suggested Flow tab", href: "secondary-research-credit-card-payment-ux-flows-2026-08-13.html" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Cross-check your designs against the Current Flow gaps",
+        desc: "The Current Flow column in the viewer marks 5 specific gaps in the existing Roof Hub mockups ([Reconsider] tags) — treat each as a must-fix, not optional polish.",
+        example: "<b>Example gaps flagged:</b> no express option, no masking/format cue, no inline validation, no processing state, no decline handling.",
+        ref: { text: "Screen Flow Viewer — Current Flow column", href: "secondary-research-credit-card-payment-ux-flows-2026-08-13.html" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Document every screen transition, not just the happy path",
+        desc: "Include decision points (e.g. \"Using express method?\", \"Approved?\") and the branches that follow — the full research deck maps these explicitly for Amazon, Walmart, Apple Pay, Shop Pay, and Stripe Link as reference.",
+        example: "<b>Example:</b> Apple Pay's flow includes a documented Face ID failure branch → passcode fallback, not just the success path.",
+        ref: { text: "PPTX — S3 Competitor & Reference flows", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "both",
+      },
+    ],
+  },
+  {
+    id: "standards",
+    title: "Industry standards & UX patterns reviewed",
+    ac: "Acceptance criterion: \"Relevant industry standards and common payment UI/UX patterns are reviewed.\"",
+    items: [
+      {
+        title: "Apply PCI DSS 4.0 as a design constraint, not just a compliance checkbox",
+        desc: "Requirement 3.4.1 (masking) and 3.5.1 (storage) directly shape what the card number field can display and what 'save card' is allowed to persist.",
+        example: "<b>Example:</b> Display •••• •••• •••• 4242 after entry — never the full 16 digits once the field loses focus.",
+        ref: { text: "PCI Security Standards Council · PPTX S8", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Follow card-network UX conventions for the brand icon",
+        desc: "BIN-based auto-detection of the card type, and a non-clickable brand icon at the end of the field — 61% of users try to click static card logos when something goes wrong, so don't make it look interactive.",
+        example: "<b>Example:</b> Icon appears automatically once 4–6 digits are typed; it is decorative, never a button.",
+        ref: { text: "Baymard Institute · PPTX S8", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Benchmark against best-in-class express patterns before finalizing card entry",
+        desc: "Shop Pay, Apple Pay, and Stripe Link/Click to Pay all converge on the same principle: surface a tokenized/express option before any manual form.",
+        example: "<b>Example:</b> Show 'Saved card — 1 tap' and 'Apple Pay / Google Pay' above a collapsed 'Enter a new card' option, not side-by-side with equal visual weight.",
+        ref: { text: "Screen Flow Viewer — ⚡ Shop Pay / Apple Pay / Stripe Link tabs", href: "secondary-research-credit-card-payment-ux-flows-2026-08-13.html" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Use Baymard's checkout usability benchmark as your field-level style guide",
+        desc: "Covers field order, spacing/auto-format, expiration date format, and CVV placement across hundreds of audited real checkouts.",
+        example: "<b>Example:</b> Auto-insert a space every 4 digits as the user types the card number, matching the physical card's grouping.",
+        ref: { text: "Baymard Institute — Payment Method Benchmark", href: "https://baymard.com/checkout-usability/benchmark/step-type/payment" },
+        module: null,
+        device: "both",
+      },
+    ],
+  },
+  {
+    id: "screens",
+    title: "Required screens, components, validation rules & payment states",
+    ac: "Acceptance criterion: \"Required screens, components, validation rules, and payment states are identified.\"",
+    items: [
+      {
+        title: "Build one shared Credit Card component — not two",
+        desc: "Order Review and Homeowner Insights currently use slightly different layouts for the same fields. Consolidate into a single component both flows call.",
+        example: "<b>Example:</b> A single <code>&lt;CreditCardEntry /&gt;</code> component with props for context (order vs. insights) rather than two hand-built forms.",
+        ref: { text: "PPTX — S7 Opportunities, Big Bet", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: "Module: Credit Card payment component (S9 — High priority)",
+        kpi: "26% abandon on complex checkout",
+        device: "both",
+      },
+      {
+        title: "Add real-time Luhn validation on the card number field",
+        desc: "Catch invalid card numbers as the user types, instead of waiting for a server-side decline.",
+        example: "<b>Example (L.L. Bean pattern):</b> field border turns red and shows 'Check your card number' the moment the digits fail the Luhn check — before submit.",
+        ref: { text: "Baymard Institute · PPTX S5/S6", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        kpi: "53% of sites skip this",
+        device: "both",
+      },
+      {
+        title: "Design the Billing Address component to support both select-existing and add-new",
+        desc: "Match the current Roof Hub pattern (radio list of saved addresses + '+ Add Address' form) but validate name/address against the card issuer's records before submit.",
+        example: "<b>Example:</b> Walmart's documented failure mode — a name/address mismatch vs. the issuer's record causes silent 'add card' failures. Surface this as a specific error, not a generic one.",
+        ref: { text: "Walmart Help Center · PPTX S3", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: "Module: Billing address management (S9)",
+        device: "both",
+      },
+      {
+        title: "Design a Save-Card / tokenization component",
+        desc: "If Roof Hub adds 'save card', design the token-based pattern (CVV-only re-entry) rather than a full re-display of stored card data.",
+        example: "<b>Example (Amazon pattern):</b> Saved card shows as 'Visa •••• 4242' — completing a future order only asks for the CVV, never the full number again.",
+        ref: { text: "Amazon Payment Services docs · PPTX S3/S6", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: "Module: Saved payment methods / Wallet (S9 — new, opportunity)",
+        device: "both",
+      },
+      {
+        title: "List every payment state as a distinct screen/component, not a single 'loading' catch-all",
+        desc: "Idle → Validating → Processing → Approved / Declined / Timed out are five distinct states — design each.",
+        example: "<b>Example:</b> Don't reuse the same spinner component for 'processing' and 'validating card number' — they need different messaging.",
+        ref: { text: "Stripe checkout UX guide · PPTX S5/S6", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "both",
+      },
+    ],
+  },
+  {
+    id: "states",
+    title: "Error, declined-payment, processing, timeout & success states",
+    ac: "Acceptance criterion: \"Error, declined-payment, processing, timeout, and successful-payment states are documented.\"",
+    items: [
+      {
+        title: "Never design a decline as a dead end",
+        desc: "Every benchmarked reference (Amazon) and every methodological pain-point source flags this as the most common failure in payment UX — always give the user a next action.",
+        example: "<b>Example (Amazon pattern):</b> On decline, prompt 'Try a different payment method' inline rather than just showing an error banner.",
+        ref: { text: "Amazon Payment Services docs · PPTX S5/S6", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: "Module: Payment error / decline handling (S9 — High priority)",
+        kpi: "56% had a decline in 2023",
+        device: "both",
+      },
+      {
+        title: "Write at least two distinct decline messages",
+        desc: "Issuer-declined ('contact your bank or try another card') and connectivity/timeout ('check your connection and try again') are different problems — don't merge them into one generic string.",
+        example: "<b>Example:</b> \"Card declined by issuer — try another card or contact your bank\" vs. \"Payment timed out — check your connection and try again.\"",
+        ref: { text: "PPTX — S7 Opportunity Matrix", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Design an explicit processing/loading state with a target duration",
+        desc: "Show a progress indicator between 'Place Order' and confirmation — aim for under 2 seconds perceived wait, and design what happens if it runs longer (timeout state).",
+        example: "<b>Example:</b> A determinate or indeterminate spinner with 'Processing your payment…' — if it exceeds ~8–10s, transition to a timeout state rather than spinning indefinitely.",
+        ref: { text: "Stripe checkout UX guide", href: null },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Design a timeout state separate from a decline",
+        desc: "A network timeout is not the same failure as an issuer decline — the recovery action differs (retry vs. try another card), and conflating them confuses the user about whether they were charged.",
+        example: "<b>Example:</b> Timeout copy should reassure: \"We couldn't confirm your payment — you have not been charged. Please try again.\"",
+        ref: { text: "PPTX — S5 Pain Points", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Design the success/confirmation state to clearly communicate what happened",
+        desc: "Show masked card used, amount charged, and order confirmation together — this is the final trust-building moment of the flow.",
+        example: "<b>Example:</b> 'Order confirmed — $8,368.04 charged to Visa •••• 4242' rather than a generic 'Thank you!' with no payment detail.",
+        ref: { text: "PPTX — S6 Success Cases", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: "Module: Order confirmation / notifications (S9)",
+        device: "both",
+      },
+    ],
+  },
+  {
+    id: "platform",
+    title: "Platform-specific considerations — Web, Mobile, Mobile Web",
+    ac: "Acceptance criterion: \"Differences or platform-specific considerations for Web, Mobile, and Mobile Web are captured.\"",
+    items: [
+      {
+        title: "Design one Credit Card component, then adapt layout per platform — don't design 3 separate components",
+        desc: "Field order, validation, and masking logic should be identical across Web/Mobile/Mobile Web; only spacing, input type, and tap targets should change.",
+        example: "<b>Example:</b> Same field sequence everywhere; Mobile/Mobile Web get a numeric keypad trigger and larger touch targets, Web gets a standard text input.",
+        ref: { text: "PPTX — S7 Opportunity Matrix, Big Bet", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Meet the 44×44px minimum tap target on Mobile and Mobile Web payment buttons",
+        desc: "Applies to 'Place Order', payment-method radio buttons, and the express-checkout buttons specifically.",
+        example: "<b>Example:</b> The 'Pay with Card' button should never be smaller than 44×44px, with adequate spacing from the address radio buttons above it.",
+        ref: { text: "Baymard Institute mobile checkout research · PPTX", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        kpi: "80–85% mobile abandonment",
+        device: "mobile",
+      },
+      {
+        title: "Offer camera-scan card capture as an optional Mobile/Mobile Web shortcut",
+        desc: "Reduces manual typing errors on small screens — always keep manual entry as a fallback.",
+        example: "<b>Example (Walmart pattern):</b> 'Scan card' button opens the camera; captured number/expiry populate the form for the user to confirm before submit.",
+        ref: { text: "Walmart Help Center · PPTX S3", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "mobile",
+      },
+      {
+        title: "Prioritize express/wallet payment buttons higher in the visual hierarchy on Mobile",
+        desc: "Screen real estate is scarcer on mobile — express options should appear above the fold, before scrolling to a manual card form.",
+        example: "<b>Example:</b> Apple Pay / saved-card button pinned near the top of the Mobile payment sheet; 'Enter a new card' as a secondary, collapsed option.",
+        ref: { text: "Baymard Institute mobile checkout research", href: null },
+        module: null,
+        device: "mobile",
+      },
+    ],
+  },
+  {
+    id: "security",
+    title: "Security & user-trust considerations",
+    ac: "Acceptance criterion: \"Security and user-trust considerations, such as masking card details and clearly communicating payment status, are documented.\"",
+    items: [
+      {
+        title: "Mask the PAN immediately after entry — max first 6 + last 4 digits",
+        desc: "Never re-display the full card number once the user moves past the field, on any platform.",
+        example: "<b>Example:</b> As soon as the field loses focus, show 4242 42•• •••• 4242 or a simplified •••• 4242, per PCI DSS 3.4.1.",
+        ref: { text: "PCI Security Standards Council", href: null },
+        module: null,
+        kpi: "6+4 max digits (PCI DSS)",
+        device: "both",
+      },
+      {
+        title: "Never store or re-display the CVV after authorization",
+        desc: "Applies to any 'save card' feature — the CVV must be requested fresh on every transaction, even for saved cards.",
+        example: "<b>Example:</b> A saved card at re-checkout still shows an empty CVV field to fill in — it is never pre-filled or stored.",
+        ref: { text: "PCI Security Standards Council · PPTX S8", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        device: "both",
+      },
+      {
+        title: "Place a recognized trust badge directly next to the card field — not in the footer",
+        desc: "Only use badges from providers users actually recognize (Visa/Mastercard/Stripe-style marks); an unfamiliar or generic seal can hurt trust more than help it.",
+        example: "<b>Example:</b> 'Secured by [recognized processor]' text or badge placed immediately above or beside the card number field, not in the page footer.",
+        ref: { text: "Baymard Institute checkout usability & trust-seal research · PPTX", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        kpi: "15–30% conversion lift when placed correctly",
+        device: "both",
+      },
+      {
+        title: "Communicate payment status clearly and continuously — never leave the user guessing",
+        desc: "At every state (processing, declined, timed out, success) tell the user explicitly whether they were charged.",
+        example: "<b>Example:</b> Timeout state explicitly states 'You have not been charged' rather than leaving that ambiguous.",
+        ref: { text: "Pavlou (2003); Salisbury et al. (2001) — PPTX Academic Literature slide", href: "secondary-research-credit-card-payment-ux-2026-08-13.pptx" },
+        module: null,
+        kpi: "19–25% abandon over trust concerns",
+        device: "both",
+      },
+    ],
+  },
+];
+
+const openQuestions = [
+  { owner: "Product", text: "Which card networks must be supported at launch (Visa/Mastercard only, or also Amex/Discover)? Is a surcharge policy needed for card payments?" },
+  { owner: "Product", text: "Should a save-card/tokenization feature ship in v1, or is it a fast-follow? (Currently scoped as a Big Bet, not a Quick Win.)" },
+  { owner: "Business", text: "Is an early-pay or discount incentive planned for card payments, similar to Home Depot's 2% early-pay store-card benefit?" },
+  { owner: "Business", text: "What is the policy on declined/failed payments for held orders — does the order stay in a pending state, or cancel automatically after a timeout?" },
+  { owner: "Engineering", text: "What tokenization approach will be used for saved cards, and what is the resulting PCI DSS scope for Roof Hub's systems?" },
+  { owner: "Engineering", text: "Can Order Review and Homeowner Insights realistically share one Credit Card component given current architecture, or does that require a larger refactor?" },
+  { owner: "Engineering", text: "What specific decline reason codes does the payment processor return, and can the UI map each to a specific, actionable message?" },
+];
+
+const nextSteps = [
+  "Design masked PAN display + real-time Luhn/card-format validation for the Credit Card component (PCI DSS 3.4.1, 3.5.1).",
+  "Define explicit loading, processing, decline, timeout, and success states with copy that names the problem and the next step.",
+  "Consolidate the Credit Card component across Order Review, Homeowner Insights, Web, Mobile, and Mobile Web.",
+  "Scope a save-card / tokenization approach (Amazon-style CVV-only re-entry) with Engineering — confirm PCI scope impact.",
+  "Validate the S9 module mapping against actual Roof Hub architecture with the product team.",
+  "Resolve the open questions above with Product, Business, and Engineering before final design sign-off.",
+];
+
+// ---------- Render accordion ----------
+let totalItems = 0;
+const root = document.getElementById("accordionRoot");
+categories.forEach((cat, ci) => {
+  totalItems += cat.items.length;
+  const itemsHtml = cat.items.map((it, ii) => {
+    const kpiHtml = it.kpi ? `<span class="kpi-badge">${it.kpi}</span>` : "";
+    const deviceLabels = { web: ["🖥", "Web/Desktop"], mobile: ["📱", "Mobile & Mobile Web"], both: ["🖥📱", "All platforms"] };
+    const [dIcon, dText] = deviceLabels[it.device] || deviceLabels.both;
+    const deviceHtml = `<span class="device-badge ${it.device || 'both'}">${dIcon} ${dText}</span>`;
+    const refHtml = it.ref.href
+      ? `<a href="${it.ref.href}" target="_blank" rel="noopener">${it.ref.text}</a>`
+      : it.ref.text;
+    const moduleHtml = it.module ? `<div class="check-module">${it.module}</div>` : "";
+    return `
+      <div class="check-item" id="item-${cat.id}-${ii}" data-device="${it.device || 'both'}">
+        <div class="check-head" onclick="toggleCheck('item-${cat.id}-${ii}')">
+          <span class="check-box">✓</span>
+          <span class="check-title">${it.title}</span>
+          ${deviceHtml}
+          ${kpiHtml}
+        </div>
+        <div class="check-desc">${it.desc}</div>
+        <div class="check-example">${it.example}</div>
+        <div class="check-ref">Source: ${refHtml}</div>
+        ${moduleHtml}
+      </div>`;
+  }).join("");
+
+  root.innerHTML += `
+    <details class="category" ${ci === 0 ? "open" : ""}>
+      <summary>
+        <span class="cat-left">
+          <span class="cat-badge">${ci + 1}</span>
+          ${cat.title}
+          <span class="cat-count">(${cat.items.length} items)</span>
+        </span>
+        <span class="chevron">▶</span>
+      </summary>
+      <div class="cat-ac">${cat.ac}</div>
+      <div class="cat-body">${itemsHtml}</div>
+    </details>`;
+});
+
+// Open questions accordion
+{
+  const oqHtml = openQuestions.map(q => `
+    <div class="oq-item">
+      <span class="oq-owner">${q.owner}</span>
+      <p>${q.text}</p>
+    </div>`).join("");
+  root.innerHTML += `
+    <details class="category">
+      <summary>
+        <span class="cat-left">
+          <span class="cat-badge" style="background:#92400e;">?</span>
+          Open questions &amp; dependencies
+          <span class="cat-count">(${openQuestions.length} items — Product, Business, Engineering)</span>
+        </span>
+        <span class="chevron">▶</span>
+      </summary>
+      <div class="cat-ac">Acceptance criterion: "Open questions and dependencies for Product, Business, and Engineering are captured."</div>
+      <div class="cat-body">${oqHtml}</div>
+    </details>`;
+}
+
+// Next steps accordion
+{
+  const nsHtml = nextSteps.map((s, i) => `
+    <div class="check-item">
+      <div class="check-head">
+        <span class="check-box" style="background:${NAVY};color:#fff;border-color:${NAVY};">${i + 1}</span>
+        <span class="check-title" style="text-decoration:none;">${s}</span>
+      </div>
+    </div>`).join("");
+  root.innerHTML += `
+    <details class="category">
+      <summary>
+        <span class="cat-left">
+          <span class="cat-badge">✔</span>
+          Recommended next steps
+          <span class="cat-count">(${nextSteps.length} items)</span>
+        </span>
+        <span class="chevron">▶</span>
+      </summary>
+      <div class="cat-ac">Acceptance criterion: "Recommended next steps for the credit card payment design are defined."</div>
+      <div class="cat-body">${nsHtml}</div>
+    </details>`;
+}
+
+// ---------- Checkbox interactivity + progress + localStorage persistence ----------
+const STORAGE_KEY = "roofhub-cc-checklist-progress-v1";
+
+function loadCheckedState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e){ return {}; }
+}
+
+function saveCheckedState(){
+  try {
+    const state = {};
+    document.querySelectorAll('[id^="item-"].checked').forEach(el => { state[el.id] = true; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e){ /* localStorage unavailable — progress just won't persist */ }
+}
+
+function updateProgress(){
+  const relevant = document.querySelectorAll(".check-item.checkable");
+  const checked = document.querySelectorAll(".check-item.checkable.checked");
+  const label = document.getElementById("progressLabel");
+  const fill = document.getElementById("progressFill");
+  const total = relevant.length;
+  const done = checked.length;
+  label.textContent = `${done} / ${total} addressed`;
+  fill.style.width = total ? `${(done/total)*100}%` : "0%";
+}
+
+window.toggleCheck = function(id){
+  const el = document.getElementById(id);
+  el.classList.add("checkable");
+  el.classList.toggle("checked");
+  updateProgress();
+  saveCheckedState();
+};
+
+// mark all real checklist items as checkable (exclude next-steps numbered list)
+document.querySelectorAll('[id^="item-"]').forEach(el => el.classList.add("checkable"));
+
+// Restore saved progress from a previous visit
+{
+  const saved = loadCheckedState();
+  Object.keys(saved).forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add("checked");
+  });
+}
+updateProgress();
+
+// ---------- Device filter ----------
+document.querySelectorAll(".device-filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".device-filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const filter = btn.dataset.filter;
+    document.querySelectorAll('[id^="item-"]').forEach(item => {
+      const device = item.dataset.device;
+      const matches = filter === "all" || device === "both" || device === filter;
+      item.classList.toggle("filtered-out", !matches);
+    });
+    // Add/remove a "no items match" note per category
+    document.querySelectorAll("details.category").forEach(cat => {
+      const body = cat.querySelector(".cat-body");
+      if(!body) return;
+      let note = body.querySelector(".cat-empty-note");
+      const visibleItems = Array.from(body.querySelectorAll('[id^="item-"]')).filter(i => !i.classList.contains("filtered-out"));
+      const hasItems = body.querySelectorAll('[id^="item-"]').length > 0;
+      if(hasItems && visibleItems.length === 0){
+        if(!note){
+          note = document.createElement("div");
+          note.className = "cat-empty-note";
+          note.textContent = "No items in this category match the selected device filter.";
+          body.appendChild(note);
+        }
+      } else if(note){
+        note.remove();
+      }
+    });
+  });
+});
+
+// ---------- Print / Export PDF ----------
+document.getElementById("printBtn").addEventListener("click", () => {
+  const openBefore = [];
+  document.querySelectorAll("details.category").forEach(d => {
+    if(!d.open){ openBefore.push(d); d.open = true; }
+  });
+  window.print();
+  // Restore accordion state after the print dialog closes
+  setTimeout(() => { openBefore.forEach(d => { d.open = false; }); }, 500);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credit Card Payment UX — User Screen Flow Analysis</title>
+<style>
+  :root{
+    --navy:#171717;
+    --lime:#762123;
+    --frost:#E3E3E3;
+    --gray:#6b7280;
+    --amber:#f59e0b;
+    --amberbg:#fffbeb;
+    --amberdk:#d97706;
+    --red:#ef4444;
+    --redbg:#fef9f9;
+    --reddk:#dc2626;
+    --green:#16a34a;
+    --teal:#0d6e6e;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Montserrat,Arial,sans-serif;color:#111827;background:#fff;}
+  .gheader{background:#ffffff;color:#171717;padding:20px 28px 14px 28px;overflow:hidden;border-bottom:4px solid var(--lime);}
+  .gheader .toprow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  .gheader img{height:30px;}
+  .gheader h1{font-size:20px;margin:14px 0 2px 0;font-weight:700;color:#171717;}
+  .gheader .sub{font-size:12px;color:#4b5563;margin-bottom:4px;}
+  .gheader .note{font-size:11px;color:#9ca3af;margin-bottom:14px;}
+  .filters{display:flex;gap:16px;font-size:11px;color:#374151;margin-bottom:0;}
+  .filters select{background:#fff;color:#171717;border:1px solid #d1d5db;border-radius:4px;padding:3px 6px;font-size:11px;}
+
+  .tabbar{background:#f7f7f7;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:6px;padding:10px 28px 10px 28px;flex-wrap:wrap;}
+  .tab{background:#fff;color:#4b5563;border:1px solid #e5e7eb;border-radius:6px;padding:7px 13px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:Montserrat,Arial,sans-serif;}
+  .tab.active{background:#171717;color:#fff;border-color:#171717;box-shadow:none;}
+  .tab .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+  .tab.suggested{box-shadow:0 0 0 1.5px var(--lime);}
+  .tab.suggested.active{box-shadow:0 0 0 1.5px var(--lime), inset 0 0 0 1px var(--lime);}
+  .sep{width:1px;height:18px;background:#d1d5db;margin:0 4px;}
+  .tab-bar-end{height:1px;background:#e5e7eb;}
+
+  .content{padding:22px 28px 60px 28px;display:none;}
+  .content.active{display:block;}
+
+  .page-header h2{font-size:20px;margin:0 0 2px 0;color:var(--navy);}
+  .page-header .sub{font-size:12px;color:var(--gray);margin-bottom:14px;}
+
+  .legend-bar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:8px 14px;font-size:11px;color:#374151;margin-bottom:16px;width:fit-content;}
+  .legend-bar span{display:flex;align-items:center;gap:5px;}
+  .lg-screen{width:11px;height:11px;border:1.5px solid #9ca3af;border-radius:2px;display:inline-block;}
+  .lg-decision{width:9px;height:9px;background:#1a1a2e;display:inline-block;transform:rotate(45deg);}
+  .lg-gap{width:11px;height:11px;border:1.5px dashed var(--amber);border-radius:2px;display:inline-block;}
+  .lg-error{width:11px;height:11px;border:1.5px solid var(--red);border-radius:2px;display:inline-block;}
+  .lg-start{width:11px;height:11px;border-radius:50%;background:var(--navy);display:inline-block;}
+  .lg-end{width:11px;height:11px;border-radius:50%;background:var(--green);display:inline-block;}
+
+  .flow-wrap{display:flex;gap:0;align-items:flex-start;flex-wrap:wrap;}
+  .flow-col{width:300px;flex-shrink:0;}
+  .flow-col-inner{width:100%;}
+  .channel-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:6px;}
+  .col-divider{width:1px;background:#e5e7eb;align-self:stretch;margin:0 24px;flex-shrink:0;}
+
+  .copy-btn{background:#fff;border:1px solid #e5e7eb;border-radius:5px;font-size:10.5px;padding:4px 9px;cursor:pointer;color:#374151;margin-bottom:8px;font-family:Montserrat,Arial,sans-serif;}
+  .copy-btn:hover{background:#f9fafb;}
+  .copy-btn.copied{color:var(--green);border-color:var(--green);}
+
+  .ux-observations{margin-top:26px;display:flex;gap:40px;flex-wrap:wrap;max-width:900px;}
+  .ux-col{min-width:280px;}
+  .ux-col .label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+  .ux-col.strengths .label{color:var(--green);}
+  .ux-col.gaps .label{color:var(--amberdk);}
+  .ux-col ul{margin:0;padding-left:18px;font-size:12px;line-height:1.6;color:#374151;}
+  .ratings{margin-top:18px;max-width:420px;}
+  .ratings .label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--navy);margin-bottom:8px;}
+  .rating-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:12px;}
+  .rating-row .dim{width:60px;color:var(--gray);}
+  .rating-bar{flex:1;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;}
+  .rating-bar > div{height:100%;background:var(--lime);}
+  .rating-score{width:36px;text-align:right;color:var(--navy);font-weight:600;}
+  .src-footer{margin-top:22px;font-size:10.5px;color:var(--gray);font-style:italic;}
+
+  .evidence-panel{margin-top:30px;border:1px solid #e5e7eb;border-radius:8px;padding:16px 18px;background:#fafafa;max-width:900px;}
+  .evidence-panel h3{font-size:13px;margin:0 0 10px 0;color:var(--navy);}
+  table.evidence{width:100%;border-collapse:collapse;font-size:11px;}
+  table.evidence th{text-align:left;color:#fff;background:var(--navy);padding:6px 8px;font-weight:600;}
+  table.evidence td{padding:6px 8px;border-bottom:1px solid #e5e7eb;color:#374151;}
+  table.evidence a{color:var(--teal);text-decoration:none;}
+  table.evidence a:hover{text-decoration:underline;}
+
+  .ext-badge{display:inline-block;background:#eef2ff;color:#4338ca;font-size:10.5px;padding:3px 9px;border-radius:12px;margin-bottom:10px;}
+  .pattern-callout{background:#fbeaea;border:1px solid var(--lime);border-radius:6px;padding:10px 14px;font-size:12px;color:#4a1518;margin-bottom:14px;max-width:600px;}
+  .gap-disclosure{background:var(--amberbg);border:1.5px dashed var(--amber);border-radius:6px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:18px;max-width:700px;}
+
+  /* Comparison tab */
+  .stage-labels{display:flex;flex-direction:column;font-size:10.5px;color:var(--gray);position:relative;height:0;}
+  .comparison-outer{overflow-x:auto;}
+  .comparison-row{display:flex;gap:0;min-width:100%;}
+  .comparison-col{min-width:220px;border-right:1px solid #e5e7eb;padding:0 14px;}
+  .comparison-col-header{font-size:12px;font-weight:700;padding:6px 0;color:var(--navy);display:flex;align-items:center;gap:6px;}
+  .col-source-footer{font-size:9.5px;color:var(--gray);margin-top:10px;font-style:italic;}
+
+  /* Modules tab */
+  .review-checkpoint{background:var(--amberbg);border:1.5px solid var(--amber);border-radius:6px;padding:12px 16px;font-size:13px;color:#92400e;margin-bottom:20px;max-width:900px;}
+  table.modtable{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:26px;}
+  table.modtable th{text-align:left;background:var(--navy);color:#fff;padding:8px 10px;cursor:pointer;}
+  table.modtable td{padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#374151;}
+  table.modtable tr:nth-child(even) td{background:#f9fafb;}
+  table.modtable.related td{background:#fafafa;}
+  .badge{padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:600;}
+  .badge.high{background:#fee2e2;color:#b91c1c;}
+  .badge.med{background:#fef3c7;color:#92400e;}
+  .badge.low{background:#f3f4f6;color:#4b5563;}
+
+  .summary-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+  .summary-table th{background:var(--navy);color:#fff;padding:8px 10px;text-align:left;}
+  .summary-table td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top;}
+
+  .footer-note{font-size:10.5px;color:var(--gray);margin-top:30px;border-top:1px solid #e5e7eb;padding-top:12px;}
+  h1,h2,h3{font-family:Montserrat,Arial,sans-serif;}
+
+  .related-links{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 4px 0;}
+  .related-links a{background:#f3f4f6;border:1px solid #e5e7eb;color:#171717;text-decoration:none;font-size:11.5px;padding:6px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;font-weight:600;}
+  .related-links a:hover{background:#eef0f2;}
+
+  /* Zoom controls */
+  .zoom-wrapper{position:relative;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;}
+  .zoom-toolbar{position:absolute;top:6px;right:6px;z-index:5;background:rgba(255,255,255,.95);border:1px solid #e5e7eb;border-radius:6px;display:flex;align-items:center;gap:4px;padding:3px 5px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .zoom-btn{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:4px;width:22px;height:22px;font-size:13px;line-height:1;cursor:pointer;color:#374151;}
+  .zoom-btn:hover{background:#e5e7eb;}
+  .zoom-level{font-size:10px;color:#6b7280;min-width:32px;text-align:center;}
+  .zoom-scroll{overflow:auto;max-height:640px;padding:8px;}
+  .zoom-scroll svg{transition:transform .15s ease;}
+
+  /* Tab bar keyboard focus visibility */
+  .tab:focus-visible{outline:2px solid var(--lime);outline-offset:1px;}
+
+  /* Responsive */
+  @media (max-width: 720px){
+    .gheader{padding:16px 16px 0 16px;}
+    .gheader h1{font-size:16px;}
+    .content{padding:16px 16px 50px 16px;}
+    .tabbar{padding:0 12px 10px 12px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;}
+    .tab{flex-shrink:0;font-size:11px;padding:6px 10px;}
+    .flow-wrap{flex-direction:column;}
+    .flow-col{width:100%;}
+    .comparison-col{min-width:200px;}
+    .zoom-scroll{max-height:420px;}
+    .legend-bar{font-size:10px;gap:10px;}
+    .filters{flex-direction:column;gap:6px;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<div class="gheader">
+  <div class="toprow">
+    <svg height="30" width="88.8" viewBox="0 0 213 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">
+<path d="M16.8337 71.2252L11.2973 59.3294H7.332V71.2252H0V38.3808H13.6166C20.2752 38.3808 24.6894 42.7201 24.6894 48.7803C24.6894 54.4663 21.3226 57.3093 18.33 58.2071L24.9886 71.2252H16.8337ZM12.4943 44.1417H7.332V53.5685H12.4943C15.3373 53.5685 17.2078 51.6233 17.2078 48.8551C17.2078 45.9372 15.4122 44.1417 12.4943 44.1417Z" fill="#171717"/>
+<path d="M41.673 37.7822C51.2495 37.7822 56.9355 45.0394 56.9355 54.7655C56.9355 64.5665 51.2495 71.7488 41.673 71.7488C32.1713 71.7488 26.4853 64.5665 26.4853 54.7655C26.4853 45.0394 32.1713 37.7822 41.673 37.7822ZM41.673 43.6927C36.6603 43.6927 34.0417 48.481 34.0417 54.8403C34.0417 61.1249 36.7351 65.988 41.673 65.988C46.6857 65.988 49.4539 61.1249 49.4539 54.8403C49.4539 48.481 46.7605 43.6927 41.673 43.6927Z" fill="#171717"/>
+<path d="M73.5444 37.7822C83.1209 37.7822 88.807 45.0394 88.807 54.7655C88.807 64.5665 83.1209 71.7488 73.5444 71.7488C64.0428 71.7488 58.3567 64.5665 58.3567 54.7655C58.3567 45.0394 64.0428 37.7822 73.5444 37.7822ZM73.5444 43.6927C68.5317 43.6927 65.9132 48.481 65.9132 54.8403C65.9132 61.1249 68.6066 65.988 73.5444 65.988C78.5571 65.988 81.3253 61.1249 81.3253 54.8403C81.3253 48.481 78.5571 43.6927 73.5444 43.6927Z" fill="#171717"/>
+<path d="M91.65 71.2252V38.3808H112.524V44.1417H98.982V51.6981H112.15V57.3841H98.982V71.2252H91.65Z" fill="#171717"/>
+<path d="M144.096 71.2252V57.2345H131.976V71.2252H124.644V38.3808H131.976V51.3988H144.096V38.3808H151.503V71.2252H144.096Z" fill="#762123"/>
+<path d="M155.767 38.3808H163.174V59.9279C163.174 63.8183 165.269 65.988 169.159 65.988C173.05 65.988 175.144 63.8183 175.144 59.9279V38.3808H182.551V59.9279C182.551 67.4843 177.464 71.8237 169.234 71.8237C161.004 71.8237 155.917 67.4843 155.917 59.9279V38.3808H155.767Z" fill="#762123"/>
+<path d="M186.741 71.2252V38.3808H201.854C208.363 38.3808 211.505 42.2712 211.505 46.7602C211.505 50.8751 208.962 53.5685 205.67 54.3167C209.411 54.8404 212.104 58.2819 212.104 62.3968C212.104 67.4095 208.962 71.3 202.378 71.3H186.741V71.2252ZM194.073 51.6981H200.058C202.677 51.6981 203.949 50.0521 203.949 47.8825C203.949 45.7128 202.677 43.992 200.058 43.992H194.073V51.6981ZM194.073 65.6139H200.358C203.126 65.6139 204.547 64.0428 204.547 61.499C204.547 59.2545 203.126 57.3841 200.358 57.3841H194.073V65.6139Z" fill="#762123"/>
+<path d="M4.18968 28.9539H43.5431C44.7401 28.9539 45.8624 28.7295 46.9846 28.3554L123.596 0.448898C123.821 0.374082 123.821 0 123.522 0H84.1683C82.9713 0 81.849 0.224449 80.7268 0.598531L4.04005 28.4302C3.8156 28.5798 3.89042 28.9539 4.18968 28.9539Z" fill="#762123"/>
+<path d="M130.18 1.87042L109.605 9.35205C109.381 9.42687 109.381 9.72613 109.605 9.80095L160.406 28.2806C161.528 28.6547 162.65 28.8791 163.847 28.8791H203.201C203.5 28.8791 203.575 28.505 203.275 28.4302L130.33 1.87042C130.255 1.87042 130.255 1.87042 130.18 1.87042Z" fill="#171717"/>
+</svg>
+  </div>
+  <h1>User Screen Flow Analysis: Credit Card Payment — Roof Hub Order Checkout</h1>
+  <div class="sub">Research scope: US, B2B roofing/building-materials distribution &nbsp;·&nbsp; August 2026 &nbsp;·&nbsp; Capmation</div>
+  <div class="note">All screens documented from real sources found in this research session. Gaps shown explicitly — never invented.</div>
+  <div class="related-links">
+    <a href="secondary-research-credit-card-payment-ux-2026-08-13.pptx">📊 Full research deck (.pptx)</a>
+    <a href="credit-card-payment-ux-designer-checklist-2026-08-13.html">✅ Designer checklist (.html)</a>
+  </div>
+  <div class="filters">
+    <span>Geography: <select id="geoFilter"><option>All</option><option>US</option></select></span>
+    <span>Type: <select id="typeFilter"><option value="all">All</option><option value="competitor">Direct competitors</option><option value="reference">External references</option><option value="bestinclass">Best-in-class patterns</option></select></span>
+  </div>
+</div>
+
+<div class="tabbar" id="tabbar" role="tablist" aria-label="Payment flow references">
+  <button class="tab active" data-tab="hd" data-type="competitor" role="tab" aria-selected="true" aria-controls="tab-hd" id="tabbtn-hd" style="--c:#F96302"><span class="dot" style="background:#F96302"></span>Home Depot Pro</button>
+  <button class="tab" data-tab="beacon" data-type="competitor" role="tab" aria-selected="false" aria-controls="tab-beacon" id="tabbtn-beacon" style="--c:#1B3A6B"><span class="dot" style="background:#1B3A6B"></span>Beacon PRO+</button>
+  <button class="tab" data-tab="abc" data-type="competitor" role="tab" aria-selected="false" aria-controls="tab-abc" id="tabbtn-abc" style="--c:#0d6e6e"><span class="dot" style="background:#0d6e6e"></span>ABC Supply</button>
+  <div class="sep"></div>
+  <button class="tab" data-tab="amazon" data-type="reference" role="tab" aria-selected="false" aria-controls="tab-amazon" id="tabbtn-amazon">🔍 Amazon</button>
+  <button class="tab" data-tab="walmart" data-type="reference" role="tab" aria-selected="false" aria-controls="tab-walmart" id="tabbtn-walmart">🔍 Walmart</button>
+  <div class="sep"></div>
+  <button class="tab" data-tab="shoppay" data-type="bestinclass" role="tab" aria-selected="false" aria-controls="tab-shoppay" id="tabbtn-shoppay">⚡ Shop Pay</button>
+  <button class="tab" data-tab="applepay" data-type="bestinclass" role="tab" aria-selected="false" aria-controls="tab-applepay" id="tabbtn-applepay">⚡ Apple Pay</button>
+  <button class="tab" data-tab="stripelink" data-type="bestinclass" role="tab" aria-selected="false" aria-controls="tab-stripelink" id="tabbtn-stripelink">⚡ Stripe Link</button>
+  <div class="sep"></div>
+  <button class="tab suggested" data-tab="suggested" data-type="utility" role="tab" aria-selected="false" aria-controls="tab-suggested" id="tabbtn-suggested">✦ Suggested Flow</button>
+  <button class="tab" data-tab="summary" data-type="utility" role="tab" aria-selected="false" aria-controls="tab-summary" id="tabbtn-summary">📊 Summary</button>
+  <button class="tab" data-tab="comparison" data-type="utility" role="tab" aria-selected="false" aria-controls="tab-comparison" id="tabbtn-comparison">⇄ Comparison</button>
+  <button class="tab" data-tab="modules" data-type="utility" role="tab" aria-selected="false" aria-controls="tab-modules" id="tabbtn-modules">📦 Modules</button>
+</div>
+<div class="tab-bar-end"></div>
+
+<div id="tabroot"></div>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+
+// ---------- SVG node renderer ----------
+function wrapText(text, maxChars){
+  const words = text.split(" ");
+  const lines = [];
+  let cur = "";
+  words.forEach(w=>{
+    if((cur+" "+w).trim().length > maxChars){ lines.push(cur.trim()); cur = w; }
+    else { cur = (cur+" "+w).trim(); }
+  });
+  if(cur) lines.push(cur);
+  return lines;
+}
+
+function svgText(x, y, text, attrs){
+  let a = Object.entries(attrs||{}).map(([k,v])=>`${k}="${v}"`).join(" ");
+  return `<text x="${x}" y="${y}" ${a}>${text}</text>`;
+}
+
+// node.type: start | end | screen | gap | error | decision
+function renderNode(node, width){
+  const w = width, cx = w/2;
+  let h = 0, svg = "";
+  if(node.type === "start" || node.type === "end"){
+    const subLines = node.subtitle ? wrapText(node.subtitle, 30) : [];
+    h = 52 + (subLines.length>1 ? (subLines.length-1)*13 : 0);
+    const fill = node.type === "start" ? "#1b3a6b" : "#16a34a";
+    svg += `<rect x="${(w-220)/2}" y="0" width="220" height="${h}" rx="${h/2}" fill="${fill}" stroke="none"/>`;
+    svg += svgText(cx, 22, node.title, {"text-anchor":"middle","font-family":"Montserrat,Arial,sans-serif","font-size":"13","font-weight":"700",fill:"#ffffff"});
+    subLines.forEach((ln,i)=> svg += svgText(cx, 37+i*13, ln, {"text-anchor":"middle","font-family":"Montserrat,Arial,sans-serif","font-size":"10.5",fill:"rgba(255,255,255,0.75)"}));
+  } else if(node.type === "gap"){
+    const titleLines = wrapText("⚠ " + node.title, 34);
+    const descLines = wrapText(node.desc||"", 42);
+    let ty = 22 + (titleLines.length-1)*14;
+    h = ty + descLines.length*12 + 12;
+    svg += `<rect x="0" y="0" width="${w}" height="${h}" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+    titleLines.forEach((ln,i)=> svg += svgText(10, 22+i*14, ln, {"font-family":"Montserrat,Arial,sans-serif","font-size":"12","font-weight":"700",fill:"#d97706"}));
+    descLines.forEach((ln,i)=> svg += svgText(10, ty+16+i*12, ln, {"font-family":"Montserrat,Arial,sans-serif","font-size":"10",fill:"#6b7280"}));
+  } else if(node.type === "error"){
+    const titleLines = wrapText("× " + node.title, 34);
+    const descLines = wrapText(node.desc||"", 42);
+    let ty = 22 + (titleLines.length-1)*14;
+    h = ty + descLines.length*12 + 12;
+    svg += `<rect x="0" y="0" width="${w}" height="${h}" rx="6" fill="#fef9f9" stroke="#ef4444" stroke-width="1.5"/>`;
+    titleLines.forEach((ln,i)=> svg += svgText(10, 22+i*14, ln, {"font-family":"Montserrat,Arial,sans-serif","font-size":"12","font-weight":"700",fill:"#dc2626"}));
+    descLines.forEach((ln,i)=> svg += svgText(10, ty+16+i*12, ln, {"font-family":"Montserrat,Arial,sans-serif","font-size":"10",fill:"#6b7280"}));
+  } else if(node.type === "decision"){
+    h = 70;
+    svg += `<rect x="${cx-22}" y="13" width="44" height="44" fill="#1a1a2e" stroke="none" transform="rotate(45 ${cx} 35)"/>`;
+    const dLines = wrapText(node.title, 11);
+    const startY = 35 - (dLines.length-1)*5.5;
+    dLines.forEach((ln,i)=> svg += svgText(cx, startY+i*11, ln, {"text-anchor":"middle","font-family":"Montserrat,Arial,sans-serif","font-size":"8.5","font-weight":"700",fill:"#ffffff"}));
+  } else {
+    // screen node
+    let y = 14;
+    svg += "";
+    const titleLines = wrapText(node.title, 34);
+    const subtitleLines = node.subtitle ? wrapText(node.subtitle, 38) : [];
+    titleLines.forEach(()=>{ y+=17; });
+    subtitleLines.forEach(()=>{ y+=13; });
+    y += 6;
+    const items = node.items||[];
+    const itemBoxes = [];
+    items.forEach(it=>{
+      const unavailable = it.startsWith("□");
+      const lines = wrapText(it.replace(/^□\s*/,""), 36);
+      const boxH = 16 + (lines.length-1)*12;
+      itemBoxes.push({lines, boxH, unavailable, y});
+      y += boxH + 5;
+    });
+    if(node.cta){ y += 4; }
+    const sourceLines = node.source ? wrapText(node.source, 44) : [];
+    if(node.source){ y += 6; }
+    const totalH = y + (node.source ? (sourceLines.length*11 + 6) : 6);
+    h = totalH;
+    svg += `<rect x="0" y="0" width="${w}" height="${h}" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>`;
+    let ty = 14;
+    titleLines.forEach(ln=>{ svg += svgText(cx, ty+11, ln, {"text-anchor":"middle","font-family":"Montserrat,Arial,sans-serif","font-size":"14","font-weight":"700",fill:"#111827"}); ty+=17; });
+    subtitleLines.forEach(ln=>{ svg += svgText(cx, ty+9, ln, {"text-anchor":"middle","font-family":"Montserrat,Arial,sans-serif","font-size":"11","font-style":"italic",fill:"#0d6e6e"}); ty+=13; });
+    ty += 6;
+    itemBoxes.forEach(box=>{
+      svg += `<rect x="10" y="${ty}" width="${w-20}" height="${box.boxH}" rx="5" fill="${box.unavailable?'#f9fafb':'#f9fafb'}" stroke="#e5e7eb" stroke-width="1"/>`;
+      box.lines.forEach((ln,i)=>{
+        svg += svgText(18, ty+13+i*12, (box.unavailable?"□ ":"")+ln, {"font-family":"Montserrat,Arial,sans-serif","font-size":"11",fill:box.unavailable?"#9ca3af":"#374151"});
+      });
+      ty += box.boxH + 5;
+    });
+    if(node.cta){
+      svg += `<rect x="${cx-45}" y="${ty}" width="90" height="22" rx="4" fill="#0d6e6e"/>`;
+      svg += svgText(cx, ty+15, node.cta, {"text-anchor":"middle","font-family":"Montserrat,Arial,sans-serif","font-size":"10","font-weight":"700",fill:"#ffffff"});
+      ty += 30;
+    }
+    if(node.source){
+      sourceLines.forEach((ln,i)=>{
+        svg += svgText(cx, ty+8+i*11, ln, {"text-anchor":"middle","font-family":"Montserrat,Arial,sans-serif","font-size":"9.5","font-style":"italic",fill:"#9ca3af"});
+      });
+    }
+  }
+  return {svg, h: h, w};
+}
+
+function renderFlow(nodes, width){
+  width = width || 260;
+  let y = 10;
+  let body = "";
+  nodes.forEach((node, idx)=>{
+    const {svg, h} = renderNode(node, width);
+    body += `<g transform="translate(0,${y})">${svg}</g>`;
+    if(idx < nodes.length-1){
+      const arrowTop = y+h;
+      const label = node.transitionLabel;
+      let ly = arrowTop + 10;
+      if(label){
+        body += svgText(width/2, ly, label, {"text-anchor":"middle","font-family":"Montserrat,Arial,sans-serif","font-size":"10.5","font-style":"italic",fill:"#9ca3af"});
+      }
+      // arrow line + arrowhead
+      const lineTop = arrowTop + 14;
+      const lineBottom = arrowTop + 40;
+      body += `<line x1="${width/2}" y1="${lineTop}" x2="${width/2}" y2="${lineBottom}" stroke="#9ca3af" stroke-width="1"/>`;
+      body += `<polygon points="${width/2-4},${lineBottom-6} ${width/2+4},${lineBottom-6} ${width/2},${lineBottom}" fill="#9ca3af"/>`;
+      y = lineBottom + 6;
+    } else {
+      y = y + h + 10;
+    }
+  });
+  return `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="${NS}" width="${width}" height="${y}" viewBox="0 0 ${width} ${y}">${body}</svg>`;
+}
+
+function mountFlow(containerId, nodes, width){
+  const el = document.getElementById(containerId);
+  el.innerHTML = renderFlow(nodes, width);
+}
+
+function copySVGById(id, btn){
+  const container = document.getElementById(id);
+  const svgEl = container.querySelector("svg");
+  const svgStr = '<?xml version="1.0" encoding="UTF-8"?>' + svgEl.outerHTML;
+  const doCopy = (text)=>{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(()=>flash(btn));
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); }catch(e){}
+      document.body.removeChild(ta);
+      flash(btn);
+    }
+  };
+  function flash(b){
+    const orig = b.textContent;
+    b.textContent = "✓ Copied!"; b.classList.add("copied");
+    setTimeout(()=>{ b.textContent = orig; b.classList.remove("copied"); }, 2000);
+  }
+  doCopy(svgStr);
+}
+
+function legendBar(){
+  return `<div class="legend-bar">
+    <span><span class="lg-screen"></span> Screen</span>
+    <span><span class="lg-decision"></span> Decision</span>
+    <span><span class="lg-gap"></span> Gap (no screen exists)</span>
+    <span><span class="lg-error"></span> Error / dead end</span>
+    <span><span class="lg-start"></span> Start</span>
+    <span><span class="lg-end"></span> End / resolution</span>
+  </div>`;
+}
+</script>
+
+<!-- ============ TAB: Home Depot ============ -->
+<div class="content active" id="tab-hd" role="tabpanel" aria-labelledby="tabbtn-hd">
+  <div class="page-header">
+    <h2>Home Depot Pro — Credit Card Checkout Flow</h2>
+    <div class="sub">The Home Depot, Inc. · Publicly documented online checkout with stored card + PayPal support · 2024–2026 sources</div>
+  </div>
+  <div id="legend-hd"></div>
+  <div class="flow-wrap">
+    <div class="flow-col">
+      <div class="channel-title" style="color:#171717">🖥 WEB CHECKOUT</div>
+      <button class="copy-btn" onclick="copySVGById('svg-hd', this)">📋 Copy SVG</button>
+      <div id="svg-hd" class="flow-col-inner"></div>
+    </div>
+  </div>
+  <div class="ux-observations">
+    <div class="ux-col strengths">
+      <div class="label">Strengths</div>
+      <ul>
+        <li>✓ Accepts Visa, Mastercard, Amex, Discover, PayPal, and store-branded card at online checkout.</li>
+        <li>✓ Supports saved cards for faster repeat checkout.</li>
+        <li>✓ Store-branded commercial card offers a 2% early-pay discount within 20 days, or a 60-day payment window.</li>
+      </ul>
+    </div>
+    <div class="ux-col gaps">
+      <div class="label">Gaps Found</div>
+      <ul>
+        <li>⚠ [Gap] Exact card-entry field layout (order, masking, validation behavior) is not documented in any public source found this session.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ratings">
+    <div class="label">Ratings</div>
+    <div class="rating-row"><div class="dim">Ease</div><div class="rating-bar"><div style="width:60%"></div></div><div class="rating-score">3/5</div></div>
+    <div class="rating-row"><div class="dim">Speed</div><div class="rating-bar"><div style="width:80%"></div></div><div class="rating-score">4/5</div></div>
+    <div class="rating-row"><div class="dim">Trust</div><div class="rating-bar"><div style="width:80%"></div></div><div class="rating-score">4/5</div></div>
+  </div>
+  <div class="evidence-panel">
+    <h3>Evidence panel</h3>
+    <table class="evidence">
+      <tr><th>Screen</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Cart / Order Review</td><td>9meters</td><td><a href="https://9meters.com/technology/payments/payment-methods-at-home-depot" target="_blank" rel="noopener">Payment Options at Home Depot</a></td><td>Aug 2024</td></tr>
+      <tr><td>Payment Method Select</td><td>Home Depot</td><td><a href="https://www.homedepot.com/myaccount/payments" target="_blank" rel="noopener">Cards & Accounts</a></td><td>2026</td></tr>
+      <tr><td>Card entry / validation</td><td colspan="3">[Gap] — not documented after 2 searches on this session's date</td></tr>
+      <tr><td>Commercial card incentive</td><td>Home Depot Corporate</td><td><a href="https://corporate.homedepot.com/newsroom/the-pro-xtra-credit-card-announcement" target="_blank" rel="noopener">Pro Xtra Credit Card Announcement</a></td><td>2026</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: 9meters.com (Aug 2024) · homedepot.com/myaccount/payments (2026) · corporate.homedepot.com newsroom (2026)</div>
+</div>
+
+<!-- ============ TAB: Beacon ============ -->
+<div class="content" id="tab-beacon" role="tabpanel" aria-labelledby="tabbtn-beacon">
+  <div class="page-header">
+    <h2>Beacon PRO+ — Credit Card Checkout Flow</h2>
+    <div class="sub">Beacon Building Products · Proprietary account portal · 2026 sources</div>
+  </div>
+  <div class="gap-disclosure">⚠ Beacon PRO+ is login-gated. Its order-checkout and payment screens are not publicly accessible or documented. The flow below is reconstructed only from public marketing pages — every step is a Gap node.</div>
+  <div id="legend-beacon"></div>
+  <div class="flow-wrap">
+    <div class="flow-col">
+      <div class="channel-title" style="color:#1B3A6B">🖥 BEACON PRO+ (LOGIN-GATED)</div>
+      <button class="copy-btn" onclick="copySVGById('svg-beacon', this)">📋 Copy SVG</button>
+      <div id="svg-beacon" class="flow-col-inner"></div>
+    </div>
+  </div>
+  <div class="ux-observations">
+    <div class="ux-col strengths">
+      <div class="label">Existing Assets</div>
+      <ul>
+        <li>✓ Offers online bill payment via Billtrust and 24/7 online ordering, per public marketing pages.</li>
+      </ul>
+    </div>
+    <div class="ux-col gaps">
+      <div class="label">Gaps Found</div>
+      <ul>
+        <li>⚠ [Gap] No public source documents the credit-card entry screen, validation, or error states for a live order checkout.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ratings">
+    <div class="label">Ratings</div>
+    <div class="rating-row"><div class="dim">Ease</div><div class="rating-bar"><div style="width:0%"></div></div><div class="rating-score">—</div></div>
+    <div class="rating-row"><div class="dim">Speed</div><div class="rating-bar"><div style="width:0%"></div></div><div class="rating-score">—</div></div>
+    <div class="rating-row"><div class="dim">Trust</div><div class="rating-bar"><div style="width:0%"></div></div><div class="rating-score">—</div></div>
+  </div>
+  <div class="evidence-panel">
+    <h3>Evidence panel</h3>
+    <table class="evidence">
+      <tr><th>Screen</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Order checkout / payment</td><td colspan="3">[Gap] — Source: not found after 3 searches on this session's date · portal is login-gated</td></tr>
+      <tr><td>Bill pay (separate from order checkout)</td><td>Beacon Building Products</td><td><a href="https://www.srsdistribution.com" target="_blank" rel="noopener">Beacon Online Bill Payments</a></td><td>2026</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: go.becn.com public marketing pages (2026) · disclosure: portal is login-gated, no screen-level documentation available.</div>
+</div>
+
+<!-- ============ TAB: ABC Supply ============ -->
+<div class="content" id="tab-abc" role="tabpanel" aria-labelledby="tabbtn-abc">
+  <div class="page-header">
+    <h2>ABC Supply (myABCsupply) — Credit Card Checkout Flow</h2>
+    <div class="sub">ABC Supply Co., Inc. · Proprietary account portal · 2026 sources</div>
+  </div>
+  <div class="gap-disclosure">⚠ myABCsupply is login-gated. Its order-checkout and payment screens are not publicly accessible or documented. The flow below is reconstructed only from public marketing pages — every step is a Gap node.</div>
+  <div id="legend-abc"></div>
+  <div class="flow-wrap">
+    <div class="flow-col">
+      <div class="channel-title" style="color:#0d6e6e">🖥 MYABCSUPPLY (LOGIN-GATED)</div>
+      <button class="copy-btn" onclick="copySVGById('svg-abc', this)">📋 Copy SVG</button>
+      <div id="svg-abc" class="flow-col-inner"></div>
+    </div>
+  </div>
+  <div class="ux-observations">
+    <div class="ux-col strengths">
+      <div class="label">Existing Assets</div>
+      <ul>
+        <li>✓ Supports 24/7 online ordering, delivery tracking, and online invoice payment per public marketing pages.</li>
+        <li>✓ Offers Net-terms credit and COD account applications as alternatives to card payment.</li>
+      </ul>
+    </div>
+    <div class="ux-col gaps">
+      <div class="label">Gaps Found</div>
+      <ul>
+        <li>⚠ [Gap] No public source documents the credit-card entry screen or checkout validation for a live order.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ratings">
+    <div class="label">Ratings</div>
+    <div class="rating-row"><div class="dim">Ease</div><div class="rating-bar"><div style="width:0%"></div></div><div class="rating-score">—</div></div>
+    <div class="rating-row"><div class="dim">Speed</div><div class="rating-bar"><div style="width:0%"></div></div><div class="rating-score">—</div></div>
+    <div class="rating-row"><div class="dim">Trust</div><div class="rating-bar"><div style="width:0%"></div></div><div class="rating-score">—</div></div>
+  </div>
+  <div class="evidence-panel">
+    <h3>Evidence panel</h3>
+    <table class="evidence">
+      <tr><th>Screen</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Order checkout / payment</td><td colspan="3">[Gap] — Source: not found after 3 searches on this session's date · portal is login-gated</td></tr>
+      <tr><td>myABCsupply overview</td><td>ABC Supply</td><td><a href="https://www.abcsupply.com/contractor-center/myabcsupply/" target="_blank" rel="noopener">myABCsupply</a></td><td>2021 (page still live 2026)</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: abcsupply.com contractor-center pages · disclosure: portal is login-gated, no screen-level documentation available.</div>
+</div>
+
+<!-- ============ TAB: Amazon (external) ============ -->
+<div class="content" id="tab-amazon" role="tabpanel" aria-labelledby="tabbtn-amazon">
+  <div class="page-header">
+    <h2>Amazon — Credit Card Checkout Flow</h2>
+    <div class="sub">Amazon.com, Inc. · Amazon Payment Services + Amazon Business · 2026 sources</div>
+  </div>
+  <div class="ext-badge">🔍 External reference — not a direct competitor</div>
+  <div class="pattern-callout">Pattern to borrow: tokenized saved cards with CVV-only re-entry on repeat checkout — reduces friction while keeping full PAN out of Roof Hub's systems (PCI scope reduction).</div>
+  <div id="legend-amazon"></div>
+  <div class="flow-wrap">
+    <div class="flow-col">
+      <div class="channel-title" style="color:#0d6e6e">🖥 AMAZON CHECKOUT</div>
+      <button class="copy-btn" onclick="copySVGById('svg-amazon', this)">📋 Copy SVG</button>
+      <div id="svg-amazon" class="flow-col-inner"></div>
+    </div>
+  </div>
+  <div class="ux-observations">
+    <div class="ux-col strengths">
+      <div class="label">Strengths</div>
+      <ul>
+        <li>✓ "Remember Me" checkbox generates a permanent secure token — no full PAN stored by the merchant.</li>
+        <li>✓ Saved cards need only CVV re-entry on future purchases.</li>
+        <li>✓ Amazon Business layers Pay-by-Invoice and a Business Credit Account with extended due dates alongside card payment.</li>
+      </ul>
+    </div>
+    <div class="ux-col gaps">
+      <div class="label">Gaps Found</div>
+      <ul>
+        <li>⚠ [Gap] Exact visual layout of the card-entry form fields is not documented in the developer/help sources found.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ratings">
+    <div class="label">Ratings — external context, not a direct competitor</div>
+    <div class="rating-row"><div class="dim">Ease</div><div class="rating-bar"><div style="width:100%"></div></div><div class="rating-score">5/5</div></div>
+    <div class="rating-row"><div class="dim">Speed</div><div class="rating-bar"><div style="width:100%"></div></div><div class="rating-score">5/5</div></div>
+    <div class="rating-row"><div class="dim">Trust</div><div class="rating-bar"><div style="width:100%"></div></div><div class="rating-score">5/5</div></div>
+  </div>
+  <div class="evidence-panel">
+    <h3>Evidence panel</h3>
+    <table class="evidence">
+      <tr><th>Screen</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Save Card / Remember Me</td><td>Amazon Payment Services</td><td><a href="https://paymentservices.amazon.com/docs/Services/Save-card" target="_blank" rel="noopener">Save Card docs</a></td><td>2026</td></tr>
+      <tr><td>Amazon Business payment options</td><td>Amazon</td><td><a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=201633360" target="_blank" rel="noopener">Amazon Business Payment Methods</a></td><td>2026</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: paymentservices.amazon.com (2026) · amazon.com Business help (2026)</div>
+</div>
+
+<!-- ============ TAB: Walmart (external) ============ -->
+<div class="content" id="tab-walmart" role="tabpanel" aria-labelledby="tabbtn-walmart">
+  <div class="page-header">
+    <h2>Walmart — Credit Card Checkout Flow</h2>
+    <div class="sub">Walmart Inc. · Walmart.com + Walmart Business · 2026 sources</div>
+  </div>
+  <div class="ext-badge">🔍 External reference — not a direct competitor</div>
+  <div class="pattern-callout">Pattern to borrow: camera-scan card capture on mobile, plus organization-level shared payment methods with per-user CVV waiver — relevant for Roof Hub's multi-user branch accounts.</div>
+  <div id="legend-walmart"></div>
+  <div class="flow-wrap">
+    <div class="flow-col">
+      <div class="channel-title" style="color:#1b3a6b">📱 WALMART APP — ADD PAYMENT METHOD</div>
+      <button class="copy-btn" onclick="copySVGById('svg-walmart', this)">📋 Copy SVG</button>
+      <div id="svg-walmart" class="flow-col-inner"></div>
+    </div>
+  </div>
+  <div class="ux-observations">
+    <div class="ux-col strengths">
+      <div class="label">Strengths</div>
+      <ul>
+        <li>✓ Camera-scan card capture reduces manual entry errors, alongside manual entry fallback.</li>
+        <li>✓ Supports up to 20 saved payment methods; Walmart Business supports shared org cards with a per-user CVV waiver.</li>
+      </ul>
+    </div>
+    <div class="ux-col gaps">
+      <div class="label">Gaps Found</div>
+      <ul>
+        <li>⚠ A documented failure mode: name/billing-address mismatches vs. the card issuer's records cause "add card" failures — even small differences like a missing suffix.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ratings">
+    <div class="label">Ratings — external context, not a direct competitor</div>
+    <div class="rating-row"><div class="dim">Ease</div><div class="rating-bar"><div style="width:80%"></div></div><div class="rating-score">4/5</div></div>
+    <div class="rating-row"><div class="dim">Speed</div><div class="rating-bar"><div style="width:80%"></div></div><div class="rating-score">4/5</div></div>
+    <div class="rating-row"><div class="dim">Trust</div><div class="rating-bar"><div style="width:80%"></div></div><div class="rating-score">4/5</div></div>
+  </div>
+  <div class="evidence-panel">
+    <h3>Evidence panel</h3>
+    <table class="evidence">
+      <tr><th>Screen</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Add payment method (scan/manual)</td><td>Walmart</td><td><a href="https://www.walmart.com/help/article/payment-methods/af059a7587894f2f831a6159cd92d933" target="_blank" rel="noopener">Walmart.com Payment Methods</a></td><td>2026</td></tr>
+      <tr><td>Business shared payment method</td><td>Walmart Business</td><td><a href="https://business.walmart.com/help/article/payment-methods/73db2992822e425ca53ea5f3a53bd95d" target="_blank" rel="noopener">Walmart Business Payment Methods</a></td><td>2026</td></tr>
+      <tr><td>Add-card failure / name mismatch</td><td>Walmart</td><td><a href="https://www.walmart.com/help/article/issues-adding-or-saving-payment-methods/c83d2700c0c34b669bf6969d33c2622d" target="_blank" rel="noopener">Issues Adding Payment Methods</a></td><td>2026</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: walmart.com help (2026) · business.walmart.com help (2026)</div>
+</div>
+
+<!-- ============ TAB: Shop Pay (best-in-class, non-competitor) ============ -->
+<div class="content" id="tab-shoppay" role="tabpanel" aria-labelledby="tabbtn-shoppay">
+  <div class="page-header">
+    <h2>⚡ Shop Pay (Shopify) — Accelerated Checkout Flow</h2>
+    <div class="sub">Shopify Inc. · Best-in-class pattern · not a direct competitor · 2026 sources</div>
+  </div>
+  <div class="ext-badge" style="background:#fbeaea;color:#762123;">⚡ Best-in-class pattern — chosen for checkout speed, not because it competes with Roof Hub</div>
+  <div class="pattern-callout">Pattern to borrow: express payment buttons shown before any manual form, with returning users identified by email/device and dropped straight into a pre-filled review screen.</div>
+  <div id="legend-shoppay"></div>
+  <div class="flow-wrap">
+    <div class="flow-col">
+      <div class="channel-title" style="color:#5A31F4">🖥 / 📱 SHOP PAY — WEB &amp; MOBILE</div>
+      <button class="copy-btn" onclick="copySVGById('svg-shoppay', this)">📋 Copy SVG</button>
+      <div id="svg-shoppay" class="flow-col-inner"></div>
+    </div>
+  </div>
+  <div class="ux-observations">
+    <div class="ux-col strengths">
+      <div class="label">Strengths</div>
+      <ul>
+        <li>✓ 200M+ registered users share one login across every Shop Pay-enabled store — no per-merchant account needed.</li>
+        <li>✓ Documented to convert 1.72x higher than standard checkout, and up to 1.91x on mobile.</li>
+        <li>✓ Returning users skip manual entry entirely — shipping + payment are pre-filled from the network profile.</li>
+      </ul>
+    </div>
+    <div class="ux-col gaps">
+      <div class="label">Constraints</div>
+      <ul>
+        <li>⚠ Requires a network/platform (Shopify) behind it — not a pattern Roof Hub can license directly, only emulate at the UX level (accelerated button + returning-user shortcut).</li>
+      </ul>
+    </div>
+  </div>
+  <div class="evidence-panel">
+    <h3>Evidence panel</h3>
+    <table class="evidence">
+      <tr><th>Screen</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Express checkout buttons</td><td>Shopify</td><td><a href="https://www.shopify.com/enterprise/blog/one-page-checkout" target="_blank" rel="noopener">One-Page Checkouts (2026)</a></td><td>2026</td></tr>
+      <tr><td>Returning-user autofill + conversion lift</td><td>Easy Apps / Shopify data</td><td><a href="https://easyappsecom.com/guides/shopify-one-click-checkout-guide" target="_blank" rel="noopener">Shopify One-Click Checkout Guide</a></td><td>Apr 2026</td></tr>
+      <tr><td>Registered user base / BFCM share</td><td>Swipesum</td><td><a href="https://www.swipesum.com/insights/what-is-shop-pay-a-quick-guide-to-this-fast-checkout-solution" target="_blank" rel="noopener">What Is Shop Pay? (2026)</a></td><td>Jun 2026</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: shopify.com (2026) · easyappsecom.com (2026) · swipesum.com (2026)</div>
+</div>
+
+<!-- ============ TAB: Apple Pay (best-in-class, non-competitor) ============ -->
+<div class="content" id="tab-applepay" role="tabpanel" aria-labelledby="tabbtn-applepay">
+  <div class="page-header">
+    <h2>⚡ Apple Pay — Biometric Checkout Flow</h2>
+    <div class="sub">Apple Inc. · Best-in-class pattern · not a direct competitor · 2024–2026 sources</div>
+  </div>
+  <div class="ext-badge" style="background:#fbeaea;color:#762123;">⚡ Best-in-class pattern — chosen for checkout speed, not because it competes with Roof Hub</div>
+  <div class="pattern-callout">Pattern to borrow: biometric confirmation replaces both the card form and the CVV field in one step — full card number is never seen by the merchant or typed by the user.</div>
+  <div id="legend-applepay"></div>
+  <div class="flow-wrap">
+    <div class="flow-col">
+      <div class="channel-title" style="color:#000000">📱 APPLE PAY — PAYMENT SHEET</div>
+      <button class="copy-btn" onclick="copySVGById('svg-applepay', this)">📋 Copy SVG</button>
+      <div id="svg-applepay" class="flow-col-inner"></div>
+    </div>
+  </div>
+  <div class="ux-observations">
+    <div class="ux-col strengths">
+      <div class="label">Strengths</div>
+      <ul>
+        <li>✓ Entire flow — button tap to authorization — typically completes in under 5 seconds.</li>
+        <li>✓ Merchant never receives the real card number: a dynamic cryptogram + device token + dynamic CVV are sent instead.</li>
+        <li>✓ Liability shift applies automatically — no additional issuer authentication step needed on top of biometrics.</li>
+      </ul>
+    </div>
+    <div class="ux-col gaps">
+      <div class="label">Documented Friction Points</div>
+      <ul>
+        <li>⚠ Face ID can fail in public settings (masks, glare, awkward angles), forcing a passcode fallback — a documented UX case-study finding, not a hypothetical.</li>
+        <li>⚠ Users often don't discover Apple Pay is supported until the final checkout step, since the button isn't shown earlier in the journey.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="evidence-panel">
+    <h3>Evidence panel</h3>
+    <table class="evidence">
+      <tr><th>Screen</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Payment sheet contents</td><td>Apple Developer</td><td><a href="https://developer.apple.com/apple-pay/Apple-Pay-Merchant-Integration-Guide.pdf" target="_blank" rel="noopener">Apple Pay Merchant Integration Guide</a></td><td>Mar 2026</td></tr>
+      <tr><td>Biometric auth + tokenized authorization</td><td>Marcel van Oost (payments analyst)</td><td><a href="https://payments1connectingthedots.substack.com/p/the-apple-pay-transaction-flow" target="_blank" rel="noopener">The Apple Pay Transaction Flow</a></td><td>May 2024</td></tr>
+      <tr><td>Documented friction points (Face ID failure, late discovery)</td><td>Medium UX case study</td><td><a href="https://medium.com/@seemaasnani/case-study-apple-pay-4643c0132043" target="_blank" rel="noopener">Apple Pay: Uncovering UX Gaps</a></td><td>Jul 2025</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: developer.apple.com (2026) · payments1connectingthedots.substack.com (2024) · medium.com UX case study (2025)</div>
+</div>
+
+<!-- ============ TAB: Stripe Link / Click to Pay (best-in-class, non-competitor) ============ -->
+<div class="content" id="tab-stripelink" role="tabpanel" aria-labelledby="tabbtn-stripelink">
+  <div class="page-header">
+    <h2>⚡ Stripe Link &amp; Click to Pay — Network Tokenization Flow</h2>
+    <div class="sub">Stripe · Visa/Mastercard EMVCo Click to Pay · Best-in-class pattern · not a direct competitor · 2026 sources</div>
+  </div>
+  <div class="ext-badge" style="background:#fbeaea;color:#762123;">⚡ Best-in-class pattern — chosen for checkout speed, not because it competes with Roof Hub</div>
+  <div class="pattern-callout">Pattern to borrow: the card network itself (not just the merchant) remembers the device — so a shopper who has never visited Roof Hub before can still skip manual entry if they've enabled Click to Pay anywhere.</div>
+  <div id="legend-stripelink"></div>
+  <div class="flow-wrap">
+    <div class="flow-col">
+      <div class="channel-title" style="color:#635BFF">🖥 / 📱 LINK &amp; CLICK TO PAY</div>
+      <button class="copy-btn" onclick="copySVGById('svg-stripelink', this)">📋 Copy SVG</button>
+      <div id="svg-stripelink" class="flow-col-inner"></div>
+    </div>
+  </div>
+  <div class="ux-observations">
+    <div class="ux-col strengths">
+      <div class="label">Strengths</div>
+      <ul>
+        <li>✓ Stripe reports Link checkout is 3x faster than non-Link checkout, and lifts returning-user conversion by ~14%.</li>
+        <li>✓ Click to Pay tokens auto-update if the physical card is reissued — no "update my expired card" dead-end.</li>
+        <li>✓ Mastercard is rolling out payment passkeys as a password-free alternative to one-time codes, aiming to phase out manual card entry online by 2030.</li>
+      </ul>
+    </div>
+    <div class="ux-col gaps">
+      <div class="label">Constraints</div>
+      <ul>
+        <li>⚠ First-time / unrecognized-device checkout still requires a one-time code step before autofill applies.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="evidence-panel">
+    <h3>Evidence panel</h3>
+    <table class="evidence">
+      <tr><th>Screen</th><th>Source</th><th>URL</th><th>Date</th></tr>
+      <tr><td>Autofill + one-time code verification</td><td>Stripe</td><td><a href="https://stripe.com/payments/link" target="_blank" rel="noopener">Link by Stripe</a></td><td>2026</td></tr>
+      <tr><td>Click to Pay "Remember Me" + recognized device</td><td>Visa Developer</td><td><a href="https://developer.visa.com/capabilities/visa-secure-remote-commerce/uctp-integration-overview" target="_blank" rel="noopener">Unified Click to Pay Integration Overview</a></td><td>2026</td></tr>
+      <tr><td>Payment passkeys / 2030 roadmap</td><td>Mastercard</td><td><a href="https://www.mastercard.com/us/en/news-and-trends/stories/2025/one-click-checkout.html" target="_blank" rel="noopener">One-click payments by 2030 with tokenization</a></td><td>Jun 2025</td></tr>
+    </table>
+  </div>
+  <div class="src-footer">All screens sourced from: stripe.com (2026) · developer.visa.com (2026) · mastercard.com (2025)</div>
+</div>
+
+<!-- ============ TAB: Suggested Flow ============ -->
+<div class="content" id="tab-suggested" role="tabpanel" aria-labelledby="tabbtn-suggested">
+  <div class="page-header">
+    <h2>✦ Suggested Ideal Flow — Credit Card Payment</h2>
+    <div class="sub">Synthesized from competitor &amp; reference research (S3) · compared against Roof Hub's current design/prototype</div>
+  </div>
+  <div id="legend-suggested"></div>
+  <div style="display:flex; gap:0; align-items:flex-start;">
+    <div style="width:300px; flex-shrink:0;">
+      <div class="channel-title" style="color:#762123">✦ SUGGESTED IDEAL FLOW</div>
+      <button class="copy-btn" onclick="copySVGById('svg-suggested', this)">📋 Copy SVG</button>
+      <div id="svg-suggested" class="flow-col-inner"></div>
+    </div>
+    <div style="width:1px; background:#e5e7eb; align-self:stretch; margin:0 24px;"></div>
+    <div style="width:300px; flex-shrink:0;">
+      <div class="channel-title" style="color:#171717">CURRENT FLOW — ROOF HUB</div>
+      <button class="copy-btn" onclick="copySVGById('svg-current', this)">📋 Copy SVG</button>
+      <div id="svg-current" class="flow-col-inner"></div>
+    </div>
+  </div>
+
+  <div class="evidence-panel" style="margin-top:30px;">
+    <h3>Why this flow</h3>
+    <ul style="font-size:12px;line-height:1.7;color:#374151;margin:0;padding-left:18px;">
+      <li>Express/accelerated options (saved card, Apple Pay/Google Pay) are surfaced <em>before</em> any manual form — the single highest-leverage change benchmarked. <em>(Based on: Shop Pay 1.72x conversion lift, Stripe Link 3x faster checkout — S3/S6)</em> — <span style="color:#16a34a;font-weight:700;">[New]</span></li>
+      <li>Returning/express users confirm with a biometric scan or a single tap instead of re-entering anything. <em>(Based on: Apple Pay payment sheet, Shop Pay one-tap pay — S3/S6)</em> — <span style="color:#16a34a;font-weight:700;">[New]</span></li>
+      <li>New-card entry gets an optional camera-scan shortcut plus real-time Luhn validation and auto-formatted spacing — 53% of sites skip Luhn validation and 51% skip auto-format, both documented causes of failed payments. <em>(Based on: Walmart camera-scan, L.L. Bean case study, Baymard Institute — S5/S6)</em> — <span style="color:#16a34a;font-weight:700;">[New]</span></li>
+      <li>PAN is masked after entry (max first 6 + last 4 digits visible), satisfying PCI DSS 3.4.1. <em>(Based on: PCI Security Standards Council — S8)</em> — <span style="color:#16a34a;font-weight:700;">[New]</span></li>
+      <li>Save-card option issues a token with CVV-only re-entry on future orders, rather than storing/re-displaying the full card — the same principle behind Amazon's token and Stripe/Click to Pay's network token. <em>(Based on: Amazon Payment Services, Stripe Link, Visa/Mastercard Click to Pay — S3/S6)</em> — <span style="color:#16a34a;font-weight:700;">[Opportunity — no direct competitor documents this; best-in-class references are the closest evidence]</span></li>
+      <li>A visible processing/loading state sits between submission and confirmation. <em>(Based on: Stripe checkout UX guide — universal friction point, S5)</em> — <span style="color:#16a34a;font-weight:700;">[New]</span></li>
+      <li>Declined-payment screen names the likely reason and offers retry or an alternate payment method, instead of a generic error — the same pattern Amazon uses instead of a dead-end. <em>(Based on: Amazon payment-issue handling, Baymard Institute "Card Declined" recovery research, Checkout.com retry guide — S5/S6)</em> — <span style="color:#16a34a;font-weight:700;">[New]</span></li>
+    </ul>
+  </div>
+  <div class="src-footer">Current Flow column reflects Roof Hub mockups shared in this session (Order Review, Homeowner Insights). Suggested Flow nodes are traceable to S3/S5/S6/S8 findings — including Shop Pay, Apple Pay, and Stripe Link/Click to Pay as non-competitor best-in-class references — no independently invented screens.</div>
+</div>
+
+<!-- ============ TAB: Summary ============ -->
+<div class="content" id="tab-summary" role="tabpanel" aria-labelledby="tabbtn-summary">
+  <div class="page-header">
+    <h2>📊 Summary</h2>
+    <div class="sub">Documented digital credit-card checkout capability, side by side</div>
+  </div>
+  <table class="summary-table">
+    <tr><th>Player</th><th>Digital checkout documented?</th><th>Key documented capability</th></tr>
+    <tr><td>Home Depot Pro</td><td>Partial — payment methods documented, card-entry UI is a Gap</td><td>Store card with 2% early-pay discount incentive</td></tr>
+    <tr><td>Beacon PRO+</td><td>No — login-gated, full Gap</td><td>Online bill pay via Billtrust (documented, but separate from order checkout)</td></tr>
+    <tr><td>ABC Supply (myABCsupply)</td><td>No — login-gated, full Gap</td><td>Net-terms / COD account application as card alternative</td></tr>
+    <tr><td>🔍 Amazon (ext. ref.)</td><td>Yes — well documented</td><td>Tokenized saved card, CVV-only re-entry</td></tr>
+    <tr><td>🔍 Walmart (ext. ref.)</td><td>Yes — well documented</td><td>Camera-scan card capture + shared org payment methods</td></tr>
+    <tr><td>⚡ Shop Pay (best-in-class)</td><td>Yes — well documented</td><td>Network-wide 1-tap checkout, 1.72x conversion lift</td></tr>
+    <tr><td>⚡ Apple Pay (best-in-class)</td><td>Yes — well documented</td><td>Biometric + tokenized authorization, &lt;5 sec end to end</td></tr>
+    <tr><td>⚡ Stripe Link / Click to Pay (best-in-class)</td><td>Yes — well documented</td><td>Network-level token, auto-updates on card reissue, 3x faster</td></tr>
+  </table>
+  <div class="footer-note">Gap comparison: 2 of 3 direct competitors (Beacon, ABC Supply) rely on login-gated, undocumented flows for card payment — Home Depot is the only direct competitor with any public documentation. All external references and best-in-class patterns (Amazon, Walmart, Shop Pay, Apple Pay, Stripe Link/Click to Pay) are fully documented and converge on the same core pattern: surface an express/tokenized option before manual entry.</div>
+</div>
+
+<!-- ============ TAB: Comparison ============ -->
+<div class="content" id="tab-comparison" role="tabpanel" aria-labelledby="tabbtn-comparison">
+  <div class="page-header">
+    <h2>⇄ Comparison — All Flows Side by Side</h2>
+    <div class="sub">Same vertical scale, aligned by journey stage where documentation allows</div>
+  </div>
+  <div id="legend-comparison"></div>
+  <div class="comparison-outer">
+    <div class="comparison-row">
+      <div class="comparison-col">
+        <div class="comparison-col-header"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:#F96302;display:inline-block;"></span>Home Depot 🇺🇸
+          <button class="copy-btn" onclick="copySVGById('svg-cmp-hd', this)">📋</button>
+        </div>
+        <div id="svg-cmp-hd"></div>
+        <div class="col-source-footer">9meters.com · homedepot.com (2026)</div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-col-header"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:#1B3A6B;display:inline-block;"></span>Beacon PRO+ 🇺🇸
+          <button class="copy-btn" onclick="copySVGById('svg-cmp-beacon', this)">📋</button>
+        </div>
+        <div id="svg-cmp-beacon"></div>
+        <div class="col-source-footer">go.becn.com (2026) — login-gated</div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-col-header"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:#0d6e6e;display:inline-block;"></span>ABC Supply 🇺🇸
+          <button class="copy-btn" onclick="copySVGById('svg-cmp-abc', this)">📋</button>
+        </div>
+        <div id="svg-cmp-abc"></div>
+        <div class="col-source-footer">abcsupply.com (2026) — login-gated</div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-col-header">🔍 Amazon 🇺🇸
+          <button class="copy-btn" onclick="copySVGById('svg-cmp-amazon', this)">📋</button>
+        </div>
+        <div id="svg-cmp-amazon"></div>
+        <div class="col-source-footer">paymentservices.amazon.com (2026)</div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-col-header">🔍 Walmart 🇺🇸
+          <button class="copy-btn" onclick="copySVGById('svg-cmp-walmart', this)">📋</button>
+        </div>
+        <div id="svg-cmp-walmart"></div>
+        <div class="col-source-footer">walmart.com / business.walmart.com (2026)</div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-col-header">⚡ Shop Pay
+          <button class="copy-btn" onclick="copySVGById('svg-cmp-shoppay', this)">📋</button>
+        </div>
+        <div id="svg-cmp-shoppay"></div>
+        <div class="col-source-footer">shopify.com / swipesum.com (2026)</div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-col-header">⚡ Apple Pay
+          <button class="copy-btn" onclick="copySVGById('svg-cmp-applepay', this)">📋</button>
+        </div>
+        <div id="svg-cmp-applepay"></div>
+        <div class="col-source-footer">developer.apple.com (2026)</div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-col-header">⚡ Stripe Link
+          <button class="copy-btn" onclick="copySVGById('svg-cmp-stripelink', this)">📋</button>
+        </div>
+        <div id="svg-cmp-stripelink"></div>
+        <div class="col-source-footer">stripe.com / developer.visa.com (2026)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB: Modules ============ -->
+<div class="content" id="tab-modules" role="tabpanel" aria-labelledby="tabbtn-modules">
+  <div class="page-header">
+    <h2>📦 Affected &amp; Related Modules</h2>
+    <div class="sub">Based on research findings from this session</div>
+  </div>
+  <div class="review-checkpoint">⚠️ Human review required: module mapping reflects findings from secondary research only. Validate against actual Roof Hub product architecture before using for sprint planning or design briefs.</div>
+
+  <h3 style="color:#171717;font-size:14px;">Directly Affected Modules</h3>
+  <table class="modtable" id="affected-table">
+    <tr><th>Module</th><th>Why affected</th><th>Research source</th><th>Priority</th></tr>
+    <tr><td>Credit Card payment component</td><td>No masking, real-time validation, or processing state documented in current design</td><td>S5: 53% of sites skip Luhn validation · S8: PCI DSS 3.4.1 masking requirement</td><td><span class="badge high">High</span></td></tr>
+    <tr><td>Order Review checkout</td><td>Card entry layout differs slightly from Homeowner Insights flow — duplicated component</td><td>S7: opportunity — consolidate component</td><td><span class="badge high">High</span></td></tr>
+    <tr><td>Payment error / decline handling</td><td>No documented recovery path (retry, alternate method, specific reason) in current mockups</td><td>S5: Baymard "Card Declined" recovery research · S6: Checkout.com retry guide</td><td><span class="badge high">High</span></td></tr>
+    <tr><td>Homeowner Insights checkout</td><td>Same Credit Card component reused; needs the same fixes as Order Review</td><td>S7: opportunity — consolidate component</td><td><span class="badge med">Med</span></td></tr>
+  </table>
+
+  <h3 style="color:#171717;font-size:14px;">Adjacent / Related Modules</h3>
+  <table class="modtable related" id="related-table">
+    <tr><th>Related module</th><th>Relationship</th><th>What to watch for</th></tr>
+    <tr><td>Saved payment methods / Wallet</td><td>Would house tokenized cards if a save-card feature is added</td><td>Confirm tokenization approach and PCI scope with Engineering — S3 (Amazon), S6</td></tr>
+    <tr><td>Billing address management</td><td>Feeds card validation and address-match checks at add/checkout</td><td>Name/address mismatches vs. issuer records cause failed card adds — documented by Walmart, S3</td></tr>
+    <tr><td>Order confirmation / notifications</td><td>Needs to reflect new processing and decline states</td><td>Copy must match the new specific error states, not generic "payment failed" — S5</td></tr>
+  </table>
+  <div class="footer-note">↗ AI-assisted research · Capmation · 2026 — Sources: S1–S8 findings from this session</div>
+</div>
+
+<script>
+// ---------- Data: Node sets per tab ----------
+
+const hdNodes = [
+  {type:"start", title:"Cart / Order review", subtitle:"items, quantity, subtotal"},
+  {type:"gap", title:"Sign in or guest checkout", desc:"Standard ecommerce pattern — Home Depot's exact screen not documented"},
+  {type:"gap", title:"Shipping / delivery method", desc:"Standard ecommerce pattern — exact screen not documented", transitionLabel:"proceed"},
+  {type:"screen", title:"Payment method", items:["Credit card (Visa/MC/Amex/Discover)","PayPal","Home Depot store card"], transitionLabel:"select method", source:"9meters.com · Home Depot payment options · Aug 2024"},
+  {type:"decision", title:"Card saved?"},
+  {type:"gap", title:"Stored card select", desc:"List of saved cards — exact layout not documented", transitionLabel:"if yes"},
+  {type:"gap", title:"New card entry", desc:"Field order, masking, validation behavior not documented", transitionLabel:"if no"},
+  {type:"gap", title:"Order review / place order", desc:"Final confirmation screen before submit — not documented"},
+  {type:"end", title:"Order confirmed", subtitle:"store card: 2% discount within 20 days"}
+];
+
+const beaconNodes = [
+  {type:"start", title:"Login required", subtitle:"Beacon PRO+ account"},
+  {type:"gap", title:"Cart / order review", desc:"Login-gated — no public documentation", transitionLabel:"proceed"},
+  {type:"gap", title:"Shipping / delivery selection", desc:"Login-gated — no public documentation"},
+  {type:"gap", title:"Payment method select", desc:"Login-gated — no public documentation of payment options shown"},
+  {type:"gap", title:"Card entry / validation", desc:"Login-gated — no public documentation of payment screens"},
+  {type:"gap", title:"Order confirmation", desc:"Login-gated — no public documentation"}
+];
+
+const abcNodes = [
+  {type:"start", title:"Login required", subtitle:"myABCsupply account"},
+  {type:"gap", title:"Cart / order review", desc:"Login-gated — no public documentation", transitionLabel:"proceed"},
+  {type:"gap", title:"Shipping / delivery selection", desc:"Login-gated — no public documentation"},
+  {type:"gap", title:"Payment method select", desc:"Login-gated — no public documentation of payment options shown"},
+  {type:"gap", title:"Card entry / validation", desc:"Login-gated — no public documentation of payment screens"},
+  {type:"gap", title:"Order confirmation", desc:"Login-gated — no public documentation"}
+];
+
+const amazonNodes = [
+  {type:"start", title:"Checkout", subtitle:"order review"},
+  {type:"screen", title:"Payment method", items:["Saved cards (with card-brand icon)","New card entry","☐ Remember Me"], transitionLabel:"select / add card", source:"paymentservices.amazon.com · 2026"},
+  {type:"decision", title:"New card?"},
+  {type:"screen", title:"Card entry form", items:["Card number","Expiration date","CVV","Billing address"], transitionLabel:"if new card", source:"paymentservices.amazon.com · 2026"},
+  {type:"decision", title:"Save it?"},
+  {type:"screen", title:"Token generated", subtitle:"card stored as token, not full PAN", items:["Permanent secure token created","Full PAN discarded after authorization"], transitionLabel:"if yes", source:"Amazon Payment Services docs · 2026"},
+  {type:"screen", title:"Review order", items:["Shipping address","Order total","Payment method summary (masked)"], transitionLabel:"continue"},
+  {type:"screen", title:"Place order", items:["Tap/click 'Place your order'"]},
+  {type:"decision", title:"OK?"},
+  {type:"error", title:"Payment issue", desc:"Amazon prompts to select a different payment method rather than showing a dead-end error", transitionLabel:"if declined"},
+  {type:"end", title:"Order confirmed", subtitle:"future orders: CVV-only re-entry for saved card"}
+];
+
+const walmartNodes = [
+  {type:"start", title:"Wallet", subtitle:"add payment method"},
+  {type:"screen", title:"Add payment method", items:["📷 Scan card via camera","or manual entry"], transitionLabel:"choose entry method", source:"walmart.com help · 2026"},
+  {type:"decision", title:"Scan or manual?"},
+  {type:"screen", title:"Camera scan", items:["Align card in frame","Auto-capture number + expiry"], transitionLabel:"if scan", source:"walmart.com help · 2026"},
+  {type:"screen", title:"Enter details", items:["Card number","Expiration date","CVV (manual only — never OCR'd)","Billing address"], transitionLabel:"if manual, or after scan", source:"walmart.com help · 2026"},
+  {type:"screen", title:"Save & set default", items:["☐ Save this card","☐ Set as default (up to 20 methods)"], transitionLabel:"submit"},
+  {type:"error", title:"Add-card failure", desc:"Name/address mismatch vs. issuer record — documented cause", transitionLabel:"if mismatch"},
+  {type:"screen", title:"Business: shared method", items:["Org-level shared card","Per-user CVV waiver option"], transitionLabel:"Business accounts only", source:"business.walmart.com help · 2026"},
+  {type:"end", title:"Card saved"}
+];
+
+const shopPayNodes = [
+  {type:"start", title:"Checkout begins", subtitle:"cart page"},
+  {type:"screen", title:"Express checkout buttons", items:["Shop Pay","Apple Pay / Google Pay","or continue to full checkout"], transitionLabel:"shown before any form", source:"shopify.com one-page checkout · 2026"},
+  {type:"decision", title:"Recognized user?"},
+  {type:"screen", title:"Verify identity", items:["Enter email","6-digit SMS code (remembered after first use)"], transitionLabel:"if new / unverified device", source:"swipesum.com · 2026"},
+  {type:"screen", title:"Autofilled review screen", items:["Shipping address (prefilled)","Payment method (prefilled, masked)","Order summary"], transitionLabel:"if recognized", source:"easyappsecom.com · Apr 2026"},
+  {type:"screen", title:"One-tap pay", items:["Tap 'Pay now' — single action"], source:"bogos.io · 2026"},
+  {type:"end", title:"Order confirmed", subtitle:"1.72x conversion vs. standard checkout (up to 1.91x mobile)"}
+];
+
+const applePayNodes = [
+  {type:"start", title:"Apple Pay button tapped", subtitle:"cart or product page"},
+  {type:"screen", title:"Payment sheet opens", items:["Merchant name shown","Shipping address (from Wallet)","Default card pre-selected"], transitionLabel:"sheet slides up", source:"developer.apple.com Merchant Integration Guide · Mar 2026"},
+  {type:"decision", title:"Biometric OK?"},
+  {type:"screen", title:"Face ID confirm", items:["Double-click side button","Face scan"], transitionLabel:"if Face ID", source:"Apple Pay Transaction Flow · May 2024"},
+  {type:"error", title:"Biometric failure", desc:"Documented friction: masks, glare, or angle can block Face ID recognition", transitionLabel:"if scan fails"},
+  {type:"screen", title:"Passcode fallback", items:["Enter device passcode"], transitionLabel:"after biometric failure", source:"Apple Pay UX case study · Jul 2025"},
+  {type:"screen", title:"Tokenized authorization", items:["Dynamic cryptogram + device token generated","Dynamic CVV sent — never the real card number"], transitionLabel:"on success", source:"Apple Pay Transaction Flow · May 2024"},
+  {type:"end", title:"Payment complete", subtitle:"typically under 5 seconds end to end"}
+];
+
+const stripeLinkNodes = [
+  {type:"start", title:"Checkout", subtitle:"Link / Click to Pay-eligible site"},
+  {type:"screen", title:"Autofill prompt appears", items:["\"Pay with Link\" button, or","Click to Pay icon next to card fields"], transitionLabel:"detected by email/device", source:"stripe.com/payments/link · 2026"},
+  {type:"decision", title:"Device recognized?"},
+  {type:"screen", title:"One-time code", items:["Code sent to phone on file"], transitionLabel:"if new device", source:"stripe.com Link docs · 2026"},
+  {type:"screen", title:"Details autofilled", items:["Card — network token, auto-updates on reissue","Shipping address"], transitionLabel:"if recognized", source:"Visa Click to Pay · 2026 · Mastercard Click to Pay · 2026"},
+  {type:"screen", title:"Confirm & pay", items:["Single tap/click to complete"], source:"stripe.com one-click payments · 2026"},
+  {type:"end", title:"Order confirmed", subtitle:"~3x faster than non-Link checkout"}
+];
+
+const suggestedNodes = [
+  {type:"start", title:"Payment step", subtitle:"order review complete"},
+  {type:"screen", title:"Express options shown first", subtitle:"NEW: accelerated methods surfaced before any form", items:["Saved/tokenized card — 1 tap","Apple Pay / Google Pay button","or Enter a new card"], transitionLabel:"present options", source:"Based on: Shop Pay, Apple Pay, Stripe Link · S3/S6"},
+  {type:"decision", title:"Using express?"},
+  {type:"screen", title:"Biometric / 1-tap confirm", subtitle:"NEW", items:["Face ID or fingerprint on mobile","Single click on web"], transitionLabel:"if express", source:"Based on: Apple Pay, Shop Pay · S3/S6"},
+  {type:"screen", title:"New card entry", subtitle:"NEW: scan option + real-time validation", items:["📷 Scan card (optional)","Card number — Luhn-validated, auto-formatted","Expiration date","CVV","Name on card"], transitionLabel:"if new card", source:"Based on: Walmart camera-scan, L.L. Bean Luhn case, Baymard · S5/S6"},
+  {type:"screen", title:"Masked confirmation", subtitle:"NEW: PCI DSS 3.4.1", items:["•••• •••• •••• 4242"], transitionLabel:"validate", source:"Based on: PCI Security Standards Council · S8"},
+  {type:"screen", title:"Save for next time?", subtitle:"NEW/Opportunity: tokenized, not raw PAN", items:["☐ Save as payment method (tokenized)"], transitionLabel:"optional", source:"Based on: Amazon, Stripe Link tokenization · S3/S6"},
+  {type:"screen", title:"Processing", subtitle:"NEW: explicit loading state, target <2s", items:["Progress indicator"], transitionLabel:"submit payment", source:"Based on: Stripe checkout UX guide · S5/S6"},
+  {type:"decision", title:"OK?"},
+  {type:"error", title:"Declined — specific reason + retry", subtitle:"NEW: names the reason, offers retry or alt. method", desc:"e.g. \"Card declined by issuer — try another card or contact your bank\"", transitionLabel:"if declined"},
+  {type:"end", title:"Order confirmed"}
+];
+
+const currentNodes = [
+  {type:"start", title:"Payment Method", subtitle:"Roof Hub — current design"},
+  {type:"gap", title:"[Reconsider] No express option", desc:"Only Pay at Branch / Credit Line / Credit Card / Direct Pay radio list shown — no accelerated or saved-method shortcut surfaced first"},
+  {type:"screen", title:"Credit Card selected", items:["Card Number","Expiration Date","CVV (On Back)","Name on Card","☐ Save card to account","☐ Save as default"], transitionLabel:"expand inline"},
+  {type:"gap", title:"[Reconsider] No masking or format cue", desc:"Card number field has no visible masking, spacing, or brand-icon auto-detection"},
+  {type:"gap", title:"[Reconsider] No inline validation", desc:"No real-time Luhn check or field-level error feedback on card number, expiry, or CVV"},
+  {type:"screen", title:"Billing Address", items:["Existing address radio select","or + Add Address (new form)"], transitionLabel:"select / add"},
+  {type:"gap", title:"[Reconsider] No processing state", desc:"No loading/processing indicator visible between 'Place Order' and confirmation"},
+  {type:"gap", title:"[Reconsider] No decline handling", desc:"No documented error, retry, or alternate-method path if payment fails"}
+];
+
+// ---------- Mount all flows ----------
+mountFlow("svg-hd", hdNodes);
+mountFlow("svg-beacon", beaconNodes);
+mountFlow("svg-abc", abcNodes);
+mountFlow("svg-amazon", amazonNodes);
+mountFlow("svg-walmart", walmartNodes);
+mountFlow("svg-shoppay", shopPayNodes);
+mountFlow("svg-applepay", applePayNodes);
+mountFlow("svg-stripelink", stripeLinkNodes);
+mountFlow("svg-suggested", suggestedNodes);
+mountFlow("svg-current", currentNodes);
+
+mountFlow("svg-cmp-hd", hdNodes, 220);
+mountFlow("svg-cmp-beacon", beaconNodes, 220);
+mountFlow("svg-cmp-abc", abcNodes, 220);
+mountFlow("svg-cmp-amazon", amazonNodes, 220);
+mountFlow("svg-cmp-walmart", walmartNodes, 220);
+mountFlow("svg-cmp-shoppay", shopPayNodes, 220);
+mountFlow("svg-cmp-applepay", applePayNodes, 220);
+mountFlow("svg-cmp-stripelink", stripeLinkNodes, 220);
+
+["legend-hd","legend-beacon","legend-abc","legend-amazon","legend-walmart","legend-shoppay","legend-applepay","legend-stripelink","legend-suggested","legend-comparison"].forEach(id=>{
+  document.getElementById(id).outerHTML = legendBar();
+});
+
+// ---------- Tab switching (with ARIA state + keyboard nav) ----------
+function activateTab(btn){
+  document.querySelectorAll(".tab").forEach(b=>{ b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
+  document.querySelectorAll(".content").forEach(c=>c.classList.remove("active"));
+  btn.classList.add("active");
+  btn.setAttribute("aria-selected","true");
+  document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+}
+
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click", ()=> activateTab(btn));
+});
+
+document.getElementById("tabbar").addEventListener("keydown", (e)=>{
+  const visible = Array.from(document.querySelectorAll(".tab")).filter(b=>b.offsetParent !== null);
+  const idx = visible.indexOf(document.activeElement);
+  if(idx === -1) return;
+  if(e.key === "ArrowRight"){ e.preventDefault(); const n = visible[(idx+1)%visible.length]; n.focus(); activateTab(n); }
+  if(e.key === "ArrowLeft"){ e.preventDefault(); const n = visible[(idx-1+visible.length)%visible.length]; n.focus(); activateTab(n); }
+});
+
+// ---------- Type / Geography filters ----------
+function applyFilters(){
+  const type = document.getElementById("typeFilter").value;
+  const geo = document.getElementById("geoFilter").value;
+  let firstVisible = null;
+  document.querySelectorAll(".tab").forEach(btn=>{
+    const t = btn.dataset.type;
+    const isUtility = t === "utility";
+    const matchesType = type === "all" || t === type || isUtility;
+    // All researched flows in this session are US-based, so the Geography filter
+    // is future-proofed here but currently never hides a tab.
+    const matchesGeo = true;
+    const visible = matchesType && matchesGeo;
+    btn.style.display = visible ? "" : "none";
+    if(visible && !firstVisible) firstVisible = btn;
+  });
+  // If the active tab just got hidden, jump to the first visible one
+  const active = document.querySelector(".tab.active");
+  if(active && active.style.display === "none" && firstVisible){
+    activateTab(firstVisible);
+  }
+}
+document.getElementById("typeFilter").addEventListener("change", applyFilters);
+document.getElementById("geoFilter").addEventListener("change", applyFilters);
+
+// ---------- Zoom / pan controls for SVG flow columns ----------
+function addZoomControls(containerId){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const wrapper = document.createElement("div");
+  wrapper.className = "zoom-wrapper";
+  const toolbar = document.createElement("div");
+  toolbar.className = "zoom-toolbar";
+  toolbar.innerHTML = `
+    <button type="button" class="zoom-btn" data-action="out" title="Zoom out">−</button>
+    <span class="zoom-level">100%</span>
+    <button type="button" class="zoom-btn" data-action="in" title="Zoom in">+</button>
+    <button type="button" class="zoom-btn" data-action="reset" title="Reset zoom">⟲</button>
+  `;
+  const scrollArea = document.createElement("div");
+  scrollArea.className = "zoom-scroll";
+  // Move the existing SVG into the new scroll area
+  while(container.firstChild){ scrollArea.appendChild(container.firstChild); }
+  wrapper.appendChild(toolbar);
+  wrapper.appendChild(scrollArea);
+  container.appendChild(wrapper);
+
+  let scale = 1;
+  const svg = () => scrollArea.querySelector("svg");
+  function applyScale(){
+    const el = svg();
+    if(!el) return;
+    el.style.transformOrigin = "top left";
+    el.style.transform = `scale(${scale})`;
+    toolbar.querySelector(".zoom-level").textContent = Math.round(scale*100) + "%";
+  }
+  toolbar.addEventListener("click", (e)=>{
+    const action = e.target.dataset.action;
+    if(!action) return;
+    if(action === "in") scale = Math.min(scale + 0.15, 2.5);
+    if(action === "out") scale = Math.max(scale - 0.15, 0.4);
+    if(action === "reset") scale = 1;
+    applyScale();
+  });
+  applyScale();
+}
+
+// Apply zoom controls to every rendered flow container
+[
+  "svg-hd","svg-beacon","svg-abc","svg-amazon","svg-walmart",
+  "svg-shoppay","svg-applepay","svg-stripelink","svg-suggested","svg-current",
+  "svg-cmp-hd","svg-cmp-beacon","svg-cmp-abc","svg-cmp-amazon","svg-cmp-walmart",
+  "svg-cmp-shoppay","svg-cmp-applepay","svg-cmp-stripelink",
+].forEach(id => addZoomControls(id));
+
+// ---------- Modules table sort ----------
+document.querySelectorAll("table.modtable th").forEach(th=>{
+  th.addEventListener("click", ()=>{
+    const table = th.closest("table");
+    const idx = Array.from(th.parentNode.children).indexOf(th);
+    const rows = Array.from(table.querySelectorAll("tr")).slice(1);
+    const asc = th.dataset.asc !== "true";
+    rows.sort((a,b)=>{
+      const at = a.children[idx].textContent.trim();
+      const bt = b.children[idx].textContent.trim();
+      return asc ? at.localeCompare(bt) : bt.localeCompare(at);
+    });
+    rows.forEach(r=>table.appendChild(r));
+    th.dataset.asc = asc;
+  });
+});
+</script>
+</body>
+</html>

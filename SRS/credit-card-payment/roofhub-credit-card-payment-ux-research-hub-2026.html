@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credit Card Payment UX — Research Hub</title>
+<style>
+  :root{
+    --navy:#171717;
+    --lime:#762123;
+    --frost:#E3E3E3;
+    --gray:#6b7280;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Montserrat,Arial,sans-serif;background:#f7f8fa;color:#111827;}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 24px 60px 24px;}
+  .header{text-align:center;margin-bottom:36px;}
+  .header img{height:34px;margin-bottom:18px;}
+  .header h1{font-size:26px;color:var(--navy);margin:0 0 8px 0;}
+  .header p{font-size:13.5px;color:var(--gray);margin:0;}
+  .cards{display:flex;flex-direction:column;gap:16px;}
+  .card{background:#fff;border:1px solid var(--frost);border-radius:12px;padding:22px 24px;display:flex;gap:18px;align-items:flex-start;text-decoration:none;color:inherit;transition:box-shadow .15s, transform .15s;}
+  .card:hover{box-shadow:0 4px 16px rgba(10,35,66,.08);transform:translateY(-1px);}
+  .card .icon{font-size:28px;background:#fbeaea;border-radius:10px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .card .body h2{font-size:16px;margin:0 0 4px 0;color:var(--navy);}
+  .card .body .tag{font-size:10.5px;color:#762123;background:#fbeaea;border-radius:10px;padding:2px 9px;font-weight:700;margin-bottom:8px;display:inline-block;}
+  .card .body p{font-size:12.5px;color:#374151;margin:0 0 6px 0;line-height:1.5;}
+  .card .body .meta{font-size:11px;color:var(--gray);}
+  .arrow{margin-left:auto;color:var(--gray);font-size:18px;align-self:center;flex-shrink:0;}
+
+  .flow-diagram{display:flex;align-items:center;justify-content:center;gap:8px;margin:36px 0;font-size:11px;color:var(--gray);flex-wrap:wrap;}
+  .flow-step{background:#fff;border:1px solid var(--frost);border-radius:8px;padding:8px 12px;font-weight:600;color:var(--navy);}
+  .flow-arrow{color:var(--gray);}
+
+  .footer{text-align:center;font-size:11px;color:var(--gray);margin-top:40px;padding-top:20px;border-top:1px solid var(--frost);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <svg height="34" width="100.6" viewBox="0 0 213 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">
+<path d="M16.8337 71.2252L11.2973 59.3294H7.332V71.2252H0V38.3808H13.6166C20.2752 38.3808 24.6894 42.7201 24.6894 48.7803C24.6894 54.4663 21.3226 57.3093 18.33 58.2071L24.9886 71.2252H16.8337ZM12.4943 44.1417H7.332V53.5685H12.4943C15.3373 53.5685 17.2078 51.6233 17.2078 48.8551C17.2078 45.9372 15.4122 44.1417 12.4943 44.1417Z" fill="#171717"/>
+<path d="M41.673 37.7822C51.2495 37.7822 56.9355 45.0394 56.9355 54.7655C56.9355 64.5665 51.2495 71.7488 41.673 71.7488C32.1713 71.7488 26.4853 64.5665 26.4853 54.7655C26.4853 45.0394 32.1713 37.7822 41.673 37.7822ZM41.673 43.6927C36.6603 43.6927 34.0417 48.481 34.0417 54.8403C34.0417 61.1249 36.7351 65.988 41.673 65.988C46.6857 65.988 49.4539 61.1249 49.4539 54.8403C49.4539 48.481 46.7605 43.6927 41.673 43.6927Z" fill="#171717"/>
+<path d="M73.5444 37.7822C83.1209 37.7822 88.807 45.0394 88.807 54.7655C88.807 64.5665 83.1209 71.7488 73.5444 71.7488C64.0428 71.7488 58.3567 64.5665 58.3567 54.7655C58.3567 45.0394 64.0428 37.7822 73.5444 37.7822ZM73.5444 43.6927C68.5317 43.6927 65.9132 48.481 65.9132 54.8403C65.9132 61.1249 68.6066 65.988 73.5444 65.988C78.5571 65.988 81.3253 61.1249 81.3253 54.8403C81.3253 48.481 78.5571 43.6927 73.5444 43.6927Z" fill="#171717"/>
+<path d="M91.65 71.2252V38.3808H112.524V44.1417H98.982V51.6981H112.15V57.3841H98.982V71.2252H91.65Z" fill="#171717"/>
+<path d="M144.096 71.2252V57.2345H131.976V71.2252H124.644V38.3808H131.976V51.3988H144.096V38.3808H151.503V71.2252H144.096Z" fill="#762123"/>
+<path d="M155.767 38.3808H163.174V59.9279C163.174 63.8183 165.269 65.988 169.159 65.988C173.05 65.988 175.144 63.8183 175.144 59.9279V38.3808H182.551V59.9279C182.551 67.4843 177.464 71.8237 169.234 71.8237C161.004 71.8237 155.917 67.4843 155.917 59.9279V38.3808H155.767Z" fill="#762123"/>
+<path d="M186.741 71.2252V38.3808H201.854C208.363 38.3808 211.505 42.2712 211.505 46.7602C211.505 50.8751 208.962 53.5685 205.67 54.3167C209.411 54.8404 212.104 58.2819 212.104 62.3968C212.104 67.4095 208.962 71.3 202.378 71.3H186.741V71.2252ZM194.073 51.6981H200.058C202.677 51.6981 203.949 50.0521 203.949 47.8825C203.949 45.7128 202.677 43.992 200.058 43.992H194.073V51.6981ZM194.073 65.6139H200.358C203.126 65.6139 204.547 64.0428 204.547 61.499C204.547 59.2545 203.126 57.3841 200.358 57.3841H194.073V65.6139Z" fill="#762123"/>
+<path d="M4.18968 28.9539H43.5431C44.7401 28.9539 45.8624 28.7295 46.9846 28.3554L123.596 0.448898C123.821 0.374082 123.821 0 123.522 0H84.1683C82.9713 0 81.849 0.224449 80.7268 0.598531L4.04005 28.4302C3.8156 28.5798 3.89042 28.9539 4.18968 28.9539Z" fill="#762123"/>
+<path d="M130.18 1.87042L109.605 9.35205C109.381 9.42687 109.381 9.72613 109.605 9.80095L160.406 28.2806C161.528 28.6547 162.65 28.8791 163.847 28.8791H203.201C203.5 28.8791 203.575 28.505 203.275 28.4302L130.33 1.87042C130.255 1.87042 130.255 1.87042 130.18 1.87042Z" fill="#171717"/>
+</svg>
+    <h1>Credit Card Payment UX — Research Hub</h1>
+    <p>Roof Hub Order Checkout · Web · Mobile · Mobile Web · Capmation · August 2026</p>
+  </div>
+
+  <div class="flow-diagram">
+    <span class="flow-step">1. Read the deck</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">2. Explore the flows</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">3. Design with the checklist</span>
+  </div>
+
+  <div class="cards">
+    <a class="card" href="secondary-research-credit-card-payment-ux-2026-08-13.pptx">
+      <div class="icon">📊</div>
+      <div class="body">
+        <span class="tag">START HERE</span>
+        <h2>Full Research Deck (.pptx)</h2>
+        <p>The complete secondary research: market context, competitor benchmarking, best-in-class patterns (Shop Pay, Apple Pay, Stripe Link), methodological research validation (Baymard, NN/g, academic), opportunities, security framework, and affected modules.</p>
+        <span class="meta">24 slides · Capmation branded · best for stakeholder review</span>
+      </div>
+      <div class="arrow">↗</div>
+    </a>
+
+    <a class="card" href="secondary-research-credit-card-payment-ux-flows-2026-08-13.html">
+      <div class="icon">🌐</div>
+      <div class="body">
+        <span class="tag">EXPLORE</span>
+        <h2>Screen Flow Viewer (.html)</h2>
+        <p>Interactive, zoomable screen-by-screen flows for every competitor and reference — including the ✦ Suggested Ideal Flow compared directly against Roof Hub's current design. Filter by type, compare side-by-side, copy any diagram as SVG.</p>
+        <span class="meta">12 tabs · zoom/pan enabled · best for detailed flow comparison</span>
+      </div>
+      <div class="arrow">↗</div>
+    </a>
+
+    <a class="card" href="credit-card-payment-ux-designer-checklist-2026-08-13.html">
+      <div class="icon">✅</div>
+      <div class="body">
+        <span class="tag">DESIGN</span>
+        <h2>Designer Checklist (.html)</h2>
+        <p>An actionable, checkable list of every recommendation — grouped by acceptance criterion, tagged by device (Web/Mobile/Both), with examples, sources, and affected modules. Progress saves automatically in your browser.</p>
+        <span class="meta">25 checklist items + open questions + next steps · best for active design work</span>
+      </div>
+      <div class="arrow">↗</div>
+    </a>
+  </div>
+
+  <div class="footer">
+    ↗ AI-assisted research · Capmation · August 2026 — Keep all three files in the same folder for the cross-links between them to work.
+  </div>
+</div>
+</body>
+</html>
