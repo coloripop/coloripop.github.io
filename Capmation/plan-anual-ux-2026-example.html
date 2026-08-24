@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Anual UX 2026 — Elizabeth Arostegui</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --paper: #EAE6D9;
+  --paper-raised: #F2EFE4;
+  --paper-well: #E3DECF;
+  --ink: #262119;
+  --ink-soft: #5C5546;
+  --line: #C9C0A6;
+  --q1: #4B6B4F;
+  --q1-soft: #DCE4D6;
+  --q2: #35636B;
+  --q2-soft: #D8E3E4;
+  --q3: #A9761F;
+  --q3-soft: #EFE3C4;
+  --q4: #6B3550;
+  --q4-soft: #E7D9DF;
+  --ok: #3F6B44;
+  --ok-soft: #DDE6D8;
+  --no: #954A32;
+  --no-soft: #EEDCD1;
+  --pending: #857D68;
+  --pending-soft: #E3DECE;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    repeating-linear-gradient(transparent, transparent 38px, rgba(38,33,25,0.045) 39px);
+}
+
+.wrap{max-width: 780px; margin: 0 auto; padding: 28px 20px 80px;}
+
+/* ---- Header ---- */
+header{margin-bottom: 28px;}
+.header-top{display:flex; justify-content:space-between; align-items:flex-start; gap:14px;}
+.lang-toggle{
+  display:flex; flex:none; border: 1px solid var(--ink); border-radius: 20px;
+  overflow:hidden; margin-top: 2px;
+}
+.lang-btn{
+  font-family:'IBM Plex Mono', monospace; font-size: 12px; font-weight:500;
+  letter-spacing:.06em; background: transparent; border:none; color: var(--ink);
+  padding: 6px 12px; cursor:pointer;
+}
+.lang-btn.active{background: var(--ink); color: var(--paper);}
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-soft); margin: 0 0 6px;
+}
+h1{
+  font-family:'Fraunces', serif; font-weight:600; font-optical-sizing:auto;
+  font-size: clamp(28px, 5vw, 40px); line-height: 1.05; margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.subtitle{
+  font-family:'Fraunces', serif; font-style:italic; font-weight:400;
+  font-size: 17px; color: var(--ink-soft); margin: 0;
+}
+
+/* ---- Ledger progress bar ---- */
+.ledger{margin: 26px 0 6px;}
+.ledger-top{
+  display:flex; justify-content:space-between; align-items:baseline;
+  margin-bottom: 8px;
+}
+.ledger-label{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.ledger-pct{font-family:'Fraunces',serif; font-weight:600; font-size: 22px;}
+.ledger-track{
+  display:flex; gap:3px; height: 20px;
+  border: 1px solid var(--ink); border-radius: 3px;
+  overflow:hidden; background: var(--paper-raised);
+  padding: 3px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+}
+.ledger-seg{
+  position:relative; flex:1; border-radius:1px; overflow:hidden;
+  background: rgba(38,33,25,0.07);
+}
+.ledger-fill{
+  position:absolute; left:0; top:0; bottom:0; width:0%;
+  transition: width .5s ease;
+}
+.ledger-seg[data-q="1"] .ledger-fill{background:var(--q1);}
+.ledger-seg[data-q="2"] .ledger-fill{background:var(--q2);}
+.ledger-seg[data-q="3"] .ledger-fill{background:var(--q3);}
+.ledger-seg[data-q="4"] .ledger-fill{background:var(--q4);}
+.ledger-marks{display:flex; gap:3px; margin-top:5px;}
+.ledger-mark{flex:1; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-align:center; color: var(--ink-soft); letter-spacing:.04em;}
+.ledger-mark.current{color:var(--ink); font-weight:600;}
+
+/* ---- Toolbar ---- */
+.chapters-toolbar{
+  display:flex; justify-content:flex-end; margin-top: 22px;
+}
+.toggle-all-btn{
+  font-family:'IBM Plex Mono', monospace; font-size: 12px; font-weight:500;
+  letter-spacing:.05em; background: transparent; border: 1px solid var(--line);
+  color: var(--ink-soft); padding: 6px 12px; border-radius: 20px; cursor:pointer;
+}
+.toggle-all-btn:hover{border-color: var(--ink); color: var(--ink);}
+
+/* ---- Quarter chapters ---- */
+.chapter{
+  margin-top: 30px; border-top: 1px solid var(--line); padding-top: 18px;
+}
+.chapter-head{
+  display:flex; align-items:center; gap: 12px; cursor:pointer;
+  user-select:none;
+}
+.chapter-tag{
+  font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:500;
+  letter-spacing:.06em; padding: 3px 8px; border-radius: 20px;
+  white-space:nowrap;
+}
+.chapter[data-q="1"] .chapter-tag{background:var(--q1-soft); color:var(--q1);}
+.chapter[data-q="2"] .chapter-tag{background:var(--q2-soft); color:var(--q2);}
+.chapter[data-q="3"] .chapter-tag{background:var(--q3-soft); color:var(--q3);}
+.chapter[data-q="4"] .chapter-tag{background:var(--q4-soft); color:var(--q4);}
+.chapter-title{
+  font-family:'Fraunces', serif; font-weight:600; font-size: 20px; flex:1;
+}
+.chapter-goal{
+  font-size: 13.5px; color: var(--ink-soft); margin: 6px 0 0; padding-left: 1px;
+  max-width: 560px;
+}
+.chapter-caret{
+  font-size: 14px; color: var(--ink-soft); transition: transform .25s ease;
+}
+.chapter.open .chapter-caret{transform: rotate(90deg);}
+.chapter-body{
+  display:none; margin-top: 16px;
+}
+.chapter.open .chapter-body{display:block;}
+
+/* ---- Objective cards ---- */
+.obj{
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 18px 18px 16px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.obj-head{display:flex; justify-content:space-between; gap: 12px; align-items:flex-start;}
+.obj-title{
+  font-family:'Fraunces', serif; font-weight:600; font-size: 16.5px; margin:0; line-height:1.3;
+}
+.obj-mini{
+  font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft);
+  white-space: nowrap; padding-top: 2px;
+}
+.obj-note{
+  font-family:'Fraunces', serif; font-style: italic; font-size: 13px;
+  color: var(--ink-soft); margin: 8px 0 12px; padding-left: 10px;
+  border-left: 2px solid var(--line);
+}
+
+.section-label{
+  font-family:'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing:.1em;
+  text-transform: uppercase; color: var(--ink-soft);
+  margin: 16px 0 4px; display:flex; align-items:center; gap:8px;
+}
+.section-label:first-of-type{margin-top:10px;}
+.section-label::after{
+  content:''; flex:1; height:1px; background: var(--line);
+}
+
+/* ---- Tasks ---- */
+.tasks{margin-top: 2px;}
+.task{
+  display:flex; align-items:flex-start; gap: 10px;
+  padding: 7px 0; border-top: 1px dashed var(--line);
+}
+.task:first-child{border-top:none;}
+.task input[type="checkbox"]{
+  appearance:none; width:18px; height:18px; margin-top:1px; flex:none;
+  border: 1.5px solid var(--ink); border-radius: 3px; cursor:pointer;
+  background: var(--paper-raised); position:relative;
+}
+.task input[type="checkbox"]:checked{background: var(--ink);}
+.task input[type="checkbox"]:checked::after{
+  content:''; position:absolute; left:4px; top:0px; width:5px; height:9px;
+  border-right:2px solid var(--paper-raised); border-bottom:2px solid var(--paper-raised);
+  transform: rotate(40deg);
+}
+.task-text{flex:1; font-size: 14.5px; line-height:1.4;}
+.task.done .task-text{ text-decoration: line-through; color: var(--ink-soft); }
+
+/* ---- KPI / metric blocks ---- */
+.measures{display:flex; flex-direction:column; gap:10px; margin-top:4px;}
+.measure{
+  background: var(--paper-well);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 12px 13px 13px;
+}
+.measure-tag{
+  font-family:'IBM Plex Mono', monospace; font-size: 10px; letter-spacing:.06em;
+  text-transform: uppercase; padding: 1.5px 7px; border-radius: 20px;
+  display:inline-block; margin-bottom: 6px;
+}
+.measure-tag.kpi{background: var(--q3-soft); color: var(--q3);}
+.measure-tag.metric{background: var(--q2-soft); color: var(--q2);}
+.measure-desc{font-size: 14.5px; line-height:1.4; font-weight:500;}
+.measure-how{
+  font-family:'Fraunces', serif; font-style: italic; font-size: 12.5px;
+  color: var(--ink-soft); margin: 5px 0 0;
+}
+.measure-how b{font-style:normal; font-weight:600; color: var(--ink);}
+.measure-target{
+  font-family:'IBM Plex Mono', monospace; font-size: 11.5px;
+  color: var(--ink-soft); margin: 6px 0 0;
+}
+.measure-target b{color: var(--ink); font-weight:600;}
+
+.measure-fill{
+  margin-top: 10px; display:flex; align-items:flex-end; gap: 10px; flex-wrap:wrap;
+}
+.measure-input-col{flex:1; min-width: 140px;}
+.measure-fill label{
+  font-family:'IBM Plex Mono', monospace; font-size: 10px; letter-spacing:.06em;
+  text-transform: uppercase; color: var(--ink-soft); display:block; margin-bottom: 3px;
+}
+.measure-fill input[type="text"],
+.measure-fill input[type="number"],
+.measure-fill select{
+  width:100%; font-family:'IBM Plex Sans', sans-serif; font-size: 13.5px;
+  padding: 7px 9px; border: 1px solid var(--line); border-radius: 4px;
+  background: var(--paper); color: var(--ink);
+}
+.measure-fill input:focus, .measure-fill select:focus{
+  outline: none; border-color: var(--ink);
+}
+.measure-fill input::placeholder{color: #9C9480;}
+.unit-suffix{
+  font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft);
+  padding-bottom: 8px; white-space:nowrap;
+}
+
+.status-badge{
+  font-family:'IBM Plex Mono', monospace; font-size: 11px; font-weight:500;
+  letter-spacing:.05em; padding: 6px 11px; border-radius: 20px;
+  white-space:nowrap; flex:none;
+}
+.status-badge.met{background: var(--ok-soft); color: var(--ok);}
+.status-badge.not_met{background: var(--no-soft); color: var(--no);}
+.status-badge.pending{background: var(--pending-soft); color: var(--pending);}
+
+.deadline{
+  font-family:'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--ink-soft);
+  margin-top: 12px; display:inline-block;
+}
+
+/* stamp */
+.stamp{
+  position:absolute; top: 14px; right: 14px;
+  font-family:'IBM Plex Mono', monospace; font-weight:600; font-size: 11px;
+  letter-spacing:.1em; text-transform:uppercase;
+  border: 2px solid; border-radius: 4px; padding: 4px 9px;
+  transform: rotate(-6deg); opacity:0; pointer-events:none;
+  transition: opacity .3s ease, transform .3s ease;
+}
+.obj.complete .stamp{opacity:.9; transform: rotate(-6deg) scale(1);}
+.chapter[data-q="1"] .stamp{color:var(--q1); border-color:var(--q1);}
+.chapter[data-q="2"] .stamp{color:var(--q2); border-color:var(--q2);}
+.chapter[data-q="3"] .stamp{color:var(--q3); border-color:var(--q3);}
+.chapter[data-q="4"] .stamp{color:var(--q4); border-color:var(--q4);}
+
+/* ---- Footer ---- */
+footer{
+  margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  flex-wrap:wrap;
+}
+.save-note{font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+.reset-btn{
+  font-family:'IBM Plex Sans', sans-serif; font-size: 13px; font-weight:500;
+  background:transparent; border: 1px solid var(--ink); color: var(--ink);
+  padding: 7px 14px; border-radius: 20px; cursor:pointer;
+}
+.reset-btn:hover{background: var(--ink); color: var(--paper);}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="header-top">
+      <div>
+        <p class="eyebrow" id="eyebrow">Plan de desarrollo profesional</p>
+        <h1 id="mainTitle">Plan Anual · Senior UX</h1>
+        <p class="subtitle" id="subtitle">Elizabeth Arostegui — 2026</p>
+      </div>
+      <div class="lang-toggle" id="langToggle">
+        <button class="lang-btn active" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="ledger">
+    <div class="ledger-top">
+      <span class="ledger-label">Avance del año</span>
+      <span class="ledger-pct" id="pctLabel">0%</span>
+    </div>
+    <div class="ledger-track" id="ledgerTrack">
+      <div class="ledger-seg" data-q="1"><div class="ledger-fill" id="fill-1"></div></div>
+      <div class="ledger-seg" data-q="2"><div class="ledger-fill" id="fill-2"></div></div>
+      <div class="ledger-seg" data-q="3"><div class="ledger-fill" id="fill-3"></div></div>
+      <div class="ledger-seg" data-q="4"><div class="ledger-fill" id="fill-4"></div></div>
+    </div>
+    <div class="ledger-marks">
+      <div class="ledger-mark" data-q="1">Q1 · Fundación</div>
+      <div class="ledger-mark" data-q="2">Q2 · Estándares</div>
+      <div class="ledger-mark" data-q="3">Q3 · Innovación</div>
+      <div class="ledger-mark" data-q="4">Q4 · Consolidación</div>
+    </div>
+  </div>
+
+  <div class="chapters-toolbar">
+    <button class="toggle-all-btn" id="toggleAllBtn">Expandir todo</button>
+  </div>
+  <div id="chapters"></div>
+
+  <footer>
+    <span class="save-note" id="saveNote">Tu progreso se guarda automáticamente.</span>
+    <button class="reset-btn" id="resetBtn">Reiniciar checklist</button>
+  </footer>
+</div>
+
+<script>
+const UI = {
+  es: {
+    eyebrow: "Plan de desarrollo profesional",
+    title: "Plan Anual · Senior UX",
+    subtitle: "Elizabeth Arostegui — 2026",
+    progressLabel: "Avance del año",
+    marks: ["Q1 · Fundación","Q2 · Estándares","Q3 · Innovación","Q4 · Consolidación"],
+    saveNote: "Tu progreso se guarda automáticamente.",
+    saveError: "No se pudo guardar el progreso automáticamente.",
+    resetBtn: "Reiniciar checklist",
+    resetConfirm: "¿Reiniciar todo el checklist? Esta acción no se puede deshacer.",
+    stamp: "Completado",
+    deadlinePrefix: "Deadline",
+    tasksLabel: "Tareas",
+    measuresLabel: "KPIs y métricas",
+    howLabel: "Cómo se mide",
+    targetLabel: "Meta",
+    actualLabel: "Valor real",
+    numberPlaceholder: "Ej: 3",
+    metricWord: "Métrica",
+    statusMet: "Cumplido",
+    statusNotMet: "No cumplido",
+    statusPending: "Sin datos",
+    selectPlaceholder: "Selecciona...",
+    expandAll: "Expandir todo",
+    collapseAll: "Colapsar todo"
+  },
+  en: {
+    eyebrow: "Professional development plan",
+    title: "Annual Plan · Senior UX",
+    subtitle: "Elizabeth Arostegui — 2026",
+    progressLabel: "Year progress",
+    marks: ["Q1 · Foundation","Q2 · Standards","Q3 · Innovation","Q4 · Consolidation"],
+    saveNote: "Your progress is saved automatically.",
+    saveError: "Progress could not be saved automatically.",
+    resetBtn: "Reset checklist",
+    resetConfirm: "Reset the whole checklist? This can't be undone.",
+    stamp: "Completed",
+    deadlinePrefix: "Deadline",
+    tasksLabel: "Tasks",
+    measuresLabel: "KPIs & metrics",
+    howLabel: "How it's measured",
+    targetLabel: "Target",
+    actualLabel: "Actual value",
+    numberPlaceholder: "E.g.: 3",
+    metricWord: "Metric",
+    statusMet: "Met",
+    statusNotMet: "Not met",
+    statusPending: "No data yet",
+    selectPlaceholder: "Select...",
+    expandAll: "Expand all",
+    collapseAll: "Collapse all"
+  }
+};
+
+// compare.kind:
+//  "number"  -> numeric input compared with target (unit optional, e.g. "sesiones")
+//  "percent" -> numeric input (0-100) compared with target
+//  "scale"   -> select from an ordered list of options (es/en), compared by index >= target index
+// All comparisons are "actual >= target" (met when reached or exceeded).
+const DATA = {
+  es: [
+    {
+      q: 1, qTitle: "Fundación y Knowledge Sharing",
+      qGoal: "Definir y lanzar 1 iniciativa formal de mejora UX para Capmation, y arrancar un ritmo mensual de Design Labs.",
+      objectives: [
+        {
+          title: "Objetivo 1 — UX Practice Plan",
+          note: "Enfoca la observación: “expand impact beyond the project”.",
+          deadline: "Semana 8 del Q1",
+          tasks: [
+            "Diseñar y presentar un UX Practice Plan (3–5 slides o doc) a Camila Mejia: 1 problema actual del equipo UX, 1–2 soluciones concretas y cómo medir el éxito."
+          ],
+          measures: [
+            {type:"kpi", desc:"Documento aprobado.", how:"Aprobación explícita (verbal o escrita) de Camila Mejia sobre el UX Practice Plan.",
+              compare:{kind:"scale", target:1, options:["No","Sí"]}},
+            {type:"kpi", desc:"1 iniciativa seleccionada para piloto.", how:"Registro de la iniciativa elegida y su fecha de inicio del piloto.",
+              compare:{kind:"scale", target:1, options:["No","Sí"]}},
+            {type:"metric", desc:"Feedback explícito de liderazgo.", how:"Comentarios registrados (email, 1:1, Slack) de liderazgo sobre el plan presentado.",
+              compare:{kind:"scale", target:2, options:["Sin feedback","Feedback neutral","Feedback positivo"]}},
+            {type:"metric", desc:"Alineación con los goals del año.", how:"Cruce del plan contra los OKRs/goals anuales del equipo, documentado en el mismo doc.",
+              compare:{kind:"scale", target:2, options:["No alineado","Parcialmente alineado","Alineado"]}}
+          ]
+        },
+        {
+          title: "Objetivo 2 — Design Labs mensuales",
+          note: "Responde directamente al feedback del review.",
+          deadline: "1ª sesión antes de mitad de Q2",
+          tasks: [
+            "Lanzar una sesión mensual (60–90 min) con design critique formal y round tables, formato ligero pero consistente (agenda + outcome)."
+          ],
+          measures: [
+            {type:"kpi", desc:"≥2 sesiones realizadas.", how:"Conteo de sesiones registradas en el calendario o agenda compartida.",
+              compare:{kind:"number", target:2, unit:"sesiones"}},
+            {type:"kpi", desc:"≥50% del equipo asistiendo.", how:"% de asistencia por sesión, tomado de una lista de asistencia.",
+              compare:{kind:"percent", target:50}},
+            {type:"metric", desc:"Repetición y adopción del formato.", how:"Número de sesiones consecutivas realizadas + feedback cualitativo del equipo.",
+              compare:{kind:"scale", target:2, options:["Baja","Media","Alta"]}}
+          ]
+        }
+      ]
+    },
+    {
+      q: 2, qTitle: "Métricas + Innovación Aplicada",
+      qGoal: "Posicionarse como la senior que conecta UX con negocio e innovación.",
+      objectives: [
+        {
+          title: "Objetivo 4 — AI / Agents aplicados a UX Systems",
+          note: null,
+          deadline: "Durante Q3",
+          tasks: [
+            "Tomar 1 curso relevante sobre AI / agentes aplicados a sistemas de diseño.",
+            "Construir un prototipo pequeño (no de producción)."
+          ],
+          measures: [
+            {type:"kpi", desc:"Demo interna o mini talk presentada.", how:"Fecha de la demo/talk registrada + lista de asistentes.",
+              compare:{kind:"scale", target:1, options:["No","Sí"]}},
+            {type:"metric", desc:"Interés generado en el equipo — no se busca perfección.", how:"Preguntas o comentarios recibidos, o una encuesta rápida post-demo.",
+              compare:{kind:"scale", target:1, options:["Bajo","Medio","Alto"]}}
+          ]
+        }
+      ]
+    },
+    {
+      q: 3, qTitle: "Estándares",
+      qGoal: "Empezar a ser vista como setter of standards dentro de Capmation.",
+      objectives: [
+        {
+          title: "Objetivo 3 — UX Metrics reales",
+          note: "Este punto viene directamente del review.",
+          deadline: "Final de Q3",
+          tasks: [
+            "Elegir 1–2 métricas UX (ej. design cycle time, rework ratio, usability issues per release) y pilotearlas en 1 proyecto.",
+            "Mostrar resultados simples de la métrica al equipo."
+          ],
+          measures: [
+            {type:"kpi", desc:"Métricas documentadas.", how:"Documento o dashboard con las métricas definidas y su fórmula de cálculo.",
+              compare:{kind:"scale", target:1, options:["No","Sí"]}},
+            {type:"kpi", desc:"Presentación interna realizada.", how:"Fecha de la presentación registrada + lista de asistentes.",
+              compare:{kind:"scale", target:1, options:["No","Sí"]}},
+            {type:"metric", desc:"Liderazgo entiende el valor de la métrica.", how:"Feedback cualitativo post-presentación (encuesta corta o comentarios directos).",
+              compare:{kind:"scale", target:2, options:["No","Parcialmente","Sí"]}}
+          ]
+        }
+      ]
+    },
+    {
+      q: 4, qTitle: "Consolidación y Posicionamiento",
+      qGoal: "Cerrar el año como thought leader interno en UX.",
+      objectives: [
+        {
+          title: "Objetivo 5 — UX Year in Review",
+          note: null,
+          deadline: "Final de Q4",
+          tasks: [
+            "Presentar un “UX Year in Review” interno tipo retro: qué cambió, qué funcionó y qué sigue, en sesión o doc compartido."
+          ],
+          measures: [
+            {type:"kpi", desc:"Feedback positivo recibido.", how:"Encuesta rápida post-sesión (rating de 1 a 5).",
+              compare:{kind:"number", target:4, unit:"/ 5"}},
+            {type:"kpi", desc:"Participación del 80% del equipo.", how:"% de asistencia registrada en la sesión.",
+              compare:{kind:"percent", target:80}}
+          ]
+        },
+        {
+          title: "Objetivo 6 — Mentoría activa",
+          note: null,
+          deadline: null,
+          tasks: [
+            "Dar mentoría activa a 1 persona del equipo UX durante el año."
+          ],
+          measures: [
+            {type:"kpi", desc:"Feedback positivo del mentee.", how:"Conversación o encuesta breve de cierre con el mentee.",
+              compare:{kind:"scale", target:2, options:["Negativo","Neutral","Positivo"]}}
+          ]
+        }
+      ]
+    }
+  ],
+  en: [
+    {
+      q: 1, qTitle: "Foundation and Knowledge Sharing",
+      qGoal: "Define and launch 1 formal UX improvement initiative for Capmation, and start a monthly Design Labs rhythm.",
+      objectives: [
+        {
+          title: "Objective 1 — UX Practice Plan",
+          note: "Addresses the observation: “expand impact beyond the project”.",
+          deadline: "Week 8 of Q1",
+          tasks: [
+            "Design and present a UX Practice Plan (3–5 slides or doc) to Camila Mejia: 1 current UX team problem, 1–2 concrete solutions, and how to measure success."
+          ],
+          measures: [
+            {type:"kpi", desc:"Document approved.", how:"Explicit approval (verbal or written) from Camila Mejia on the UX Practice Plan.",
+              compare:{kind:"scale", target:1, options:["No","Yes"]}},
+            {type:"kpi", desc:"1 initiative selected for pilot.", how:"Record of the chosen initiative and its pilot start date.",
+              compare:{kind:"scale", target:1, options:["No","Yes"]}},
+            {type:"metric", desc:"Explicit feedback from leadership.", how:"Logged comments (email, 1:1, Slack) from leadership about the plan.",
+              compare:{kind:"scale", target:2, options:["No feedback","Neutral feedback","Positive feedback"]}},
+            {type:"metric", desc:"Alignment with the year's goals.", how:"Cross-check of the plan against the team's annual OKRs/goals, documented in the same doc.",
+              compare:{kind:"scale", target:2, options:["Not aligned","Partially aligned","Aligned"]}}
+          ]
+        },
+        {
+          title: "Objective 2 — Monthly Design Labs",
+          note: "Directly responds to review feedback.",
+          deadline: "1st session before mid-Q2",
+          tasks: [
+            "Launch a monthly session (60–90 min) with formal design critique and round tables — lightweight but consistent format (agenda + outcome)."
+          ],
+          measures: [
+            {type:"kpi", desc:"≥2 sessions held.", how:"Count of sessions logged in the shared calendar or agenda.",
+              compare:{kind:"number", target:2, unit:"sessions"}},
+            {type:"kpi", desc:"≥50% of the team attending.", how:"% attendance per session, taken from an attendance sheet.",
+              compare:{kind:"percent", target:50}},
+            {type:"metric", desc:"Repetition and adoption of the format.", how:"Number of consecutive sessions held + qualitative team feedback.",
+              compare:{kind:"scale", target:2, options:["Low","Medium","High"]}}
+          ]
+        }
+      ]
+    },
+    {
+      q: 2, qTitle: "Metrics + Applied Innovation",
+      qGoal: "Position as the senior who connects UX with business and innovation.",
+      objectives: [
+        {
+          title: "Objective 4 — AI / Agents applied to UX Systems",
+          note: null,
+          deadline: "During Q3",
+          tasks: [
+            "Take 1 relevant course on AI / agents applied to design systems.",
+            "Build a small prototype (not production)."
+          ],
+          measures: [
+            {type:"kpi", desc:"Internal demo or mini talk delivered.", how:"Demo/talk date logged + attendee list.",
+              compare:{kind:"scale", target:1, options:["No","Yes"]}},
+            {type:"metric", desc:"Interest generated in the team — not perfection.", how:"Questions or comments received, or a quick post-demo survey.",
+              compare:{kind:"scale", target:1, options:["Low","Medium","High"]}}
+          ]
+        }
+      ]
+    },
+    {
+      q: 3, qTitle: "Standards",
+      qGoal: "Start being seen as a setter of standards within Capmation.",
+      objectives: [
+        {
+          title: "Objective 3 — Real UX Metrics",
+          note: "This point comes directly from the review.",
+          deadline: "End of Q3",
+          tasks: [
+            "Choose 1–2 UX metrics (e.g. design cycle time, rework ratio, usability issues per release) and pilot them on 1 project.",
+            "Show simple results of the metric to the team."
+          ],
+          measures: [
+            {type:"kpi", desc:"Metrics documented.", how:"Document or dashboard with the metrics defined and their calculation formula.",
+              compare:{kind:"scale", target:1, options:["No","Yes"]}},
+            {type:"kpi", desc:"Internal presentation delivered.", how:"Presentation date logged + attendee list.",
+              compare:{kind:"scale", target:1, options:["No","Yes"]}},
+            {type:"metric", desc:"Leadership understands the value.", how:"Qualitative post-presentation feedback (short survey or direct comments).",
+              compare:{kind:"scale", target:2, options:["No","Partially","Yes"]}}
+          ]
+        }
+      ]
+    },
+    {
+      q: 4, qTitle: "Consolidation and Positioning",
+      qGoal: "Close the year as an internal UX thought leader.",
+      objectives: [
+        {
+          title: "Objective 5 — UX Year in Review",
+          note: null,
+          deadline: "End of Q4",
+          tasks: [
+            "Present an internal “UX Year in Review”, retro-style: what changed, what worked, and what's next, in a session or shared doc."
+          ],
+          measures: [
+            {type:"kpi", desc:"Positive feedback received.", how:"Quick post-session survey (1–5 rating).",
+              compare:{kind:"number", target:4, unit:"/ 5"}},
+            {type:"kpi", desc:"80% team participation.", how:"% attendance logged for the session.",
+              compare:{kind:"percent", target:80}}
+          ]
+        },
+        {
+          title: "Objective 6 — Active mentorship",
+          note: null,
+          deadline: null,
+          tasks: [
+            "Provide active mentorship to 1 person on the UX team throughout the year."
+          ],
+          measures: [
+            {type:"kpi", desc:"Positive feedback from the mentee.", how:"Closing conversation or short survey with the mentee.",
+              compare:{kind:"scale", target:2, options:["Negative","Neutral","Positive"]}}
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+const STORAGE_KEY = "ux-plan-2026-state";
+let state = {};  // { "<taskId>": true/false }
+let values = {}; // { "<measureId>": "raw entered value" }
+let lang = "es";
+let saveTimer = null;
+
+function currentQuarter(){
+  const m = new Date().getMonth();
+  return Math.floor(m/3)+1;
+}
+
+function taskId(qi, oi, ti){ return `q${qi}-o${oi}-t${ti}`; }
+function measureId(qi, oi, mi){ return `q${qi}-o${oi}-m${mi}`; }
+
+function applyStaticStrings(){
+  const t = UI[lang];
+  document.getElementById('eyebrow').textContent = t.eyebrow;
+  document.getElementById('mainTitle').textContent = t.title;
+  document.getElementById('subtitle').textContent = t.subtitle;
+  document.getElementById('saveNote').textContent = t.saveNote;
+  document.getElementById('resetBtn').textContent = t.resetBtn;
+  document.querySelector('.ledger-label').textContent = t.progressLabel;
+  document.querySelectorAll('.ledger-mark').forEach((m, idx) => {
+    m.textContent = t.marks[idx];
+  });
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  const toggleBtn = document.getElementById('toggleAllBtn');
+  if(toggleBtn){
+    toggleBtn.textContent = toggleBtn.dataset.state === 'open' ? t.collapseAll : t.expandAll;
+  }
+}
+
+function targetText(compare, t){
+  if(compare.kind === "number") return `≥ ${compare.target} ${compare.unit || ''}`.trim();
+  if(compare.kind === "percent") return `≥ ${compare.target}%`;
+  if(compare.kind === "scale") return compare.options[compare.target];
+  return '';
+}
+
+// returns 'met' | 'not_met' | 'pending'
+function computeStatus(compare, raw){
+  if(raw === undefined || raw === null || raw === '') return 'pending';
+  if(compare.kind === "number" || compare.kind === "percent"){
+    const n = parseFloat(raw);
+    if(isNaN(n)) return 'pending';
+    return n >= compare.target ? 'met' : 'not_met';
+  }
+  if(compare.kind === "scale"){
+    const idx = parseInt(raw, 10);
+    if(isNaN(idx)) return 'pending';
+    return idx >= compare.target ? 'met' : 'not_met';
+  }
+  return 'pending';
+}
+
+function render(){
+  applyStaticStrings();
+  const t = UI[lang];
+  const data = DATA[lang];
+  const container = document.getElementById('chapters');
+  container.innerHTML = '';
+  const curQ = currentQuarter();
+
+  data.forEach((chapter) => {
+    const chapEl = document.createElement('div');
+    chapEl.className = 'chapter' + (chapter.q === curQ ? ' open' : '');
+    chapEl.dataset.q = chapter.q;
+
+    const head = document.createElement('div');
+    head.className = 'chapter-head';
+    head.innerHTML = `
+      <span class="chapter-tag">Q${chapter.q}</span>
+      <span class="chapter-title">${chapter.qTitle}</span>
+      <span class="chapter-caret">▸</span>
+    `;
+    head.addEventListener('click', () => {
+      chapEl.classList.toggle('open');
+      updateToggleAllBtn();
+    });
+
+    const goal = document.createElement('p');
+    goal.className = 'chapter-goal';
+    goal.textContent = chapter.qGoal;
+
+    const body = document.createElement('div');
+    body.className = 'chapter-body';
+
+    chapter.objectives.forEach((obj, oi) => {
+      const totalCount = obj.tasks.length + obj.measures.length;
+
+      const objEl = document.createElement('div');
+      objEl.className = 'obj';
+
+      objEl.innerHTML = `
+        <div class="obj-head">
+          <h3 class="obj-title">${obj.title}</h3>
+          <span class="obj-mini" data-mini="${chapter.q}-${oi}">0/${totalCount}</span>
+        </div>
+        ${obj.note ? `<p class="obj-note">${obj.note}</p>` : ''}
+        <div class="section-label">${t.tasksLabel}</div>
+        <div class="tasks" data-tasks="${chapter.q}-${oi}"></div>
+        <div class="section-label">${t.measuresLabel}</div>
+        <div class="measures" data-measures="${chapter.q}-${oi}"></div>
+        ${obj.deadline ? `<span class="deadline">${t.deadlinePrefix}: ${obj.deadline}</span>` : ''}
+        <span class="stamp">${t.stamp}</span>
+      `;
+
+      const tasksEl = objEl.querySelector(`[data-tasks="${chapter.q}-${oi}"]`);
+      obj.tasks.forEach((taskText, ti) => {
+        const id = taskId(chapter.q, oi, ti);
+        const row = document.createElement('div');
+        row.className = 'task' + (state[id] ? ' done' : '');
+        row.innerHTML = `
+          <input type="checkbox" id="${id}" ${state[id] ? 'checked' : ''}>
+          <label class="task-text" for="${id}">${taskText}</label>
+        `;
+        tasksEl.appendChild(row);
+      });
+
+      const measuresEl = objEl.querySelector(`[data-measures="${chapter.q}-${oi}"]`);
+      obj.measures.forEach((m, mi) => {
+        const id = measureId(chapter.q, oi, mi);
+        const raw = values[id] !== undefined ? values[id] : '';
+        const status = computeStatus(m.compare, raw);
+        const tagLabel = m.type === 'kpi' ? 'KPI' : t.metricWord;
+
+        let inputHtml = '';
+        if(m.compare.kind === "scale"){
+          const opts = m.compare.options.map((label, idx) =>
+            `<option value="${idx}" ${String(idx) === String(raw) ? 'selected' : ''}>${label}</option>`
+          ).join('');
+          inputHtml = `
+            <select id="${id}" data-measure="${id}">
+              <option value="" ${raw === '' ? 'selected' : ''}>${t.selectPlaceholder}</option>
+              ${opts}
+            </select>`;
+        } else {
+          const suffix = m.compare.kind === "percent" ? '%' : (m.compare.unit || '');
+          inputHtml = `
+            <input type="number" id="${id}" data-measure="${id}" value="${raw}" placeholder="${t.numberPlaceholder}">
+          `;
+        }
+
+        const row = document.createElement('div');
+        row.className = 'measure';
+        row.innerHTML = `
+          <span class="measure-tag ${m.type}">${tagLabel}</span>
+          <div class="measure-desc">${m.desc}</div>
+          <p class="measure-how"><b>${t.howLabel}:</b> ${m.how}</p>
+          <p class="measure-target"><b>${t.targetLabel}:</b> ${targetText(m.compare, t)}</p>
+          <div class="measure-fill">
+            <div class="measure-input-col">
+              <label for="${id}">${t.actualLabel}</label>
+              ${inputHtml}
+            </div>
+            ${m.compare.kind !== "scale" && m.compare.unit ? `<span class="unit-suffix">${m.compare.kind === "percent" ? '%' : m.compare.unit}</span>` : (m.compare.kind === "percent" ? `<span class="unit-suffix">%</span>` : '')}
+            <span class="status-badge ${status}" data-status="${id}">${status === 'met' ? t.statusMet : status === 'not_met' ? t.statusNotMet : t.statusPending}</span>
+          </div>
+        `;
+        measuresEl.appendChild(row);
+      });
+
+      body.appendChild(objEl);
+    });
+
+    chapEl.appendChild(head);
+    chapEl.appendChild(goal);
+    chapEl.appendChild(body);
+    container.appendChild(chapEl);
+  });
+
+  container.querySelectorAll('.task input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', onToggleTask);
+  });
+  container.querySelectorAll('[data-measure]').forEach(inp => {
+    inp.addEventListener('input', onMeasureInput);
+    inp.addEventListener('change', onMeasureInput);
+  });
+
+  updateAllProgress();
+  updateToggleAllBtn();
+}
+
+function updateToggleAllBtn(){
+  const chapters = document.querySelectorAll('.chapter');
+  const allOpen = chapters.length > 0 && Array.from(chapters).every(c => c.classList.contains('open'));
+  const btn = document.getElementById('toggleAllBtn');
+  btn.textContent = allOpen ? UI[lang].collapseAll : UI[lang].expandAll;
+  btn.dataset.state = allOpen ? 'open' : 'closed';
+}
+
+function onToggleTask(e){
+  const id = e.target.id;
+  state[id] = e.target.checked;
+  e.target.closest('.task').classList.toggle('done', e.target.checked);
+  saveState();
+  updateAllProgress();
+}
+
+function onMeasureInput(e){
+  const id = e.target.dataset.measure;
+  values[id] = e.target.value;
+
+  // find the compare config for this id to recompute status live
+  const [qi, oi, mi] = id.match(/q(\d+)-o(\d+)-m(\d+)/).slice(1).map(Number);
+  const obj = DATA[lang].find(c => c.q === qi).objectives[oi];
+  const compare = obj.measures[mi].compare;
+  const status = computeStatus(compare, e.target.value);
+  const badge = document.querySelector(`[data-status="${id}"]`);
+  if(badge){
+    const t = UI[lang];
+    badge.className = `status-badge ${status}`;
+    badge.textContent = status === 'met' ? t.statusMet : status === 'not_met' ? t.statusNotMet : t.statusPending;
+  }
+
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveState, 400);
+  updateAllProgress();
+}
+
+function updateAllProgress(){
+  let totalItems = 0, totalDone = 0;
+
+  DATA[lang].forEach((chapter) => {
+    let qTotal = 0, qDone = 0;
+    chapter.objectives.forEach((obj, oi) => {
+      let oDone = 0;
+      const totalCount = obj.tasks.length + obj.measures.length;
+
+      obj.tasks.forEach((_, ti) => {
+        const id = taskId(chapter.q, oi, ti);
+        qTotal++; totalItems++;
+        if(state[id]){ qDone++; totalDone++; oDone++; }
+      });
+      obj.measures.forEach((m, mi) => {
+        const id = measureId(chapter.q, oi, mi);
+        qTotal++; totalItems++;
+        const status = computeStatus(m.compare, values[id]);
+        if(status === 'met'){ qDone++; totalDone++; oDone++; }
+      });
+
+      const miniEl = document.querySelector(`[data-mini="${chapter.q}-${oi}"]`);
+      if(miniEl) miniEl.textContent = `${oDone}/${totalCount}`;
+      const objEl = miniEl ? miniEl.closest('.obj') : null;
+      if(objEl) objEl.classList.toggle('complete', oDone === totalCount);
+    });
+    const pct = qTotal ? Math.round((qDone/qTotal)*100) : 0;
+    const fillEl = document.getElementById(`fill-${chapter.q}`);
+    if(fillEl) fillEl.style.width = pct + '%';
+  });
+
+  const overallPct = totalItems ? Math.round((totalDone/totalItems)*100) : 0;
+  document.getElementById('pctLabel').textContent = overallPct + '%';
+
+  document.querySelectorAll('.ledger-mark').forEach(m => {
+    m.classList.toggle('current', parseInt(m.dataset.q) === currentQuarter());
+  });
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state = parsed.state || {};
+      values = parsed.values || {};
+    }
+  }catch(err){
+    state = {}; values = {};
+  }
+  render();
+}
+
+async function saveState(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify({state, values}), false);
+  }catch(err){
+    console.error('Could not save progress', err);
+    document.getElementById('saveNote').textContent = UI[lang].saveError;
+  }
+}
+
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  if(!confirm(UI[lang].resetConfirm)) return;
+  state = {}; values = {};
+  await saveState();
+  render();
+});
+
+document.getElementById('toggleAllBtn').addEventListener('click', () => {
+  const shouldOpen = document.getElementById('toggleAllBtn').dataset.state !== 'open';
+  document.querySelectorAll('.chapter').forEach(c => c.classList.toggle('open', shouldOpen));
+  updateToggleAllBtn();
+});
+
+document.getElementById('langToggle').addEventListener('click', (e) => {
+  const btn = e.target.closest('.lang-btn');
+  if(!btn) return;
+  lang = btn.dataset.lang;
+  render();
+});
+
+loadState();
+</script>
+</body>
+</html>
