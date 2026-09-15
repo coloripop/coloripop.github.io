@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adivina la canción</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12141A;
+    --bg:#F3F4F6;
+    --bg-raised:#FFFFFF;
+    --amber:#2F6FED;
+    --amber-deep:#1D4ED8;
+    --violet:#12141A;
+    --muted:#6B7280;
+    --line:#E5E7EB;
+    --danger:#E8555A;
+    --shadow:0 10px 28px rgba(17,24,39,0.07);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#E9EAEE;
+    color:var(--ink);
+    font-family:'Inter', system-ui, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:32px 18px 60px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+  h1,h2,.display{
+    font-family:'Inter', system-ui, sans-serif;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .wrap{
+    position:relative;
+    width:100%; max-width:600px;
+    background-color:#FAFAFB;
+    background-image:radial-gradient(circle, #D8D9DE 1.2px, transparent 1.2px);
+    background-size:18px 18px;
+    border:1px solid var(--line);
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    padding:46px 30px 36px;
+    overflow:hidden;
+  }
+  .badge{
+    position:absolute;
+    width:52px; height:52px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:15px;
+    box-shadow:0 8px 18px rgba(17,24,39,0.10);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.35rem;
+  }
+  .badge-note{top:24px; left:26px; transform:rotate(-9deg);}
+  .badge-clock{top:24px; right:26px; transform:rotate(8deg);}
+  @media (max-width:560px){ .badge{display:none;} }
+  @media (min-width:561px){ .lang-row{margin-top:34px;} }
+
+  .lang-row{display:flex; justify-content:space-between; align-items:center; position:relative; z-index:3; margin-bottom:14px;}
+  .home-link{
+    background:none;
+    color:var(--muted);
+    font-size:0.8rem;
+    font-weight:600;
+    padding:6px 4px;
+  }
+  .home-link:hover{color:var(--ink); text-decoration:underline;}
+  .lang-switch{
+    display:inline-flex;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:99px;
+    padding:3px;
+    gap:2px;
+  }
+  .lang-switch button{
+    background:transparent;
+    color:var(--muted);
+    font-family:'Inter', system-ui, sans-serif;
+    font-size:0.78rem;
+    font-weight:700;
+    padding:5px 13px;
+    border-radius:99px;
+  }
+  .lang-switch button.active{background:var(--amber); color:#fff;}
+  .lang-switch button:hover:not(.active){color:var(--ink);}
+  .brand{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:6px;
+  }
+  .brand .disc{
+    width:20px;height:20px;border-radius:50%;
+    background:conic-gradient(from 90deg, var(--amber), var(--violet), var(--amber));
+    flex:none;
+  }
+  .brand h1{font-size:1.05rem; font-weight:700; color:var(--muted); text-transform:none;}
+  .brand h1 b{color:var(--ink);}
+  .subtitle{color:var(--muted); font-size:0.92rem; margin-bottom:28px;}
+
+  /* ---------- Setup screen ---------- */
+  .card{
+    background:var(--bg-raised);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:26px;
+    box-shadow:var(--shadow);
+  }
+  .onb-title{font-size:1.25rem; font-weight:700; margin-bottom:20px;}
+  .step{display:flex; gap:14px; margin-bottom:18px; text-align:left; align-items:flex-start;}
+  .step-num{
+    flex:none; width:28px; height:28px; border-radius:50%;
+    background:var(--amber); color:#fff; font-weight:700;
+    font-family:'Inter', system-ui, sans-serif; font-size:0.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-text{font-size:0.93rem; color:var(--ink); line-height:1.5; margin:3px 0 0;}
+  .step-text b{color:var(--amber-deep);}
+  #onboardingBtn{margin-top:6px;}
+
+  .field-row{display:flex; gap:8px; margin-top:16px;}
+  input[type=text], input[type=number]{
+    flex:1;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:inherit;
+    font-size:1rem;
+    padding:12px 14px;
+    border-radius:11px;
+    outline:none;
+  }
+  input[type=text]:focus, input[type=number]:focus{border-color:var(--amber);}
+  button{
+    font-family:'Inter', system-ui, sans-serif;
+    cursor:pointer;
+    border:none;
+    border-radius:11px;
+  }
+  .btn-add{
+    background:var(--violet);
+    color:#fff;
+    font-weight:600;
+    padding:0 20px;
+    font-size:0.95rem;
+  }
+  .btn-add:hover{background:#2A2E38;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; min-height:20px;}
+  .chip{
+    display:flex; align-items:center; gap:8px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:99px;
+    padding:7px 8px 7px 16px;
+    font-size:0.92rem;
+  }
+  .chip button{
+    background:none; color:var(--muted); font-size:1rem; width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center; border-radius:50%;
+  }
+  .chip button:hover{background:var(--danger); color:#fff;}
+  .empty-hint{color:var(--muted); font-size:0.88rem; padding:2px 0;}
+  .rounds-hint{color:var(--muted); font-size:0.82rem; margin:8px 0 0;}
+
+  .btn-primary{
+    width:100%;
+    margin-top:24px;
+    background:var(--amber);
+    color:#fff;
+    font-weight:700;
+    font-size:1.05rem;
+    padding:16px;
+  }
+  .btn-primary:hover:not(:disabled){background:#4C86FF;}
+  .btn-primary:disabled{background:var(--line); color:var(--muted); cursor:not-allowed;}
+  .count-note{color:var(--muted); font-size:0.82rem; text-align:center; margin-top:10px;}
+
+  /* ---------- Game screen ---------- */
+  .top-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;}
+  .round-pill{
+    font-family:'Inter', system-ui, sans-serif;
+    font-size:0.85rem; color:var(--muted); font-weight:600;
+  }
+  .round-pill b{color:var(--ink);}
+  .reset-link{background:none; color:var(--muted); font-size:0.85rem; text-decoration:underline; padding:0;}
+  .reset-link:hover{color:var(--ink);}
+
+  .no-phones-banner{
+    background:rgba(232,85,90,0.1);
+    border:1px solid var(--danger);
+    color:var(--danger);
+    font-weight:700;
+    font-size:0.85rem;
+    text-align:center;
+    padding:9px 14px;
+    border-radius:99px;
+    margin-bottom:16px;
+  }
+
+  .countdown-wrap{text-align:center; margin-bottom:8px;}
+  .countdown{
+    font-family:'Inter', system-ui, sans-serif;
+    font-weight:800;
+    font-size:2.6rem;
+    line-height:1;
+    color:var(--amber);
+    transition:color .2s ease;
+  }
+  .countdown.urgent{color:var(--danger);}
+  .countdown-sub{color:var(--muted); font-size:0.78rem; margin-top:4px; max-width:280px; margin-left:auto; margin-right:auto;}
+
+  .points-badge{
+    text-align:center;
+    font-weight:700;
+    font-size:1.05rem;
+    color:var(--amber-deep);
+    background:rgba(47,111,237,0.08);
+    border-radius:12px;
+    padding:10px;
+    margin-bottom:18px;
+  }
+
+  .step-dots{display:flex; gap:6px; justify-content:center; margin-bottom:18px;}
+  .step-dots .seg{width:28px; height:5px; border-radius:3px; background:var(--line); transition:background .25s ease;}
+  .step-dots .seg.active{background:var(--amber);}
+  .step-dots .seg.done{background:var(--violet);}
+
+  .step-panel{animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .btn-skip{
+    width:100%;
+    background:transparent;
+    border:1px dashed var(--line);
+    color:var(--muted);
+    font-weight:600;
+    font-size:0.9rem;
+    padding:12px;
+  }
+  .btn-skip:hover{border-color:var(--muted); color:var(--ink);}
+
+  .score-title{
+    font-family:'Inter', system-ui, sans-serif;
+    font-weight:700;
+    font-size:1.1rem;
+    margin-bottom:16px;
+  }
+  .scoreboard-big{justify-content:center; margin-bottom:28px;}
+  .scoreboard-big .score-chip{font-size:1rem; padding:10px 18px;}
+
+  .scoreboard{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
+  .score-chip{
+    background:var(--bg-raised); border:1px solid var(--line);
+    border-radius:99px; padding:7px 14px; font-size:0.88rem;
+    display:flex; gap:6px; align-items:center;
+  }
+  .score-chip .n{color:var(--amber); font-weight:700; font-family:'Inter', system-ui, sans-serif;}
+  .score-chip.leader{border-color:var(--amber);}
+
+  .stage{
+    background:var(--bg-raised);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:36px 26px 30px;
+    text-align:center;
+    box-shadow:var(--shadow);
+  }
+  /* Turntable: flat-illustration record player — rectangular deck, overlapping vinyl, curved arm */
+  .turntable{
+    position:relative;
+    width:230px; height:154px;
+    margin:0 auto 26px;
+  }
+  .turntable svg{width:100%; height:100%; display:block; overflow:visible;}
+  .turntable .vinylgroup{
+    transform-box:view-box;
+    transform-origin:140px 128px;
+  }
+  .turntable .vinylgroup.spinning{animation:spin 2.6s linear infinite;}
+  @keyframes spin{from{transform:rotate(0)} to{transform:rotate(360deg)}}
+
+  .turntable .armgroup{
+    transform-box:view-box;
+    transform-origin:246px 76px;
+    transform:rotate(-15deg);
+    transition:transform .5s cubic-bezier(.4,0,.2,1);
+  }
+  .turntable.playing .armgroup{transform:rotate(0deg);}
+
+  .control-row{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:22px;}
+  .control-btn{
+    display:flex; align-items:center; gap:10px;
+    background:var(--amber);
+    color:#fff;
+    font-weight:700;
+    font-size:0.95rem;
+    padding:13px 22px;
+    border-radius:99px;
+  }
+  .control-btn:hover{background:#4C86FF;}
+  .control-btn:active{transform:scale(0.97);}
+  .control-btn svg{width:18px; height:18px; fill:#fff;}
+
+  .time{font-size:0.85rem; color:var(--muted); font-family:'Inter', system-ui, sans-serif;}
+  .load-warn{color:var(--danger); font-size:0.85rem; margin-bottom:16px; display:none;}
+
+  .reveal-card{
+    display:flex;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:22px;
+    margin-bottom:22px;
+    text-align:left;
+    align-items:center;
+    gap:20px;
+  }
+  .reveal-card img{width:104px; height:104px; border-radius:12px; flex:none; box-shadow:0 6px 16px rgba(17,24,39,0.12);}
+  .reveal-card .t{font-family:'Inter', system-ui, sans-serif; font-weight:700; font-size:1.5rem; line-height:1.25;}
+  .reveal-card .a{color:var(--muted); font-size:1.1rem; margin-top:5px;}
+  .reveal-card .m{
+    display:inline-block;
+    margin-top:10px;
+    background:var(--amber);
+    color:#fff;
+    font-size:0.82rem;
+    font-weight:700;
+    padding:5px 12px;
+    border-radius:99px;
+  }
+  .reveal-card .m:empty{display:none;}
+
+  .btn-reveal{
+    width:100%;
+    background:transparent;
+    border:1px solid var(--amber);
+    color:var(--amber);
+    font-weight:600;
+    padding:13px;
+    font-size:0.95rem;
+    margin-bottom:26px;
+  }
+  .btn-reveal:hover{background:rgba(47,111,237,0.08);}
+  .btn-reveal:disabled{border-color:var(--line); color:var(--muted); cursor:not-allowed;}
+
+  .guess-label{color:var(--muted); font-size:0.85rem; margin-bottom:10px; text-align:left;}
+  .guess-grid{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px;}
+  .guess-btn{
+    flex:1 1 auto;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:12px 16px;
+    font-size:0.92rem;
+    font-weight:600;
+  }
+  .guess-btn:hover{border-color:var(--violet); color:var(--violet);}
+  .guess-btn.pulse{animation:pulse .4s ease;}
+  @keyframes pulse{0%{transform:scale(1)} 50%{transform:scale(1.05); border-color:var(--amber); color:var(--amber);} 100%{transform:scale(1)}}
+
+  .btn-next{
+    width:100%;
+    background:var(--violet);
+    color:#fff;
+    font-weight:700;
+    padding:15px;
+    font-size:1rem;
+  }
+  .btn-next:hover{background:#2A2E38;}
+
+  .final-card{text-align:center; padding:10px 0; box-shadow:var(--shadow);}
+  .final-card .trophy{font-size:2.4rem; margin-bottom:6px;}
+  .final-card .win-name{font-family:'Inter', system-ui, sans-serif; font-size:1.4rem; font-weight:700; margin-bottom:20px;}
+  .final-list{display:flex; flex-direction:column; gap:8px; margin-bottom:26px;}
+  .final-row{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--bg); border:1px solid var(--line); border-radius:11px; padding:11px 16px;
+  }
+  .final-row .n{font-family:'Inter', system-ui, sans-serif; font-weight:700; color:var(--amber);}
+
+  .mentions{margin-top:22px; text-align:left;}
+  .mentions-title{font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:10px;}
+  .mention-row{
+    display:flex; align-items:center; gap:10px;
+    background:var(--bg); border:1px solid var(--line); border-radius:11px;
+    padding:10px 14px; margin-bottom:8px;
+  }
+  .mention-row .icon{font-size:1.2rem; flex:none;}
+  .mention-row .txt{font-size:0.88rem;}
+  .mention-row .txt b{color:var(--ink);}
+
+  .hidden{display:none !important;}
+  a.credit{color:var(--muted); font-size:0.78rem; display:block; text-align:center; margin-top:22px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="lang-row">
+    <button class="home-link" id="homeLink">↩ Volver al inicio</button>
+    <div class="lang-switch">
+      <button data-lang="es" class="active">ES</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+  <div class="badge badge-note">🎵</div>
+  <div class="badge badge-clock">⏱️</div>
+  <div class="brand"><div class="disc"></div><h1 id="appTitle">Adivina la canción</h1></div>
+  <p class="subtitle" id="subtitleText">Modo libre: suena el fragmento, el primero que grita la respuesta se anota el punto.</p>
+
+  <!-- ONBOARDING -->
+  <section id="onboarding" class="card">
+    <h2 id="onbTitle" class="onb-title">¿Cómo se juega?</h2>
+    <div class="step">
+      <div class="step-num">1</div>
+      <p class="step-text" id="step1">📵 Celulares boca abajo antes de arrancar — nada de Shazam ni buscar la canción durante la ronda.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p class="step-text" id="step2">Suena el fragmento con una cuenta regresiva de 30 segundos. El primero en gritar la respuesta correcta se anota puntos — sin turnos ni buzzer.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p class="step-text" id="step3">Para sumar puntos alcanza con acertar <b>el título de la canción, el artista o la película/videojuego</b> del que es — no hace falta decir los tres.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <p class="step-text" id="step4">Cuánto más rápido acertás, más vale: <b>antes de los 5 segundos son 3 puntos, hasta los 15 son 2, y hasta los 30 es 1 punto</b>. Si pausás la canción, el tiempo también se pausa.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <p class="step-text" id="step5">Tocá "Revelar canción" para confirmar la respuesta, mostrarla a todos y asignar el puntaje que corresponda.</p>
+    </div>
+    <button class="btn-primary" id="onboardingBtn">Comenzar</button>
+  </section>
+
+  <!-- SETUP -->
+  <section id="setup" class="hidden card">
+    <label class="guess-label" id="whoPlaysLabel" style="margin-bottom:0;">¿Quién juega hoy?</label>
+    <div class="field-row">
+      <input type="text" id="playerInput" placeholder="Nombre del jugador o equipo" maxlength="20">
+      <button class="btn-add" id="addPlayerBtn">Agregar</button>
+    </div>
+    <div class="chips" id="chips"></div>
+    <p class="empty-hint" id="emptyHint">Agregá al menos un jugador o equipo para empezar.</p>
+
+    <label class="guess-label" id="roundsLabel" style="margin-bottom:0;">¿Cuántas rondas querés jugar?</label>
+    <div class="field-row">
+      <input type="number" id="roundsInput" min="1" value="20">
+    </div>
+    <p class="rounds-hint" id="roundsHint">Hay 164 canciones disponibles en el banco.</p>
+
+    <button class="btn-primary" id="startBtn" disabled>Empezar juego</button>
+    <p class="count-note" id="countNote"></p>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="hidden">
+    <div class="top-row">
+      <span class="round-pill"><span id="roundLabel">Ronda</span> <b id="roundNum">1</b> / <b id="roundTotal">21</b></span>
+      <button class="reset-link" id="resetBtn">Reiniciar juego</button>
+    </div>
+
+    <div class="no-phones-banner" id="noPhonesBanner">📵 Celulares boca abajo — nada de Shazam</div>
+
+    <div class="step-dots" id="stepDots">
+      <span class="seg" data-step="1"></span>
+      <span class="seg" data-step="2"></span>
+      <span class="seg" data-step="3"></span>
+      <span class="seg" data-step="4"></span>
+    </div>
+
+    <div class="stage">
+
+      <!-- STEP 1: listen -->
+      <div class="step-panel" id="panelListen">
+        <div class="countdown-wrap">
+          <div class="countdown" id="countdownLabel">30</div>
+          <div class="countdown-sub" id="countdownSub">segundos — antes de los 5s vale 3 pts, hasta los 15s 2 pts, hasta los 30s 1 pt</div>
+        </div>
+        <div class="turntable" id="turntable">
+          <svg viewBox="0 0 300 200">
+            <defs>
+              <clipPath id="deckClip">
+                <rect x="60" y="40" width="218" height="176" rx="16"/>
+              </clipPath>
+            </defs>
+            <!-- deck -->
+            <rect x="60" y="40" width="218" height="176" rx="16" fill="var(--amber)"/>
+            <rect x="60" y="186" width="218" height="30" fill="var(--amber-deep)" opacity="0.28" clip-path="url(#deckClip)"/>
+            <circle cx="255" cy="177" r="6" fill="var(--ink)"/>
+            <circle cx="255" cy="197" r="6" fill="var(--ink)"/>
+            <rect x="196" y="189" width="24" height="6" rx="2" fill="var(--ink)" opacity="0.8"/>
+            <rect x="226" y="189" width="24" height="6" rx="2" fill="var(--ink)" opacity="0.8"/>
+            <circle cx="246" cy="76" r="13" fill="#12141A"/>
+            <circle cx="246" cy="76" r="6" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5"/>
+
+            <!-- vinyl (spins via .vinylgroup) -->
+            <g class="vinylgroup" id="vinylDisc">
+              <circle cx="140" cy="128" r="92" fill="#0C0A14"/>
+              <g fill="none" stroke="#26222f" stroke-width="1.4">
+                <circle cx="140" cy="128" r="84"/><circle cx="140" cy="128" r="76"/>
+                <circle cx="140" cy="128" r="68"/><circle cx="140" cy="128" r="60"/>
+                <circle cx="140" cy="128" r="52"/><circle cx="140" cy="128" r="44"/>
+                <circle cx="140" cy="128" r="36"/>
+              </g>
+              <circle cx="140" cy="128" r="30" fill="#F2924B"/>
+              <circle cx="140" cy="128" r="30" fill="none" stroke="#0C0A14" stroke-width="1" opacity="0.25"/>
+              <circle cx="140" cy="128" r="4" fill="#0C0A14"/>
+            </g>
+
+            <!-- tonearm (rotates onto the record via .armgroup) -->
+            <g class="armgroup" id="tonearm">
+              <path d="M244,84 C226,104 211,126 186,148" fill="none" stroke="#EDEEF2" stroke-width="7" stroke-linecap="round"/>
+              <g transform="translate(178,150) rotate(-38)">
+                <rect x="-8" y="-5" width="18" height="11" rx="2" fill="#AEB4BD"/>
+                <circle cx="9" cy="0" r="2" fill="#12141A"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="control-row">
+          <button class="control-btn" id="playBtn" aria-label="Reproducir o pausar fragmento">
+            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="pauseIcon" viewBox="0 0 24 24" class="hidden"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            <span id="controlLabel">Reproducir</span>
+          </button>
+          <div class="time" id="timeLabel">0:00 / 0:00</div>
+        </div>
+        <p class="load-warn" id="loadWarn">No se pudo cargar este fragmento — saltá a la siguiente canción.</p>
+
+        <button class="btn-reveal" id="revealBtn">Revelar canción</button>
+      </div>
+
+      <!-- STEP 2: reveal -->
+      <div class="step-panel hidden" id="panelReveal">
+        <div class="reveal-card" id="revealCard">
+          <img id="revealImg" src="" alt="">
+          <div>
+            <div class="t" id="revealTitle"></div>
+            <div class="a" id="revealArtist"></div>
+            <div class="m" id="revealMedia"></div>
+          </div>
+        </div>
+        <button class="btn-next" id="continueToAssignBtn">Continuar →</button>
+      </div>
+
+      <!-- STEP 3: assign point -->
+      <div class="step-panel hidden" id="panelAssign">
+        <p class="points-badge" id="pointsBadge">🏆 Esta ronda vale 3 puntos</p>
+        <p class="guess-label" id="whoGuessedLabel">¿Quién acertó? (suma un punto)</p>
+        <div class="guess-grid" id="guessGrid"></div>
+        <button class="btn-skip" id="skipPointBtn">Nadie acertó</button>
+      </div>
+
+      <!-- STEP 4: score -->
+      <div class="step-panel hidden" id="panelScore">
+        <p class="score-title" id="scoreTitle">Marcador</p>
+        <div class="scoreboard scoreboard-big" id="scoreboard"></div>
+        <button class="btn-next" id="nextBtn">Siguiente canción →</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="final" class="hidden card final-card">
+    <div class="trophy">🏆</div>
+    <h2 id="finishedHeading">¡Terminó el juego!</h2>
+    <div class="win-name" id="winName"></div>
+    <div class="final-list" id="finalList"></div>
+    <div class="mentions" id="mentionsList"></div>
+    <button class="btn-primary" id="playAgainBtn">Jugar otra vez</button>
+  </section>
+
+  <audio id="player" preload="none"></audio>
+  <p class="credit" id="creditText">Fragmentos de 30s vía Spotify</p>
+</div>
+
+<script>
+// ---------- Track data ----------
+const TRACKS = [
+  {title:"Vogue - Edit", artist:"Madonna", audio:"https://p.scdn.co/mp3-preview/4e0a4c78e6b39c50e20e28f65dd495076d0359de", img:"https://i.scdn.co/image/ab67616d0000b273a9054a6256c08c0bb53ef9e0", media:"The Devil Wears Prada / Pose"},
+  {title:"School of Rock", artist:"School of Rock Cast", audio:"https://p.scdn.co/mp3-preview/add3e27dd90a3e048fe2a3b8120401bf5ec6ce39", img:"https://i.scdn.co/image/ab67616d0000b2735628a3c840a47b3d7049b0f6", media:"School of Rock"},
+  {title:"You Only Live Twice", artist:"Movie Sounds Unlimited", audio:"https://p.scdn.co/mp3-preview/10afeae262a3e9c81e48d4e5e724b831c50bd48e", img:"https://i.scdn.co/image/ab67616d0000b2733cdb37d3edc45c74748ab3f9", media:"You Only Live Twice (James Bond)"},
+  {title:"Blue Beetle Suite", artist:"Bobby Krlic", audio:"https://p.scdn.co/mp3-preview/f71e42084a477e50585e4c510230a18b981d8b29", img:"https://i.scdn.co/image/ab67616d0000b273ae2513aaa040a4c723f1ca16", media:"Blue Beetle"},
+  {title:"Changes", artist:"Butterfly Boucher, David Bowie", audio:"https://p.scdn.co/mp3-preview/79073b8d7e7d51eafa95b62dc50738e5db7bb162", img:"https://i.scdn.co/image/ab67616d0000b273a895c616f899f06429bc8b4f", media:"Shrek 2"},
+  {title:"Finale / Reprise", artist:"Danny Elfman", audio:"https://p.scdn.co/mp3-preview/4246c1e1df65c3f6b701235877348ea93f3557fe", img:"https://i.scdn.co/image/ab67616d0000b273c7c4b70ceab165ca1d716467", media:"The Nightmare Before Christmas"},
+  {title:"Crazy Dave (Intro Theme)", artist:"Laura Shigihara", audio:"https://p.scdn.co/mp3-preview/008bea740f7036cc20bfa13d0c616d615213240f", img:"https://i.scdn.co/image/ab67616d0000b273486983be2d3af3d6d09d20d4", media:"Plants vs. Zombies"},
+  {title:"Hopelessly Devoted To You", artist:"Olivia Newton-John", audio:"https://p.scdn.co/mp3-preview/73801186c28b84027a8e241f2c128210a72bdd09", img:"https://i.scdn.co/image/ab67616d0000b273fed84093c25ad9637fd126c6", media:"Grease"},
+  {title:"Killin' Kind", artist:"Shelby Lynne", audio:"https://p.scdn.co/mp3-preview/42eecf698dffbece434fc8870452f778e2bda786", img:"https://i.scdn.co/image/ab67616d0000b27353d72d7ba480986a59d88179", media:"Bridget Jones's Diary"},
+  {title:"A Spoonful of Sugar", artist:"Mary Poppins (Original London Cast)", audio:"https://p.scdn.co/mp3-preview/8f385124ad5758873040eac2610223fc32352706", img:"https://i.scdn.co/image/ab67616d0000b273cc4d85cc5f116b0e1f3d53a2", media:"Mary Poppins"},
+  {title:"L'autre valse d'Amélie", artist:"Yann Tiersen", audio:"https://p.scdn.co/mp3-preview/c9b3c52f06beb9fece6bc2ccfa03876af1770eb2", img:"https://i.scdn.co/image/ab67616d0000b273ee775f97810de406b047429a", media:"Amélie"},
+  {title:"Heal Me", artist:"Lady Gaga", audio:"https://p.scdn.co/mp3-preview/a54df22a0de074b77d6fa41b05a5693714fc972a", img:"https://i.scdn.co/image/ab67616d0000b273b5d4b4ed17ec86c4b3944af2", media:"A Star Is Born"},
+  {title:"Pray For Me", artist:"The Weeknd, Kendrick Lamar", audio:"https://p.scdn.co/mp3-preview/a928f2c9acb8d65643b17f38439abb626b738205", img:"https://i.scdn.co/image/ab67616d0000b2738ac2a58fbcab6a775e790b15", media:"Black Panther"},
+  {title:"Light of the Seven", artist:"Ramin Djawadi", audio:"https://p.scdn.co/mp3-preview/d1b9ffbe694544c52684f0b39235b831eee1f1e4", img:"https://i.scdn.co/image/ab67616d0000b273b8f0101e1dbcbb4d78b325a8", media:"Game of Thrones"},
+  {title:"Comptine d'un autre été, l'après-midi", artist:"Yann Tiersen", audio:"https://p.scdn.co/mp3-preview/df24e196f6607178532177beefb9acf8b73fa68b", img:"https://i.scdn.co/image/ab67616d0000b273744df0b9856350ecdeae5729", media:"Amélie"},
+  {title:"City Of Stars", artist:"Ryan Gosling", audio:"https://p.scdn.co/mp3-preview/28e2096014abe8c4d3896350e73e4bfbf03c4c97", img:"https://i.scdn.co/image/ab67616d0000b2730bdf4dd39843ad48c5b66bc4", media:"La La Land"},
+  {title:"Pokemon Theme", artist:"Pokémon", audio:"https://p.scdn.co/mp3-preview/f44fca869c71eb9521dacd3f4772d6fa6320080f", img:"https://i.scdn.co/image/ab67616d0000b2734f806e8612b94a3624bb9eeb", media:"Pokémon"},
+  {title:"Skyfall", artist:"Adele", audio:"https://p.scdn.co/mp3-preview/e6dca60e101323cdeedccdd1c42f2afdf828ff26", img:"https://i.scdn.co/image/ab67616d0000b2730791f833e3f0795124015263", media:"Skyfall"},
+  {title:"Star Wars: Main Title", artist:"John Williams, Boston Pops Orchestra", audio:"https://p.scdn.co/mp3-preview/d7cbfcd8da9c796d65777cee3658efaee3ccce64", img:"https://i.scdn.co/image/ab67616d0000b273d069f9faf9f469e6f2d38e4e", media:"Star Wars"},
+  {title:"Star Trek Main Theme", artist:"Michael Giacchino", audio:"https://p.scdn.co/mp3-preview/5af3400e8ddef38571fa705762556d23bd2a7e0c", img:"https://i.scdn.co/image/ab67616d0000b27320cfb62c7fa8ea531ea020a3", media:"Star Trek"},
+  {title:"Oh Happy Day", artist:"Lil Paul", audio:"https://p.scdn.co/mp3-preview/0366a91598ac926b147efe5195af065751c50ea8", img:"https://i.scdn.co/image/ab67616d0000b273a425c4e2a3d19d9c67c18f32", media:"Sister Act 2: Back in the Habit"},
+  {title:"A Deeper Love - A Deeper Mix", artist:"Aretha Franklin", audio:"https://p.scdn.co/mp3-preview/c21f6e569d06e52151848c112e452caaa71e3c80", img:"https://i.scdn.co/image/ab67616d0000b27325a87518fcdcffbda5ac634e", media:"Sister Act 2: Back in the Habit"},
+  {title:"Peaches", artist:"Jack Black (Super Mario Bros. Movie)", audio:"https://p.scdn.co/mp3-preview/29b47031a17b25576cbcc6f4ab72eb9800360720", img:"https://i.scdn.co/image/ab67616d0000b273c21aa4015cb02b6b8eca09a4", media:"The Super Mario Bros. Movie"},
+  {title:"Peaches (Metal Cover)", artist:"David Delgado", audio:"https://p.scdn.co/mp3-preview/da0ac91cd24e94d85fae12bcd5f4094f36c40430", img:"https://i.scdn.co/image/ab67616d0000b273b6392c0e96ef48474fb4202e", media:"The Super Mario Bros. Movie"},
+  {title:"Predator - Main Theme", artist:"Geek Music", audio:"https://p.scdn.co/mp3-preview/db3ad32e67cc87e124ae68f84d2beec1b7f98cfa", img:"https://i.scdn.co/image/ab67616d0000b273bbe3a7539c4d7ed309a2bd63", media:"Predator"},
+  {title:"Tuyo (Narcos Theme) [Extended Version]", artist:"Rodrigo Amarante", audio:"https://p.scdn.co/mp3-preview/5566b771d2da659f96a8cd8b9412a075678b0361", img:"https://i.scdn.co/image/ab67616d0000b27364d924aebcb26f08aac1bf3b", media:"Narcos"},
+  {title:"Way Back then", artist:"jung jaeil", audio:"https://p.scdn.co/mp3-preview/0b53c3b2bd0bd8c96948f84603c9fe2f022a7139", img:"https://i.scdn.co/image/ab67616d0000b273c99dc16ff6e997ef6409468a", media:"Squid Game"},
+  {title:"End Credits", artist:"John Williams", audio:"https://p.scdn.co/mp3-preview/534178cfd9ecca1cabaaf69a751a1f4161894255", img:"https://i.scdn.co/image/ab67616d0000b27392f051ce3c585b5c2db21d52", media:"Jurassic Park"},
+  {title:"Cuban Pete (In the Style of \"Jim Carrey\")", artist:"Done Again", audio:"https://p.scdn.co/mp3-preview/b614c179e84406cbfd5c647509c66a878697dfab", img:"https://i.scdn.co/image/ab67616d0000b273b2956127af740c919bc6f47f", media:"The Mask"},
+  {title:"Stand Out", artist:"Tevin Campbell", audio:"https://p.scdn.co/mp3-preview/512c5b3487fe46f4babc413efa186a63ed4fb68b", img:"https://i.scdn.co/image/ab67616d0000b27314574fcb569eeea21f829bb4", media:"A Goofy Movie"},
+  {title:"I2I", artist:"Tevin Campbell, Rosie Gaines", audio:"https://p.scdn.co/mp3-preview/0d1854ed15fe4c3261440b5993a52e4fb8b35d81", img:"https://i.scdn.co/image/ab67616d0000b27314574fcb569eeea21f829bb4", media:"A Goofy Movie"},
+  {title:"Batman Theme (1966)", artist:"Neal Hefti & his Orchestra and Chorus", audio:"https://p.scdn.co/mp3-preview/e93b49f4e13d18c1c016ee4700a45f9a1d1137b1", img:"https://i.scdn.co/image/ab67616d0000b273fbdd11fc5c3be27892bdc496", media:"Batman (1966 TV series)"},
+  {title:"The Batman Theme", artist:"Danny Elfman", audio:"https://p.scdn.co/mp3-preview/89937f514761c5724161b0e0e4e0648e514cab9f", img:"https://i.scdn.co/image/ab67616d0000b273f5ee870e082d6f11d000554e", media:"Batman (1989)"},
+  {title:"The Sphere", artist:"Bobby Krlic", audio:"https://p.scdn.co/mp3-preview/f89bbbcac2224b75972fd042c09154161c047ea0", img:"https://i.scdn.co/image/ab67616d0000b273ae2513aaa040a4c723f1ca16", media:"Blue Beetle"},
+  {title:"Right Back Where We Started From", artist:"Maxine Nightingale", audio:"https://p.scdn.co/mp3-preview/728508636a80869d51c0b0d9e78169d4e74d9c72", img:"https://i.scdn.co/image/ab67616d0000b273c2ae5f063decea655ca5f21a", media:"Shrek Forever After"},
+  {title:"As Lovers Go - Remix", artist:"Dashboard Confessional", audio:"https://p.scdn.co/mp3-preview/e3bb1f2580af5ef0bf8ead4b3733b4b0dd2717e4", img:"https://i.scdn.co/image/ab67616d0000b273b068f21fdcb0a9ad33a888ed", media:"Shrek 2"},
+  {title:"Accidentally In Love", artist:"Counting Crows", audio:"https://p.scdn.co/mp3-preview/a3b8d7618abe9a5f71e8d9fb457e2aa7bcb5895a", img:"https://i.scdn.co/image/ab67616d0000b273b068f21fdcb0a9ad33a888ed", media:"Shrek 2"},
+  {title:"I'm On My Way", artist:"The Proclaimers", audio:"https://p.scdn.co/mp3-preview/653f6604f43d9d9f9456c28c5ec27cd08d715be3", img:"https://i.scdn.co/image/ab67616d0000b273b2640f966e1a53e25f7d53df", media:"Shrek"},
+  {title:"All Star", artist:"Smash Mouth", audio:"https://p.scdn.co/mp3-preview/2e63cdb1c3dd5808abce774674f5c440c614f53a", img:"https://i.scdn.co/image/ab67616d0000b273b2640f966e1a53e25f7d53df", media:"Shrek"},
+  {title:"My Beloved Monster", artist:"Eels", audio:"https://p.scdn.co/mp3-preview/0e55e6f160eb57aef6e46d0d0eac0240c0fbe827", img:"https://i.scdn.co/image/ab67616d0000b273b2640f966e1a53e25f7d53df", media:"Shrek"},
+  {title:"Kokomo", artist:"The Beach Boys", audio:"https://p.scdn.co/mp3-preview/8a33ab47e93de0203c7e3fd39fc41d5513884d4e", img:"https://i.scdn.co/image/ab67616d0000b273c5634c0532097e175199f07e", media:"Cocktail"},
+  {title:"It's Been a Long, Long Time", artist:"Harry James", audio:"https://p.scdn.co/mp3-preview/9dc9608113428d731d57068e3dd34d9a1dd2769d", img:"https://i.scdn.co/image/ab67616d0000b27388347139ece65ca1134a00a7", media:"Fallout"},
+  {title:"Don't Worry Baby", artist:"The Beach Boys", audio:"https://p.scdn.co/mp3-preview/c207d7d29d44be923c7e0c25d214a916f40e39b5", img:"https://i.scdn.co/image/ab67616d0000b273c5634c0532097e175199f07e", media:"Never Been Kissed"},
+  {title:"Young Hearts Run Free", artist:"Movie Soundtrack All Stars (Romeo & Juliet)", audio:"https://p.scdn.co/mp3-preview/537b78dceb5d41e4da1069342ec03b4d161ff6f3", img:"https://i.scdn.co/image/ab67616d0000b2739420c5912f719ca5c4e4ca2b", media:"Romeo + Juliet"},
+  {title:"Victor's Piano Solo", artist:"Danny Elfman", audio:"https://p.scdn.co/mp3-preview/1ac7dd016fab3cab314ddee0eea94d55a58c5db0", img:"https://i.scdn.co/image/ab67616d0000b2737a8475fe4d76a946efb22479", media:"Corpse Bride"},
+  {title:"Sally's Song", artist:"Catherine O'Hara", audio:"https://p.scdn.co/mp3-preview/63f31b111978440784a93f06d2a003617f3f23ae", img:"https://i.scdn.co/image/ab67616d0000b273c7c4b70ceab165ca1d716467", media:"The Nightmare Before Christmas"},
+  {title:"Married Life", artist:"Michael Giacchino", audio:"https://p.scdn.co/mp3-preview/e599c56585d8c4ee722d50b10a6d98840ca2deb2", img:"https://i.scdn.co/image/ab67616d0000b27384d72681f4365ee2090ba0ba", media:"Up"},
+  {title:"You're The One That I Want", artist:"John Travolta, Olivia Newton-John", audio:"https://p.scdn.co/mp3-preview/a36eca61bdedfaacf2a7c42c9d5eece1864774cd", img:"https://i.scdn.co/image/ab67616d0000b273b799d2ec11728f882823c898", media:"Grease"},
+  {title:"Unchained Melody", artist:"The Righteous Brothers", audio:"https://p.scdn.co/mp3-preview/6bf5e54931ce622e2e5b402b2d5959353de8cb10", img:"https://i.scdn.co/image/ab67616d0000b273cfba57673816ba988f308b7f", media:"Ghost"},
+  {title:"Never Ending Story - Giorgio Mix", artist:"Limahl", audio:"https://p.scdn.co/mp3-preview/9a32a64defb77eefd85906967ba16c3188e872e7", img:"https://i.scdn.co/image/ab67616d0000b273de4644dafbe72765cd8db0d7", media:"The NeverEnding Story"},
+  {title:"Night Fever", artist:"Bee Gees (Saturday Night Fever)", audio:"https://p.scdn.co/mp3-preview/0f667d5e78b21097e5439718edf347b807965cb2", img:"https://i.scdn.co/image/ab67616d0000b273c129b7e46bb0d8b054dae51f", media:"Saturday Night Fever"},
+  {title:"Choose Your Seeds", artist:"Laura Shigihara", audio:"https://p.scdn.co/mp3-preview/060f01e98cd699c3380432691091ba8f36b6a24c", img:"https://i.scdn.co/image/ab67616d0000b273486983be2d3af3d6d09d20d4", media:"Plants vs. Zombies"},
+  {title:"Zombies on Your Lawn", artist:"Laura Shigihara", audio:"https://p.scdn.co/mp3-preview/e3b03ab195fe9a134a16f38202c1d646548366a7", img:"https://i.scdn.co/image/ab67616d0000b273486983be2d3af3d6d09d20d4", media:"Plants vs. Zombies"},
+  {title:"A Thousand Miles", artist:"Vanessa Carlton", audio:"https://p.scdn.co/mp3-preview/1dab77144140b38cf360a7e770f002335884954f", img:"https://i.scdn.co/image/ab67616d0000b273bc3ada3a19bb4e657f10917e", media:"White Chicks"},
+  {title:"Don't Need You To (Tell Me I'm Pretty)", artist:"Samantha Mumba", audio:"https://p.scdn.co/mp3-preview/787cbf203b3f605f6b9c91854c4e629a4354d07f", img:"https://i.scdn.co/image/ab67616d0000b2735084f6dcb03b1b2e3381256e", media:"Legally Blonde"},
+  {title:"We Could Still Belong Together", artist:"Lisa Loeb", audio:"https://p.scdn.co/mp3-preview/ec5326d1304be5b8957266076d5c623864eed6a0", img:"https://i.scdn.co/image/ab67616d0000b27313850b2a778f34985e2fa8c4", media:"Legally Blonde"},
+  {title:"Love Is A Beautiful Thing - Remix", artist:"Krystal Harris (Legally Blonde)", audio:"https://p.scdn.co/mp3-preview/c099458d79758ec66a8cf2548c2d7ff11c422784", img:"https://i.scdn.co/image/ab67616d0000b273a579c825e800b17fdebf8093", media:"Legally Blonde"},
+  {title:"Perfect Day - Chris Lord Alge Mix", artist:"Hoku (Legally Blonde)", audio:"https://p.scdn.co/mp3-preview/df145239485e6d68672e86162c16ae9bfaf0c53d", img:"https://i.scdn.co/image/ab67616d0000b273a579c825e800b17fdebf8093", media:"Legally Blonde"},
+  {title:"Techno Syndrome (Mortal Kombat)", artist:"The Immortals", audio:"https://p.scdn.co/mp3-preview/7e548760237be4d50dd12245589cffc377423699", img:"https://i.scdn.co/image/ab67616d0000b273d3c151a433ec5f584fd4445d", media:"Mortal Kombat"},
+  {title:"Die House", artist:"Kristofer Maddigan", audio:"https://p.scdn.co/mp3-preview/edd4fd405f17b1a57922a665ae81a0ff8d4c39c3", img:"https://i.scdn.co/image/ab67616d0000b27305ded1194cfefa65af276a4e", media:"Cuphead"},
+  {title:"Introduction", artist:"Kristofer Maddigan", audio:"https://p.scdn.co/mp3-preview/f44a26a3ff88a755c025f13e2dfb482fff976238", img:"https://i.scdn.co/image/ab67616d0000b27305ded1194cfefa65af276a4e", media:"Cuphead"},
+  {title:"Floral Fury", artist:"Kristofer Maddigan", audio:"https://p.scdn.co/mp3-preview/e5f2ea10658ad11b0b41fdca0c94931a7f1ca543", img:"https://i.scdn.co/image/ab67616d0000b27305ded1194cfefa65af276a4e", media:"Cuphead"},
+  {title:"(I've Had) The Time Of My Life", artist:"Bill Medley, Jennifer Warnes", audio:"https://p.scdn.co/mp3-preview/a2644fe50aefcfbfcd9cf950d14978f9c136b3fb", img:"https://i.scdn.co/image/ab67616d0000b273ac19c6552524d207aac1277b", media:"Dirty Dancing"},
+  {title:"Hungry Eyes", artist:"Eric Carmen", audio:"https://p.scdn.co/mp3-preview/6fa87a623f2619b6a94ce551e11d182a0af28a02", img:"https://i.scdn.co/image/ab67616d0000b273ac19c6552524d207aac1277b", media:"Dirty Dancing"},
+  {title:"She's Like the Wind", artist:"Patrick Swayze, Wendy Fraser", audio:"https://p.scdn.co/mp3-preview/3276109718ed1ca9b9420efc8fd7e700e7d29584", img:"https://i.scdn.co/image/ab67616d0000b273ac19c6552524d207aac1277b", media:"Dirty Dancing"},
+  {title:"Be My Baby", artist:"The Ronettes", audio:"https://p.scdn.co/mp3-preview/ad2f575895453d5f04d2d3bad2dc70bb88cf2006", img:"https://i.scdn.co/image/ab67616d0000b273ac19c6552524d207aac1277b", media:"Dirty Dancing"},
+  {title:"Saint Behind the Glass", artist:"Los Lobos", audio:"https://p.scdn.co/mp3-preview/8cca21fb3c831031307c9bca64c0d261b21e46c4", img:"https://i.scdn.co/image/ab67616d0000b2732b056f2c3d192f7a546cf13f", media:"Desperado"},
+  {title:"Mucha Muchacha", artist:"Esquivel!", audio:"https://p.scdn.co/mp3-preview/b398c4f52ff4f1a7cc6cc9cbbce1941d9eb5eab8", img:"https://i.scdn.co/image/ab67616d0000b2734588cf8fb9e60c5c05649965", media:"Nacho Libre"},
+  {title:"Six Days - Remix", artist:"DJ Shadow, Mos Def", audio:"https://p.scdn.co/mp3-preview/adb7f0981a39a93646b351671fb3e98e8d658f5d", img:"https://i.scdn.co/image/ab67616d0000b2731ac9ce801650e0bed9a6a85b", media:"The Fast and the Furious: Tokyo Drift"},
+  {title:"Tokyo Drift", artist:"Teriyaki Boyz (Fast & Furious)", audio:"https://p.scdn.co/mp3-preview/e1c05b10310f4082b2db1aebcfc6f279d2c8f8f5", img:"https://i.scdn.co/image/ab67616d0000b2731ac9ce801650e0bed9a6a85b", media:"The Fast and the Furious: Tokyo Drift"},
+  {title:"Kung Fu Fighting", artist:"CeeLo Green, Jack Black", audio:"https://p.scdn.co/mp3-preview/27746b0cb791fdc22164394460e5a5e4fa130172", img:"https://i.scdn.co/image/ab67616d0000b27327305a9eae4c2f17eb990ab0", media:"Kung Fu Panda"},
+  {title:"The Mandalorian", artist:"Ludwig Göransson", audio:"https://p.scdn.co/mp3-preview/25c9dfad8154e57be2fa8117b86948ac9866e0e1", img:"https://i.scdn.co/image/ab67616d0000b273d35e660d944b0601765fc32a", media:"The Mandalorian"},
+  {title:"Supercalifragilisticexpialidocious", artist:"Mary Poppins (Original London Cast)", audio:"https://p.scdn.co/mp3-preview/267071639c377e8a7b228edb5100a05657dfd380", img:"https://i.scdn.co/image/ab67616d0000b273cc4d85cc5f116b0e1f3d53a2", media:"Mary Poppins"},
+  {title:"Dragula", artist:"Rob Zombie", audio:"https://p.scdn.co/mp3-preview/4a7c65e9a3b50afd83df27e13b2a88c61cd40ec6", img:"https://i.scdn.co/image/ab67616d0000b27313d4adf9e4b938f88266f4e4", media:"The Matrix"},
+  {title:"Cancion del Mariachi", artist:"Antonio Banderas, Los Lobos", audio:"https://p.scdn.co/mp3-preview/3de4841b0f8371febb8eb7382d5fe760e67158df", img:"https://i.scdn.co/image/ab67616d0000b273838e1f6f6e67131c6bdd97d2", media:"Desperado"},
+  {title:"Get Low", artist:"Lil Jon & The East Side Boyz, Ying Yang Twins", audio:"https://p.scdn.co/mp3-preview/be360a507094a10639c1da4d1e8da31514d744dc", img:"https://i.scdn.co/image/ab67616d0000b2735a299d776d91334a9edf734d", media:"2 Fast 2 Furious"},
+  {title:"Feuer frei!", artist:"Rammstein", audio:"https://p.scdn.co/mp3-preview/89837ed28340e1c0248afe20f7917a0f2eead1fd", img:"https://i.scdn.co/image/ab67616d0000b2738b2c42026277efc3e058855b", media:"xXx"},
+  {title:"You Never Can Tell", artist:"Chuck Berry (Pulp Fiction)", audio:"https://p.scdn.co/mp3-preview/973fac17a1875b49aa13235dac12bdb68d630f35", img:"https://i.scdn.co/image/ab67616d0000b273dd6af2943116550e90ee21ef", media:"Pulp Fiction"},
+  {title:"Epilogue", artist:"Justin Hurwitz", audio:"https://p.scdn.co/mp3-preview/d00d907ceadd33f9a0899bf7f4d5d532baf8d41b", img:"https://i.scdn.co/image/ab67616d0000b2739387dbc2b28a455d6995d1ff", media:"La La Land"},
+  {title:"La valse des vieux os", artist:"Yann Tiersen", audio:"https://p.scdn.co/mp3-preview/88659cd49dd041fd04d3d0693f3f0027d2270e78", img:"https://i.scdn.co/image/ab67616d0000b273ee775f97810de406b047429a", media:"Amélie"},
+  {title:"Sunflower", artist:"Post Malone, Swae Lee", audio:"https://p.scdn.co/mp3-preview/3c0788c6aba94192edcb497d9a02075bf76c5400", img:"https://i.scdn.co/image/ab67616d0000b273ef376d3257503f734de0eefc", media:"Spider-Man: Into the Spider-Verse"},
+  {title:"Breaking Bad Main Title Theme", artist:"Dave Porter", audio:"https://p.scdn.co/mp3-preview/fa0a1b149140d32d639e6d04d797992a545926bc", img:"https://i.scdn.co/image/ab67616d0000b2732aabcf79e0240e36f95877b5", media:"Breaking Bad"},
+  {title:"Baby Blue", artist:"Badfinger (Breaking Bad)", audio:"https://p.scdn.co/mp3-preview/d7e2ae28bafe7cba2626d7717932773e6dc0d4b8", img:"https://i.scdn.co/image/ab67616d0000b273e2dd29cdaa3fadbdc26d59c4", media:"Breaking Bad"},
+  {title:"Negro Y Azul: The Ballad of Heisenberg", artist:"Los Cuates de Sinaloa (Breaking Bad)", audio:"https://p.scdn.co/mp3-preview/62557820a45d4394bcfae6dc955dd8086760acc0", img:"https://i.scdn.co/image/ab67616d0000b2732e14823908a9560013673d14", media:"Breaking Bad"},
+  {title:"Smile", artist:"Jimmy Durante (Modern Times)", audio:"https://p.scdn.co/mp3-preview/50de2acd6f1350c441b11c8bb5ead284eab4c205", img:"https://i.scdn.co/image/ab67616d0000b273fcea1e17a45cc24463acc6ca", media:"Modern Times"},
+  {title:"Smile", artist:"Nat King Cole", audio:"https://p.scdn.co/mp3-preview/8b306ef843cc5863aceae340418b4c404beeb9b5", img:"https://i.scdn.co/image/ab67616d0000b273deac5adf07affb5fec422701", media:"Modern Times"},
+  {title:"Flashdance...What a Feeling", artist:"Irene Cara", audio:"https://p.scdn.co/mp3-preview/2d32514c920447ce869c2599cc0950e8f8d5d789", img:"https://i.scdn.co/image/ab67616d0000b2732ff76b4da68f018b4735ee59", media:"Flashdance"},
+  {title:"Shallow", artist:"Lady Gaga, Bradley Cooper", audio:"https://p.scdn.co/mp3-preview/c24eedd14e6ba0dc3a70618eb784840216f0ceb5", img:"https://i.scdn.co/image/ab67616d0000b273b5d4b4ed17ec86c4b3944af2", media:"A Star Is Born"},
+  {title:"La Vie En Rose", artist:"Lady Gaga", audio:"https://p.scdn.co/mp3-preview/e975cb6ad2a184e9675896f4702e8264516fced8", img:"https://i.scdn.co/image/ab67616d0000b273b5d4b4ed17ec86c4b3944af2", media:"A Star Is Born"},
+  {title:"The Age of Innocence: Theme", artist:"Elmer Bernstein, Itzhak Perlman, John Williams", audio:"https://p.scdn.co/mp3-preview/81edc4b2e4d90ab7aaac7a225f7163cb3f88ef2f", img:"https://i.scdn.co/image/ab67616d0000b2730267c7c4063b992b1f7ae1ca", media:"The Age of Innocence"},
+  {title:"Lonesome Town", artist:"Ricky Nelson (Pulp Fiction)", audio:"https://p.scdn.co/mp3-preview/9fa923899062e6c66a516bf80a7c3251ddf985d6", img:"https://i.scdn.co/image/ab67616d0000b27376bb5abcefccef1eef8c56e0", media:"Pulp Fiction"},
+  {title:"Flash", artist:"Queen (Flash Gordon)", audio:"https://p.scdn.co/mp3-preview/e59a4a3c04f7fe8d5dd4b96b9f8c9153ef3a0d27", img:"https://i.scdn.co/image/ab67616d0000b273565b1d566c3b6b8731908b29", media:"Flash Gordon"},
+  {title:"Princes Of The Universe", artist:"Queen (Highlander)", audio:"https://p.scdn.co/mp3-preview/015b40af267f5b77ccac2579415b017faad8fe8e", img:"https://i.scdn.co/image/ab67616d0000b273e98d08fbea1a2f03229abc20", media:"Highlander"},
+  {title:"Bella ciao", artist:"El Profesor, HUGEL", audio:"https://p.scdn.co/mp3-preview/fe193ea29ce3c629b9ce6d844428d29688779038", img:"https://i.scdn.co/image/ab67616d0000b273bd6dc7e1dde3d7075ad625c4", media:"Money Heist (La Casa de Papel)"},
+  {title:"Redemption", artist:"Zacari, Babes Wodumo", audio:"https://p.scdn.co/mp3-preview/408aef8078245383eaaf554fa8d779886d640645", img:"https://i.scdn.co/image/ab67616d0000b2736bf36d6497b0db242c514a91", media:"Black Panther"},
+  {title:"All The Stars", artist:"Kendrick Lamar, SZA", audio:"https://p.scdn.co/mp3-preview/330c6d6e5bfcc1bc831b6948b57ce9c98e7558bf", img:"https://i.scdn.co/image/ab67616d0000b2736bf36d6497b0db242c514a91", media:"Black Panther"},
+  {title:"I'll Be There for You", artist:"The Rembrandts (Friends theme)", audio:"https://p.scdn.co/mp3-preview/f5af199ecbfb6d21aa5d2943b5d70b339ba42d1a", img:"https://i.scdn.co/image/ab67616d0000b273a2535194dfef3e77437036b5", media:"Friends"},
+  {title:"Thundercats", artist:"Ricardo Silva", audio:"https://p.scdn.co/mp3-preview/386e1ff4a2a14b837ef458e9b93ee77e69aa2bba", img:"https://i.scdn.co/image/ab67616d0000b27379f30b8a960375b691727349", media:"Thundercats"},
+  {title:"Halcones Galácticos (Silverhawks)", artist:"Ricardo Silva", audio:"https://p.scdn.co/mp3-preview/1a48e5e3ddca3fedc12688b20a94d6fecd57bff3", img:"https://i.scdn.co/image/ab67616d0000b27379f30b8a960375b691727349", media:"Silverhawks"},
+  {title:"The Transformers (Theme)", artist:"Lion", audio:"https://p.scdn.co/mp3-preview/6d1b683f6598100024706af22d24bf891cfcf526", img:"https://i.scdn.co/image/ab67616d0000b273bbdee1f99719f34e9ba185c5", media:"Transformers (1984 cartoon)"},
+  {title:"He-Man", artist:"Ricardo Silva", audio:"https://p.scdn.co/mp3-preview/4c70c7267f549fb58b3793c88da1962b5823fdc6", img:"https://i.scdn.co/image/ab67616d0000b27379f30b8a960375b691727349", media:"He-Man and the Masters of the Universe"},
+  {title:"His Eye Is On The Sparrow", artist:"Gene Harris", audio:"https://p.scdn.co/mp3-preview/d49e22b6412be0c9933dc6169c7360c4e9e08022", img:"https://i.scdn.co/image/ab67616d0000b2733ef4ddc76cca59c47b070933", media:"Sister Act"},
+  {title:"Hail Holy Queen", artist:"Sister Act karaoke tribute", audio:"https://p.scdn.co/mp3-preview/a6247bc04789712bc6863beb4e15a34af9a096bb", img:"https://i.scdn.co/image/ab67616d0000b273fc91f34d47eb2c5249315620", media:"Sister Act"},
+  {title:"Joyful Joyful", artist:"Musical Mania (Sister Act 2)", audio:"https://p.scdn.co/mp3-preview/183a628ae9a2761f786204fa55482303cc7e295b", img:"https://i.scdn.co/image/ab67616d0000b2735c713d430f355ff6dffc8915", media:"Sister Act 2: Back in the Habit"},
+  {title:"Oh Happy Day", artist:"Done Again (Sister Act 2)", audio:"https://p.scdn.co/mp3-preview/ede6519e9a9b7359b8a534640539767f3879d36f", img:"https://i.scdn.co/image/ab67616d0000b2736e6eb91ccd60e9d7b0334fcd", media:"Sister Act 2: Back in the Habit"},
+  {title:"I Will Follow Him", artist:"Nohien and Band (Sister Act)", audio:"https://p.scdn.co/mp3-preview/408f2f21574d2de7a6151f47584d12003144d20d", img:"https://i.scdn.co/image/ab67616d0000b27358b835e6a39f2370e85a3f01", media:"Sister Act"},
+  {title:"My Guy", artist:"Various Artists (Sister Act)", audio:"https://p.scdn.co/mp3-preview/bf9b7a0c8e90798cd868cef27740fac20106212a", img:"https://i.scdn.co/image/ab67616d0000b273ec8d7dbb5c1f6e89cbad8bf3", media:"Sister Act"},
+  {title:"Come Together", artist:"Gary Clark Jr., Junkie XL", audio:"https://p.scdn.co/mp3-preview/75369a7f584d0ceb9383a187839de8c63f528291", img:"https://i.scdn.co/image/ab67616d0000b2733c1f75dd2a7d9ed85d8fdcd9", media:"Justice League"},
+  {title:"Pokerap", artist:"Pokémon", audio:"https://p.scdn.co/mp3-preview/bbbb0909868333e0002555c2860f56bfe26192e5", img:"https://i.scdn.co/image/ab67616d0000b2734f806e8612b94a3624bb9eeb", media:"Pokémon"},
+  {title:"Power Rangers Megamix", artist:"Power Rangers, PelleK", audio:"https://p.scdn.co/mp3-preview/00ee1d2391af2152ee47e850b9e4377d13e17266", img:"https://i.scdn.co/image/ab67616d0000b27327ba0bedca8e0d43ef8ebdef", media:"Power Rangers"},
+  {title:"Pokémon®", artist:"Video Games Live", audio:"https://p.scdn.co/mp3-preview/95b43bf99b5a8e05778bb4ab8ca562351d2a8b13", img:"https://i.scdn.co/image/ab67616d0000b2730deacf472b21a3773d37b3f4", media:"Pokémon"},
+  {title:"Super Mario World", artist:"Video Games Live", audio:"https://p.scdn.co/mp3-preview/9ceeba39de322fafc18dbdfa72b03c676139b071", img:"https://i.scdn.co/image/ab67616d0000b2739eaa6beea878d3da16fbc223", media:"Super Mario World"},
+  {title:"Feel the Heat", artist:"Jean Beauvoir", audio:"https://p.scdn.co/mp3-preview/61af182ba1d8639b62a3c1bb1f2f1610dc2285ec", img:"https://i.scdn.co/image/ab67616d0000b2734ed97c6c084175fe2fb0e9dd", media:"Cobra"},
+  {title:"Hi De Ho", artist:"K7", audio:"https://p.scdn.co/mp3-preview/3bcd04fcf146b940eeeed3da648bd4d789a1f782", img:"https://i.scdn.co/image/ab67616d0000b27356bc8a9c9aa89e8159284079", media:"The Mask"},
+  {title:"Hey Pachuco!", artist:"Royal Crown Revue", audio:"https://p.scdn.co/mp3-preview/ade2769194edd63f3f0ecda3bd88f697c4e606c3", img:"https://i.scdn.co/image/ab67616d0000b273234537d0d2d169cb8701c626", media:"The Mask"},
+  {title:"We Are Sex Bob-Omb", artist:"Sex Bob-Omb", audio:"https://p.scdn.co/mp3-preview/a594b1935451c8af10bcfdb345d32db3584271a0", img:"https://i.scdn.co/image/ab67616d0000b273e179d5018401c59559b393ec", media:"Scott Pilgrim vs. the World"},
+  {title:"Ghostbusters", artist:"Ray Parker Jr.", audio:"https://p.scdn.co/mp3-preview/c3208782a07dbff4c46f9f769c531039b4cd8648", img:"https://i.scdn.co/image/ab67616d0000b27332f8412a7cae5f847aef07d8", media:"Ghostbusters"},
+  {title:"Batman (1989): Main Theme", artist:"Dominik Hauser", audio:"https://p.scdn.co/mp3-preview/31c94fabf5e86263a378a7464520687f8a49974a", img:"https://i.scdn.co/image/ab67616d0000b27380d9330b8865637bcbbcb40e", media:"Batman (1989)"},
+  {title:"Pacific Rim", artist:"Ramin Djawadi, Tom Morello", audio:"https://p.scdn.co/mp3-preview/afe32904aa745c0411320ce0ca5c149071c8e694", img:"https://i.scdn.co/image/ab67616d0000b2738ce656bfce8e1c991da0301a", media:"Pacific Rim"},
+  {title:"Cinema Paradiso", artist:"Ennio Morricone", audio:"https://p.scdn.co/mp3-preview/697b618bee7380809b3b0e4b0c0464d6e2c65dd6", img:"https://i.scdn.co/image/ab67616d0000b2730e3c78495a73e2e468669374", media:"Cinema Paradiso"},
+  {title:"It's Over / Engagement Party", artist:"Justin Hurwitz", audio:"https://p.scdn.co/mp3-preview/06c76492fdb8964141669240386b54aecc8254ea", img:"https://i.scdn.co/image/ab67616d0000b2739387dbc2b28a455d6995d1ff", media:"La La Land"},
+  {title:"Another Day Of Sun", artist:"La La Land Cast", audio:"https://p.scdn.co/mp3-preview/d3f7ec6ec7263c5a366e67ced2070b4fbd55c337", img:"https://i.scdn.co/image/ab67616d0000b2730bdf4dd39843ad48c5b66bc4", media:"La La Land"},
+  {title:"Mia & Sebastian's Theme", artist:"Justin Hurwitz", audio:"https://p.scdn.co/mp3-preview/b901ffa9eb4a6dfae2fccf4d41fa94aab3a8acd8", img:"https://i.scdn.co/image/ab67616d0000b2730bdf4dd39843ad48c5b66bc4", media:"La La Land"},
+  {title:"To Be Human", artist:"Sia, Labrinth", audio:"https://p.scdn.co/mp3-preview/64d60a3eb43aabdb0f20daf9eb01408876f926b7", img:"https://i.scdn.co/image/ab67616d0000b273365702ae8e6ecf723db68e2e", media:"Wonder Woman"},
+  {title:"Build Me Up Buttercup", artist:"The Foundations", audio:"https://p.scdn.co/mp3-preview/bf637943cff4caa4604605f2e2d500f3e8055492", img:"https://i.scdn.co/image/ab67616d0000b273bd5d2c50c3e03f61eee8a6b7", media:"There's Something About Mary"},
+  {title:"Tetris Theme - 8-Bit Version", artist:"8 Bit Universe", audio:"https://p.scdn.co/mp3-preview/febe958fbaf7c56277bbf2b1ee3d59de2654d682", img:"https://i.scdn.co/image/ab67616d0000b27389ab1412a886ca990dd60413", media:"Tetris"},
+  {title:"X-MEN Cartoon Theme for Orchestra", artist:"George Shaw", audio:"https://p.scdn.co/mp3-preview/130dc3771e1d71b6a8d68240fb2dc3dbc6f06816", img:"https://i.scdn.co/image/ab67616d0000b273da6935c35483c701be66691a", media:"X-Men (1992 cartoon)"},
+  {title:"Williams: Main Theme (Schindler's List)", artist:"John Williams, Maxim Vengerov, Ian Brown", audio:"https://p.scdn.co/mp3-preview/88b17305f77e66044b45588758ff6ab78cae4357", img:"https://i.scdn.co/image/ab67616d0000b273b309748c2c3b57d1101ad6dc", media:"Schindler's List"},
+  {title:"The Chain", artist:"Fleetwood Mac", audio:"https://p.scdn.co/mp3-preview/9cd01344e96f8dfaf0fb47fbb36d9da930daab2f", img:"https://i.scdn.co/image/ab67616d0000b273e52a59a28efa4773dd2bfe1b", media:"Formula 1 (BBC theme)"},
+  {title:"Writing's On The Wall", artist:"Sam Smith (Spectre)", audio:"https://p.scdn.co/mp3-preview/e443ef53dcd1e46a5deafcc5a1b5103a42ba3204", img:"https://i.scdn.co/image/ab67616d0000b27375d893bf7de5a319c7ca3f0f", media:"Spectre"},
+  {title:"Another Way to Die", artist:"Jack White, Alicia Keys", audio:"https://p.scdn.co/mp3-preview/88d501f7039bc3fd8c3180f7ffd62e7a8fe76d66", img:"https://i.scdn.co/image/ab67616d0000b2735ee0dc3f01efa1c4397f4d87", media:"Quantum of Solace"},
+  {title:"Discombobulate", artist:"Hans Zimmer", audio:"https://p.scdn.co/mp3-preview/51d85c6b484f545543604ea06fa5aacf3bbb75e3", img:"https://i.scdn.co/image/ab67616d0000b273f0031eb9e44d0446661bdb6d", media:"Sherlock Holmes"},
+  {title:"La valse d'Amélie", artist:"Yann Tiersen", audio:"https://p.scdn.co/mp3-preview/afe0f7d53cf83441f8e4be991ce95bfc3e9287bd", img:"https://i.scdn.co/image/ab67616d0000b273744df0b9856350ecdeae5729", media:"Amélie"},
+  {title:"Live And Let Die", artist:"Paul McCartney", audio:"https://p.scdn.co/mp3-preview/46b5f6ad90250d37f3b689276341330fc984a9f2", img:"https://i.scdn.co/image/ab67616d0000b27326a63ad48d31f09fe5089a94", media:"Live and Let Die"},
+  {title:"Main Theme: The Addams Family", artist:"Vic Mizzy and His Orchestra and Chorus", audio:"https://p.scdn.co/mp3-preview/62d8bfdcb6d3f154872c42d00c3779819505fb94", img:"https://i.scdn.co/image/ab67616d0000b273f9a975a01c9e3255376430e9", media:"The Addams Family"},
+  {title:"Main Title Theme", artist:"Danny Elfman", audio:"https://p.scdn.co/mp3-preview/38993785b6f66409be54399f5f9b258144ec5d2d", img:"https://i.scdn.co/image/ab67616d0000b273e96c908eecbb41ab998c6a43", media:"Mission: Impossible"},
+  {title:"Gonna Fly Now", artist:"Bill Conti", audio:"https://p.scdn.co/mp3-preview/dc00ff44d62b2b50aae2a07e902beef6d7c24493", img:"https://i.scdn.co/image/ab67616d0000b273d35c4aedc951c3c52f228308", media:"Rocky"},
+  {title:"Hedwig's Theme", artist:"John Williams", audio:"https://p.scdn.co/mp3-preview/1716237b40d951c7dd8abdca7fdc5afaf47560fb", img:"https://i.scdn.co/image/ab67616d0000b27313f982aa5c43146c3d2c1964", media:"Harry Potter"},
+  {title:"Theme From Jurassic Park", artist:"John Williams", audio:"https://p.scdn.co/mp3-preview/e7935f96047ac595c3ae419945864e030b1c2201", img:"https://i.scdn.co/image/ab67616d0000b27334222e48d075ace5ed2c2e9e", media:"Jurassic Park"},
+  {title:"James Bond Theme", artist:"John Barry Orchestra", audio:"https://p.scdn.co/mp3-preview/26038e5e3daa92b86e46bf80c833d81d5913eb39", img:"https://i.scdn.co/image/ab67616d0000b273817e696e6e60c1ed53a8d571", media:"James Bond"},
+  {title:"The Imperial March (Darth Vader's Theme)", artist:"John Williams, John Neal", audio:"https://p.scdn.co/mp3-preview/ae720a31a770d13b4f0e68253357c7607a125f30", img:"https://i.scdn.co/image/ab67616d0000b273f50f647ba174da416dd9bce0", media:"Star Wars"},
+  {title:"Main Title", artist:"John Paesano, Braden Kimball", audio:"https://p.scdn.co/mp3-preview/27f8829f60ca62be7016e45e48c764d6d0c15b1a", img:"https://i.scdn.co/image/ab67616d0000b273553da72e705e3d48937ede21", media:"Daredevil"},
+  {title:"Teenage Mutant Ninja Turtles Theme", artist:"Ninja Turtles", audio:"https://p.scdn.co/mp3-preview/6ca747da370fa7cbc105d1ff50fda9e2305a3928", img:"https://i.scdn.co/image/ab67616d0000b273617ecbbb6572619b01b29084", media:"Teenage Mutant Ninja Turtles"},
+  {title:"Main Titles", artist:"Ramin Djawadi", audio:"https://p.scdn.co/mp3-preview/c530e993da27d29843b8d016a84615d33fcb45f6", img:"https://i.scdn.co/image/ab67616d0000b273b8f0101e1dbcbb4d78b325a8", media:"Game of Thrones"},
+  {title:"The Walking Dead Theme", artist:"Retrospectre", audio:"https://p.scdn.co/mp3-preview/bc2d8ed97473560da91e46b3329da6ff04966b2f", img:"https://i.scdn.co/image/ab67616d0000b2739f183551d2ecd9d9caae8afd", media:"The Walking Dead"},
+  {title:"Stranger Things", artist:"Kyle Dixon & Michael Stein", audio:"https://p.scdn.co/mp3-preview/24563bf418e677d92f8f5293e22875eb178b5b33", img:"https://i.scdn.co/image/ab67616d0000b2733fbdbf37626f8bee2abe8a39", media:"Stranger Things"},
+  {title:"End Credits", artist:"John Williams", audio:"https://p.scdn.co/mp3-preview/2a5ff0f9c90507c26e2361ddecd677b0691a2a36", img:"https://i.scdn.co/image/ab67616d0000b27348aefc81925624ae32b8c4c5", media:"Indiana Jones and the Temple of Doom"},
+  {title:"The Imperial Suite", artist:"Michael Giacchino", audio:"https://p.scdn.co/mp3-preview/dfb1bdec084d8d6b934109a72b48eaee106d7401", img:"https://i.scdn.co/image/ab67616d0000b2732b603297d9966a8c32378590", media:"Rogue One: A Star Wars Story"},
+  {title:"Techno Syndrome (Mortal Kombat Main Title)", artist:"Best Movie Soundtracks", audio:"https://p.scdn.co/mp3-preview/45579f680355c341521e526481272fde90b1a261", img:"https://i.scdn.co/image/ab67616d0000b273033c6cc1d2089847cab1781b", media:"Mortal Kombat"},
+  {title:"THE X-FILE THEME", artist:"101 Strings Orchestra", audio:"https://p.scdn.co/mp3-preview/a582bee7587ea9249b6ce00c5d32e759d6c60f5c", img:"https://i.scdn.co/image/ab67616d0000b273abb4bf8b8d1acdfb23f0f70c", media:"The X-Files"},
+  {title:"Main Title Terminator 2 Theme", artist:"Brad Fiedel", audio:"https://p.scdn.co/mp3-preview/095db3bf873cfe3183627f704f144abe9fa6c123", img:"https://i.scdn.co/image/ab67616d0000b273c6c760492dd71c5502af43d6", media:"Terminator 2: Judgment Day"},
+  {title:"Careless Whisper", artist:"George Michael (Deadpool)", audio:"https://p.scdn.co/mp3-preview/d9fb0097bda0af017d92fa167b9349f5eed0e609", img:"https://i.scdn.co/image/ab67616d0000b27397afecee1d559a16882e93b2", media:"Deadpool"},
+  {title:"Escape (The Pina Colada Song)", artist:"Rupert Holmes", audio:"https://p.scdn.co/mp3-preview/401f9287bb59b5b87fb49025e3f9d3c5c73f3713", img:"https://i.scdn.co/image/ab67616d0000b273af7afb5c49afd3133fa2a6c9", media:"Guardians of the Galaxy"},
+  {title:"Hooked On A Feeling", artist:"Blue Swede, Björn Skifs", audio:"https://p.scdn.co/mp3-preview/349b959f3339c75b269ab47a0f576c5f39ba46cd", img:"https://i.scdn.co/image/ab67616d0000b273b2439940aedd2801c9ae2e5b", media:"Guardians of the Galaxy"},
+  {title:"Malaguena Salerosa", artist:"Chingon (Kill Bill)", audio:"https://p.scdn.co/mp3-preview/26343abde49b51641eb2984042aa1a350fc8b381", img:"https://i.scdn.co/image/ab67616d0000b2739adff911989f44527bdfb7ee", media:"Kill Bill: Vol. 2"},
+  {title:"Battle Without Honor Or Humanity", artist:"HOTEI (Kill Bill)", audio:"https://p.scdn.co/mp3-preview/ea146e255e71aeef03108e0bee68bef4d6bbb9d3", img:"https://i.scdn.co/image/ab67616d0000b273fecfac11994325a39cd03dec", media:"Kill Bill: Vol. 1"},
+  {title:"For a Few Dollars More - Main Theme", artist:"Ennio Morricone", audio:"https://p.scdn.co/mp3-preview/a77534a4d545ee1f9514e27c780d72b57b65d022", img:"https://i.scdn.co/image/ab67616d0000b2738704ca3b5f9d4434fec8b102", media:"For a Few Dollars More"},
+  {title:"El Bueno, El Feo Y El Malo", artist:"Ennio Morricone (The Good, the Bad and the Ugly)", audio:"https://p.scdn.co/mp3-preview/da000057dadd01f7e15c58621e5ff9479fd116ce", img:"https://i.scdn.co/image/ab67616d0000b27397fbc2b7545a10b63a7d0007", media:"The Good, the Bad and the Ugly"},
+  {title:"Django", artist:"Luis Bacalov", audio:"https://p.scdn.co/mp3-preview/0dd75df83edd78faf8d952ec7cfed97c619c3ea3", img:"https://i.scdn.co/image/ab67616d0000b2731573656f142e2d2d5cd8791a", media:"Django / Django Unchained"},
+  {title:"Girl, You'll Be a Woman Soon", artist:"Urge Overkill, Tech N9ne", audio:"https://p.scdn.co/mp3-preview/d67cd8762126d56edad0f75d156057c2a2ca412e", img:"https://i.scdn.co/image/ab67616d0000b2737f9723505f02208dc65571ab", media:"Pulp Fiction"},
+  {title:"Bang Bang - My Baby Shot Me Down", artist:"Nancy Sinatra (Kill Bill)", audio:"https://p.scdn.co/mp3-preview/7f3a67530cad44f8d77f0697630bd199c322b451", img:"https://i.scdn.co/image/ab67616d0000b273fecfac11994325a39cd03dec", media:"Kill Bill: Vol. 1"},
+  {title:"Is She With You?", artist:"Hans Zimmer, Junkie XL", audio:"https://p.scdn.co/mp3-preview/582077a766228c314e4f4368fc3c7f9e1dfd50a6", img:"https://i.scdn.co/image/ab67616d0000b2734bb36a068e9d6cf083c94f9a", media:"Batman v Superman: Dawn of Justice"}
+];
+
+// ---------- State ----------
+// ---------- i18n ----------
+const I18N = {
+  es: {
+    docTitle: "Adivina la canción",
+    title: "Adivina la canción",
+    subtitle: "Modo libre: suena el fragmento, el primero que grita la respuesta se anota el punto.",
+    onbTitle: "¿Cómo se juega?",
+    step1: "📵 Celulares boca abajo antes de arrancar — nada de Shazam ni buscar la canción durante la ronda.",
+    step2: "Suena el fragmento con una cuenta regresiva de 30 segundos. El primero en gritar la respuesta correcta se anota puntos — sin turnos ni buzzer.",
+    step3: "Para sumar puntos alcanza con acertar <b>el título de la canción, el artista o la película/videojuego</b> del que es — no hace falta decir los tres.",
+    step4: "Cuánto más rápido acertás, más vale: <b>antes de los 5 segundos son 3 puntos, hasta los 15 son 2, y hasta los 30 es 1 punto</b>. Si pausás la canción, el tiempo también se pausa.",
+    step5: "Tocá \"Revelar canción\" para confirmar la respuesta, mostrarla a todos y asignar el puntaje que corresponda.",
+    onbBtn: "Comenzar",
+    whoPlays: "¿Quién juega hoy?",
+    playerPlaceholder: "Nombre del jugador o equipo",
+    roundsLabel: "¿Cuántas rondas querés jugar?",
+    roundsHint: (n) => `Hay ${n} canciones disponibles en el banco.`,
+    add: "Agregar",
+    emptyHint: "Agregá al menos un jugador o equipo para empezar.",
+    start: "Empezar juego",
+    countNote: (n, total) => `Se van a jugar ${total} rondas con ${n} ${n===1?'jugador':'jugadores'}.`,
+    round: "Ronda",
+    reset: "Reiniciar juego",
+    home: "↩ Volver al inicio",
+    resetConfirm: "¿Reiniciar el juego? Se perderá el marcador actual.",
+    play: "Reproducir",
+    pause: "Pausar",
+    playAria: "Reproducir o pausar fragmento",
+    loadWarn: "No se pudo cargar este fragmento — saltá a la siguiente canción.",
+    reveal: "Revelar canción",
+    whoGuessed: "¿Quién acertó? (suma un punto)",
+    plus1: "+1",
+    continueBtn: "Continuar →",
+    noPhones: "📵 Celulares boca abajo — nada de Shazam",
+    countdownSub: "segundos — antes de los 5s vale 3 pts, hasta los 15s 2 pts, hasta los 30s 1 pt",
+    pointsBadge: (n) => `🏆 Esta ronda vale ${n} ${n===1?'punto':'puntos'}`,
+    skipPoint: "Nadie acertó",
+    scoreTitle: "Marcador",
+    next: "Siguiente canción →",
+    finished: "¡Terminó el juego!",
+    winner: (name, score) => `${name} gana con ${score} puntos`,
+    playAgain: "Jugar otra vez",
+    mentionsTitle: "Menciones honoríficas",
+    mentionFast: (n) => `reconoció ${n} ${n===1?'canción':'canciones'} en menos de 5 segundos`,
+    mentionConsistent: (n) => `acertó ${n} ${n===1?'ronda':'rondas'} en total — el/la más constante`,
+    mentionCloseCall: (n) => `se la jugó hasta el final en ${n} ${n===1?'ronda':'rondas'} (justo antes de los 30s)`,
+    credit: "Fragmentos de 30s vía Spotify"
+  },
+  en: {
+    docTitle: "Guess the Song",
+    title: "Guess the Song",
+    subtitle: "Free-for-all mode: play the clip, whoever shouts the right answer first scores the point.",
+    onbTitle: "How to play",
+    step1: "📵 Phones face down before you start — no Shazam, no looking up the song mid-round.",
+    step2: "The clip plays with a 30-second countdown. Whoever shouts the right answer first scores — no turns, no buzzer needed.",
+    step3: "To score, it's enough to correctly guess <b>the song title, the artist, or the movie/game</b> it's from — you don't need all three.",
+    step4: "The faster you get it, the more it's worth: <b>under 5 seconds is 3 points, up to 15 is 2, and up to 30 is 1 point</b>. Pausing the song also pauses the clock.",
+    step5: "Tap \"Reveal song\" to confirm the answer, show it to everyone, and award the right number of points.",
+    onbBtn: "Get started",
+    whoPlays: "Who's playing today?",
+    playerPlaceholder: "Player or team name",
+    roundsLabel: "How many rounds do you want to play?",
+    roundsHint: (n) => `There are ${n} songs available in the pool.`,
+    add: "Add",
+    emptyHint: "Add at least one player or team to start.",
+    start: "Start game",
+    countNote: (n, total) => `You'll play ${total} rounds with ${n} ${n===1?'player':'players'}.`,
+    round: "Round",
+    reset: "Restart game",
+    home: "↩ Back to start",
+    resetConfirm: "Restart the game? The current score will be lost.",
+    play: "Play",
+    pause: "Pause",
+    playAria: "Play or pause clip",
+    loadWarn: "This clip couldn't load — skip to the next song.",
+    reveal: "Reveal song",
+    whoGuessed: "Who got it right? (adds a point)",
+    plus1: "+1",
+    continueBtn: "Continue →",
+    noPhones: "📵 Phones face down — no Shazam",
+    countdownSub: "seconds — under 5s = 3 pts, up to 15s = 2 pts, up to 30s = 1 pt",
+    pointsBadge: (n) => `🏆 This round is worth ${n} ${n===1?'point':'points'}`,
+    skipPoint: "No one got it",
+    scoreTitle: "Scoreboard",
+    next: "Next song →",
+    finished: "Game over!",
+    winner: (name, score) => `${name} wins with ${score} points`,
+    playAgain: "Play again",
+    mentionsTitle: "Honorable mentions",
+    mentionFast: (n) => `recognized ${n} ${n===1?'song':'songs'} in under 5 seconds`,
+    mentionConsistent: (n) => `got ${n} ${n===1?'round':'rounds'} right overall — the most consistent`,
+    mentionCloseCall: (n) => `cut it close on ${n} ${n===1?'round':'rounds'} (right before the 30s mark)`,
+    credit: "30s previews via Spotify"
+  }
+};
+let currentLang = 'es';
+
+function t(){ return I18N[currentLang]; }
+
+function translateStatic(){
+  const s = t();
+  document.title = s.docTitle;
+  document.getElementById('appTitle').textContent = s.title;
+  document.getElementById('subtitleText').textContent = s.subtitle;
+  document.getElementById('onbTitle').textContent = s.onbTitle;
+  document.getElementById('step1').textContent = s.step1;
+  document.getElementById('step2').textContent = s.step2;
+  document.getElementById('step3').innerHTML = s.step3;
+  document.getElementById('step4').innerHTML = s.step4;
+  document.getElementById('step5').textContent = s.step5;
+  document.getElementById('onboardingBtn').textContent = s.onbBtn;
+  document.getElementById('whoPlaysLabel').textContent = s.whoPlays;
+  document.getElementById('roundsLabel').textContent = s.roundsLabel;
+  document.getElementById('roundsHint').textContent = s.roundsHint(TRACKS.length);
+  document.getElementById('playerInput').placeholder = s.playerPlaceholder;
+  document.getElementById('addPlayerBtn').textContent = s.add;
+  document.getElementById('emptyHint').textContent = s.emptyHint;
+  document.getElementById('startBtn').textContent = s.start;
+  document.getElementById('roundLabel').textContent = s.round;
+  document.getElementById('resetBtn').textContent = s.reset;
+  document.getElementById('homeLink').textContent = s.home;
+  document.getElementById('loadWarn').textContent = s.loadWarn;
+  document.getElementById('revealBtn').textContent = s.reveal;
+  document.getElementById('whoGuessedLabel').textContent = s.whoGuessed;
+  document.getElementById('continueToAssignBtn').textContent = s.continueBtn;
+  document.getElementById('noPhonesBanner').textContent = s.noPhones;
+  document.getElementById('countdownSub').textContent = s.countdownSub;
+  pointsBadge.textContent = s.pointsBadge(pendingPoints);
+  document.getElementById('skipPointBtn').textContent = s.skipPoint;
+  document.getElementById('scoreTitle').textContent = s.scoreTitle;
+  document.getElementById('nextBtn').textContent = s.next;
+  document.getElementById('finishedHeading').textContent = s.finished;
+  document.getElementById('playAgainBtn').textContent = s.playAgain;
+  document.getElementById('creditText').textContent = s.credit;
+  document.getElementById('controlLabel').textContent = player.paused ? s.play : s.pause;
+  playBtn.setAttribute('aria-label', s.playAria);
+  if(players.length) renderChips();
+  if(!document.getElementById('game').classList.contains('hidden')) renderGuessGrid();
+  if(!document.getElementById('final').classList.contains('hidden')) showFinal();
+}
+
+document.querySelectorAll('.lang-switch button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(btn.classList.contains('active')) return;
+    currentLang = btn.dataset.lang;
+    document.querySelectorAll('.lang-switch button').forEach(b => b.classList.toggle('active', b === btn));
+    translateStatic();
+  });
+});
+
+let players = [];   // {name, score}
+let order = [];      // shuffled indices into TRACKS
+let roundIdx = 0;
+let revealed = false;
+
+// ---------- Setup screen ----------
+const chipsEl = document.getElementById('chips');
+const emptyHint = document.getElementById('emptyHint');
+const startBtn = document.getElementById('startBtn');
+const playerInput = document.getElementById('playerInput');
+const countNote = document.getElementById('countNote');
+const roundsInput = document.getElementById('roundsInput');
+roundsInput.max = TRACKS.length;
+roundsInput.value = Math.min(20, TRACKS.length);
+roundsInput.addEventListener('input', renderChips);
+
+function renderChips(){
+  chipsEl.innerHTML = '';
+  players.forEach((p, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `<span>${p.name}</span>`;
+    const rm = document.createElement('button');
+    rm.textContent = '✕';
+    rm.setAttribute('aria-label', `Quitar a ${p.name}`);
+    rm.onclick = () => { players.splice(i,1); renderChips(); };
+    chip.appendChild(rm);
+    chipsEl.appendChild(chip);
+  });
+  emptyHint.style.display = players.length ? 'none' : 'block';
+  startBtn.disabled = players.length === 0;
+  const requested = Math.max(1, Math.min(TRACKS.length, parseInt(roundsInput.value, 10) || TRACKS.length));
+  countNote.textContent = players.length ? t().countNote(players.length, requested) : '';
+}
+
+function addPlayer(){
+  const name = playerInput.value.trim();
+  if(!name) return;
+  players.push({name, score:0, correct:0, threes:0, twos:0, ones:0});
+  playerInput.value = '';
+  renderChips();
+  playerInput.focus();
+}
+
+document.getElementById('onboardingBtn').onclick = () => {
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('setup').classList.remove('hidden');
+};
+
+document.getElementById('addPlayerBtn').onclick = addPlayer;
+playerInput.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); addPlayer(); } });
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+startBtn.onclick = () => {
+  const requested = Math.max(1, Math.min(TRACKS.length, parseInt(roundsInput.value, 10) || TRACKS.length));
+  order = shuffle(TRACKS.map((_,i)=>i)).slice(0, requested);
+  roundIdx = 0;
+  document.getElementById('setup').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+  document.getElementById('roundTotal').textContent = order.length;
+  loadRound();
+};
+
+document.getElementById('resetBtn').onclick = () => {
+  if(confirm(t().resetConfirm)) goToSetup();
+};
+document.getElementById('playAgainBtn').onclick = goToSetup;
+document.getElementById('homeLink').onclick = () => {
+  if(confirm(t().resetConfirm)) goToHome();
+};
+
+function goToSetup(){
+  player.pause();
+  players.forEach(p => { p.score = 0; p.correct = 0; p.threes = 0; p.twos = 0; p.ones = 0; });
+  document.getElementById('final').classList.add('hidden');
+  document.getElementById('game').classList.add('hidden');
+  document.getElementById('setup').classList.remove('hidden');
+  renderChips();
+}
+
+function goToHome(){
+  player.pause();
+  players.length = 0;
+  document.getElementById('final').classList.add('hidden');
+  document.getElementById('game').classList.add('hidden');
+  document.getElementById('setup').classList.add('hidden');
+  document.getElementById('onboarding').classList.remove('hidden');
+  renderChips();
+}
+
+// ---------- Game screen ----------
+const player = document.getElementById('player');
+const playBtn = document.getElementById('playBtn');
+const playIcon = document.getElementById('playIcon');
+const pauseIcon = document.getElementById('pauseIcon');
+const controlLabel = document.getElementById('controlLabel');
+const vinylDisc = document.getElementById('vinylDisc');
+const turntable = document.getElementById('turntable');
+const timeLabel = document.getElementById('timeLabel');
+const loadWarn = document.getElementById('loadWarn');
+const revealBtn = document.getElementById('revealBtn');
+const revealCard = document.getElementById('revealCard');
+const guessGrid = document.getElementById('guessGrid');
+const scoreboard = document.getElementById('scoreboard');
+const stepPanels = {1:'panelListen', 2:'panelReveal', 3:'panelAssign', 4:'panelScore'};
+let currentStep = 1;
+
+function goToStep(n){
+  currentStep = n;
+  Object.values(stepPanels).forEach(id => document.getElementById(id).classList.add('hidden'));
+  document.getElementById(stepPanels[n]).classList.remove('hidden');
+  document.querySelectorAll('#stepDots .seg').forEach(seg => {
+    const s = Number(seg.dataset.step);
+    seg.classList.toggle('done', s < n);
+    seg.classList.toggle('active', s === n);
+  });
+  if(n === 4) renderScoreboard();
+}
+
+function fmt(t){
+  if(!isFinite(t)) return '0:00';
+  const m = Math.floor(t/60), s = Math.floor(t%60);
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function renderScoreboard(){
+  const max = Math.max(0, ...players.map(p=>p.score));
+  scoreboard.innerHTML = '';
+  players.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'score-chip' + (p.score === max && max > 0 ? ' leader' : '');
+    el.innerHTML = `<span>${p.name}</span><span class="n">${p.score}</span>`;
+    scoreboard.appendChild(el);
+  });
+}
+
+const countdownLabel = document.getElementById('countdownLabel');
+const pointsBadge = document.getElementById('pointsBadge');
+let pendingPoints = 3;
+
+function renderGuessGrid(){
+  guessGrid.innerHTML = '';
+  players.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'guess-btn';
+    b.textContent = `+${pendingPoints} ${p.name}`;
+    b.onclick = () => {
+      p.score += pendingPoints;
+      p.correct++;
+      if(pendingPoints === 3) p.threes++;
+      else if(pendingPoints === 2) p.twos++;
+      else p.ones++;
+      renderScoreboard();
+      b.classList.remove('pulse');
+      void b.offsetWidth;
+      b.classList.add('pulse');
+      setTimeout(() => goToStep(4), 350);
+    };
+    guessGrid.appendChild(b);
+  });
+}
+
+function loadRound(){
+  revealed = false;
+  pendingPoints = 3;
+  loadWarn.style.display = 'none';
+  playIcon.classList.remove('hidden');
+  pauseIcon.classList.add('hidden');
+  controlLabel.textContent = t().play;
+  vinylDisc.classList.remove('spinning');
+  turntable.classList.remove('playing');
+  document.getElementById('roundNum').textContent = roundIdx + 1;
+  const track = TRACKS[order[roundIdx]];
+  player.pause();
+  player.src = track.audio;
+  timeLabel.textContent = '0:00 / 0:00';
+  countdownLabel.textContent = '30';
+  countdownLabel.classList.remove('urgent');
+  renderScoreboard();
+  renderGuessGrid();
+  goToStep(1);
+}
+
+playBtn.onclick = () => {
+  if(player.paused){
+    player.play().catch(()=>{ loadWarn.style.display = 'block'; });
+  } else {
+    player.pause();
+  }
+};
+player.addEventListener('play', () => {
+  playIcon.classList.add('hidden');
+  pauseIcon.classList.remove('hidden');
+  controlLabel.textContent = t().pause;
+  vinylDisc.classList.add('spinning');
+  turntable.classList.add('playing');
+});
+player.addEventListener('pause', () => {
+  playIcon.classList.remove('hidden');
+  pauseIcon.classList.add('hidden');
+  controlLabel.textContent = t().play;
+  vinylDisc.classList.remove('spinning');
+  turntable.classList.remove('playing');
+});
+player.addEventListener('ended', () => {
+  vinylDisc.classList.remove('spinning');
+  turntable.classList.remove('playing');
+  controlLabel.textContent = t().play;
+});
+player.addEventListener('timeupdate', () => {
+  timeLabel.textContent = `${fmt(player.currentTime)} / ${fmt(player.duration)}`;
+  const total = isFinite(player.duration) && player.duration > 0 ? player.duration : 30;
+  const remaining = Math.max(0, Math.ceil(total - player.currentTime));
+  countdownLabel.textContent = remaining;
+  countdownLabel.classList.toggle('urgent', remaining <= 5);
+});
+player.addEventListener('error', () => {
+  loadWarn.style.display = 'block';
+});
+
+revealBtn.onclick = () => {
+  revealed = true;
+  player.pause();
+  const elapsed = player.currentTime;
+  pendingPoints = elapsed <= 5 ? 3 : elapsed <= 15 ? 2 : 1;
+  pointsBadge.textContent = t().pointsBadge(pendingPoints);
+  renderGuessGrid();
+  const track = TRACKS[order[roundIdx]];
+  document.getElementById('revealImg').src = track.img;
+  document.getElementById('revealTitle').textContent = track.title;
+  document.getElementById('revealArtist').textContent = track.artist;
+  document.getElementById('revealMedia').textContent = track.media ? `🎬 ${track.media}` : '';
+  goToStep(2);
+};
+
+document.getElementById('continueToAssignBtn').onclick = () => goToStep(3);
+document.getElementById('skipPointBtn').onclick = () => goToStep(4);
+
+document.getElementById('nextBtn').onclick = () => {
+  if(roundIdx + 1 >= order.length){
+    showFinal();
+  } else {
+    roundIdx++;
+    loadRound();
+  }
+};
+
+function computeMentions(list){
+  const mentions = [];
+  const maxThrees = Math.max(...list.map(p=>p.threes));
+  if(maxThrees > 0){
+    const names = list.filter(p=>p.threes===maxThrees).map(p=>p.name).join(' y ');
+    mentions.push({icon:'⚡', name: names, desc: t().mentionFast(maxThrees)});
+  }
+  const maxCorrect = Math.max(...list.map(p=>p.correct));
+  if(maxCorrect > 0){
+    const names = list.filter(p=>p.correct===maxCorrect).map(p=>p.name).join(' y ');
+    mentions.push({icon:'🎯', name: names, desc: t().mentionConsistent(maxCorrect)});
+  }
+  const maxOnes = Math.max(...list.map(p=>p.ones));
+  if(maxOnes > 0){
+    const names = list.filter(p=>p.ones===maxOnes).map(p=>p.name).join(' y ');
+    mentions.push({icon:'🐢', name: names, desc: t().mentionCloseCall(maxOnes)});
+  }
+  return mentions;
+}
+
+function showFinal(){
+  player.pause();
+  document.getElementById('game').classList.add('hidden');
+  const final = document.getElementById('final');
+  final.classList.remove('hidden');
+  const sorted = players.slice().sort((a,b) => b.score - a.score);
+  document.getElementById('winName').textContent = sorted[0] ? t().winner(sorted[0].name, sorted[0].score) : '';
+  const list = document.getElementById('finalList');
+  list.innerHTML = '';
+  sorted.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'final-row';
+    row.innerHTML = `<span>${p.name}</span><span class="n">${p.score}</span>`;
+    list.appendChild(row);
+  });
+
+  const mentionsEl = document.getElementById('mentionsList');
+  mentionsEl.innerHTML = '';
+  if(players.length > 1){
+    const mentions = computeMentions(players);
+    if(mentions.length){
+      const title = document.createElement('div');
+      title.className = 'mentions-title';
+      title.textContent = t().mentionsTitle;
+      mentionsEl.appendChild(title);
+      mentions.forEach(m => {
+        const row = document.createElement('div');
+        row.className = 'mention-row';
+        row.innerHTML = `<span class="icon">${m.icon}</span><span class="txt"><b>${m.name}</b> — ${m.desc}</span>`;
+        mentionsEl.appendChild(row);
+      });
+    }
+  }
+}
+
+renderChips();
+translateStatic();
+</script>
+</body>
+</html>
