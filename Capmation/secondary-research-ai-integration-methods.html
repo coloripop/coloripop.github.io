@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Methods & Processes for AI in Design — Flow Viewer | Capmation</title>
+<style>
+  :root{ --midnight:#0A2342; --lime:#9FBF1A; --frost:#E3E3E3; --white:#FFFFFF; --grey:#666666; --darkgreen:#2E7D00; --amber:#B45309; }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family: Montserrat, Arial, sans-serif; background:#fff; color:var(--midnight); }
+  header{ padding:28px 40px 18px 40px; border-bottom:2px solid var(--frost); }
+  header .brand{ font-weight:800; letter-spacing:1px; font-size:13px; color:var(--midnight); }
+  header h1{ font-size:24px; margin:8px 0 4px 0; }
+  header .sub{ color:var(--darkgreen); font-weight:700; font-size:14px; }
+  .tabs{ display:flex; flex-wrap:wrap; gap:6px; padding:16px 40px 0 40px; border-bottom:1px solid var(--frost); }
+  .tab{ padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer; border-radius:8px 8px 0 0; color:var(--midnight); background:#F5F5F5; border:1px solid var(--frost); border-bottom:none; }
+  .tab.active{ background:var(--midnight); color:#fff; }
+  main{ padding:28px 40px 60px 40px; }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+  .panel-header{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; flex-wrap:wrap; gap:10px;}
+  .type-badge{ display:inline-block; font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; background:#EAF3D8; color:var(--darkgreen); margin-left:8px;}
+  .desc{ font-size:13px; color:#333; margin-bottom:18px; max-width:800px; }
+  .flow-wrap{ display:flex; gap:18px; overflow-x:auto; padding-bottom:10px; }
+  .node{ min-width:230px; max-width:230px; background:#fff; border:1.5px solid var(--frost); border-radius:10px; padding:14px; box-shadow:0 1px 4px rgba(0,0,0,0.06); flex-shrink:0; }
+  .node h4{ margin:0 0 6px 0; font-size:14px; color:var(--midnight); }
+  .node p{ margin:0 0 10px 0; font-size:12px; color:#333; line-height:1.4; }
+  .node .src{ font-size:10px; color:var(--grey); border-top:1px dashed var(--frost); padding-top:8px; }
+  .node .src a{ color:var(--darkgreen); text-decoration:none; }
+  .arrow{ display:flex; align-items:center; font-size:20px; color:var(--lime); flex-shrink:0; }
+  .why{ margin-top:24px; background:#F7F9F3; border-radius:10px; padding:18px 22px; }
+  .why h3{ font-size:15px; margin:0 0 10px 0; }
+  .why ul{ margin:0; padding-left:20px; font-size:13px; line-height:1.6; }
+  .why li{ margin-bottom:6px; }
+  .ai-disc{ font-size:10.5px; color:#9CA3AF; text-align:right; margin-top:6px; }
+  .footer-note{ font-size:11px; color:var(--grey); margin-top:30px; border-top:1px solid var(--frost); padding-top:14px;}
+  .tier-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:10px; }
+  .tier-table th{ background:var(--midnight); color:#fff; text-align:left; padding:10px 12px; font-size:12px; }
+  .tier-table td{ border-bottom:1px solid var(--frost); padding:10px 12px; vertical-align:top; }
+  .tier-table tr:nth-child(odd) td{ background:#FAFAFA; }
+  .tier-name{ font-weight:800; color:var(--midnight); }
+  .caution{ margin-top:16px; font-size:12px; color:var(--amber); font-style:italic; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">CAPMATION</div>
+  <h1>Methods & Processes for Integrating AI Into Design Work — Flow Viewer</h1>
+  <div class="sub">Internal Exploration · Global Scope · September 2026</div>
+</header>
+<div class="tabs" id="tabs">
+  <div class="tab active" data-id="tiers" onclick="selectTab('tiers')">Tier Framework</div>
+</div>
+<main id="main">
+  <div class="panel active" id="panel-tiers">
+    <div class="panel-header"><h2 style="margin:0;">Tier Framework<span class="type-badge">Criteria · Paths · KPIs</span></h2></div>
+    <div class="desc">Operationalizes the maturity-model research into 4 tiers aligned to Capmation's AI Integration Playbook (Assisted, Augmented, Agentic, Orchestrator). No design-specific maturity model exists in the literature reviewed — this framework adapts general AI/engineering maturity research onto design-specific criteria and KPIs.</div>
+    <table class="tier-table">
+      <tr><th>Tier</th><th>Criteria</th><th>KPI metrics</th><th>Path to next tier</th></tr>
+      <tr>
+        <td class="tier-name">1. Assisted</td>
+        <td>Isolated individual use (ideation, drafting); no shared team practice; no defined tool/prompt ownership</td>
+        <td>AI tool adoption rate (91% weekly is the 2026 industry benchmark); toolstack baseline</td>
+        <td>AI champion identified · training time allocated · usage documented across the team</td>
+      </tr>
+      <tr>
+        <td class="tier-name">2. Augmented</td>
+        <td>AI embedded in specific stages (prototyping, research synthesis); informal, repeatable practice; heavy human review still required</td>
+        <td>Design velocity (idea → tested prototype); rework rate; tool stickiness (90-day retention)</td>
+        <td>Prompt/tool governance established · design system made machine-readable (tokens/MCP) · explicit checkpoint model</td>
+      </tr>
+      <tr>
+        <td class="tier-name">3. Agentic</td>
+        <td>Agents operate with defined autonomy within guardrails; governance active (naming, versioning, audit trail); checkpoints enforced and logged</td>
+        <td>Automation rate (60%+ at maturity, adjacent domains); reversion/rejection rate; handoff friction; hallucination/error rate (&lt;1% target)</td>
+        <td>Workflows redesigned AI-first · measurable ROI to business outcomes · legal/compliance sign-off achieved</td>
+      </tr>
+      <tr>
+        <td class="tier-name">4. Orchestrator</td>
+        <td>Designers orchestrate multi-agent systems ("Agent Captains"); workflows AI-first by design; continuous monitoring built in</td>
+        <td>Throughput per dollar of AI spend; business-outcome correlation; governance maturity score</td>
+        <td>Continuous monitoring & improvement loop — the sustaining state, not a further gate</td>
+      </tr>
+    </table>
+    <div class="caution">⚠ KPI benchmarks are adapted from adjacent domains (engineering, customer-service AI agents) — none are design-industry-specific. Treat as directional starting points, not proven benchmarks. Only 21% of organizations report a mature governance model for agentic AI even where 74% plan to deploy it within two years (Deloitte 2026, via Rohit Prabhakar) — Tier 4 is uncommon in practice across all domains, not just design.</div>
+    <div class="ai-disc">↗ AI-assisted research · Capmation · 2026</div>
+  </div>
+</main>
+
+<script>
+const namedFrameworks = [
+  {
+    id: "ixdf", name: "IxDF — AI Workflow Framework", type: "Named framework (external)",
+    desc: "Interaction Design Foundation's practitioner framework: the designer's role shifts from creator to director. For each design-thinking stage, define six fields before prompting — this doubles as prompt structure. Source: ixdf.org/literature/article/how-to-supercharge-your-design-workflow-with-ai (2026).",
+    nodes: [
+      { t: "Empathize (Research)", d: "Use AI to organize messy notes and cluster themes. Ask for themes with cited supporting evidence. Avoid treating AI summaries as validated truth.", src: ["IxDF", "https://ixdf.org/literature/article/how-to-supercharge-your-design-workflow-with-ai"] },
+      { t: "Define", d: "Use AI to draft multiple problem framings and hypotheses. Ask for 3 problem statements with confirming/denying evidence. Avoid accepting the first confident-sounding framing.", src: ["IxDF", "https://ixdf.org/literature/article/how-to-supercharge-your-design-workflow-with-ai"] },
+      { t: "Ideate", d: "Use AI for breadth — many directions, edge cases, variations. Ask for 10 directions with pros/cons/risks. Avoid deciding early just because an idea sounds polished.", src: ["IxDF", "https://ixdf.org/literature/article/how-to-supercharge-your-design-workflow-with-ai"] },
+      { t: "Prototype", d: "Use AI for copy, UI-state, and microcopy variants. Ask for variants optimized for clarity, trust, accessibility. Avoid skipping tone/accessibility/brand checks.", src: ["IxDF", "https://ixdf.org/literature/article/how-to-supercharge-your-design-workflow-with-ai"] },
+      { t: "Test", d: "Use AI for heuristic reviews and \"what could go wrong\" checklists. Ask for top usability risks. Avoid using AI as a stand-in for real user testing.", src: ["IxDF", "https://ixdf.org/literature/article/how-to-supercharge-your-design-workflow-with-ai"] },
+      { t: "Deliver", d: "Use AI to draft release notes and a decision log (what changed, why, risks, how impact is measured). Avoid sharing sensitive data with unapproved tools.", src: ["IxDF", "https://ixdf.org/literature/article/how-to-supercharge-your-design-workflow-with-ai"] },
+    ],
+    extraNote: "Four quality checks apply at every stage: <b>Traceability</b> (\"where did this come from?\"), <b>Context Completeness</b> (\"what's missing?\"), <b>Data vs. Interpretation</b> (\"observation or opinion?\"), and <b>Bias & Blind Spots</b> (\"who might this exclude?\") — IxDF recommends a dedicated bias-checking tool rather than reusing the same AI that generated the output."
+  },
+  {
+    id: "figma", name: "Figma — Product Design & Creative Process", type: "Named framework (external)",
+    desc: "Figma's own resource-library framing of AI across the product design process, plus its 4-step \"AI Creative Process.\" Sources: figma.com/resource-library/ai-for-product-design/ and /ai-creative-process/ (2026).",
+    nodes: [
+      { t: "Use Case 1: Research & data analysis", d: "AI summarizes interviews/survey responses and drafts personas or journey maps from existing feedback.", src: ["Figma Resource Library", "https://www.figma.com/resource-library/ai-for-product-design/"] },
+      { t: "Use Case 2: Ideation & concept creation", d: "Text prompts become concept sketches, mood boards, and layout ideas for early stakeholder validation.", src: ["Figma Resource Library", "https://www.figma.com/resource-library/ai-for-product-design/"] },
+      { t: "Use Case 3: Prototyping", d: "AI suggests UI layouts, color palettes, typography, and component placement from a product description.", src: ["Figma Resource Library", "https://www.figma.com/resource-library/ai-for-product-design/"] },
+      { t: "Figma Make: generate", d: "Import an existing file or start from scratch, then use the AI chat panel to generate a working prototype.", src: ["Figma Resource Library", "https://www.figma.com/resource-library/ai-for-product-design/"] },
+      { t: "Validate with data", d: "Test the generated prototype against real or sample data before moving forward.", src: ["Figma Resource Library", "https://www.figma.com/resource-library/ai-for-product-design/"] },
+      { t: "Handoff (Dev Mode + Code Connect)", d: "Carry design intent into developer workflows so alignment persists through implementation.", src: ["Figma — The AI Creative Process", "https://www.figma.com/resource-library/ai-creative-process/"] },
+    ],
+    extraNote: "Figma's 4-step <b>AI Creative Process</b>: explore & align (Figma Design, live canvas) → pressure-test (Figma's agent, multiple directions) → validate (Figma Make, interactive prototype) → handoff (Dev Mode / Code Connect). Figma also explicitly recommends <b>documenting the workflow</b> — tracking how AI influenced decisions — for transparency and iteration."
+  },
+];
+const practices = [
+  {
+    id: "aura", name: "Agentic Double Diamond / AURA", type: "Process framework",
+    desc: "Reframes the classic 4-stage Double Diamond (Discover, Define, Develop, Deliver) around AI agents as active collaborators rather than passive tools — shifting the designer from sole creator to strategic director.",
+    nodes: [
+      { t: "Discover → Synthetic Research", d: "AI agents simulate thousands of user personas to stress-test concepts and instantly synthesize market data, instead of small-sample human interviews.", src: ["UX Matters", "https://www.uxmatters.com/mt/archives/2026/03/next-gen-agentic-ai-in-ux-design-evolving-the-double-diamond-process.php"] },
+      { t: "Define → Intent Mapping", d: "AI agents define goal states, guardrails, and acceptable paths to failure, replacing static personas and rigid journey maps.", src: ["UX Matters", "https://www.uxmatters.com/mt/archives/2026/03/next-gen-agentic-ai-in-ux-design-evolving-the-double-diamond-process.php"] },
+      { t: "Develop → Behavioral Prototyping", d: "AI agents design logic loops, tool-use permissions, and multi-agent handoffs, rather than wireframing static screens.", src: ["UX Matters", "https://www.uxmatters.com/mt/archives/2026/03/next-gen-agentic-ai-in-ux-design-evolving-the-double-diamond-process.php"] },
+      { t: "Deliver → Continuous Supervision", d: "Launch is not a fixed endpoint — supervisors monitor and adjust agent behavior post-launch rather than shipping a static UI.", src: ["UX Matters", "https://www.uxmatters.com/mt/archives/2026/03/next-gen-agentic-ai-in-ux-design-evolving-the-double-diamond-process.php"] },
+    ]
+  },
+  {
+    id: "eleken", name: "Eleken 6-Step Workflow", type: "Agency practice",
+    desc: "A production agency's concrete AI-design workflow: AI is treated like a junior designer throughout — generate, review, give feedback, iterate — with a stakeholder decision document built before the PRD exists.",
+    nodes: [
+      { t: "Synthesize research", d: "AI accelerates turning raw research into structured findings.", src: ["Eleken", "https://www.eleken.co/blog-posts/ai-design-workflow"] },
+      { t: "Refine requirements", d: "AI helps tighten and clarify product requirements before design starts.", src: ["Eleken", "https://www.eleken.co/blog-posts/ai-design-workflow"] },
+      { t: "Analyze competitors", d: "AI accelerates competitive research and benchmarking.", src: ["Eleken", "https://www.eleken.co/blog-posts/ai-design-workflow"] },
+      { t: "Build interactive prototypes", d: "AI generates working prototypes for testing, faster than manual builds.", src: ["Eleken", "https://www.eleken.co/blog-posts/ai-design-workflow"] },
+      { t: "Present decisions to stakeholders", d: "A decision document (problem, options, tradeoffs, recommendation) is built before the PRD, to speed stakeholder alignment.", src: ["Eleken", "https://www.eleken.co/blog-posts/ai-design-workflow"] },
+    ]
+  },
+  {
+    id: "maturity", name: "AI Maturity Models", type: "Maturity model",
+    desc: "General (non-design-specific) staged frameworks for assessing how far a team has progressed from unstructured AI experimentation to fully AI-first, agent-orchestrated workflows.",
+    nodes: [
+      { t: "Level 1: Exploratory", d: "Unstructured, individual experimentation; no shared practices or oversight.", src: ["GitHub — Gigacore/AI-Maturity-Model", "https://github.com/Gigacore/AI-Maturity-Model"] },
+      { t: "Level 2: Applied", d: "Pilots and individual initiative; engineers/designers gain experience with tools and prompting.", src: ["GitHub — Gigacore/AI-Maturity-Model", "https://github.com/Gigacore/AI-Maturity-Model"] },
+      { t: "Level 3: Proficiency Development", d: "Behavioral data distinguishes power users from basic users; differentiated enablement programs begin.", src: ["Larridin", "https://larridin.com/solutions/ai-maturity-the-complete-enterprise-guide-2026"] },
+      { t: "Level 4: Workflow Intelligence", d: "AI is embedded into how work actually gets planned and tracked, not just individual tasks.", src: ["Larridin", "https://larridin.com/solutions/ai-maturity-the-complete-enterprise-guide-2026"] },
+      { t: "Level 5: Agentic Deployment", d: "Workflows are designed AI-first: AI handles the primary execution path; humans intervene only at defined checkpoints.", src: ["Larridin", "https://larridin.com/solutions/ai-maturity-the-complete-enterprise-guide-2026"] },
+    ]
+  },
+  {
+    id: "promptlib", name: "Prompt Library Governance", type: "Operational practice",
+    desc: "A structured, maintained team asset — not an unfiltered folder of copied prompts — validated by a platform engineering case study that grew to 200 production prompts in 6 months.",
+    nodes: [
+      { t: "Submit with metadata", d: "Contributor submits a prompt with purpose, inputs, output format, owner, version fields.", src: ["PromptProsToolbox", "https://promptprostoolbox.com/prompt-library/"] },
+      { t: "Owner tests", d: "Owner tests the prompt on several representative real inputs before it's published.", src: ["PromptProsToolbox", "https://promptprostoolbox.com/prompt-library/"] },
+      { t: "Reviewer checks", d: "A reviewer checks accuracy, format, tone, safety, and data handling; high-risk prompts get a subject-matter reviewer too.", src: ["PromptProsToolbox", "https://promptprostoolbox.com/prompt-library/"] },
+      { t: "Publish + log date", d: "Owner publishes the approved version and logs the review date (\"last_reviewed\" field).", src: ["Digital Applied case study", "https://www.digitalapplied.com/blog/case-study-prompt-library-platform-engineering-team-2026"] },
+      { t: "Monthly review cadence", d: "Fixed monthly meeting checks prompts aged past 90 days, eval-score drift, and deprecation candidates — the cadence, not a one-time audit, is what sustains quality.", src: ["Digital Applied case study", "https://www.digitalapplied.com/blog/case-study-prompt-library-platform-engineering-team-2026"] },
+    ]
+  },
+  {
+    id: "microtools", name: "Internal Microtool Systems", type: "Operational practice",
+    desc: "Anthropic's design team runs a small set of internal tools, each mapped to a specific phase of the design process — a template other teams are adopting.",
+    nodes: [
+      { t: "Ideation sandbox", d: "Takes a brief and generates many UI directions for early-stage exploration.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+      { t: "Design-system picker", d: "Plugs brand fonts, colors, and components into Claude so prototypes start on-brand.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+      { t: "Research index", d: "Makes past user studies queryable so anyone can check what's already known.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+      { t: "Looping PRs", d: "Once a change is approved, an agent opens the PR and watches it through CI until it merges.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+      { t: "Content guardrails", d: "A Slack agent scans production code for copy that drifts off-brand and suggests rewrites.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+    ]
+  },
+  {
+    id: "tooleval", name: "Tool Evaluation by Identical Task", type: "Operational practice",
+    desc: "Best-practice tool-selection process: judge candidate AI design tools against your team's actual workflow, not a polished demo.",
+    nodes: [
+      { t: "Pick a real task", d: "Choose a task from actual team workflow, not a vendor demo scenario.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+      { t: "Run identical inputs", d: "Run the same real-world task with identical inputs across every candidate tool.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+      { t: "Score on 6+ criteria", d: "Compare output quality, consistency, controllability, speed, collaboration, and handoff readiness.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+      { t: "Decide on refinement cost", d: "Weigh how much refinement is needed to reach production-quality work, not just first-pass output.", src: ["Designer Fund & Foundation Capital", "https://stateofaidesign.com/chapters/tools"] },
+    ]
+  },
+];
+
+const tabsEl = document.getElementById("tabs");
+const mainEl = document.getElementById("main");
+
+[...namedFrameworks, ...practices].forEach((c, i) => {
+  const tab = document.createElement("div");
+  tab.className = "tab";
+  tab.textContent = c.name;
+  tab.onclick = () => selectTab(c.id);
+  tab.dataset.id = c.id;
+  tabsEl.appendChild(tab);
+
+  const panel = document.createElement("div");
+  panel.className = "panel";
+  panel.id = "panel-" + c.id;
+
+  let html = `<div class="panel-header"><h2 style="margin:0;">${c.name}<span class="type-badge">${c.type}</span></h2></div>`;
+  html += `<div class="desc">${c.desc}</div>`;
+  html += `<div class="flow-wrap">`;
+  c.nodes.forEach((n, idx) => {
+    html += `<div class="node">
+      <h4>${n.t}</h4>
+      <p>${n.d}</p>
+      <div class="src">Source: <a href="${n.src[1]}" target="_blank">${n.src[0]}</a></div>
+    </div>`;
+    if (idx < c.nodes.length - 1) html += `<div class="arrow">→</div>`;
+  });
+  html += `</div>`;
+  if (c.extraNote) html += `<div class="why" style="margin-top:14px;"><h3>Additional detail</h3><p style="font-size:13px; line-height:1.6; margin:0;">${c.extraNote}</p></div>`;
+  html += `<div class="why"><h3>Why this matters</h3><ul>`;
+  c.nodes.forEach(n => html += `<li><b>${n.t}:</b> ${n.d}</li>`);
+  html += `</ul></div>`;
+  html += `<div class="ai-disc">↗ AI-assisted research · Capmation · 2026</div>`;
+
+  panel.innerHTML = html;
+  mainEl.appendChild(panel);
+});
+
+function selectTab(id) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.id === id));
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + id));
+}
+</script>
+<div class="footer-note">Capmation · Secondary Research · Methods & Processes for Integrating AI Into Design Work · September 2026. Companion to our company-benchmarking research (WHO); this covers the HOW. Full citations and methodology in the companion Word report.</div>
+</body>
+</html>
