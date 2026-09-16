@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heatmap Match — coloripop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#4A3AFF;
+    --purple-dark:#3A2CD6;
+    --navy:#211F54;
+    --pink:#FE81E7;
+    --lavender:#B5AFFF;
+    --lavender-light:#E2E0FF;
+    --white:#FFFFFF;
+    --gray:#6B6B85;
+    --bg:#F4F3FF;
+    --good:#00B37E;
+    --bad:#E85D75;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--navy);
+    background-image:
+      radial-gradient(circle at 88% -8%, rgba(74,58,255,.55) 0%, rgba(74,58,255,0) 45%),
+      radial-gradient(circle at -10% 108%, rgba(254,129,231,.28) 0%, rgba(254,129,231,0) 40%);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px;
+    color:var(--navy);
+  }
+
+  .stage{
+    width:100%;
+    max-width:600px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+    padding:0 4px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .brand-name{
+    color:var(--white);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:.02em;
+    white-space:nowrap;
+  }
+  .brand-name b{color:var(--pink);}
+  .brand-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand-sub{
+    color:var(--lavender-light);
+    font-size:12px;
+    opacity:.85;
+    white-space:nowrap;
+  }
+  .lang-switch{
+    display:flex;
+    background:rgba(255,255,255,.14);
+    border-radius:20px;
+    padding:3px;
+    gap:2px;
+    flex:none;
+  }
+  .lang-btn{
+    border:none;
+    background:transparent;
+    color:var(--lavender-light);
+    font-size:11px;
+    font-weight:700;
+    padding:5px 11px;
+    border-radius:16px;
+    cursor:pointer;
+    font-family:inherit;
+    letter-spacing:.02em;
+  }
+  .lang-btn.active{background:var(--white);color:var(--navy);}
+  .lang-btn:focus-visible{outline:2px solid var(--pink);outline-offset:1px;}
+
+  .card{
+    background:var(--white);
+    border-radius:24px;
+    padding:36px 32px 30px;
+    box-shadow:0 30px 60px rgba(15,10,60,.35);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .exit-btn{
+    position:absolute;
+    top:18px;
+    right:18px;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    border:none;
+    background:var(--bg);
+    color:var(--gray);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:inherit;
+    transition:background .15s ease, color .15s ease;
+  }
+  .exit-btn:hover{background:var(--lavender-light);color:var(--purple);}
+  .exit-btn:focus-visible{outline:2px solid var(--purple);outline-offset:2px;}
+
+  /* ---------- START VIEW ---------- */
+  .start h1{
+    font-size:32px;
+    font-weight:800;
+    color:var(--navy);
+    margin:0 0 8px;
+    line-height:1.15;
+  }
+  .start p.lead{
+    font-size:15px;
+    color:var(--gray);
+    margin:0 0 26px;
+    line-height:1.5;
+  }
+  .rule-row{
+    display:flex;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .rule-chip{
+    flex:1;
+    background:var(--bg);
+    border-radius:14px;
+    padding:14px 16px;
+  }
+  .rule-chip .num{
+    font-size:22px;
+    font-weight:800;
+    color:var(--purple);
+    display:block;
+  }
+  .rule-chip .label{
+    font-size:12px;
+    color:var(--gray);
+    display:block;
+    margin-top:2px;
+  }
+  .start-btn{
+    margin-top:22px;
+    width:100%;
+  }
+
+  /* ---------- QUIZ VIEW ---------- */
+  .quiz-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    padding-right:34px;
+  }
+  .round-label{
+    font-size:13px;
+    font-weight:700;
+    color:var(--purple);
+    background:var(--lavender-light);
+    padding:6px 12px;
+    border-radius:20px;
+  }
+  .score-label{
+    font-size:13px;
+    font-weight:700;
+    color:var(--navy);
+  }
+  .score-label span{color:var(--pink);}
+
+  .timer-track{
+    height:6px;
+    width:100%;
+    background:var(--bg);
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:22px;
+  }
+  .timer-fill{
+    height:100%;
+    background:var(--purple);
+    width:100%;
+    transform-origin:left;
+    border-radius:6px;
+  }
+  .timer-fill.warn{background:var(--pink);}
+
+  .heatmap-frame{
+    background:var(--bg);
+    border:1.5px solid var(--lavender-light);
+    border-radius:16px;
+    padding:14px;
+    margin-bottom:8px;
+  }
+  .heatmap-frame svg{display:block;width:100%;height:auto;}
+  .heatmap-caption{
+    text-align:center;
+    font-size:11px;
+    font-style:italic;
+    color:var(--gray);
+    margin:8px 0 22px;
+  }
+
+  .question-text{
+    font-size:14.5px;
+    color:var(--navy);
+    font-weight:600;
+    margin-bottom:14px;
+  }
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .opt{
+    text-align:left;
+    padding:13px 14px;
+    border-radius:12px;
+    border:1.5px solid var(--lavender-light);
+    background:var(--white);
+    color:var(--navy);
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .opt:hover:not(:disabled){
+    border-color:var(--purple);
+    background:var(--lavender-light);
+  }
+  .opt:active:not(:disabled){transform:scale(.98);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{
+    background:rgba(0,179,126,.1);
+    border-color:var(--good);
+    color:#046b4f;
+  }
+  .opt.wrong{
+    background:rgba(232,93,117,.1);
+    border-color:var(--bad);
+    color:#a43349;
+  }
+  .opt.dim{opacity:.45;}
+
+  .feedback{
+    margin-top:18px;
+    border-radius:14px;
+    padding:16px 18px;
+    display:none;
+  }
+  .feedback.show{display:block;}
+  .feedback.good{background:rgba(0,179,126,.08);}
+  .feedback.bad{background:rgba(232,93,117,.08);}
+  .feedback-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:6px;
+  }
+  .feedback.good .feedback-head{color:#046b4f;}
+  .feedback.bad .feedback-head{color:#a43349;}
+  .feedback-body{
+    font-size:12.5px;
+    color:var(--gray);
+    line-height:1.5;
+  }
+  .feedback-source{
+    display:inline-block;
+    margin-top:8px;
+    font-size:11px;
+    font-weight:700;
+    color:var(--purple);
+    text-decoration:none;
+    word-break:break-all;
+  }
+  .feedback-source:hover{text-decoration:underline;}
+
+  .next-btn{
+    margin-top:16px;
+    width:100%;
+    display:none;
+  }
+  .next-btn.show{display:block;}
+
+  /* ---------- END VIEW ---------- */
+  .end .score-big{
+    font-size:56px;
+    font-weight:800;
+    color:var(--purple);
+    line-height:1;
+    margin-bottom:2px;
+  }
+  .end .score-big span{
+    font-size:28px;
+    color:var(--gray);
+    font-weight:700;
+  }
+  .end .score-tag{
+    font-size:14px;
+    color:var(--gray);
+    margin-bottom:22px;
+  }
+  .recap{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:22px;
+  }
+  .recap-item{
+    display:flex;
+    align-items:center;
+    padding:10px 12px;
+    border-radius:10px;
+    background:var(--bg);
+    font-size:12.5px;
+    color:var(--navy);
+  }
+  .recap-item.miss{background:rgba(232,93,117,.08);}
+  .recap-dot{
+    width:20px;height:20px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:800;color:var(--white);flex:none;
+    margin-right:10px;
+  }
+  .recap-item.hit .recap-dot{background:var(--good);}
+  .recap-item.miss .recap-dot{background:var(--bad);}
+  .end-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+  /* ---------- PIÑATA REWARD ---------- */
+  .pinata-section{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(135deg, var(--lavender-light), #FFFFFF);
+    border-radius:16px;
+    padding:20px;
+    text-align:center;
+    margin-bottom:20px;
+  }
+  .pinata-title{
+    font-size:13px;
+    font-weight:800;
+    color:var(--navy);
+    margin-bottom:2px;
+  }
+  .pinata-hint{
+    font-size:11px;
+    color:var(--gray);
+    margin-bottom:14px;
+  }
+  .pinata-wrap{
+    position:relative;
+    width:112px;
+    height:120px;
+    margin:0 auto;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .pinata-wrap svg{width:100%;height:100%;transition:transform .15s ease;display:block;}
+  .pinata-wrap:hover svg{transform:scale(1.06) rotate(-2deg);}
+  .pinata-wrap:focus-visible{outline:3px solid var(--purple);outline-offset:4px;border-radius:50%;}
+  .pinata-wrap.burst svg{animation:pinataBurst .6s ease forwards;}
+  @keyframes pinataBurst{
+    0%{transform:scale(1) rotate(0);}
+    30%{transform:scale(1.12) rotate(-8deg);}
+    60%{transform:scale(1.16) rotate(8deg);}
+    100%{transform:scale(0) rotate(18deg);opacity:0;}
+  }
+  .confetti{
+    position:absolute;
+    top:46%;
+    left:50%;
+    width:7px;
+    height:7px;
+    border-radius:2px;
+    opacity:0;
+    pointer-events:none;
+  }
+  .confetti.fall{animation:confettiFall 1.05s ease-out forwards;}
+  @keyframes confettiFall{
+    0%{opacity:1;transform:translate(0,0) rotate(0deg);}
+    100%{opacity:0;transform:translate(var(--dx), 130px) rotate(var(--rot));}
+  }
+  .pinata-reward{display:none;margin-top:4px;}
+  .pinata-reward.show{display:block;animation:pinataFadeUp .35s ease;}
+  @keyframes pinataFadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .pinata-reward-btn{
+    display:inline-block;
+    margin-top:10px;
+    background:var(--purple);
+    color:var(--white);
+    font-weight:700;
+    font-size:13px;
+    padding:10px 18px;
+    border-radius:12px;
+    text-decoration:none;
+    font-family:inherit;
+  }
+  .pinata-reward-btn:hover{background:var(--purple-dark);}
+  .pinata-reward-btn:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+
+  button.btn{
+    font-family:inherit;
+    border:none;
+    border-radius:12px;
+    padding:14px 18px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    background:var(--purple);
+    color:var(--white);
+    transition:background .15s ease, transform .1s ease;
+  }
+  button.btn:hover{background:var(--purple-dark);}
+  button.btn:active{transform:scale(.98);}
+  button.btn.ghost{
+    background:var(--bg);
+    color:var(--navy);
+  }
+  button.btn.ghost:hover{background:var(--lavender-light);}
+  button.btn:focus-visible{outline:3px solid var(--pink);outline-offset:2px;}
+  .opt:focus-visible{outline:3px solid var(--purple);outline-offset:2px;}
+
+  @media (max-width:480px){
+    .card{padding:26px 20px 22px;}
+    .start h1{font-size:26px;}
+    .options{grid-template-columns:1fr;}
+    .end .score-big{font-size:44px;}
+    .brand{justify-content:flex-start;}
+    .brand-right{margin-left:auto;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="brand">
+    <div class="brand-name">colori<b>pop</b> · Heatmap Match</div>
+    <div class="brand-right">
+      <div class="brand-sub" id="brandSub"></div>
+      <div class="lang-switch" id="langSwitch">
+        <button class="lang-btn" data-lang="es" type="button">ES</button>
+        <button class="lang-btn" data-lang="en" type="button">EN</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="card"></div>
+</div>
+
+<script>
+/* ---------------- UI strings ---------------- */
+const STRINGS = {
+  es: {
+    brandSub: "Patrones de escaneo UX",
+    title: "Heatmap Match",
+    lead: "Mirá el mapa de calor simulado y adiviná qué patrón de escaneo es, antes de que se acabe el tiempo — igual que un usuario real decidiendo si se queda en la página.",
+    chip1: "rondas, una por patrón",
+    chip2: "por heatmap",
+    chip3: "con fuente NN/g",
+    startBtn: "Empezar",
+    round: (n, total) => `Ronda ${n} de ${total}`,
+    score: "Puntaje",
+    question: "¿Qué patrón de escaneo es este?",
+    caption: "Simulación del mapa de calor / gaze plot",
+    fbCorrect: "✓ Correcto",
+    fbWrong: "✗ No era ese",
+    fbTimeout: "⏱ Se acabó el tiempo",
+    next: "Siguiente",
+    seeResult: "Ver resultado",
+    tagPerfect: "Escaneo perfecto — reconociste los 7 patrones.",
+    tagGood: "Muy bien — dominás la mayoría de los patrones.",
+    tagRetry: "Vale la pena repasar el deck de patrones de escaneo.",
+    reviewBtn: "Repasar fallados",
+    replayBtn: "Jugar de nuevo",
+    reviewTitleMissed: "Repaso de fallados",
+    reviewTitleClean: "¡Sin fallos! Repaso rápido",
+    backBtn: "Jugar de nuevo",
+    exitLabel: "Finalizar juego",
+    confirmEnd: "¿Finalizar la partida y volver al inicio?",
+    pinataUnlockedTitle: "🎉 ¡Desbloqueaste la piñata!",
+    pinataHint: "Tocá para romperla",
+    pinataRewardTitle: "¡Premio desbloqueado!",
+    pinataRewardBtn: "Reclamar premio"
+  },
+  en: {
+    brandSub: "UX Scanning Patterns",
+    title: "Heatmap Match",
+    lead: "Look at the simulated heatmap and guess which scanning pattern it is before time runs out — just like a real user deciding whether to stay on the page.",
+    chip1: "rounds, one per pattern",
+    chip2: "per heatmap",
+    chip3: "with NN/g source",
+    startBtn: "Start",
+    round: (n, total) => `Round ${n} of ${total}`,
+    score: "Score",
+    question: "Which scanning pattern is this?",
+    caption: "Simulated heatmap / gaze plot",
+    fbCorrect: "✓ Correct",
+    fbWrong: "✗ Not quite",
+    fbTimeout: "⏱ Time's up",
+    next: "Next",
+    seeResult: "See results",
+    tagPerfect: "Perfect scan — you recognized all 7 patterns.",
+    tagGood: "Nice work — you've got most of the patterns down.",
+    tagRetry: "Worth another look at the scanning-patterns deck.",
+    reviewBtn: "Review misses",
+    replayBtn: "Play again",
+    reviewTitleMissed: "Review of misses",
+    reviewTitleClean: "No misses! Quick review",
+    backBtn: "Play again",
+    exitLabel: "End game",
+    confirmEnd: "End the game and return to the start screen?",
+    pinataUnlockedTitle: "🎉 You unlocked the piñata!",
+    pinataHint: "Tap to break it",
+    pinataRewardTitle: "Reward unlocked!",
+    pinataRewardBtn: "Claim reward"
+  }
+};
+
+/* ---------------- piñata reward ---------------- */
+// TODO: reemplazar con el link real de premios cuando Elizabeth lo envíe.
+const PRIZE_URL = "https://www.google.com";
+const PINATA_UNLOCK_SCORE = 6;
+const PINATA_SVG = `
+<svg viewBox="0 0 120 132" xmlns="http://www.w3.org/2000/svg">
+  <line x1="60" y1="0" x2="60" y2="14" stroke="var(--navy)" stroke-width="2"/>
+  <defs>
+    <clipPath id="pinataClip"><ellipse cx="60" cy="72" rx="42" ry="46"/></clipPath>
+  </defs>
+  <ellipse cx="60" cy="72" rx="42" ry="46" fill="var(--lavender-light)" stroke="var(--navy)" stroke-width="2"/>
+  <g clip-path="url(#pinataClip)">
+    <rect x="16" y="26" width="88" height="15" fill="var(--purple)"/>
+    <rect x="16" y="41" width="88" height="15" fill="var(--pink)"/>
+    <rect x="16" y="56" width="88" height="15" fill="#FFD166"/>
+    <rect x="16" y="71" width="88" height="15" fill="var(--purple)"/>
+    <rect x="16" y="86" width="88" height="15" fill="var(--pink)"/>
+    <rect x="16" y="101" width="88" height="15" fill="#FFD166"/>
+  </g>
+  <ellipse cx="60" cy="72" rx="42" ry="46" fill="none" stroke="var(--navy)" stroke-width="2"/>
+  <circle cx="47" cy="68" r="4" fill="var(--navy)"/>
+  <circle cx="73" cy="68" r="4" fill="var(--navy)"/>
+  <path d="M46 86 Q60 96 74 86" stroke="var(--navy)" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>`;
+
+/* ---------------- pattern data ---------------- */
+const PATTERNS = [
+  {
+    id: "f",
+    name: { es: "Patrón F", en: "F pattern" },
+    explanation: {
+      es: "Aparece cuando el contenido no tiene subtítulos, negritas ni listas. No es un patrón a imitar: NN/g lo describe como una señal de mal formato.",
+      en: "Shows up when content has no subheads, bold text, or lists. It's not a pattern to imitate — NN/g describes it as a sign of poor formatting."
+    },
+    sourceLabel: "nngroup.com/articles/f-shaped-pattern-reading-web-content-discovered",
+    sourceUrl: "https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content-discovered/",
+    draw: (ix, iy, iw, ih) => {
+      let s = "";
+      for (let i = 0; i < 6; i++) s += ghost(ix, iy + 18 + i * ((ih - 36) / 5), iw);
+      s += path(ix, iy + 18, ix + iw, iy + 18, 6);
+      s += path(ix, iy + 18 + (ih - 36) / 5, ix + iw * 0.55, iy + 18 + (ih - 36) / 5, 6);
+      s += path(ix, iy + 18, ix, iy + ih - 18, 6);
+      return s;
+    }
+  },
+  {
+    id: "z",
+    name: { es: "Patrón Z (zig-zag)", en: "Z pattern (zig-zag)" },
+    explanation: {
+      es: "Aparece sobre todo en páginas con bastante contenido visual o imágenes. No es uno de los 4 patrones principales de escaneo de texto de NN/g — no lo enseñes como regla universal.",
+      en: "Mostly appears on pages with a lot of visual content or images. It's not one of NN/g's 4 main text-scanning patterns — don't teach it as a universal behavior."
+    },
+    sourceLabel: "nngroup.com/articles/text-scanning-patterns-eyetracking",
+    sourceUrl: "https://www.nngroup.com/articles/text-scanning-patterns-eyetracking/",
+    draw: (ix, iy, iw, ih) => {
+      let s = "";
+      for (let i = 0; i < 5; i++) s += ghost(ix, iy + 16 + i * ((ih - 32) / 4), iw);
+      s += path(ix, iy + 16, ix + iw, iy + 16, 6);
+      s += path(ix + iw, iy + 16, ix, iy + ih - 16, 6);
+      s += path(ix, iy + ih - 16, ix + iw, iy + ih - 16, 6);
+      return s;
+    }
+  },
+  {
+    id: "layer",
+    name: { es: "Patrón en capas (layer-cake)", en: "Layer-cake pattern" },
+    explanation: {
+      es: "El usuario escanea encabezados y subtítulos y se salta el texto corrido. Después de leer todo, es la forma más eficiente de escanear una página, documentada por NN/g desde 2004.",
+      en: "Users scan headings and subheadings and skip the body copy. After full reading, it's the most efficient way to scan a page — NN/g has documented it since 2004."
+    },
+    sourceLabel: "nngroup.com/articles/layer-cake-pattern-scanning",
+    sourceUrl: "https://www.nngroup.com/articles/layer-cake-pattern-scanning/",
+    draw: (ix, iy, iw, ih) => {
+      let s = "";
+      const rows = 5;
+      for (let i = 0; i < rows; i++) {
+        const yy = iy + i * (ih / rows) + 12;
+        s += path(ix, yy, ix + iw * 0.5, yy, 7, "var(--purple)");
+        s += ghost(ix, yy + 22, iw);
+      }
+      return s;
+    }
+  },
+  {
+    id: "spotted",
+    name: { es: "Patrón manchado (spotted)", en: "Spotted pattern" },
+    explanation: {
+      es: "El usuario salta bloques de texto buscando un dato puntual: un precio, un enlace, una fecha. Muy común en B2B, donde el usuario \"caza\" información en vez de leer.",
+      en: "Users skip large blocks of text hunting for one specific detail: a price, a link, a date. Very common in B2B, where users hunt for information rather than read."
+    },
+    sourceLabel: "nngroup.com/articles/text-scanning-patterns-eyetracking",
+    sourceUrl: "https://www.nngroup.com/articles/text-scanning-patterns-eyetracking/",
+    draw: (ix, iy, iw, ih) => {
+      let s = "";
+      for (let i = 0; i < 6; i++) s += ghost(ix, iy + 14 + i * ((ih - 28) / 5), iw);
+      const pts = [[.15,.1],[.7,.2],[.4,.4],[.85,.5],[.2,.65],[.6,.75],[.9,.85],[.3,.92]];
+      pts.forEach(([px, py]) => s += dot(ix + px * iw, iy + py * ih, 8));
+      return s;
+    }
+  },
+  {
+    id: "marking",
+    name: { es: "Patrón de marcado (marking)", en: "Marking pattern" },
+    explanation: {
+      es: "El ojo se mantiene fijo en un punto mientras el contenido se desplaza debajo (scroll), como un ancla visual. Más frecuente en dispositivos móviles que en escritorio.",
+      en: "The eye stays fixed on one point while the content scrolls beneath it, like a visual anchor. More common on mobile than on desktop."
+    },
+    sourceLabel: "nngroup.com/articles/f-shaped-pattern-reading-web-content",
+    sourceUrl: "https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/",
+    draw: (ix, iy, iw, ih) => {
+      let s = "";
+      for (let i = 0; i < 6; i++) s += ghost(ix + 18, iy + 14 + i * ((ih - 28) / 5), iw - 18);
+      s += path(ix + 9, iy, ix + 9, iy + ih, 7);
+      s += dot(ix + 9, iy + ih * 0.5, 9, "var(--purple)");
+      return s;
+    }
+  },
+  {
+    id: "skip",
+    name: { es: "Patrón de omisión (bypassing)", en: "Bypassing pattern" },
+    explanation: {
+      es: "Cuando varias líneas empiezan con la misma palabra (\"Product: ...\"), el usuario ignora ese inicio repetido y lee directo la parte que cambia.",
+      en: "When several lines start with the same word (\"Product: ...\"), users ignore that repeated start and jump straight to the part that changes."
+    },
+    sourceLabel: "nngroup.com/articles/f-shaped-pattern-reading-web-content",
+    sourceUrl: "https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/",
+    draw: (ix, iy, iw, ih) => {
+      let s = "";
+      const rows = 5;
+      for (let i = 0; i < rows; i++) {
+        const yy = iy + i * (ih / rows) + 18;
+        s += ghost(ix, yy, iw * 0.28);
+        s += path(ix + iw * 0.32, yy, ix + iw, yy, 6, "var(--purple)");
+      }
+      return s;
+    }
+  },
+  {
+    id: "commit",
+    name: { es: "Patrón de compromiso (commitment)", en: "Commitment pattern" },
+    explanation: {
+      es: "El usuario fija la vista en casi todo el contenido. Es el más lento de los patrones, pero el que mejor comprensión genera — ocurre solo con alta motivación.",
+      en: "Users fix their gaze on nearly all the content. It's the slowest pattern but produces the best comprehension — it only happens with high motivation."
+    },
+    sourceLabel: "nngroup.com/articles/text-scanning-patterns-eyetracking",
+    sourceUrl: "https://www.nngroup.com/articles/text-scanning-patterns-eyetracking/",
+    draw: (ix, iy, iw, ih) => {
+      let s = "";
+      const rows = 7;
+      for (let i = 0; i < rows; i++) {
+        const yy = iy + i * (ih / rows) + 12;
+        s += path(ix, yy, ix + iw * (0.7 + 0.25 * Math.abs(Math.sin(i))), yy, 6);
+      }
+      return s;
+    }
+  }
+];
+
+/* ---------------- svg helpers ---------------- */
+function ghost(x, y, w) {
+  return `<line x1="${x}" y1="${y}" x2="${x + w}" y2="${y}" stroke="var(--lavender-light)" stroke-width="5" stroke-linecap="round"/>`;
+}
+function path(x1, y1, x2, y2, w, color) {
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color || 'var(--pink)'}" stroke-width="${w}" stroke-linecap="round"/>`;
+}
+function dot(x, y, r, color) {
+  return `<circle cx="${x}" cy="${y}" r="${r}" fill="${color || 'var(--pink)'}"/>`;
+}
+function heatmapSVG(pattern) {
+  const W = 400, H = 220, pad = 22;
+  const inner = pattern.draw(pad, pad, W - pad * 2, H - pad * 2);
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+}
+
+/* ---------------- game state ---------------- */
+const ROUND_TIME = 15; // seconds — same as the "15 second rule"
+let lang = "es";
+let currentView = "start"; // 'start' | 'round' | 'end' | 'review'
+
+let order = [];
+let roundIndex = 0;
+let score = 0;
+let results = []; // {pattern, correct}
+
+let currentPattern = null;
+let currentOptions = null;
+let currentAnswered = false;
+let currentChosenId = null;
+let pinataBroken = false;
+
+let timerRAF = null;
+let timerStart = null;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const card = document.getElementById("card");
+const T = () => STRINGS[lang];
+
+/* ---------------- chrome (brand row) ---------------- */
+function updateChrome() {
+  document.getElementById("brandSub").textContent = T().brandSub;
+  document.querySelectorAll(".lang-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.lang === lang);
+  });
+}
+document.querySelectorAll(".lang-btn").forEach(b => {
+  b.addEventListener("click", () => {
+    if (b.dataset.lang === lang) return;
+    lang = b.dataset.lang;
+    updateChrome();
+    renderCurrent();
+  });
+});
+
+function renderCurrent() {
+  if (currentView === "round") renderRound();
+  else if (currentView === "end") renderEnd();
+  else if (currentView === "review") renderReview();
+  else renderStart();
+}
+
+/* ---------------- views ---------------- */
+function renderStart() {
+  currentView = "start";
+  cancelAnimationFrame(timerRAF);
+  const t = T();
+  card.innerHTML = `
+    <div class="start">
+      <h1>${t.title}</h1>
+      <p class="lead">${t.lead}</p>
+      <div class="rule-row">
+        <div class="rule-chip"><span class="num">7</span><span class="label">${t.chip1}</span></div>
+        <div class="rule-chip"><span class="num">15s</span><span class="label">${t.chip2}</span></div>
+        <div class="rule-chip"><span class="num">✓</span><span class="label">${t.chip3}</span></div>
+      </div>
+      <button class="btn start-btn" id="startBtn">${t.startBtn}</button>
+    </div>
+  `;
+  document.getElementById("startBtn").addEventListener("click", startGame);
+}
+
+function startGame() {
+  order = shuffle(PATTERNS);
+  roundIndex = 0;
+  score = 0;
+  results = [];
+  pinataBroken = false;
+  beginRound();
+}
+
+function beginRound() {
+  currentPattern = order[roundIndex];
+  const distractors = shuffle(PATTERNS.filter(p => p.id !== currentPattern.id)).slice(0, 3);
+  currentOptions = shuffle([currentPattern, ...distractors]);
+  currentAnswered = false;
+  currentChosenId = null;
+  renderRound();
+}
+
+function renderRound() {
+  currentView = "round";
+  const t = T();
+  const pattern = currentPattern;
+
+  card.innerHTML = `
+    <button class="exit-btn" id="exitBtn" type="button" aria-label="${t.exitLabel}" title="${t.exitLabel}">✕</button>
+    <div class="quiz">
+      <div class="quiz-head">
+        <div class="round-label">${t.round(roundIndex + 1, PATTERNS.length)}</div>
+        <div class="score-label">${t.score} <span>${score}</span>/${PATTERNS.length}</div>
+      </div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="heatmap-frame">${heatmapSVG(pattern)}</div>
+      <p class="heatmap-caption">${t.caption}</p>
+      <p class="question-text">${t.question}</p>
+      <div class="options" id="options">
+        ${currentOptions.map(o => `<button class="opt" data-id="${o.id}">${o.name[lang]}</button>`).join("")}
+      </div>
+      <div class="feedback" id="feedback">
+        <div class="feedback-head" id="feedbackHead"></div>
+        <div class="feedback-body" id="feedbackBody"></div>
+        <a class="feedback-source" id="feedbackSource" target="_blank" rel="noopener"></a>
+      </div>
+      <button class="btn next-btn" id="nextBtn">${t.next}</button>
+    </div>
+  `;
+
+  document.getElementById("exitBtn").addEventListener("click", exitGame);
+
+  if (currentAnswered) {
+    applyAnsweredUI();
+  } else {
+    document.querySelectorAll(".opt").forEach(btn => {
+      btn.addEventListener("click", () => selectAnswer(btn.dataset.id));
+    });
+    runTimer();
+  }
+
+  document.getElementById("nextBtn").addEventListener("click", nextRound);
+}
+
+function exitGame() {
+  cancelAnimationFrame(timerRAF);
+  if (window.confirm(T().confirmEnd)) {
+    renderStart();
+  } else if (!currentAnswered) {
+    runTimer(); // resume timer if they cancel
+  }
+}
+
+function runTimer() {
+  const fill = document.getElementById("timerFill");
+  timerStart = performance.now();
+  cancelAnimationFrame(timerRAF);
+
+  function tick(now) {
+    const elapsed = (now - timerStart) / 1000;
+    const remaining = Math.max(0, ROUND_TIME - elapsed);
+    const pct = (remaining / ROUND_TIME) * 100;
+    if (fill) {
+      fill.style.width = pct + "%";
+      fill.classList.toggle("warn", remaining < 5);
+    }
+    if (remaining <= 0) {
+      if (!currentAnswered) selectAnswer(null);
+      return;
+    }
+    timerRAF = requestAnimationFrame(tick);
+  }
+  timerRAF = requestAnimationFrame(tick);
+}
+
+function selectAnswer(chosenId) {
+  if (currentAnswered) return;
+  currentAnswered = true;
+  currentChosenId = chosenId;
+  cancelAnimationFrame(timerRAF);
+
+  const correct = chosenId === currentPattern.id;
+  if (correct) score++;
+  results.push({ pattern: currentPattern, correct });
+
+  applyAnsweredUI();
+}
+
+function applyAnsweredUI() {
+  const t = T();
+  const pattern = currentPattern;
+  const correct = currentChosenId === pattern.id;
+
+  document.querySelectorAll(".opt").forEach(btn => {
+    btn.disabled = true;
+    btn.classList.remove("correct", "wrong", "dim");
+    if (btn.dataset.id === pattern.id) btn.classList.add("correct");
+    else if (btn.dataset.id === currentChosenId) btn.classList.add("wrong");
+    else btn.classList.add("dim");
+  });
+
+  const fb = document.getElementById("feedback");
+  fb.classList.add("show");
+  fb.classList.toggle("good", correct);
+  fb.classList.toggle("bad", !correct);
+  document.getElementById("feedbackHead").textContent = correct
+    ? t.fbCorrect
+    : (currentChosenId ? t.fbWrong : t.fbTimeout);
+  document.getElementById("feedbackBody").textContent = pattern.explanation[lang];
+  const src = document.getElementById("feedbackSource");
+  src.textContent = "🔗 " + pattern.sourceLabel;
+  src.href = pattern.sourceUrl;
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.classList.add("show");
+  nextBtn.textContent = roundIndex === PATTERNS.length - 1 ? t.seeResult : t.next;
+}
+
+function nextRound() {
+  roundIndex++;
+  if (roundIndex >= PATTERNS.length) {
+    renderEnd();
+  } else {
+    beginRound();
+  }
+}
+
+function renderEnd() {
+  currentView = "end";
+  cancelAnimationFrame(timerRAF);
+  const t = T();
+  const total = PATTERNS.length;
+  const tag = score === total ? t.tagPerfect : score >= total - 2 ? t.tagGood : t.tagRetry;
+
+  const unlocked = score >= PINATA_UNLOCK_SCORE;
+
+  card.innerHTML = `
+    <div class="end">
+      <div class="score-big">${score}<span>/${total}</span></div>
+      <p class="score-tag">${tag}</p>
+      ${unlocked ? pinataSectionHTML(t) : ""}
+      <div class="recap">
+        ${results.map(r => `
+          <div class="recap-item ${r.correct ? "hit" : "miss"}">
+            <span class="recap-dot">${r.correct ? "✓" : "✗"}</span>
+            <span>${r.pattern.name[lang]}</span>
+          </div>
+        `).join("")}
+      </div>
+      <div class="end-actions">
+        <button class="btn ghost" id="reviewBtn">${t.reviewBtn}</button>
+        <button class="btn" id="replayBtn">${t.replayBtn}</button>
+      </div>
+    </div>
+  `;
+  document.getElementById("replayBtn").addEventListener("click", startGame);
+  document.getElementById("reviewBtn").addEventListener("click", renderReview);
+
+  if (unlocked) initPinata();
+}
+
+function pinataSectionHTML(t) {
+  if (pinataBroken) {
+    return `
+      <div class="pinata-section">
+        <div class="pinata-title">${t.pinataRewardTitle}</div>
+        <div class="pinata-reward show">
+          <a class="pinata-reward-btn" href="${PRIZE_URL}" target="_blank" rel="noopener">${t.pinataRewardBtn}</a>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="pinata-section" id="pinataSection">
+      <div class="pinata-title">${t.pinataUnlockedTitle}</div>
+      <div class="pinata-hint">${t.pinataHint}</div>
+      <div class="pinata-wrap" id="pinataWrap" role="button" tabindex="0" aria-label="${t.pinataHint}">${PINATA_SVG}</div>
+      <div class="pinata-reward" id="pinataReward">
+        <a class="pinata-reward-btn" href="${PRIZE_URL}" target="_blank" rel="noopener">${t.pinataRewardBtn}</a>
+      </div>
+    </div>`;
+}
+
+function initPinata() {
+  if (pinataBroken) return;
+  const wrap = document.getElementById("pinataWrap");
+  if (!wrap) return;
+  const burst = () => breakPinata(wrap);
+  wrap.addEventListener("click", burst);
+  wrap.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      burst();
+    }
+  });
+}
+
+function breakPinata(wrap) {
+  if (pinataBroken) return;
+  pinataBroken = true;
+  wrap.classList.add("burst");
+
+  const section = document.getElementById("pinataSection");
+  const colors = ["var(--purple)", "var(--pink)", "#FFD166", "var(--lavender)"];
+  for (let i = 0; i < 16; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.background = colors[i % colors.length];
+    c.style.left = (44 + Math.random() * 12) + "%";
+    c.style.setProperty("--dx", (Math.random() * 160 - 80).toFixed(0) + "px");
+    c.style.setProperty("--rot", (Math.random() * 360).toFixed(0) + "deg");
+    c.style.animationDelay = (Math.random() * 0.15).toFixed(2) + "s";
+    section.appendChild(c);
+    requestAnimationFrame(() => c.classList.add("fall"));
+  }
+
+  setTimeout(() => {
+    const reward = document.getElementById("pinataReward");
+    if (reward) reward.classList.add("show");
+  }, 550);
+}
+
+function renderReview() {
+  currentView = "review";
+  const t = T();
+  const missed = results.filter(r => !r.correct);
+  const list = missed.length ? missed : results;
+  card.innerHTML = `
+    <div class="start">
+      <h1 style="font-size:24px;">${missed.length ? t.reviewTitleMissed : t.reviewTitleClean}</h1>
+      <div class="recap">
+        ${list.map(r => `
+          <div class="recap-item" style="background:var(--bg);">
+            <span class="recap-dot" style="background:var(--purple);">${r.pattern.name[lang][0]}</span>
+            <div>
+              <div style="font-weight:700;margin-bottom:2px;">${r.pattern.name[lang]}</div>
+              <div style="color:var(--gray);font-size:11.5px;line-height:1.4;">${r.pattern.explanation[lang]}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+      <button class="btn start-btn" id="backBtn">${t.backBtn}</button>
+    </div>
+  `;
+  document.getElementById("backBtn").addEventListener("click", startGame);
+}
+
+updateChrome();
+renderStart();
+</script>
+</body>
+</html>
