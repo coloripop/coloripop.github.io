@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cognitive Bias Codex, interactive / Códice de sesgos cognitivos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Outfit:wght@300..600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --ink:#1A2230; --muted:#5A6577; --line:#C9D0DA; --hover:#E6EAF0;
+  --c1:#1F7A78; --c2:#3A5BA0; --c3:#5E7A1E; --c4:#7A5578; --on-c:#FFFFFF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131922; --surface:#1B2330; --ink:#E4E9F0; --muted:#97A3B4; --line:#334052; --hover:#253043;
+    --c1:#4DB3AF; --c2:#7F9BE0; --c3:#9DBE52; --c4:#C094BC; --on-c:#0F151D;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131922; --surface:#1B2330; --ink:#E4E9F0; --muted:#97A3B4; --line:#334052; --hover:#253043;
+  --c1:#4DB3AF; --c2:#7F9BE0; --c3:#9DBE52; --c4:#C094BC; --on-c:#0F151D;
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.5}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 370px;height:100%}
+.stage{position:relative;min-height:0;overflow:hidden}
+#chart{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#chart:active{cursor:grabbing}
+.panel{background:var(--surface);border-left:1px solid var(--line);overflow-y:auto;padding:28px 24px 32px;display:flex;flex-direction:column;gap:22px;min-height:0}
+h1,h2,h3{font-family:'Bricolage Grotesque','Atkinson Hyperlegible',system-ui,sans-serif;margin:0;letter-spacing:-0.012em}
+h1{font-size:30px;line-height:1.05;font-weight:780}
+h2{font-size:23px;line-height:1.2;font-weight:700}
+h2.big{font-size:32px;line-height:1.08;font-weight:780}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.search{position:relative}
+.search input{width:100%;font:inherit;font-size:15px;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.search input:focus{outline:none;border-color:var(--ink)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--ink);outline-offset:2px}
+.cats{display:flex;flex-direction:column;gap:8px}
+.cat-btn{display:block;width:100%;text-align:left;background:transparent;border:1px solid var(--line);border-left:7px solid var(--cc);border-radius:10px;padding:11px 14px}
+.cat-btn:hover{background:var(--hover)}
+.cat-btn strong{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:17px;font-weight:700}
+.cat-btn span{font-size:13px;color:var(--muted)}
+.crumbs{display:flex;flex-wrap:wrap;gap:4px 6px;font-size:13px;color:var(--muted)}
+.crumbs button{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.crumbs button:hover{color:var(--ink)}
+.statement{border-left:4px solid var(--cc);padding:2px 0 2px 12px;color:var(--ink)}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--cc)}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.item{display:block;width:100%;text-align:left;background:none;border:0;border-radius:7px;padding:7px 10px}
+.item:hover{background:var(--hover)}
+.item.current{background:var(--hover);font-weight:700}
+.item small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+.item .count{float:right;color:var(--muted);font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1.5px solid var(--ink);background:var(--ink);color:var(--surface);border-radius:999px;padding:8px 16px;font-weight:700;font-size:14px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+a.ext{color:var(--ink);font-weight:700;text-underline-offset:3px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+.seg-ctl{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--bg)}
+.seg-ctl button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--muted)}
+.seg-ctl button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.credit{margin-top:auto;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.tools{position:absolute;top:14px;right:14px;display:flex;gap:6px}
+.tools button{min-width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:18px;font-weight:700;padding:0 12px}
+.tools button.text{font-size:13px}
+.tools button:hover{border-color:var(--ink)}
+.hint{position:absolute;left:12px;bottom:12px;font-size:12.5px;color:var(--muted);pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.tip{position:absolute;pointer-events:none;max-width:260px;background:var(--ink);color:var(--surface);font-size:13px;line-height:1.4;padding:8px 11px;border-radius:8px;opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+
+/* SVG */
+.link{fill:none;stroke-width:1;stroke-opacity:.42;transition:stroke-opacity .2s,stroke-width .2s}
+.link.dim{stroke-opacity:.06}
+.link.hot{stroke-opacity:1;stroke-width:1.9}
+.leaf{cursor:pointer;transition:opacity .2s;animation:sweep .5s ease-out backwards}
+.leaf text{font-size:8.6px;fill:var(--ink)}
+.leaf.dim{opacity:.13}
+.leaf.hot text,.leaf.sel text{font-weight:700}
+.leaf.sel text{font-size:10.5px}
+.leaf.sel circle{r:3.6}
+.sub circle{cursor:pointer;stroke:var(--surface);stroke-width:1.5;transition:opacity .2s}
+.sub.dim{opacity:.18}
+.sub.sel circle{stroke:var(--ink);stroke-width:2}
+.sub:focus,.seg:focus{outline:none}
+.sub:focus-visible circle{stroke:var(--ink);stroke-width:3}
+.seg:focus-visible path:first-child{stroke:var(--ink);stroke-width:3}
+.seg{cursor:pointer;transition:opacity .2s}
+.seg.dim{opacity:.28}
+.seg text{fill:var(--on-c);font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700;font-size:10.5px;pointer-events:none}
+.wheel{fill:none;stroke:var(--line);stroke-width:1.3}
+.stmt{cursor:pointer;transition:opacity .2s}
+.stmt text{font-size:11px;fill:var(--ink)}
+.stmt .odot{stroke:var(--surface);stroke-width:2}
+.stmt:hover text,.stmt.sel text{font-weight:700}
+.stmt.dim{opacity:.22}
+.stmt:focus{outline:none}
+.stmt:focus-visible text{text-decoration:underline}
+.core{cursor:pointer}
+.core circle{fill:var(--surface);stroke:var(--line)}
+.core text{fill:var(--ink);text-anchor:middle;font-family:'Bricolage Grotesque',system-ui,sans-serif}
+@keyframes sweep{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  .leaf{animation:none}
+  .link,.leaf,.sub circle,.seg,.tip{transition:none}
+}
+@media (max-width:820px){
+  body{height:auto}
+  .app{grid-template-columns:1fr;height:auto}
+  .stage{height:64vh;min-height:360px}
+  .panel{border-left:0;border-top:1px solid var(--line);overflow:visible}
+  .hint{display:none}
+}
+
+/* ===== UI skin: soft card style (interface only, graphic untouched) ===== */
+:root[data-theme="light"]{
+  --bg:#ECEDF0; --hover:#F2F3F6; --ui-muted:#6E7480;
+  --card:#FFFFFF;
+  --wash:radial-gradient(120% 60% at 95% 0%, rgba(178,238,247,.55), transparent 55%), radial-gradient(90% 50% at 100% 70%, rgba(222,210,255,.40), transparent 60%);
+  --card-shadow:0 40px 70px -30px rgba(28,36,64,.22), 0 2px 8px rgba(28,36,64,.04);
+  --pill-bg:linear-gradient(180deg,#FFFFFF 0%,#F7F8FA 100%);
+  --pill-shadow:inset 0 1px 0 #FFFFFF, inset 0 -3px 8px rgba(24,32,60,.035), 0 10px 22px -12px rgba(28,36,64,.22), 0 0 0 1px rgba(24,32,60,.045);
+  --track:#F1F2F5;
+}
+:root[data-theme="dark"]{
+  --bg:#0F1217; --hover:#222833; --ui-muted:#8B93A1;
+  --card:#181D25;
+  --wash:radial-gradient(120% 60% at 95% 0%, rgba(77,179,190,.16), transparent 55%), radial-gradient(90% 50% at 100% 70%, rgba(150,120,255,.14), transparent 60%);
+  --card-shadow:0 40px 70px -30px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+  --pill-bg:linear-gradient(180deg,#232A35 0%,#1D232C 100%);
+  --pill-shadow:inset 0 1px 0 rgba(255,255,255,.06), inset 0 -3px 8px rgba(0,0,0,.25), 0 10px 22px -12px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05);
+  --track:#12161C;
+}
+:root{ --accent:radial-gradient(circle at 28% 25%, #C08BFF 0%, #8B6CF7 45%, #4F9DFF 100%); --ring:#7B6CF6; }
+
+.panel,.tools,.hint,.tip{font-family:'Outfit','Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif}
+.app{grid-template-columns:minmax(0,1fr) 410px}
+.panel{
+  --muted:var(--ui-muted);
+  margin:16px 16px 16px 0;border:0;border-radius:40px;
+  background:var(--wash),var(--card);box-shadow:var(--card-shadow);
+  padding:30px 28px 28px;gap:24px;font-weight:400;
+}
+.panel h1{font-family:inherit;font-weight:500;font-size:34px;line-height:1.05;letter-spacing:-0.025em}
+.panel h2{font-family:inherit;font-weight:500;font-size:19px;line-height:1.3;letter-spacing:-0.01em}
+.panel h2.big{font-weight:600;font-size:24px;line-height:1.2;letter-spacing:-0.015em;margin:6px 0 4px}
+.panel .small{font-size:14px}
+:focus-visible{outline:2.5px solid var(--ring);outline-offset:3px}
+
+/* segmented controls */
+.seg-ctl{background:var(--track);border:0;padding:4px;box-shadow:inset 0 1px 3px rgba(24,32,60,.06)}
+.seg-ctl button{font-weight:500;font-size:14px;padding:7px 15px;color:var(--muted)}
+.seg-ctl button[aria-pressed="true"]{background:var(--pill-bg);box-shadow:var(--pill-shadow);color:var(--ink)}
+
+/* search */
+.field{position:relative}
+.field-icon{position:absolute;left:18px;top:50%;width:20px;height:20px;transform:translateY(-50%);fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.search label{font-size:15px}
+.search input{height:54px;padding:0 20px 0 50px;border:0;border-radius:999px;background:var(--pill-bg);box-shadow:var(--pill-shadow);font-family:inherit;font-size:16px}
+.search input::placeholder{color:var(--muted)}
+.search input:focus{box-shadow:var(--pill-shadow),0 0 0 2.5px var(--ring)}
+
+/* problem cards: soft pills with a tinted tile */
+.cats{gap:12px}
+.cat-btn{display:grid;grid-template-columns:46px 1fr;column-gap:14px;align-items:center;border:0;border-radius:24px;padding:12px 16px 12px 12px;background:var(--pill-bg);box-shadow:var(--pill-shadow)}
+.cat-btn::before{content:'';grid-row:1 / 3;width:46px;height:46px;border-radius:15px;
+  background:radial-gradient(circle, var(--cc) 0 6px, transparent 6.5px), color-mix(in srgb, var(--cc) 13%, var(--card))}
+.cat-btn:hover{background:var(--pill-bg);transform:translateY(-1px)}
+.cat-btn strong{font-family:inherit;font-weight:500;font-size:17px}
+.cat-btn span{font-size:14px}
+
+/* buttons */
+.btn{border:0;background:var(--accent);color:#fff;font-weight:500;font-size:15px;padding:12px 22px;box-shadow:0 14px 26px -12px rgba(123,108,246,.7)}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:var(--pill-bg);color:var(--ink);box-shadow:var(--pill-shadow)}
+.btn.ghost:hover{border-color:transparent}
+a.ext{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:999px;background:var(--pill-bg);box-shadow:var(--pill-shadow);text-decoration:none;font-weight:500}
+
+/* lists, crumbs, statement */
+.item{border-radius:16px;padding:9px 14px;font-size:15px}
+.item.current{background:var(--pill-bg);box-shadow:var(--pill-shadow);font-weight:500}
+.item small{font-size:13px}
+.crumbs{font-size:13px;gap:2px 6px;line-height:1.4}
+.crumbs button{text-decoration:none;padding:0;background:none;color:var(--muted)}
+.crumbs button:hover{color:var(--ink);text-decoration:underline}
+.statement{border-left-width:3px;border-radius:2px;padding-left:14px}
+.panel p.statement{font-size:15.5px;line-height:1.45;color:color-mix(in srgb, var(--ink) 78%, var(--card))}
+.seg-ctl.icons button{width:42px;height:34px;padding:0;display:grid;place-items:center}
+.seg-ctl.icons svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.credit{border-top:0;padding-top:0;font-size:12.5px;line-height:1.5}
+
+/* stage controls */
+.tools{top:18px;right:18px;gap:10px}
+.tools button{min-width:48px;height:48px;border:0;border-radius:999px;background:var(--wash),var(--card);box-shadow:var(--pill-shadow);font-size:20px;font-weight:400;padding:0 16px}
+.tools button.text{font-size:14px;font-weight:500}
+.tools button:hover{border-color:transparent;transform:translateY(-1px)}
+.hint{left:18px;bottom:18px;border:0;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;max-width:calc(100% - 36px);padding:6px 12px 6px 10px;font-size:12px;font-weight:500;line-height:1.2;
+  background:color-mix(in srgb, var(--card) 78%, transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:var(--pill-shadow)}
+.hint svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hint span{overflow:hidden;text-overflow:ellipsis}
+.x-unused{
+  background:color-mix(in srgb, var(--card) 78%, transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:var(--pill-shadow)}
+.tip{background:color-mix(in srgb, var(--card) 92%, transparent);color:var(--ink);border-radius:16px;padding:10px 14px;font-size:13.5px;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:var(--card-shadow)}
+.cat-btn,.tools button{transition:transform .15s}
+@media (prefers-reduced-motion: reduce){.cat-btn,.tools button{transition:none}.cat-btn:hover,.tools button:hover{transform:none}}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .panel{margin:0 12px 12px;border-radius:32px;border-top:0}
+}
+
+/* bias definition + UX/UI example */
+.about{margin-top:20px}
+.example{margin-top:14px;background:var(--pill-bg);box-shadow:var(--pill-shadow);border-radius:22px;padding:14px 16px 16px}
+.about h3,.example h3{font-family:inherit;font-size:13px;font-weight:500;color:var(--muted);letter-spacing:0;margin:0 0 6px;display:flex;align-items:center;gap:7px}
+.example svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.about p{font-size:15.5px;line-height:1.55}
+.example p{font-size:15px;line-height:1.55}
+/* AI-assistance info tooltip */
+.info{position:relative;display:inline-flex}
+.info-btn{width:20px;height:20px;border-radius:999px;border:0;padding:0;display:grid;place-items:center;background:var(--track);color:var(--muted);cursor:help;box-shadow:inset 0 0 0 1px var(--line)}
+.info-btn:hover,.info-btn:focus-visible{color:var(--ink)}
+.info-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.info-tip{position:absolute;left:-10px;top:calc(100% + 10px);width:250px;max-width:70vw;padding:10px 13px;border-radius:14px;
+  background:color-mix(in srgb, var(--card) 95%, transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:var(--card-shadow),0 0 0 1px var(--line);color:var(--ink);font-size:13px;font-weight:400;line-height:1.45;
+  opacity:0;visibility:hidden;transform:translateY(4px);transition:opacity .15s,transform .15s,visibility .15s;pointer-events:none;z-index:5}
+.info:hover .info-tip,.info:focus-within .info-tip{opacity:1;visibility:visible;transform:translateY(0)}
+@media (prefers-reduced-motion: reduce){.info-tip{transition:none;transform:none}}
+/* "Same pattern" accordion */
+.acc summary{list-style:none;display:flex;align-items:center;gap:8px;cursor:pointer;padding:11px 14px 11px 16px;border-radius:18px;
+  background:var(--pill-bg);box-shadow:var(--pill-shadow);font-size:14.5px;font-weight:500;color:var(--ink);user-select:none}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary:hover .acc-chev{color:var(--ink)}
+.acc-count{font-size:12px;font-weight:500;color:var(--muted);background:var(--track);border-radius:999px;padding:1px 8px}
+.acc-chev{margin-left:auto;width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--muted);transition:transform .2s}
+.acc[open] .acc-chev{transform:rotate(180deg)}
+@media (prefers-reduced-motion: reduce){.acc-chev{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="stage" id="stage">
+    <svg id="chart" viewBox="-735 -590 1470 1180" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Radial map of cognitive biases grouped into four problems and twenty patterns"></svg>
+    <div class="tools">
+      <button id="zin" aria-label="Zoom in">+</button>
+      <button id="zout" aria-label="Zoom out">−</button>
+      <button id="zreset" class="text" data-i18n="reset">Reset view</button>
+    </div>
+    <div class="hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/></svg><span data-i18n="hint">Drag to move, scroll or pinch to zoom</span></div>
+    <div class="tip" id="tip" role="tooltip"></div>
+  </div>
+  <aside class="panel" id="panel">
+    <div class="controls">
+      <div class="seg-ctl" role="group" id="langGroup" aria-label="Language">
+        <button data-lang="en" lang="en">English</button><button data-lang="es" lang="es">Español</button>
+      </div>
+      <div class="seg-ctl icons" role="group" id="themeGroup" aria-label="Theme">
+        <button data-theme-btn="light" data-i18n-label="light" aria-label="Light" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button><button data-theme-btn="dark" data-i18n-label="dark" aria-label="Dark" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.3 8.3 0 0 1 9.4 4a8.3 8.3 0 1 0 10.6 10.6Z"/></svg></button>
+      </div>
+    </div>
+    <h1 data-i18n="title">Cognitive bias codex</h1>
+    <div class="search">
+      <label for="q" class="small muted" style="display:block;margin-bottom:6px" data-i18n="find">Find a bias</label>
+      <div class="field">
+        <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        <input id="q" type="search" placeholder="Try anchoring, halo, sunk cost" autocomplete="off">
+      </div>
+    </div>
+    <div id="detail"></div>
+    <p class="credit" data-i18n="credit">Bias list and categories from the Cognitive Bias Codex (2016): concept and categorization by Buster Benson, layout and design by John Manoogian III, research by Wikipedia contributors. Original licensed CC BY-SA 4.0. This is an independent interactive rendering of that data.</p>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const RAW = [
+ ["1. Too Much Information", [
+  ["We notice things already primed in memory or repeated often.", ["Availability heuristic","Attentional bias","Illusory truth effect","Mere exposure effect","Context effect","Cue-dependent forgetting","Mood-congruent memory bias","Frequency illusion","Baader-Meinhof Phenomenon","Empathy gap","Omission bias","Base rate fallacy"]],
+  ["Bizarre/funny/visually-striking/anthropomorphic things stick out more than non-bizarre/unfunny things.", ["Bizarreness effect","Humor effect","Von Restorff effect","Picture superiority effect","Self-relevance effect","Negativity bias"]],
+  ["We notice when something has changed.", ["Anchoring","Conservatism","Contrast effect","Distinction bias","Focusing effect","Framing effect","Money illusion","Weber–Fechner law"]],
+  ["We are drawn to details that confirm our own existing beliefs", ["Confirmation bias","Congruence bias","Post-purchase rationalization","Choice-supportive bias","Selective perception","Observer-expectancy effect","Experimenter's bias","Observer effect","Expectation bias","Ostrich effect","Subjective validation","Continued influence effect","Semmelweis reflex"]],
+  ["We notice flaws in others more easily than flaws in ourselves.", ["Bias blind spot","Naïve cynicism","Naïve realism"]]
+ ]],
+ ["2. Not Enough Meaning", [
+  ["We find stories and patterns even in sparse data", ["Confabulation","Clustering illusion","Insensitivity to sample size","Neglect of probability","Anecdotal fallacy","Illusion of validity","Masked man fallacy","Recency illusion","Gambler's fallacy","Hot-hand fallacy","Illusory correlation","Pareidolia","Anthropomorphism"]],
+  ["We fill in characteristics from stereotypes, generalities, and prior histories", ["Group attribution error","Ultimate attribution error","Stereotyping","Essentialism","Functional fixedness","Moral credential effect","Just-world hypothesis","Argument from fallacy","Authority bias","Automation bias","Bandwagon effect","Placebo effect"]],
+  ["We imagine things and people we're familiar with or fond of as better", ["Out-group homogeneity bias","Cross-race effect","In-group bias","Halo effect","Cheerleader effect","Positivity effect","Not invented here","Reactive devaluation","Well-traveled road effect"]],
+  ["We simplify probabilities and numbers to make them easier to think about", ["Mental accounting","Appeal to probability fallacy","Normalcy bias","Murphy's Law","Zero sum bias","Survivorship bias","Subadditivity effect","Denomination effect","Magic number 7+-2"]],
+  ["We think we know what other people are thinking", ["Illusion of transparency","Curse of knowledge","Spotlight effect","Extrinsic incentive error","Illusion of external agency","Illusion of asymmetric insight"]],
+  ["We project our current mindset and assumptions onto the past and future", ["Telescoping effect","Rosy retrospection","Hindsight bias","Outcome bias","Moral luck","Declinism","Impact bias","Pessimism bias","Planning fallacy","Time-saving bias","Pro-innovation bias","Projection bias","Restraint bias","Self-consistency bias"]]
+ ]],
+ ["3. Need To Act Fast", [
+  ["To act, we must be confident we can make an impact and feel what we do is important", ["Overconfidence effect","Social desirability bias","Third-person effect","False consensus effect","Hard-easy effect","Lake Wobegone effect","Dunning-Kruger effect","Egocentric bias","Optimism bias","Forer effect","Barnum effect","Self-serving bias","Actor-observer bias","Illusion of control","Illusory superiority","Fundamental attribution error","Defensive attribution hypothesis","Trait ascription bias","Effort justification","Risk compensation","Peltzman effect"]],
+  ["To stay focused, we favor the immediate, relatable thing in front of us", ["Hyperbolic discounting","Appeal to novelty","Identifiable victim effect"]],
+  ["To get anything done, we tend to complete things we've invested time & energy in.", ["Sunk cost fallacy","Irrational escalation","Escalation of commitment","Generation effect","Loss aversion","IKEA effect","Unit bias","Zero-risk bias","Disposition effect","Pseudocertainty effect","Processing difficulty effect","Endowment effect","Backfire effect"]],
+  ["To avoid mistakes, we tend to preserve our autonomy and group status, and avoid irreversible decisions.", ["System justification","Reverse psychology","Reactance","Decoy effect","Social comparison bias","Status quo bias"]],
+  ["We favor options that appear simple or have more complete information over more complex, ambiguous options.", ["Ambiguity bias","Information bias","Belief bias","Rhyme as reason effect","Bike-shedding effect","Law of Triviality","Delmore effect","Conjunction fallacy","Occam's razor","Less-is-better effect"]]
+ ]],
+ ["4. What Should We Remember?", [
+  ["We edit and reinforce some memories after the fact", ["Misattribution of memory","Source confusion","Cryptomnesia","False memory","Suggestibility","Spacing effect"]],
+  ["We discard specifics to form generalities", ["Implicit associations","Implicit stereotypes","Stereotypical bias","Prejudice","Negativity bias","Fading affect bias"]],
+  ["We reduce events and lists to their key elements", ["Peak–end rule","Leveling and sharpening","Misinformation effect","Serial recall effect","List-length effect","Duration neglect","Modality effect","Memory inhibition","Primacy effect","Recency effect","Part-list cueing effect","Serial position effect","Suffix effect"]],
+  ["We store memories differently based on how they were experienced", ["Levels of processing effect","Absent-mindedness","Testing effect","Next-in-line effect","Google effect","Tip of the tongue phenomenon"]]
+ ]]
+];
+const DATA = {name:"biases", children: RAW.map(([c,subs]) => ({name:c, children: subs.map(([s,ls]) => ({name:s, children: ls.map(n => ({name:n}))}))}))};
+
+const ES_CATS = {
+ "1. Too Much Information":"Demasiada información",
+ "2. Not Enough Meaning":"Falta de significado",
+ "3. Need To Act Fast":"Necesidad de actuar rápido",
+ "4. What Should We Remember?":"¿Qué debemos recordar?"
+};
+const ES_STMT = {
+ "We notice things already primed in memory or repeated often.":"Notamos lo que ya está activado en la memoria o lo que se repite a menudo.",
+ "Bizarre/funny/visually-striking/anthropomorphic things stick out more than non-bizarre/unfunny things.":"Lo extraño, gracioso, visualmente llamativo o antropomórfico destaca más que lo que no lo es.",
+ "We notice when something has changed.":"Notamos cuando algo ha cambiado.",
+ "We are drawn to details that confirm our own existing beliefs":"Nos atraen los detalles que confirman nuestras creencias previas.",
+ "We notice flaws in others more easily than flaws in ourselves.":"Notamos los defectos ajenos con más facilidad que los propios.",
+ "We find stories and patterns even in sparse data":"Encontramos historias y patrones incluso en datos escasos.",
+ "We fill in characteristics from stereotypes, generalities, and prior histories":"Completamos características a partir de estereotipos, generalidades e historias previas.",
+ "We imagine things and people we're familiar with or fond of as better":"Imaginamos mejores las cosas y personas que nos son familiares o queridas.",
+ "We simplify probabilities and numbers to make them easier to think about":"Simplificamos probabilidades y números para que sean más fáciles de pensar.",
+ "We think we know what other people are thinking":"Creemos saber lo que piensan los demás.",
+ "We project our current mindset and assumptions onto the past and future":"Proyectamos nuestra mentalidad y supuestos actuales sobre el pasado y el futuro.",
+ "To act, we must be confident we can make an impact and feel what we do is important":"Para actuar, necesitamos confiar en que podemos tener impacto y sentir que lo que hacemos es importante.",
+ "To stay focused, we favor the immediate, relatable thing in front of us":"Para mantener el enfoque, favorecemos lo inmediato y cercano que tenemos delante.",
+ "To get anything done, we tend to complete things we've invested time & energy in.":"Para terminar las cosas, tendemos a completar aquello en lo que ya invertimos tiempo y energía.",
+ "To avoid mistakes, we tend to preserve our autonomy and group status, and avoid irreversible decisions.":"Para evitar errores, tendemos a preservar nuestra autonomía y estatus en el grupo, y a evitar decisiones irreversibles.",
+ "We favor options that appear simple or have more complete information over more complex, ambiguous options.":"Preferimos opciones que parecen simples o tienen información más completa frente a opciones complejas y ambiguas.",
+ "We edit and reinforce some memories after the fact":"Editamos y reforzamos algunos recuerdos después de los hechos.",
+ "We discard specifics to form generalities":"Descartamos detalles para formar generalidades.",
+ "We reduce events and lists to their key elements":"Reducimos eventos y listas a sus elementos clave.",
+ "We store memories differently based on how they were experienced":"Almacenamos los recuerdos de forma distinta según cómo los vivimos."
+};
+const ES_BIAS = {
+ "Availability heuristic":"Heurística de disponibilidad","Attentional bias":"Sesgo atencional","Illusory truth effect":"Efecto de la verdad ilusoria","Mere exposure effect":"Efecto de mera exposición","Context effect":"Efecto de contexto","Cue-dependent forgetting":"Olvido dependiente de claves","Mood-congruent memory bias":"Sesgo de memoria congruente con el ánimo","Frequency illusion":"Ilusión de frecuencia","Baader-Meinhof Phenomenon":"Fenómeno Baader-Meinhof","Empathy gap":"Brecha de empatía","Omission bias":"Sesgo de omisión","Base rate fallacy":"Falacia de la tasa base",
+ "Bizarreness effect":"Efecto de lo extraño","Humor effect":"Efecto del humor","Von Restorff effect":"Efecto Von Restorff","Picture superiority effect":"Efecto de superioridad de la imagen","Self-relevance effect":"Efecto de autorreferencia","Negativity bias":"Sesgo de negatividad",
+ "Anchoring":"Anclaje","Conservatism":"Conservadurismo","Contrast effect":"Efecto de contraste","Distinction bias":"Sesgo de distinción","Focusing effect":"Efecto de focalización","Framing effect":"Efecto de encuadre","Money illusion":"Ilusión monetaria","Weber–Fechner law":"Ley de Weber-Fechner",
+ "Confirmation bias":"Sesgo de confirmación","Congruence bias":"Sesgo de congruencia","Post-purchase rationalization":"Racionalización poscompra","Choice-supportive bias":"Sesgo de apoyo a la elección","Selective perception":"Percepción selectiva","Observer-expectancy effect":"Efecto de expectativa del observador","Experimenter's bias":"Sesgo del experimentador","Observer effect":"Efecto del observador","Expectation bias":"Sesgo de expectativa","Ostrich effect":"Efecto avestruz","Subjective validation":"Validación subjetiva","Continued influence effect":"Efecto de influencia continuada","Semmelweis reflex":"Reflejo de Semmelweis",
+ "Bias blind spot":"Punto ciego del sesgo","Naïve cynicism":"Cinismo ingenuo","Naïve realism":"Realismo ingenuo",
+ "Confabulation":"Confabulación","Clustering illusion":"Ilusión de agrupamiento","Insensitivity to sample size":"Insensibilidad al tamaño de muestra","Neglect of probability":"Desatención a la probabilidad","Anecdotal fallacy":"Falacia anecdótica","Illusion of validity":"Ilusión de validez","Masked man fallacy":"Falacia del hombre enmascarado","Recency illusion":"Ilusión de lo reciente","Gambler's fallacy":"Falacia del jugador","Hot-hand fallacy":"Falacia de la mano caliente","Illusory correlation":"Correlación ilusoria","Pareidolia":"Pareidolia","Anthropomorphism":"Antropomorfismo",
+ "Group attribution error":"Error de atribución grupal","Ultimate attribution error":"Error de atribución último","Stereotyping":"Estereotipación","Essentialism":"Esencialismo","Functional fixedness":"Fijación funcional","Moral credential effect":"Efecto de credencial moral","Just-world hypothesis":"Hipótesis del mundo justo","Argument from fallacy":"Falacia de la falacia","Authority bias":"Sesgo de autoridad","Automation bias":"Sesgo de automatización","Bandwagon effect":"Efecto de arrastre","Placebo effect":"Efecto placebo",
+ "Out-group homogeneity bias":"Sesgo de homogeneidad del exogrupo","Cross-race effect":"Efecto de otra raza","In-group bias":"Sesgo endogrupal","Halo effect":"Efecto halo","Cheerleader effect":"Efecto porrista","Positivity effect":"Efecto de positividad","Not invented here":"Síndrome de «no inventado aquí»","Reactive devaluation":"Devaluación reactiva","Well-traveled road effect":"Efecto del camino conocido",
+ "Mental accounting":"Contabilidad mental","Appeal to probability fallacy":"Falacia de apelación a la probabilidad","Normalcy bias":"Sesgo de normalidad","Murphy's Law":"Ley de Murphy","Zero sum bias":"Sesgo de suma cero","Survivorship bias":"Sesgo de supervivencia","Subadditivity effect":"Efecto de subaditividad","Denomination effect":"Efecto de denominación","Magic number 7+-2":"Número mágico 7±2",
+ "Illusion of transparency":"Ilusión de transparencia","Curse of knowledge":"Maldición del conocimiento","Spotlight effect":"Efecto foco","Extrinsic incentive error":"Error del incentivo extrínseco","Illusion of external agency":"Ilusión de agencia externa","Illusion of asymmetric insight":"Ilusión de perspicacia asimétrica",
+ "Telescoping effect":"Efecto telescopio","Rosy retrospection":"Retrospección color de rosa","Hindsight bias":"Sesgo retrospectivo","Outcome bias":"Sesgo de resultado","Moral luck":"Suerte moral","Declinism":"Declinismo","Impact bias":"Sesgo de impacto","Pessimism bias":"Sesgo de pesimismo","Planning fallacy":"Falacia de planificación","Time-saving bias":"Sesgo de ahorro de tiempo","Pro-innovation bias":"Sesgo proinnovación","Projection bias":"Sesgo de proyección","Restraint bias":"Sesgo de autocontrol","Self-consistency bias":"Sesgo de autoconsistencia",
+ "Overconfidence effect":"Efecto de exceso de confianza","Social desirability bias":"Sesgo de deseabilidad social","Third-person effect":"Efecto de la tercera persona","False consensus effect":"Efecto de falso consenso","Hard-easy effect":"Efecto difícil-fácil","Lake Wobegone effect":"Efecto Lake Wobegon","Dunning-Kruger effect":"Efecto Dunning-Kruger","Egocentric bias":"Sesgo egocéntrico","Optimism bias":"Sesgo de optimismo","Forer effect":"Efecto Forer","Barnum effect":"Efecto Barnum","Self-serving bias":"Sesgo de autoservicio","Actor-observer bias":"Sesgo actor-observador","Illusion of control":"Ilusión de control","Illusory superiority":"Superioridad ilusoria","Fundamental attribution error":"Error fundamental de atribución","Defensive attribution hypothesis":"Hipótesis de atribución defensiva","Trait ascription bias":"Sesgo de atribución de rasgos","Effort justification":"Justificación del esfuerzo","Risk compensation":"Compensación del riesgo","Peltzman effect":"Efecto Peltzman",
+ "Hyperbolic discounting":"Descuento hiperbólico","Appeal to novelty":"Apelación a la novedad","Identifiable victim effect":"Efecto de la víctima identificable",
+ "Sunk cost fallacy":"Falacia del costo hundido","Irrational escalation":"Escalada irracional","Escalation of commitment":"Escalada del compromiso","Generation effect":"Efecto de generación","Loss aversion":"Aversión a la pérdida","IKEA effect":"Efecto IKEA","Unit bias":"Sesgo de unidad","Zero-risk bias":"Sesgo de riesgo cero","Disposition effect":"Efecto disposición","Pseudocertainty effect":"Efecto de pseudocerteza","Processing difficulty effect":"Efecto de dificultad de procesamiento","Endowment effect":"Efecto dotación","Backfire effect":"Efecto contraproducente",
+ "System justification":"Justificación del sistema","Reverse psychology":"Psicología inversa","Reactance":"Reactancia","Decoy effect":"Efecto señuelo","Social comparison bias":"Sesgo de comparación social","Status quo bias":"Sesgo del statu quo",
+ "Ambiguity bias":"Sesgo de ambigüedad","Information bias":"Sesgo de información","Belief bias":"Sesgo de creencia","Rhyme as reason effect":"Efecto de la rima como razón","Bike-shedding effect":"Efecto del cobertizo para bicicletas","Law of Triviality":"Ley de la trivialidad","Delmore effect":"Efecto Delmore","Conjunction fallacy":"Falacia de la conjunción","Occam's razor":"Navaja de Ockham","Less-is-better effect":"Efecto «menos es mejor»",
+ "Misattribution of memory":"Atribución errónea del recuerdo","Source confusion":"Confusión de la fuente","Cryptomnesia":"Criptomnesia","False memory":"Falso recuerdo","Suggestibility":"Sugestionabilidad","Spacing effect":"Efecto de espaciado",
+ "Implicit associations":"Asociaciones implícitas","Implicit stereotypes":"Estereotipos implícitos","Stereotypical bias":"Sesgo estereotípico","Prejudice":"Prejuicio","Fading affect bias":"Sesgo de desvanecimiento afectivo",
+ "Peak–end rule":"Regla del pico-final","Leveling and sharpening":"Nivelación y acentuación","Misinformation effect":"Efecto de desinformación","Serial recall effect":"Efecto de recuerdo serial","List-length effect":"Efecto de longitud de lista","Duration neglect":"Desatención a la duración","Modality effect":"Efecto de modalidad","Memory inhibition":"Inhibición de la memoria","Primacy effect":"Efecto de primacía","Recency effect":"Efecto de recencia","Part-list cueing effect":"Efecto de clave de lista parcial","Serial position effect":"Efecto de posición serial","Suffix effect":"Efecto sufijo",
+ "Levels of processing effect":"Efecto de niveles de procesamiento","Absent-mindedness":"Distracción","Testing effect":"Efecto de la evaluación","Next-in-line effect":"Efecto del siguiente en la fila","Google effect":"Efecto Google","Tip of the tongue phenomenon":"Fenómeno de la punta de la lengua"
+};
+const T = {
+ en: {
+  title:'Cognitive bias codex', find:'Find a bias', placeholder:'Try anchoring or halo',
+  hint:'Drag to move, scroll or pinch to zoom',
+  reset:'Reset view', zin:'Zoom in', zout:'Zoom out', light:'Light', dark:'Dark', language:'Language', theme:'Theme',
+  chart:'Radial map of cognitive biases grouped into four problems and twenty patterns',
+  core1:'Cognitive', core2:'biases', core3:(n,s) => `${n} entries, ${s} patterns`,
+  intro:n => `The codex groups ${n} cognitive biases by the four problems they help our brains handle. Pick a problem to see its patterns, then a pattern to see its biases.`,
+  patterns:n => n === 1 ? '1 pattern' : `${n} patterns`, biases:n => n === 1 ? '1 bias' : `${n} biases`,
+  matches:n => n === 1 ? '1 match' : `${n} matches`, noMatch:'No matches',
+  noMatchHelp:'Check the spelling or try part of the name, such as “halo” or “fallacy”.',
+  random:'Show a random bias', another:'Show another random bias', wiki:'Read about it on Wikipedia',
+  same:'Same pattern', inPattern:n => n === 1 ? '1 bias in this pattern' : `${n} biases in this pattern`,
+  all:'All problems', path:'Path', whatIs:'What it is', example:'UX/UI example', aiLabel:'About this content', aiNote:'Definitions and examples written with AI assistance (Claude) and reviewed by Elizabeth Arostegui.',
+  credit:'Bias list and categories from the Cognitive Bias Codex (2016): concept and categorization by Buster Benson, layout and design by John Manoogian III, research by Wikipedia contributors. Original licensed CC BY-SA 4.0. This is an independent interactive rendering of that data.'
+ },
+ es: {
+  title:'Códice de sesgos cognitivos', find:'Buscar un sesgo', placeholder:'Ej.: anclaje o halo',
+  hint:'Arrastra para mover y desplaza para hacer zoom',
+  reset:'Restablecer vista', zin:'Acercar', zout:'Alejar', light:'Claro', dark:'Oscuro', language:'Idioma', theme:'Tema',
+  chart:'Mapa radial de sesgos cognitivos agrupados en cuatro problemas y veinte patrones',
+  core1:'Sesgos', core2:'cognitivos', core3:(n,s) => `${n} entradas, ${s} patrones`,
+  intro:n => `El códice agrupa ${n} sesgos cognitivos según los cuatro problemas que nuestro cerebro intenta resolver. Elige un problema para ver sus patrones y luego un patrón para ver sus sesgos.`,
+  patterns:n => n === 1 ? '1 patrón' : `${n} patrones`, biases:n => n === 1 ? '1 sesgo' : `${n} sesgos`,
+  matches:n => n === 1 ? '1 resultado' : `${n} resultados`, noMatch:'Sin resultados',
+  noMatchHelp:'Revisa la ortografía o prueba con parte del nombre, como «halo» o «falacia».',
+  random:'Mostrar un sesgo al azar', another:'Mostrar otro sesgo al azar', wiki:'Leer en Wikipedia',
+  same:'Mismo patrón', inPattern:n => n === 1 ? '1 sesgo en este patrón' : `${n} sesgos en este patrón`,
+  all:'Todos los problemas', path:'Ruta', whatIs:'Qué es', example:'Ejemplo en UX/UI', aiLabel:'Sobre este contenido', aiNote:'Definiciones y ejemplos elaborados con asistencia de IA (Claude) y revisados por Elizabeth Arostegui.',
+  credit:'Lista de sesgos y categorías del Cognitive Bias Codex (2016): concepto y categorización de Buster Benson, diseño de John Manoogian III, investigación de colaboradores de Wikipedia. Original con licencia CC BY-SA 4.0. Esta es una representación interactiva independiente de esos datos. Traducción al español elaborada para esta versión.'
+ }
+};
+
+const INFO = {
+ "Misattribution of memory": {
+  en:{d:"You remember a piece of information correctly but attach it to the wrong source, time or context. The content survives; where it came from gets lost.",
+      x:"In a usability debrief, a teammate “remembers” a participant complaining about checkout, but the comment actually came from a competitor review they read last week."},
+  es:{d:"Recuerdas bien una información, pero la atribuyes a la fuente, el momento o el contexto equivocado. El contenido se conserva; su origen se pierde.",
+      x:"En el debrief de un test de usabilidad, alguien “recuerda” que un participante se quejó del checkout, pero el comentario venía de una reseña de la competencia que leyó la semana anterior."}},
+ "Source confusion": {
+  en:{d:"Mixing up where a memory came from: confusing something you saw with something you read, imagined or were told.",
+      x:"A user is sure they set their notification preferences inside the app, but they actually did it from an email footer. Now they can’t find where to change them."},
+  es:{d:"Confundir de dónde proviene un recuerdo: mezclar algo que viste con algo que leíste, imaginaste o te contaron.",
+      x:"Un usuario está seguro de que configuró sus notificaciones dentro de la app, pero lo hizo desde el pie de un correo. Ahora no encuentra dónde cambiarlas."}},
+ "Cryptomnesia": {
+  en:{d:"A forgotten memory comes back but feels like a new, original idea, so you reproduce something you saw before without realizing it.",
+      x:"A designer proposes an “original” onboarding flow that is nearly identical to one from an app they used months ago. Reviewing references during design critique helps catch accidental copying."},
+  es:{d:"Un recuerdo olvidado regresa y se siente como una idea nueva y propia, así que reproduces algo que ya habías visto sin darte cuenta.",
+      x:"Una diseñadora propone un onboarding “original” casi idéntico al de una app que usó hace meses. Revisar referentes en la crítica de diseño ayuda a detectar copias involuntarias."}},
+ "False memory": {
+  en:{d:"Remembering events that never happened, or that happened differently. False memories can feel just as vivid and certain as real ones.",
+      x:"In an interview, a user insists the old version had an “Export to Excel” button that never existed. What users remember should be checked against analytics or earlier versions."},
+  es:{d:"Recordar hechos que nunca ocurrieron o que ocurrieron de otra forma. Un falso recuerdo puede sentirse tan vívido y seguro como uno real.",
+      x:"En una entrevista, un usuario insiste en que la versión anterior tenía un botón “Exportar a Excel” que nunca existió. Lo que los usuarios recuerdan se debe contrastar con analítica o versiones previas."}},
+ "Suggestibility": {
+  en:{d:"Taking ideas suggested by others, such as the wording of a question, and absorbing them into your own memory or opinion.",
+      x:"Asking “How frustrating was the sign-up?” leads participants to recall frustration. A neutral prompt like “Tell me about the sign-up” gives more reliable answers."},
+  es:{d:"Incorporar a tu propio recuerdo u opinión ideas sugeridas por otros, por ejemplo, por la forma en que se formula una pregunta.",
+      x:"Preguntar “¿Qué tan frustrante fue el registro?” hace que los participantes recuerden frustración. Una pregunta neutra como “Cuéntame cómo fue el registro” da respuestas más confiables."}},
+ "Spacing effect": {
+  en:{d:"Information is remembered better when exposure is spread out over time than when it is crammed into a single session.",
+      x:"Instead of a ten-screen product tour on first launch, an app introduces one tip at a time during the first week, each when the feature becomes relevant."},
+  es:{d:"La información se recuerda mejor cuando la exposición se distribuye en el tiempo que cuando se concentra en una sola sesión.",
+      x:"En lugar de un tour de diez pantallas al abrir la app por primera vez, se presenta un consejo a la vez durante la primera semana, justo cuando cada función se vuelve relevante."}},
+ "Implicit associations": {
+  en:{d:"Automatic links between concepts that work below awareness and shape quick judgments.",
+      x:"Users tend to read green as “success” and red as “error”. A red primary “Continue” button can make people hesitate because it clashes with that association."},
+  es:{d:"Vínculos automáticos entre conceptos que operan por debajo de la conciencia y orientan los juicios rápidos.",
+      x:"Los usuarios tienden a leer el verde como “éxito” y el rojo como “error”. Un botón principal “Continuar” en rojo puede generar duda porque choca con esa asociación."}},
+ "Implicit stereotypes": {
+  en:{d:"Unconscious beliefs that link social groups with certain traits. They influence behavior even in people who openly reject the stereotype.",
+      x:"Without noticing, a team writes personas where the “tech-savvy” user is always a young man and the “confused” user is an older woman. Reviewing personas against real research data reduces this."},
+  es:{d:"Creencias inconscientes que asocian grupos sociales con ciertos rasgos. Influyen en la conducta incluso en personas que rechazan abiertamente el estereotipo.",
+      x:"Sin darse cuenta, un equipo crea personas donde el usuario “experto en tecnología” siempre es un hombre joven y el “confundido” una mujer mayor. Contrastar las personas con datos reales de investigación lo reduce."}},
+ "Stereotypical bias": {
+  en:{d:"Memory drifts toward stereotypes: details that fit a stereotype are remembered, and those that don’t are forgotten or altered.",
+      x:"After a round of interviews, the team recalls that older participants “struggled with technology”, yet the notes show two of them finished the tasks fastest. Recorded data should outweigh recollection."},
+  es:{d:"La memoria se desvía hacia los estereotipos: se recuerdan los detalles que encajan con ellos y se olvidan o alteran los que no.",
+      x:"Tras una ronda de entrevistas, el equipo recuerda que los participantes mayores “tuvieron problemas con la tecnología”, pero las notas muestran que dos de ellos terminaron las tareas más rápido. Los datos registrados deben pesar más que el recuerdo."}},
+ "Prejudice": {
+  en:{d:"A preconceived, usually negative attitude toward a group and its members, formed without enough evidence.",
+      x:"A product skips accessibility testing because “our users don’t have disabilities”. Decisions based on that assumption shut out real users."},
+  es:{d:"Una actitud preconcebida, normalmente negativa, hacia un grupo y sus miembros, formada sin evidencia suficiente.",
+      x:"Un producto omite las pruebas de accesibilidad porque “nuestros usuarios no tienen discapacidades”. Las decisiones basadas en ese supuesto dejan fuera a usuarios reales."}},
+ "Negativity bias": {
+  en:{d:"Negative events and information weigh more in attention and memory than positive ones of the same size.",
+      x:"A single confusing error during checkout can outweigh ten smooth screens in how users remember the experience. Clear, kind error recovery matters as much as the happy path."},
+  es:{d:"Los hechos e informaciones negativos pesan más en la atención y la memoria que los positivos de igual magnitud.",
+      x:"Un solo error confuso en el checkout puede pesar más que diez pantallas fluidas en el recuerdo del usuario. Una recuperación de errores clara y amable importa tanto como el camino feliz."}},
+ "Fading affect bias": {
+  en:{d:"The emotions attached to negative memories fade faster than those attached to positive ones.",
+      x:"Months after a painful migration, users describe the old system more fondly than they did at the time. Retrospective feedback should be compared with feedback collected in the moment."},
+  es:{d:"Las emociones ligadas a recuerdos negativos se desvanecen más rápido que las ligadas a recuerdos positivos.",
+      x:"Meses después de una migración difícil, los usuarios describen el sistema anterior con más cariño que en su momento. El feedback retrospectivo se debe comparar con el recogido en el momento."}},
+ "Peak–end rule": {
+  en:{d:"People judge an experience mostly by how it felt at its most intense moment and at its end, not by the average of every moment.",
+      x:"A long tax-filing flow is remembered more positively if it ends with a clear confirmation and a summary of what was done, even if earlier steps were tedious."},
+  es:{d:"Juzgamos una experiencia sobre todo por cómo se sintió en su momento más intenso y al final, no por el promedio de todos los momentos.",
+      x:"Un flujo largo para declarar impuestos se recuerda mejor si termina con una confirmación clara y un resumen de lo realizado, aunque los pasos anteriores hayan sido tediosos."}},
+ "Leveling and sharpening": {
+  en:{d:"When recalling or retelling, people drop details (leveling) and exaggerate a few others (sharpening), so the story becomes simpler and more extreme.",
+      x:"A research finding travels from researcher to PM to executive and turns from “2 of 8 users missed the filter” into “nobody can find the filters”. Sharing clips and numbers keeps it accurate."},
+  es:{d:"Al recordar o contar algo, perdemos detalles (nivelación) y exageramos otros (acentuación), y la historia se vuelve más simple y extrema.",
+      x:"Un hallazgo pasa del researcher al PM y luego a dirección, y cambia de “2 de 8 usuarios no vieron el filtro” a “nadie encuentra los filtros”. Compartir clips y cifras lo mantiene preciso."}},
+ "Misinformation effect": {
+  en:{d:"Memory of an event becomes less accurate after being exposed to misleading information about it afterward.",
+      x:"If a moderator says “when the page froze” and it didn’t, the participant may later report that it froze. Moderators should avoid describing what happened on the user’s behalf."},
+  es:{d:"El recuerdo de un hecho se vuelve menos preciso tras recibir después información engañosa sobre él.",
+      x:"Si el moderador dice “cuando la página se congeló” y no se congeló, el participante puede reportarlo así después. El moderador debe evitar describir lo que ocurrió en lugar del usuario."}},
+ "Serial recall effect": {
+  en:{d:"When recalling a sequence in order, the first and last items are recalled most accurately and errors cluster in the middle.",
+      x:"After a seven-step setup wizard, users remember the first and last steps but mix up the order of the middle ones. A labeled progress indicator helps them keep track."},
+  es:{d:"Al recordar una secuencia en orden, los primeros y últimos elementos se recuerdan con más precisión y los errores se concentran en el medio.",
+      x:"Tras un asistente de configuración de siete pasos, los usuarios recuerdan el primero y el último, pero confunden el orden de los intermedios. Un indicador de progreso con etiquetas les ayuda a ubicarse."}},
+ "List-length effect": {
+  en:{d:"The longer a list, the smaller the share of its items people remember.",
+      x:"A pricing page that lists 25 features per plan leaves users remembering almost none. Highlighting the three to five key differences makes the comparison memorable."},
+  es:{d:"Cuanto más larga es una lista, menor es la proporción de sus elementos que recordamos.",
+      x:"Una página de precios que enumera 25 funciones por plan hace que los usuarios no recuerden casi ninguna. Destacar las tres a cinco diferencias clave hace la comparación memorable."}},
+ "Duration neglect": {
+  en:{d:"How long an experience lasted has little effect on how good or bad it is remembered. Intensity counts far more than duration.",
+      x:"Users rarely remember whether an upload took 20 or 40 seconds, but they do remember a progress bar that froze or jumped backward. Steady feedback matters more than shaving seconds."},
+  es:{d:"Cuánto duró una experiencia influye poco en cómo la recordamos. La intensidad pesa mucho más que la duración.",
+      x:"Los usuarios rara vez recuerdan si una carga tardó 20 o 40 segundos, pero sí recuerdan una barra de progreso que se congeló o retrocedió. Un feedback constante importa más que ahorrar segundos."}},
+ "Modality effect": {
+  en:{d:"The last items of a list are remembered better when heard than when read, because auditory memory holds them briefly.",
+      x:"In a voice menu, the last option spoken is the easiest to remember. Placing the most common choice last, or repeating it, makes voice flows easier to use."},
+  es:{d:"Los últimos elementos de una lista se recuerdan mejor cuando se escuchan que cuando se leen, porque la memoria auditiva los retiene brevemente.",
+      x:"En un menú de voz, la última opción mencionada es la más fácil de recordar. Poner al final la opción más común, o repetirla, facilita el uso de los flujos por voz."}},
+ "Memory inhibition": {
+  en:{d:"The ability to keep irrelevant information out of mind. Retrieving some memories can also actively suppress related ones.",
+      x:"A dashboard that shows only what matters for the current task supports this: users don’t have to tune out unrelated widgets to find what they need."},
+  es:{d:"La capacidad de mantener fuera de la mente la información irrelevante. Recuperar ciertos recuerdos también puede suprimir activamente otros relacionados.",
+      x:"Un dashboard que muestra solo lo relevante para la tarea actual la favorece: el usuario no tiene que ignorar widgets ajenos para encontrar lo que necesita."}},
+ "Primacy effect": {
+  en:{d:"Items presented first in a list are recalled better than those in the middle, because they get more mental rehearsal.",
+      x:"In a navigation menu, users remember the first items best, so the most important sections should come first."},
+  es:{d:"Los elementos presentados al inicio de una lista se recuerdan mejor que los del medio, porque reciben más repaso mental.",
+      x:"En un menú de navegación, los usuarios recuerdan mejor los primeros elementos, así que las secciones más importantes deberían ir primero."}},
+ "Recency effect": {
+  en:{d:"Items presented last are recalled better right after the list ends, because they are still in short-term memory.",
+      x:"The final onboarding screen is the freshest in mind, so it should carry the key action, such as “Create your first project”, rather than a generic thank-you."},
+  es:{d:"Los elementos presentados al final se recuerdan mejor justo después de terminar la lista, porque siguen en la memoria de corto plazo.",
+      x:"La última pantalla del onboarding es la más fresca en la mente, así que debería llevar la acción clave, como “Crea tu primer proyecto”, en lugar de un agradecimiento genérico."}},
+ "Part-list cueing effect": {
+  en:{d:"Being shown some items from a list as hints can make it harder to recall the remaining items.",
+      x:"In a card-sorting session, showing example categories first can reduce the number of new categories participants come up with. Ask for free recall before showing examples."},
+  es:{d:"Mostrar algunos elementos de una lista como pista puede dificultar el recuerdo de los demás.",
+      x:"En un card sorting, mostrar primero categorías de ejemplo puede reducir las categorías nuevas que proponen los participantes. Conviene pedir el recuerdo libre antes de mostrar ejemplos."}},
+ "Serial position effect": {
+  en:{d:"Primacy and recency combined: the beginning and end of a series are remembered best, and the middle worst.",
+      x:"In a five-item bottom tab bar, the first and last tabs are the easiest to remember. Key destinations fit best at the ends, and less critical ones in the middle."},
+  es:{d:"La primacía y la recencia combinadas: el inicio y el final de una serie se recuerdan mejor, y el medio peor.",
+      x:"En una barra de pestañas inferior de cinco elementos, la primera y la última son las más fáciles de recordar. Los destinos clave encajan mejor en los extremos y los menos críticos en el medio."}},
+ "Suffix effect": {
+  en:{d:"Adding an irrelevant item at the end of a spoken list reduces recall of the final items, cancelling part of the recency advantage.",
+      x:"A voice assistant reads a confirmation code and immediately adds “Thanks for calling!”, which makes the last digits harder to remember. A pause or a repeat of the code before any closing phrase helps."},
+  es:{d:"Agregar un elemento irrelevante al final de una lista hablada reduce el recuerdo de los últimos elementos y anula parte de la ventaja de la recencia.",
+      x:"Un asistente de voz lee un código de confirmación y enseguida dice “¡Gracias por llamar!”, lo que dificulta recordar los últimos dígitos. Una pausa o repetir el código antes de cualquier despedida ayuda."}},
+ "Levels of processing effect": {
+  en:{d:"Information processed deeply, by its meaning, is remembered better than information processed shallowly, by how it looks or sounds.",
+      x:"Users remember a new feature better when they try it on their own data than when they read a tooltip about it. Interactive onboarding encourages deeper processing."},
+  es:{d:"La información procesada en profundidad, por su significado, se recuerda mejor que la procesada en superficie, por su apariencia o sonido.",
+      x:"Los usuarios recuerdan mejor una función nueva cuando la prueban con sus propios datos que cuando leen un tooltip sobre ella. Un onboarding interactivo promueve un procesamiento más profundo."}},
+ "Absent-mindedness": {
+  en:{d:"Lapses of attention that lead to forgetting, such as not noticing where you left something or forgetting to do something you planned.",
+      x:"Users abandon a long form halfway and forget to come back. Autosaved drafts and a gentle reminder like “You have an unfinished application” make up for it."},
+  es:{d:"Fallos de atención que llevan al olvido, como no registrar dónde dejaste algo u olvidar hacer algo que habías planeado.",
+      x:"Los usuarios dejan un formulario largo a medias y olvidan volver. Guardar borradores automáticamente y un recordatorio amable como “Tienes una solicitud sin terminar” lo compensan."}},
+ "Testing effect": {
+  en:{d:"Actively retrieving information, for example by answering questions, strengthens memory more than reading it again.",
+      x:"A learning app asks a quick question about a concept instead of showing the same explanation again, which improves retention."},
+  es:{d:"Recuperar activamente la información, por ejemplo al responder preguntas, fortalece la memoria más que volver a leerla.",
+      x:"Una app educativa hace una pregunta rápida sobre un concepto en lugar de repetir la misma explicación, lo que mejora la retención."}},
+ "Next-in-line effect": {
+  en:{d:"People remember less of what was said just before their turn to speak, because they are busy preparing what to say.",
+      x:"In a design critique where people present one after another, the presentation right before yours is the one you remember least. Shared notes or recordings help."},
+  es:{d:"Recordamos menos lo que se dijo justo antes de nuestro turno de hablar, porque estamos ocupados preparando lo que diremos.",
+      x:"En una crítica de diseño donde se presenta por turnos, la presentación justo anterior a la tuya es la que menos recuerdas. Las notas compartidas o las grabaciones ayudan."}},
+ "Google effect": {
+  en:{d:"Also called digital amnesia: people tend to forget information they know they can easily find again online.",
+      x:"Users don’t memorize where a setting lives because they expect to search for it. A good settings search respects that habit instead of fighting it."},
+  es:{d:"También llamado amnesia digital: tendemos a olvidar la información que sabemos que podemos volver a encontrar fácilmente en internet.",
+      x:"Los usuarios no memorizan dónde está una configuración porque esperan buscarla. Un buen buscador de ajustes respeta ese hábito en lugar de combatirlo."}},
+ "Tip of the tongue phenomenon": {
+  en:{d:"The feeling of knowing a word or name without being able to retrieve it, often with partial clues such as its first letter.",
+      x:"Users know a feature exists but can’t recall what it’s called. A search that matches synonyms and descriptions, like “split bill” for “Shared expenses”, helps them find it."},
+  es:{d:"La sensación de conocer una palabra o un nombre sin poder recuperarlo, a menudo con pistas parciales como su primera letra.",
+      x:"Los usuarios saben que una función existe pero no recuerdan cómo se llama. Un buscador que reconozca sinónimos y descripciones, como “dividir cuenta” para “Gastos compartidos”, les ayuda a encontrarla."}}
+};
+
+Object.assign(INFO, {
+ "Availability heuristic": {
+  en:{d:"Judging how likely or common something is by how easily examples come to mind. Recent, vivid or emotional cases feel more frequent than they are.",
+      x:"After one angry tweet about a bug, the team treats it as the top issue, even though analytics show it affects 0.2% of sessions. Check how widespread a problem is before reprioritizing."},
+  es:{d:"Juzgar qué tan probable o común es algo según la facilidad con que vienen ejemplos a la mente. Los casos recientes, vívidos o emotivos parecen más frecuentes de lo que son.",
+      x:"Tras un tuit enojado sobre un bug, el equipo lo trata como el problema principal, aunque la analítica muestra que afecta al 0,2% de las sesiones. Conviene medir el alcance antes de repriorizar."}},
+ "Attentional bias": {
+  en:{d:"Our attention is pulled toward things that matter to us right now, such as worries, goals or recent thoughts, and we overlook the rest.",
+      x:"A user anxious about a payment only sees the amount and the “Pay” button and misses the delivery date below. Put the information people need to decide right next to the main action."},
+  es:{d:"La atención se dirige hacia lo que nos importa en ese momento, como preocupaciones, metas o pensamientos recientes, y pasamos por alto el resto.",
+      x:"Un usuario preocupado por un pago solo ve el monto y el botón “Pagar”, y no nota la fecha de entrega debajo. La información necesaria para decidir debe estar junto a la acción principal."}},
+ "Illusory truth effect": {
+  en:{d:"Statements we hear repeatedly start to feel true, regardless of whether they are.",
+      x:"“Users don’t scroll” gets repeated in meetings until nobody questions it, and long pages get cut without testing. Repeated claims in a team should be checked against data."},
+  es:{d:"Las afirmaciones que escuchamos repetidas veces empiezan a sentirse verdaderas, lo sean o no.",
+      x:"“Los usuarios no hacen scroll” se repite en reuniones hasta que nadie lo cuestiona, y se recortan páginas sin probarlo. Las ideas repetidas en un equipo deben contrastarse con datos."}},
+ "Mere exposure effect": {
+  en:{d:"We tend to like things more simply because we have seen them more often.",
+      x:"Users rate a familiar layout higher than a redesign that tested better on task success. Allow time for familiarity before judging a redesign by first-week satisfaction scores."},
+  es:{d:"Tendemos a preferir algo simplemente porque lo hemos visto más veces.",
+      x:"Los usuarios califican mejor un diseño conocido que un rediseño con mejores tasas de éxito en las tareas. Hay que dar tiempo a la familiaridad antes de juzgar un rediseño por la satisfacción de la primera semana."}},
+ "Context effect": {
+  en:{d:"The surrounding environment changes how we perceive, interpret and remember information.",
+      x:"The same price looks expensive next to a cheap plan and reasonable next to an enterprise plan. Test components in the real page context, not in isolation."},
+  es:{d:"El entorno que rodea a una información cambia cómo la percibimos, interpretamos y recordamos.",
+      x:"El mismo precio parece caro junto a un plan barato y razonable junto a un plan empresarial. Los componentes se deben probar en el contexto real de la página, no aislados."}},
+ "Cue-dependent forgetting": {
+  en:{d:"Failing to recall something because the cues present when it was learned are missing now.",
+      x:"Users who learned an action from an icon can’t find it after a redesign replaces the icon with a text label. Keep familiar cues during transitions, or show both for a while."},
+  es:{d:"No lograr recordar algo porque faltan las claves que estaban presentes cuando se aprendió.",
+      x:"Usuarios que aprendieron una acción por su icono no la encuentran cuando un rediseño lo reemplaza por una etiqueta de texto. Conviene mantener las claves conocidas durante la transición o mostrar ambas un tiempo."}},
+ "Mood-congruent memory bias": {
+  en:{d:"We recall information more easily when it matches our current mood.",
+      x:"A user who just hit an error answers a satisfaction survey and mostly remembers past problems. Don’t trigger surveys right after a failure if you want a balanced view."},
+  es:{d:"Recordamos con más facilidad la información que coincide con nuestro estado de ánimo actual.",
+      x:"Un usuario que acaba de toparse con un error responde una encuesta de satisfacción y recuerda sobre todo problemas pasados. Evita lanzar encuestas justo después de un fallo si buscas una visión equilibrada."}},
+ "Frequency illusion": {
+  en:{d:"After noticing something for the first time, we start seeing it everywhere and assume it has become more common.",
+      x:"After a designer learns about bottom sheets, they seem to be in every app, and the team concludes users expect them. Count actual usage in your benchmark before calling it a standard."},
+  es:{d:"Después de notar algo por primera vez, empezamos a verlo en todas partes y suponemos que se volvió más común.",
+      x:"Tras conocer los bottom sheets, a una diseñadora le parece que están en todas las apps, y el equipo concluye que los usuarios los esperan. Cuenta su uso real en el benchmark antes de llamarlo estándar."}},
+ "Baader-Meinhof Phenomenon": {
+  en:{d:"Another name for the frequency illusion: once something catches your attention, it seems to appear everywhere.",
+      x:"The week after a team discusses dark patterns, everyone reports spotting them in every product. Heightened attention, not a sudden increase, explains much of it."},
+  es:{d:"Otro nombre de la ilusión de frecuencia: cuando algo capta tu atención, parece aparecer en todas partes.",
+      x:"La semana después de hablar de dark patterns, todo el equipo dice verlos en cada producto. Lo explica en gran parte la atención aumentada, no un aumento repentino."}},
+ "Empathy gap": {
+  en:{d:"Underestimating how much emotional or physical states, like stress, hunger or fatigue, affect behavior, including our own in a different state.",
+      x:"A calm designer at a desk builds a flow that works fine, but a stressed user filing an insurance claim after an accident can’t handle it. Design and test for the user’s real emotional context."},
+  es:{d:"Subestimar cuánto influyen los estados emocionales o físicos, como el estrés, el hambre o el cansancio, en la conducta, incluida la propia en otro estado.",
+      x:"Una diseñadora tranquila en su escritorio crea un flujo que funciona bien, pero un usuario estresado que reporta un siniestro tras un accidente no logra completarlo. Diseña y prueba para el contexto emocional real del usuario."}},
+ "Omission bias": {
+  en:{d:"Judging harmful actions as worse than equally harmful inaction.",
+      x:"A team refuses to remove a confusing legacy feature “in case it breaks something”, while it keeps confusing thousands of users every day. Inaction has costs too and should be weighed the same way."},
+  es:{d:"Juzgar una acción dañina como peor que una omisión igual de dañina.",
+      x:"Un equipo se niega a eliminar una función heredada confusa “por si algo se rompe”, mientras sigue confundiendo a miles de usuarios cada día. No actuar también tiene costos y se debe evaluar igual."}},
+ "Base rate fallacy": {
+  en:{d:"Ignoring general statistical information (the base rate) in favor of specific, case-level information.",
+      x:"Five vivid interviews say users want a chat feature, so the team builds it, ignoring that less than 3% of users ever opened the existing help widget. Combine qualitative stories with base rates."},
+  es:{d:"Ignorar la información estadística general (la tasa base) y dar más peso a la información específica de un caso.",
+      x:"Cinco entrevistas muy vívidas dicen que los usuarios quieren un chat, y el equipo lo construye, ignorando que menos del 3% abrió alguna vez el widget de ayuda existente. Combina las historias cualitativas con las tasas base."}},
+ "Bizarreness effect": {
+  en:{d:"Unusual, bizarre material is remembered better than ordinary material.",
+      x:"An unexpected illustration on a 404 page makes the brand memorable. It works best when it is rare; if every screen is quirky, nothing stands out."},
+  es:{d:"El material inusual o extraño se recuerda mejor que el material común.",
+      x:"Una ilustración inesperada en la página 404 hace memorable a la marca. Funciona mejor cuando es poco frecuente; si todas las pantallas son excéntricas, nada destaca."}},
+ "Humor effect": {
+  en:{d:"Humorous information is remembered better than non-humorous information.",
+      x:"A playful empty-state message helps users remember what a feature is for. Avoid humor in error or high-stakes moments, such as a failed payment, where it can feel dismissive."},
+  es:{d:"La información con humor se recuerda mejor que la que no lo tiene.",
+      x:"Un mensaje divertido en un estado vacío ayuda a recordar para qué sirve una función. Evita el humor en errores o momentos delicados, como un pago fallido, donde puede sentirse poco serio."}},
+ "Von Restorff effect": {
+  en:{d:"Also called the isolation effect: an item that stands out from its group is more likely to be noticed and remembered.",
+      x:"On a pricing page, the recommended plan gets a distinct color and a “Most popular” label, so it draws the eye. If you highlight three plans, the effect disappears."},
+  es:{d:"También llamado efecto de aislamiento: el elemento que se distingue de su grupo tiene más probabilidad de ser notado y recordado.",
+      x:"En una página de precios, el plan recomendado lleva un color distinto y la etiqueta “Más popular”, y atrae la mirada. Si destacas tres planes, el efecto desaparece."}},
+ "Picture superiority effect": {
+  en:{d:"Images are remembered better than words.",
+      x:"Onboarding with simple illustrations of each step is recalled better than text-only instructions. Pairing icons with labels improves both recognition and clarity."},
+  es:{d:"Las imágenes se recuerdan mejor que las palabras.",
+      x:"Un onboarding con ilustraciones simples de cada paso se recuerda mejor que las instrucciones solo en texto. Combinar iconos con etiquetas mejora el reconocimiento y la claridad."}},
+ "Self-relevance effect": {
+  en:{d:"Information that relates to ourselves is noticed and remembered better.",
+      x:"“You saved $48 this month” is remembered far better than “Users save an average of $40”. Personalized summaries make data stick."},
+  es:{d:"La información relacionada con nosotros mismos se nota y se recuerda mejor.",
+      x:"“Ahorraste $48 este mes” se recuerda mucho mejor que “Los usuarios ahorran $40 en promedio”. Los resúmenes personalizados hacen que los datos se queden en la memoria."}},
+ "Anchoring": {
+  en:{d:"Relying too heavily on the first piece of information we receive (the anchor) when making later judgments.",
+      x:"Showing a crossed-out original price makes the current price feel like a deal. In research, asking “Would you pay $50?” anchors the answers; ask open questions about value first."},
+  es:{d:"Depender demasiado de la primera información que recibimos (el ancla) al hacer juicios posteriores.",
+      x:"Mostrar el precio original tachado hace que el precio actual parezca una oferta. En investigación, preguntar “¿Pagarías $50?” ancla las respuestas; primero haz preguntas abiertas sobre el valor."}},
+ "Conservatism": {
+  en:{d:"Updating beliefs too slowly when new evidence appears, giving too much weight to what we believed before.",
+      x:"Usability tests keep showing that users ignore the side menu, but the team only makes small tweaks because “the menu has always worked”. Let strong evidence change the plan."},
+  es:{d:"Actualizar las creencias demasiado lento ante nueva evidencia, dando demasiado peso a lo que ya creíamos.",
+      x:"Los tests muestran una y otra vez que los usuarios ignoran el menú lateral, pero el equipo solo hace ajustes menores porque “el menú siempre funcionó”. La evidencia fuerte debe poder cambiar el plan."}},
+ "Contrast effect": {
+  en:{d:"Our perception of something is amplified or reduced by comparison with what we saw just before or next to it.",
+      x:"A shipping fee feels small after a large cart total but big on a cheap item. Where you show a cost changes how it is perceived."},
+  es:{d:"Nuestra percepción de algo se intensifica o se reduce al compararla con lo que vimos justo antes o al lado.",
+      x:"Un costo de envío parece pequeño tras un carrito grande, pero grande en un artículo barato. El lugar donde muestras un costo cambia cómo se percibe."}},
+ "Distinction bias": {
+  en:{d:"When comparing options side by side, we overvalue small differences that would not matter when experiencing each option alone.",
+      x:"In a side-by-side comparison, a 4px difference in spacing seems critical, but users of either version never notice it. Evaluate options in realistic use, not only in comparison."},
+  es:{d:"Al comparar opciones lado a lado, sobrevaloramos diferencias pequeñas que no importarían al usar cada opción por separado.",
+      x:"En una comparación lado a lado, 4px de diferencia en el espaciado parecen críticos, pero quien usa cualquiera de las versiones nunca lo nota. Evalúa las opciones en un uso realista, no solo comparándolas."}},
+ "Focusing effect": {
+  en:{d:"Placing too much importance on one aspect of an option and neglecting others when predicting how good it will be.",
+      x:"A team expects a faster load time to fix retention, overlooking that users leave because the core task is confusing. Look at the whole experience, not a single metric."},
+  es:{d:"Dar demasiada importancia a un aspecto de una opción y descuidar los demás al predecir qué tan buena será.",
+      x:"Un equipo espera que una carga más rápida resuelva la retención, sin ver que los usuarios se van porque la tarea principal es confusa. Mira la experiencia completa, no una sola métrica."}},
+ "Framing effect": {
+  en:{d:"Reacting differently to the same information depending on how it is presented, for example as a gain or as a loss.",
+      x:"“95% uptime” sounds better than “down 5% of the time”, though they mean the same. In surveys and microcopy, check that the wording does not push users toward an answer."},
+  es:{d:"Reaccionar de forma distinta ante la misma información según cómo se presenta, por ejemplo como ganancia o como pérdida.",
+      x:"“95% de disponibilidad” suena mejor que “caído el 5% del tiempo”, aunque significan lo mismo. En encuestas y microcopy, revisa que la redacción no empuje al usuario hacia una respuesta."}},
+ "Money illusion": {
+  en:{d:"Thinking about money in nominal terms, the number on the label, instead of its real value or purchasing power.",
+      x:"Users see a price going from $9.99 to $10.49 as a small increase, but react strongly to a cheaper plan that removes a feature. Communicate price changes in terms of value, not only numbers."},
+  es:{d:"Pensar en el dinero por su valor nominal, el número de la etiqueta, en lugar de su valor real o poder de compra.",
+      x:"Los usuarios ven el paso de $9,99 a $10,49 como un aumento pequeño, pero reaccionan fuerte ante un plan más barato que quita una función. Comunica los cambios de precio en términos de valor, no solo de cifras."}},
+ "Weber–Fechner law": {
+  en:{d:"We perceive changes relative to the starting amount, not in absolute terms: the larger the base, the bigger a change must be to be noticed.",
+      x:"Reducing load time from 2 to 1 second feels dramatic; from 12 to 11 seconds barely registers. Prioritize improvements where the relative change is large."},
+  es:{d:"Percibimos los cambios en relación con la cantidad inicial, no en términos absolutos: cuanto mayor es la base, mayor debe ser el cambio para notarse.",
+      x:"Bajar el tiempo de carga de 2 a 1 segundo se siente enorme; de 12 a 11 segundos casi no se nota. Prioriza mejoras donde el cambio relativo es grande."}},
+ "Confirmation bias": {
+  en:{d:"Searching for, interpreting and remembering information in a way that confirms what we already believe.",
+      x:"A team that loves its new feature highlights the two positive interview quotes and dismisses six negative ones as “edge cases”. Define success criteria before testing."},
+  es:{d:"Buscar, interpretar y recordar la información de forma que confirme lo que ya creemos.",
+      x:"Un equipo enamorado de su nueva función destaca las dos citas positivas de las entrevistas y descarta seis negativas como “casos raros”. Define los criterios de éxito antes de probar."}},
+ "Congruence bias": {
+  en:{d:"Testing a hypothesis only by looking for confirming results, without testing alternative explanations.",
+      x:"The team believes a bigger button will raise conversions and only tests bigger versus original, never checking whether the real issue is the copy. Test competing hypotheses."},
+  es:{d:"Probar una hipótesis solo buscando resultados que la confirmen, sin poner a prueba explicaciones alternativas.",
+      x:"El equipo cree que un botón más grande subirá las conversiones y solo prueba grande contra original, sin revisar si el problema real es el texto. Prueba hipótesis competidoras."}},
+ "Post-purchase rationalization": {
+  en:{d:"After buying something, we convince ourselves it was a good decision, even if it has clear flaws.",
+      x:"Customers who just paid for an annual plan give glowing feedback in week one, then churn later. Early satisfaction surveys can overstate how well the product fits."},
+  es:{d:"Después de comprar algo, nos convencemos de que fue una buena decisión, aunque tenga defectos evidentes.",
+      x:"Clientes que acaban de pagar un plan anual dan un feedback excelente la primera semana y luego cancelan. Las encuestas de satisfacción tempranas pueden exagerar qué tan bien encaja el producto."}},
+ "Choice-supportive bias": {
+  en:{d:"Remembering our own past choices as better than they were, attributing positive features to the chosen option and negative ones to the rejected one.",
+      x:"A team remembers that choosing a certain design system “saved months”, while the project log shows heavy rework. Retrospectives work better with documented data than with memory."},
+  es:{d:"Recordar nuestras elecciones pasadas como mejores de lo que fueron, atribuyendo virtudes a la opción elegida y defectos a la descartada.",
+      x:"Un equipo recuerda que elegir cierto design system “ahorró meses”, aunque el registro del proyecto muestra mucho retrabajo. Las retrospectivas funcionan mejor con datos documentados que con la memoria."}},
+ "Selective perception": {
+  en:{d:"Expectations shape what we notice: we perceive what fits our expectations and filter out what doesn’t.",
+      x:"While watching session recordings, a designer focused on the new search bar overlooks users repeatedly struggling with the date picker. Have someone review recordings without a specific hypothesis."},
+  es:{d:"Las expectativas moldean lo que notamos: percibimos lo que encaja con ellas y filtramos lo que no.",
+      x:"Al ver grabaciones de sesiones, una diseñadora enfocada en el nuevo buscador no nota que los usuarios tropiezan una y otra vez con el selector de fechas. Pide a alguien que revise las grabaciones sin una hipótesis concreta."}},
+ "Observer-expectancy effect": {
+  en:{d:"A researcher’s expectations unconsciously influence participants, who then behave in the expected way.",
+      x:"A moderator who designed the prototype smiles and nods when participants go the “right” way, nudging them through. A neutral moderator who didn’t design it gives cleaner results."},
+  es:{d:"Las expectativas del investigador influyen sin querer en los participantes, que terminan comportándose como se esperaba.",
+      x:"Un moderador que diseñó el prototipo sonríe y asiente cuando el participante va por el camino “correcto”, y lo guía sin querer. Un moderador neutral que no lo diseñó obtiene resultados más limpios."}},
+ "Experimenter's bias": {
+  en:{d:"Researchers unintentionally design, run or interpret studies in ways that favor their expected outcome.",
+      x:"Tasks in a usability test are written using the exact labels from the interface, so participants succeed by matching words. Write tasks in the user’s language, not the UI’s."},
+  es:{d:"Los investigadores diseñan, ejecutan o interpretan estudios sin querer de forma que favorece el resultado que esperan.",
+      x:"Las tareas de un test de usabilidad usan exactamente las etiquetas de la interfaz, así que los participantes aciertan por coincidencia de palabras. Redacta las tareas con el lenguaje del usuario, no con el de la UI."}},
+ "Observer effect": {
+  en:{d:"The act of observing changes the behavior being observed. People act differently when they know they are being watched.",
+      x:"In a lab test, participants read every word and try harder than they would at home. Complement moderated tests with analytics or unmoderated studies of natural behavior."},
+  es:{d:"El acto de observar cambia la conducta observada. Las personas actúan distinto cuando saben que las están mirando.",
+      x:"En un test de laboratorio, los participantes leen cada palabra y se esfuerzan más que en casa. Complementa los tests moderados con analítica o estudios no moderados de conducta natural."}},
+ "Expectation bias": {
+  en:{d:"Believing and reporting results that match what we expected, and distrusting results that don’t.",
+      x:"An A/B test shows the new checkout performs worse, and the team assumes a tracking error instead of accepting the result. Agree beforehand on how a negative result will be handled."},
+  es:{d:"Creer y reportar los resultados que coinciden con lo esperado, y desconfiar de los que no.",
+      x:"Un test A/B muestra que el nuevo checkout rinde peor, y el equipo supone un error de medición en lugar de aceptar el resultado. Acuerden antes cómo se tratará un resultado negativo."}},
+ "Ostrich effect": {
+  en:{d:"Avoiding information that might be unpleasant, like ignoring bad news instead of facing it.",
+      x:"A team stops checking the app-store reviews after a rough launch. Users also do this: many avoid opening a banking app when they expect a low balance, so gentle, non-alarming summaries help."},
+  es:{d:"Evitar información que podría ser desagradable, como ignorar las malas noticias en lugar de enfrentarlas.",
+      x:"Un equipo deja de leer las reseñas de la tienda de apps tras un lanzamiento difícil. Los usuarios también lo hacen: muchos evitan abrir la app del banco si esperan un saldo bajo, por eso ayudan los resúmenes amables y sin alarmismo."}},
+ "Subjective validation": {
+  en:{d:"Accepting a statement as true because it feels personally meaningful or relevant to us.",
+      x:"A stakeholder trusts a persona because “that’s exactly how I use the product”, even though it isn’t based on research. Personal resonance is not evidence."},
+  es:{d:"Aceptar una afirmación como verdadera porque nos resulta significativa o relevante a nivel personal.",
+      x:"Un stakeholder confía en una persona porque “así uso yo el producto”, aunque no se basa en investigación. Que algo resuene personalmente no es evidencia."}},
+ "Continued influence effect": {
+  en:{d:"Misinformation keeps influencing our reasoning even after it has been corrected.",
+      x:"A survey result was later found to be flawed, yet the team keeps citing “users want more notifications”. When correcting a finding, replace it clearly with the right one, not just retract it."},
+  es:{d:"La información errónea sigue influyendo en nuestro razonamiento incluso después de ser corregida.",
+      x:"Se descubrió que un resultado de encuesta tenía errores, pero el equipo sigue citando que “los usuarios quieren más notificaciones”. Al corregir un hallazgo, reemplázalo claramente por el correcto, no solo lo retires."}},
+ "Semmelweis reflex": {
+  en:{d:"Rejecting new evidence because it contradicts established norms, beliefs or practices.",
+      x:"Research shows the long-standing hamburger menu hides key features, but the proposal is dismissed because “that’s how all apps do it”. Established practice should still be tested."},
+  es:{d:"Rechazar nueva evidencia porque contradice normas, creencias o prácticas establecidas.",
+      x:"La investigación muestra que el menú hamburguesa de siempre oculta funciones clave, pero la propuesta se descarta porque “así lo hacen todas las apps”. Una práctica establecida también debe probarse."}},
+ "Bias blind spot": {
+  en:{d:"Recognizing the impact of biases on others’ judgment while failing to see their effect on our own.",
+      x:"A designer points out bias in a PM’s feature request but doesn’t notice their own attachment to a visual style. Structured reviews with clear criteria help everyone, including experts."},
+  es:{d:"Reconocer el efecto de los sesgos en el juicio de los demás sin ver su efecto en el propio.",
+      x:"Una diseñadora señala el sesgo en la petición de un PM, pero no nota su propio apego a un estilo visual. Las revisiones estructuradas con criterios claros ayudan a todos, incluidos los expertos."}},
+ "Naïve cynicism": {
+  en:{d:"Expecting others to be more selfishly biased than they really are.",
+      x:"A design team assumes engineering pushes back only to avoid work, when the real concern is performance. Asking about the reasoning behind feedback prevents unnecessary conflict."},
+  es:{d:"Esperar que los demás estén más sesgados por interés propio de lo que realmente están.",
+      x:"El equipo de diseño supone que ingeniería pone objeciones solo para evitar trabajo, cuando la preocupación real es el rendimiento. Preguntar por el motivo detrás del feedback evita conflictos innecesarios."}},
+ "Naïve realism": {
+  en:{d:"Believing we see the world objectively, and that people who disagree must be uninformed, irrational or biased.",
+      x:"A designer thinks the new navigation is “obviously” clearer and that users who struggle just aren’t paying attention. Testing with real users reveals what is clear to them, not to us."},
+  es:{d:"Creer que vemos el mundo de forma objetiva y que quienes no están de acuerdo deben estar mal informados, ser irracionales o estar sesgados.",
+      x:"Un diseñador cree que la nueva navegación es “obviamente” más clara y que los usuarios que tienen problemas simplemente no prestan atención. Probar con usuarios reales revela qué es claro para ellos, no para nosotros."}}
+});
+
+Object.assign(INFO, {
+ "Confabulation": {
+  en:{d:"Unknowingly filling gaps in memory or explanation with invented but plausible information, without any intent to deceive.",
+      x:"Asked why they chose a plan, a participant gives a tidy, logical reason, but the recording shows they clicked the first option they saw. Observe what users do, not only why they say they did it."},
+  es:{d:"Rellenar sin darnos cuenta los vacíos de la memoria o de una explicación con información inventada pero plausible, sin intención de engañar.",
+      x:"Al preguntarle por qué eligió un plan, un participante da una razón ordenada y lógica, pero la grabación muestra que hizo clic en la primera opción que vio. Observa lo que hacen los usuarios, no solo por qué dicen que lo hicieron."}},
+ "Clustering illusion": {
+  en:{d:"Seeing meaningful streaks or clusters in data that are actually random.",
+      x:"Truly random shuffle can play two songs by the same artist in a row, and users report it as “not random”. Some music apps adjust shuffle so it feels random to people."},
+  es:{d:"Ver rachas o agrupaciones con significado en datos que en realidad son aleatorios.",
+      x:"Un modo aleatorio realmente al azar puede reproducir dos canciones del mismo artista seguidas, y los usuarios lo reportan como “no aleatorio”. Algunas apps de música ajustan el shuffle para que se sienta aleatorio a las personas."}},
+ "Insensitivity to sample size": {
+  en:{d:"Ignoring that small samples vary much more than large ones, and treating results from a few cases as if they were reliable statistics.",
+      x:"“Three of five users preferred version B” is reported as a preference rate. Small qualitative tests reveal problems well, but measuring preferences needs a larger sample."},
+  es:{d:"Ignorar que las muestras pequeñas varían mucho más que las grandes, y tratar los resultados de pocos casos como estadísticas confiables.",
+      x:"“Tres de cinco usuarios prefirieron la versión B” se reporta como un porcentaje de preferencia. Los tests cualitativos pequeños revelan problemas muy bien, pero medir preferencias requiere una muestra mayor."}},
+ "Neglect of probability": {
+  en:{d:"Disregarding how likely an outcome is when deciding under uncertainty, and reacting to how bad or good it would be.",
+      x:"The team spends weeks designing for a rare edge case that scares them, while a common friction in the main flow stays untouched. Weigh issues by both severity and frequency."},
+  es:{d:"Desatender qué tan probable es un resultado al decidir con incertidumbre, y reaccionar solo a qué tan bueno o malo sería.",
+      x:"El equipo pasa semanas diseñando para un caso extremo poco frecuente que le asusta, mientras una fricción común del flujo principal sigue sin resolverse. Evalúa los problemas por gravedad y frecuencia a la vez."}},
+ "Anecdotal fallacy": {
+  en:{d:"Using a personal story or isolated example as proof, instead of sound evidence.",
+      x:"An executive’s relative couldn’t find the login button, so the header gets redesigned overnight. A single story is a good lead for research, not a reason to ship."},
+  es:{d:"Usar una historia personal o un ejemplo aislado como prueba, en lugar de evidencia sólida.",
+      x:"Un familiar de un directivo no encontró el botón de inicio de sesión, y el header se rediseña de un día para otro. Una sola historia es una buena pista para investigar, no una razón para lanzar."}},
+ "Illusion of validity": {
+  en:{d:"Overconfidence in our predictions when the available data looks consistent, even if it is limited or unrepresentative.",
+      x:"Every interviewee loved the concept, so the team feels certain of success, but all of them were recruited from the most engaged power users. Check who is missing from the sample."},
+  es:{d:"Exceso de confianza en nuestras predicciones cuando los datos parecen coherentes, aunque sean limitados o poco representativos.",
+      x:"Todos los entrevistados amaron el concepto y el equipo se siente seguro del éxito, pero todos venían de los usuarios más activos. Revisa quién falta en la muestra."}},
+ "Masked man fallacy": {
+  en:{d:"Wrongly concluding that two things are different because we know them under different descriptions or names.",
+      x:"Users say they have never used “two-factor authentication”, yet they enter SMS codes every day. Concluding they don’t use it confuses the label with the behavior; ask about actions, not terms."},
+  es:{d:"Concluir erróneamente que dos cosas son distintas porque las conocemos con descripciones o nombres diferentes.",
+      x:"Los usuarios dicen que nunca usaron la “autenticación en dos pasos”, pero ingresan códigos por SMS todos los días. Concluir que no la usan confunde la etiqueta con la conducta; pregunta por acciones, no por términos."}},
+ "Recency illusion": {
+  en:{d:"Believing that something we only recently noticed is itself new, when it has existed for a long time.",
+      x:"A team avoids swipe-to-delete as a risky “new trend”, though it has been a common mobile pattern for many years. Check a pattern’s history before treating it as untested."},
+  es:{d:"Creer que algo que notamos hace poco es nuevo, cuando en realidad existe desde hace mucho tiempo.",
+      x:"Un equipo evita el deslizar para eliminar por considerarlo una “tendencia nueva” y riesgosa, aunque es un patrón móvil común desde hace muchos años. Revisa la historia de un patrón antes de tratarlo como no probado."}},
+ "Gambler's fallacy": {
+  en:{d:"Believing that past random outcomes change the odds of future ones, for example that a win is “due” after several losses.",
+      x:"In a “spin to win” promotion, users who lost several times believe the next spin is more likely to win. Mechanics that exploit this belief are a dark pattern; be transparent about odds."},
+  es:{d:"Creer que los resultados aleatorios pasados cambian las probabilidades de los futuros, por ejemplo que un premio “ya toca” tras varias pérdidas.",
+      x:"En una promoción de “gira la ruleta”, los usuarios que perdieron varias veces creen que el siguiente giro tiene más probabilidad de ganar. Las mecánicas que explotan esta creencia son un dark pattern; sé transparente con las probabilidades."}},
+ "Hot-hand fallacy": {
+  en:{d:"Believing that someone or something on a streak of success is more likely to keep succeeding, even when outcomes are independent.",
+      x:"After a few successful launches, a team skips usability testing on the next feature because “we’re on a roll”. Each release needs its own evidence."},
+  es:{d:"Creer que alguien o algo en una racha de éxitos tiene más probabilidad de seguir acertando, aunque los resultados sean independientes.",
+      x:"Tras varios lanzamientos exitosos, un equipo omite el test de usabilidad de la siguiente función porque “estamos en racha”. Cada lanzamiento necesita su propia evidencia."}},
+ "Illusory correlation": {
+  en:{d:"Perceiving a relationship between two things that are not actually related, or overestimating a weak one.",
+      x:"The team notices sign-ups rose the week the new illustrations launched and credits the illustrations, though a marketing campaign started the same week. Use controlled tests to check causes."},
+  es:{d:"Percibir una relación entre dos cosas que en realidad no están relacionadas, o sobrestimar una relación débil.",
+      x:"El equipo nota que los registros subieron la semana en que salieron las nuevas ilustraciones y se lo atribuye a ellas, aunque una campaña de marketing empezó esa misma semana. Usa pruebas controladas para verificar las causas."}},
+ "Pareidolia": {
+  en:{d:"Perceiving meaningful images, like faces, in random or unrelated patterns.",
+      x:"An icon or logo unintentionally reads as a face or an unwanted shape once users point it out. Review icons at small sizes and with fresh eyes before shipping."},
+  es:{d:"Percibir imágenes con significado, como rostros, en patrones aleatorios o no relacionados.",
+      x:"Un icono o un logo termina leyéndose como una cara o una forma no deseada cuando los usuarios lo señalan. Revisa los iconos en tamaños pequeños y con ojos nuevos antes de lanzar."}},
+ "Anthropomorphism": {
+  en:{d:"Attributing human traits, emotions or intentions to animals, objects or systems.",
+      x:"Users treat a friendly chatbot as if it understands and cares, and may trust it beyond its abilities. Give conversational interfaces a clear voice, but be honest about what the system can do."},
+  es:{d:"Atribuir rasgos, emociones o intenciones humanas a animales, objetos o sistemas.",
+      x:"Los usuarios tratan a un chatbot amigable como si entendiera y se preocupara por ellos, y pueden confiar en él más allá de sus capacidades. Da a las interfaces conversacionales una voz clara, pero sé honesto sobre lo que el sistema puede hacer."}},
+ "Group attribution error": {
+  en:{d:"Assuming that one member’s traits represent the whole group, or that a group’s decision reflects every member’s preference.",
+      x:"One accountant in testing wanted keyboard shortcuts, so the team concludes “accountants want shortcuts”. Validate with several people from the segment before generalizing."},
+  es:{d:"Suponer que los rasgos de un miembro representan a todo el grupo, o que la decisión de un grupo refleja la preferencia de cada miembro.",
+      x:"Un contador en las pruebas pidió atajos de teclado, y el equipo concluye que “los contadores quieren atajos”. Valida con varias personas del segmento antes de generalizar."}},
+ "Ultimate attribution error": {
+  en:{d:"Explaining an out-group’s negative behavior by their character and their positive behavior by luck or circumstance, while doing the opposite for our own group.",
+      x:"When another team’s feature fails, designers say “they don’t care about users”; when their own fails, it was “tight deadlines”. Apply the same lens to both in post-mortems."},
+  es:{d:"Explicar la conducta negativa de un exogrupo por su carácter y la positiva por suerte o circunstancias, mientras hacemos lo contrario con nuestro grupo.",
+      x:"Cuando falla la función de otro equipo, los diseñadores dicen “no les importan los usuarios”; cuando falla la suya, fue por “plazos ajustados”. Aplica el mismo criterio a ambos en los post-mortems."}},
+ "Stereotyping": {
+  en:{d:"Expecting a member of a group to have certain characteristics without having real information about that individual.",
+      x:"A team assumes older users won’t use mobile banking and hides features behind phone support. Recruit and design based on behavior, not age labels."},
+  es:{d:"Esperar que un miembro de un grupo tenga ciertas características sin tener información real sobre esa persona.",
+      x:"Un equipo supone que los usuarios mayores no usarán la banca móvil y deja funciones solo por atención telefónica. Recluta y diseña según la conducta, no según etiquetas de edad."}},
+ "Essentialism": {
+  en:{d:"Believing that categories have a fixed, underlying “essence” that defines all their members.",
+      x:"Treating “mobile users” as people who always want quick, shallow tasks leads to removing advanced features on mobile, though many users do deep work on their phones. Segment by goals and context, not device."},
+  es:{d:"Creer que las categorías tienen una “esencia” fija y subyacente que define a todos sus miembros.",
+      x:"Tratar a los “usuarios móviles” como personas que siempre quieren tareas rápidas y superficiales lleva a quitar funciones avanzadas en móvil, aunque muchos hacen trabajo profundo en el teléfono. Segmenta por objetivos y contexto, no por dispositivo."}},
+ "Functional fixedness": {
+  en:{d:"Seeing an object or tool only in its usual function, which makes it hard to imagine new uses.",
+      x:"A team assumes the comments feature is only for feedback, missing that users are using it as a to-do list. Watching real use often reveals needs the original function didn’t anticipate."},
+  es:{d:"Ver un objeto o una herramienta solo en su función habitual, lo que dificulta imaginar usos nuevos.",
+      x:"Un equipo supone que los comentarios solo sirven para dar feedback, sin notar que los usuarios los usan como lista de tareas. Observar el uso real suele revelar necesidades que la función original no anticipó."}},
+ "Moral credential effect": {
+  en:{d:"Feeling licensed to behave less ethically after having done something good or proving one’s good intentions.",
+      x:"After shipping an accessibility update, a team feels “covered” and approves a manipulative upsell modal. Good past work doesn’t justify a dark pattern now; review each decision on its own."},
+  es:{d:"Sentirse con permiso para actuar de forma menos ética después de haber hecho algo bueno o de haber demostrado buenas intenciones.",
+      x:"Tras lanzar una mejora de accesibilidad, un equipo se siente “cubierto” y aprueba un modal de venta manipulador. Un buen trabajo previo no justifica un dark pattern ahora; evalúa cada decisión por sí misma."}},
+ "Just-world hypothesis": {
+  en:{d:"Believing the world is fair, so people get what they deserve and deserve what they get.",
+      x:"Calling problems “user error” assumes users who fail did something wrong. If many users make the same mistake, the design is the problem."},
+  es:{d:"Creer que el mundo es justo, de modo que las personas reciben lo que merecen y merecen lo que reciben.",
+      x:"Llamar a los problemas “error del usuario” supone que quien falla hizo algo mal. Si muchos usuarios cometen el mismo error, el problema es el diseño."}},
+ "Argument from fallacy": {
+  en:{d:"Concluding that a claim is false because the argument offered for it was flawed.",
+      x:"A stakeholder argues for a feature with a weak reason, and the team rejects the feature entirely. A bad argument doesn’t make the idea wrong; test the idea on its own merits."},
+  es:{d:"Concluir que una afirmación es falsa porque el argumento que la respaldaba era defectuoso.",
+      x:"Un stakeholder defiende una función con una razón débil, y el equipo la rechaza por completo. Un mal argumento no hace que la idea sea incorrecta; prueba la idea por sus propios méritos."}},
+ "Authority bias": {
+  en:{d:"Giving more weight and credibility to the opinion of an authority figure, regardless of its content.",
+      x:"The highest-paid person in the room prefers the blue version, and the debate ends. Bringing user evidence to the review gives everyone a common reference."},
+  es:{d:"Dar más peso y credibilidad a la opinión de una figura de autoridad, sin importar su contenido.",
+      x:"La persona con el cargo más alto prefiere la versión azul, y la discusión termina. Llevar evidencia de usuarios a la revisión da a todos una referencia común."}},
+ "Automation bias": {
+  en:{d:"Over-trusting automated systems and their suggestions, even when they are wrong or contradict other information.",
+      x:"Users accept an AI writing assistant’s suggestion without reading it closely, including a factual error. Interfaces should show confidence levels, sources and an easy way to review or undo."},
+  es:{d:"Confiar en exceso en los sistemas automatizados y sus sugerencias, incluso cuando se equivocan o contradicen otra información.",
+      x:"Los usuarios aceptan la sugerencia de un asistente de escritura con IA sin leerla con atención, incluido un error factual. La interfaz debería mostrar niveles de confianza, fuentes y una forma fácil de revisar o deshacer."}},
+ "Bandwagon effect": {
+  en:{d:"Adopting beliefs or behaviors because many other people do.",
+      x:"“Most popular” badges and “2,000 people bought this” messages push choices. Social proof is useful when it is true, but fake counters are manipulative."},
+  es:{d:"Adoptar creencias o conductas porque muchas otras personas lo hacen.",
+      x:"Las etiquetas “Más popular” y los mensajes como “2.000 personas compraron esto” empujan las decisiones. La prueba social es útil cuando es verdadera, pero los contadores falsos son manipuladores."}},
+ "Placebo effect": {
+  en:{d:"Experiencing a real effect because we believe something will work, even if it has no active ingredient.",
+      x:"An animated progress indicator makes a wait feel shorter even though the process isn’t faster. Perceived performance matters, but don’t add controls that look functional and do nothing."},
+  es:{d:"Experimentar un efecto real porque creemos que algo funcionará, aunque no tenga un componente activo.",
+      x:"Un indicador de progreso animado hace que la espera se sienta más corta aunque el proceso no sea más rápido. El rendimiento percibido importa, pero no agregues controles que parecen funcionar y no hacen nada."}},
+ "Out-group homogeneity bias": {
+  en:{d:"Seeing members of other groups as more alike than members of our own group.",
+      x:"Designers describe “Gen Z users” or “older users” as if they all behave the same, while seeing their own peers as diverse. Personas should reflect variation within each segment."},
+  es:{d:"Percibir a los miembros de otros grupos como más parecidos entre sí que a los miembros del propio grupo.",
+      x:"Los diseñadores describen a los “usuarios Gen Z” o a los “usuarios mayores” como si todos se comportaran igual, mientras ven a sus pares como diversos. Las personas deben reflejar la variación dentro de cada segmento."}},
+ "Cross-race effect": {
+  en:{d:"Also called own-race bias: people recognize faces of their own ethnic group more easily than faces of other groups.",
+      x:"A team tests a photo-cropping or face-filter feature mostly on people who look like them and misses failures for other users. Test features involving faces with a diverse set of people."},
+  es:{d:"También llamado sesgo de la propia etnia: reconocemos con más facilidad los rostros de nuestro grupo étnico que los de otros grupos.",
+      x:"Un equipo prueba una función de recorte de fotos o de filtros faciales sobre todo con personas parecidas a ellos y no detecta fallos con otros usuarios. Prueba las funciones que involucran rostros con un grupo diverso de personas."}},
+ "In-group bias": {
+  en:{d:"Favoring members of our own group over others, including their ideas and work.",
+      x:"In a design review, ideas from the team’s own squad get approved quickly while similar ideas from another department face tougher scrutiny. Use the same criteria for every proposal."},
+  es:{d:"Favorecer a los miembros de nuestro propio grupo frente a otros, incluidas sus ideas y su trabajo.",
+      x:"En una revisión de diseño, las ideas del propio squad se aprueban rápido, mientras ideas similares de otro departamento reciben más cuestionamientos. Usa los mismos criterios para todas las propuestas."}},
+ "Halo effect": {
+  en:{d:"One positive trait shapes our overall impression, so we assume other qualities are good too.",
+      x:"Users rate a visually polished app as easier to use, even when it has the same usability issues as a plain version (the aesthetic-usability effect). Measure task success, not only perceived ease."},
+  es:{d:"Un rasgo positivo moldea nuestra impresión general, así que suponemos que otras cualidades también son buenas.",
+      x:"Los usuarios califican una app visualmente pulida como más fácil de usar, aunque tenga los mismos problemas de usabilidad que una versión sencilla (el efecto estética-usabilidad). Mide el éxito en las tareas, no solo la facilidad percibida."}},
+ "Cheerleader effect": {
+  en:{d:"Faces, and sometimes other items, seem more attractive when seen in a group than when seen alone.",
+      x:"Product thumbnails look more appealing in a grid than on their own page. Review each product image individually, because that is how users see it in the detail view."},
+  es:{d:"Los rostros, y a veces otros elementos, parecen más atractivos cuando se ven en grupo que por separado.",
+      x:"Las miniaturas de productos se ven más atractivas en una cuadrícula que en su propia página. Revisa cada imagen por separado, porque así la ve el usuario en la vista de detalle."}},
+ "Positivity effect": {
+  en:{d:"Older adults tend to pay more attention to, and better remember, positive information than negative information.",
+      x:"In research with older participants, feedback can sound more positive than their task results suggest. Combine their comments with observed performance."},
+  es:{d:"Las personas mayores tienden a prestar más atención a la información positiva y a recordarla mejor que la negativa.",
+      x:"En investigación con participantes mayores, los comentarios pueden sonar más positivos de lo que indican sus resultados en las tareas. Combina sus opiniones con el desempeño observado."}},
+ "Not invented here": {
+  en:{d:"Avoiding or rejecting ideas, products or knowledge because they come from outside our own group.",
+      x:"A team builds its own date picker instead of using a well-tested, accessible component from the design system, and ends up with more bugs. Evaluate external solutions on merit."},
+  es:{d:"Evitar o rechazar ideas, productos o conocimiento porque vienen de fuera de nuestro grupo.",
+      x:"Un equipo construye su propio selector de fechas en lugar de usar un componente probado y accesible del design system, y termina con más errores. Evalúa las soluciones externas por sus méritos."}},
+ "Reactive devaluation": {
+  en:{d:"Valuing a proposal less because it comes from an opponent or a group we don’t align with.",
+      x:"A solid navigation idea is dismissed because it came from the competitor’s app or from a team the designers often disagree with. Evaluate the idea separately from who proposed it."},
+  es:{d:"Valorar menos una propuesta porque viene de un oponente o de un grupo con el que no nos identificamos.",
+      x:"Una buena idea de navegación se descarta porque venía de la app de la competencia o de un equipo con el que los diseñadores suelen discrepar. Evalúa la idea por separado de quién la propuso."}},
+ "Well-traveled road effect": {
+  en:{d:"Underestimating the time it takes to go through familiar routes and overestimating it for unfamiliar ones.",
+      x:"Users say a new, shorter flow “takes longer” than the old one they know well. Compare measured task times, not only perceived ones, when evaluating a redesign."},
+  es:{d:"Subestimar el tiempo que toman los caminos conocidos y sobrestimar el de los desconocidos.",
+      x:"Los usuarios dicen que un flujo nuevo y más corto “tarda más” que el anterior que conocen bien. Al evaluar un rediseño, compara los tiempos medidos, no solo los percibidos."}},
+ "Mental accounting": {
+  en:{d:"Treating money differently depending on where it comes from or which mental “account” we assign it to, even though money is interchangeable.",
+      x:"Users spend a gift-card balance or cashback freely but hesitate to spend the same amount from their card. Labeling wallet credits as “rewards” changes how people use them, so do it transparently."},
+  es:{d:"Tratar el dinero de forma distinta según de dónde viene o a qué “cuenta” mental lo asignamos, aunque el dinero sea intercambiable.",
+      x:"Los usuarios gastan con facilidad el saldo de una tarjeta de regalo o un cashback, pero dudan en gastar lo mismo con su tarjeta. Llamar “recompensas” a los créditos cambia cómo se usan, así que hazlo con transparencia."}},
+ "Appeal to probability fallacy": {
+  en:{d:"Assuming that because something could happen, it will happen.",
+      x:"“Users could get confused by this toggle, so they will” leads to adding warnings everywhere. Test whether confusion actually happens before adding friction."},
+  es:{d:"Suponer que porque algo podría pasar, va a pasar.",
+      x:"“Los usuarios podrían confundirse con este interruptor, así que se confundirán” lleva a poner advertencias por todas partes. Prueba si la confusión ocurre realmente antes de agregar fricción."}},
+ "Normalcy bias": {
+  en:{d:"Underestimating the likelihood and impact of a disaster because things have always been normal before.",
+      x:"Users ignore “back up your data” prompts because nothing has gone wrong so far. Automatic backups and clear recovery paths protect users who won’t act in advance."},
+  es:{d:"Subestimar la probabilidad y el impacto de un desastre porque hasta ahora todo ha sido normal.",
+      x:"Los usuarios ignoran los avisos de “respalda tus datos” porque nunca les pasó nada. Los respaldos automáticos y caminos de recuperación claros protegen a quienes no actuarán con anticipación."}},
+ "Murphy's Law": {
+  en:{d:"The adage that anything that can go wrong will go wrong. As a bias, it is the pessimistic overestimation of failure; as a design principle, it encourages planning for errors.",
+      x:"Designing for it means confirmations for destructive actions, undo, clear error messages and forms that keep the data when a submission fails."},
+  es:{d:"El adagio de que todo lo que puede salir mal saldrá mal. Como sesgo, es sobrestimar con pesimismo los fallos; como principio de diseño, invita a planificar los errores.",
+      x:"Diseñar con esto en mente significa confirmar las acciones destructivas, ofrecer deshacer, mostrar mensajes de error claros y formularios que conservan los datos cuando falla el envío."}},
+ "Zero sum bias": {
+  en:{d:"Perceiving a situation as one where one side’s gain must be the other’s loss, when both could gain.",
+      x:"A business team assumes any improvement for users, like an easy cancellation flow, must cost revenue, when it often builds trust and brings users back. Look for options that benefit both."},
+  es:{d:"Percibir una situación como si la ganancia de una parte fuera necesariamente la pérdida de la otra, cuando ambas podrían ganar.",
+      x:"Un equipo de negocio supone que toda mejora para el usuario, como un flujo fácil de cancelación, debe costar ingresos, cuando a menudo genera confianza y hace que los usuarios vuelvan. Busca opciones que beneficien a ambos."}},
+ "Survivorship bias": {
+  en:{d:"Drawing conclusions only from cases that “survived” a selection process and ignoring those that didn’t.",
+      x:"A satisfaction survey sent to active users shows high scores, but it never reaches people who already left. Interview churned users to understand why people quit."},
+  es:{d:"Sacar conclusiones solo de los casos que “sobrevivieron” a un proceso de selección e ignorar los que no.",
+      x:"Una encuesta de satisfacción enviada a usuarios activos muestra puntajes altos, pero nunca llega a quienes ya se fueron. Entrevista a usuarios que abandonaron para entender por qué lo hicieron."}},
+ "Subadditivity effect": {
+  en:{d:"Judging the probability of a whole event as lower than the sum of the probabilities of its parts.",
+      x:"Asked separately how likely each launch risk is, the team’s estimates add up to more than their estimate that “the launch will have problems”. Listing risks one by one gives a more honest picture."},
+  es:{d:"Juzgar la probabilidad de un evento completo como menor que la suma de las probabilidades de sus partes.",
+      x:"Al estimar por separado cada riesgo del lanzamiento, la suma da más que la estimación del equipo de que “el lanzamiento tendrá problemas”. Listar los riesgos uno por uno da una imagen más honesta."}},
+ "Denomination effect": {
+  en:{d:"People are less likely to spend money held in large denominations than the same amount in small ones.",
+      x:"Selling in-app currency in small packs makes spending feel lighter than a single larger charge. Ethical design shows the real price in the user’s currency."},
+  es:{d:"Es menos probable gastar dinero en billetes grandes que la misma cantidad en billetes pequeños.",
+      x:"Vender moneda virtual en paquetes pequeños hace que gastar se sienta más liviano que un solo cobro grande. Un diseño ético muestra el precio real en la moneda del usuario."}},
+ "Magic number 7+-2": {
+  en:{d:"George Miller’s observation that short-term memory holds about seven items, plus or minus two. Later research suggests the limit is closer to four chunks.",
+      x:"It is often misused to limit menus to seven items, but menus are visible, not memorized. It applies to what users must remember, like a code or steps; chunking a phone number into groups helps."},
+  es:{d:"La observación de George Miller de que la memoria de corto plazo retiene unos siete elementos, más o menos dos. Investigaciones posteriores sugieren que el límite está más cerca de cuatro bloques.",
+      x:"Suele usarse mal para limitar los menús a siete opciones, pero los menús se ven, no se memorizan. Aplica a lo que el usuario debe recordar, como un código o unos pasos; agrupar un número de teléfono en bloques ayuda."}},
+ "Illusion of transparency": {
+  en:{d:"Overestimating how well others can read our thoughts, feelings and intentions.",
+      x:"A designer thinks the purpose of an unlabeled icon is obvious because they know what it does. Labels and a quick first-click test reveal whether others really understand it."},
+  es:{d:"Sobrestimar qué tan bien pueden los demás leer nuestros pensamientos, sentimientos e intenciones.",
+      x:"Una diseñadora cree que el propósito de un icono sin etiqueta es obvio porque sabe lo que hace. Las etiquetas y un test rápido de primer clic revelan si los demás realmente lo entienden."}},
+ "Curse of knowledge": {
+  en:{d:"Once we know something, it becomes hard to imagine not knowing it, so we assume others share our background.",
+      x:"Microcopy full of internal jargon, like “Sync to workspace ledger”, makes sense to the team but not to new users. Testing copy with people outside the team catches this."},
+  es:{d:"Una vez que sabemos algo, nos cuesta imaginar no saberlo, y suponemos que los demás comparten nuestro conocimiento.",
+      x:"Un microcopy lleno de jerga interna, como “Sincronizar con el ledger del workspace”, tiene sentido para el equipo pero no para usuarios nuevos. Probar los textos con personas fuera del equipo lo detecta."}},
+ "Spotlight effect": {
+  en:{d:"Overestimating how much other people notice our appearance or behavior.",
+      x:"Users hesitate to post in a community because they fear everyone will notice a mistake. An edit option, a preview and a low-key first post reduce that fear."},
+  es:{d:"Sobrestimar cuánto notan los demás nuestra apariencia o nuestra conducta.",
+      x:"Los usuarios dudan en publicar en una comunidad porque temen que todos noten un error. Permitir editar, ofrecer una vista previa y una primera publicación discreta reduce ese temor."}},
+ "Extrinsic incentive error": {
+  en:{d:"Believing others are more motivated by external rewards, like money or points, than we are, and underestimating their intrinsic motivation.",
+      x:"A team adds points and badges to boost contributions, assuming users only care about rewards, when they actually contribute to help others. Research motivations before adding gamification."},
+  es:{d:"Creer que a los demás los mueven más que a nosotros las recompensas externas, como dinero o puntos, y subestimar su motivación intrínseca.",
+      x:"Un equipo agrega puntos e insignias para aumentar las contribuciones, suponiendo que a los usuarios solo les importan las recompensas, cuando en realidad contribuyen para ayudar a otros. Investiga las motivaciones antes de gamificar."}},
+ "Illusion of external agency": {
+  en:{d:"Attributing to an external force the positive outcomes that actually come from our own mental processes, such as adapting to and justifying a choice.",
+      x:"Users credit a recommendation algorithm for “knowing them”, while part of why they like its picks is that they adapted to the choices it made for them. Personalization claims should be modest."},
+  es:{d:"Atribuir a una fuerza externa resultados positivos que en realidad vienen de nuestros propios procesos mentales, como adaptarnos a una elección y justificarla.",
+      x:"Los usuarios dicen que un algoritmo de recomendación “los conoce”, pero en parte les gustan sus sugerencias porque se adaptaron a las elecciones que hizo por ellos. Las promesas de personalización deben ser moderadas."}},
+ "Illusion of asymmetric insight": {
+  en:{d:"Believing we understand others better than they understand us.",
+      x:"A team feels it knows exactly what users need, yet is surprised when users describe the product very differently. Research with users, not about them, closes that gap."},
+  es:{d:"Creer que entendemos a los demás mejor de lo que ellos nos entienden a nosotros.",
+      x:"Un equipo siente que sabe exactamente lo que los usuarios necesitan, pero se sorprende cuando estos describen el producto de forma muy distinta. Investigar con los usuarios, no sobre ellos, reduce esa brecha."}},
+ "Telescoping effect": {
+  en:{d:"Misplacing events in time: recent events feel further away and older events feel more recent than they are.",
+      x:"In a survey asking “How many times did you use the feature in the last month?”, users include uses from earlier. Logs or diary studies give more reliable frequency data."},
+  es:{d:"Ubicar mal los eventos en el tiempo: los recientes parecen más lejanos y los antiguos más recientes de lo que son.",
+      x:"En una encuesta que pregunta “¿Cuántas veces usaste la función el último mes?”, los usuarios incluyen usos anteriores. Los registros o los estudios de diario dan datos de frecuencia más confiables."}},
+ "Rosy retrospection": {
+  en:{d:"Remembering the past as better than it was experienced at the time.",
+      x:"Users ask for the “old version” back, remembering it as simpler, though its support tickets showed frequent problems. Compare nostalgia with what the old version actually measured."},
+  es:{d:"Recordar el pasado como mejor de lo que se vivió en su momento.",
+      x:"Los usuarios piden volver a la “versión anterior” y la recuerdan como más sencilla, aunque sus tickets de soporte mostraban problemas frecuentes. Compara la nostalgia con lo que la versión anterior realmente medía."}},
+ "Hindsight bias": {
+  en:{d:"After an event, believing we “knew it all along” and that the outcome was predictable.",
+      x:"After a feature fails, stakeholders say the problems were obvious, though nobody raised them before launch. Writing down predictions before release keeps retrospectives honest."},
+  es:{d:"Después de un hecho, creer que “lo sabíamos desde el principio” y que el resultado era predecible.",
+      x:"Cuando una función fracasa, los stakeholders dicen que los problemas eran obvios, aunque nadie los mencionó antes del lanzamiento. Anotar las predicciones antes de lanzar mantiene honestas las retrospectivas."}},
+ "Outcome bias": {
+  en:{d:"Judging a decision by its outcome instead of by the quality of the decision when it was made.",
+      x:"A redesign launched without any testing happened to perform well, so the team concludes testing is unnecessary. A good result from a risky process doesn’t make the process good."},
+  es:{d:"Juzgar una decisión por su resultado en lugar de por la calidad de la decisión en el momento en que se tomó.",
+      x:"Un rediseño lanzado sin ninguna prueba resultó funcionar bien, y el equipo concluye que probar no es necesario. Un buen resultado de un proceso riesgoso no hace bueno al proceso."}},
+ "Moral luck": {
+  en:{d:"Judging people morally for outcomes that were outside their control.",
+      x:"Two designers made the same reasonable call, but only one launch hit an unexpected server outage, and that designer gets blamed. Blameless post-mortems focus on decisions and systems, not luck."},
+  es:{d:"Juzgar moralmente a las personas por resultados que estaban fuera de su control.",
+      x:"Dos diseñadores tomaron la misma decisión razonable, pero solo uno de los lanzamientos sufrió una caída inesperada del servidor, y a ese diseñador lo culpan. Los post-mortems sin culpables se centran en decisiones y sistemas, no en la suerte."}},
+ "Declinism": {
+  en:{d:"Believing that a society, institution or product is getting worse over time, often because the past is remembered favorably.",
+      x:"Long-time users insist every update makes the product worse, even updates that improved their task times. Track key metrics across versions to separate perception from change."},
+  es:{d:"Creer que una sociedad, institución o producto empeora con el tiempo, a menudo porque se recuerda el pasado con cariño.",
+      x:"Los usuarios antiguos insisten en que cada actualización empeora el producto, incluso las que mejoraron sus tiempos en las tareas. Medir las métricas clave entre versiones separa la percepción del cambio real."}},
+ "Impact bias": {
+  en:{d:"Overestimating how intense and how long-lasting our future emotional reactions will be.",
+      x:"A team fears users will be angry for months about a navigation change, but complaints drop within days as people adapt. Plan communication for change, but don’t let fear block improvements."},
+  es:{d:"Sobrestimar qué tan intensas y duraderas serán nuestras reacciones emocionales futuras.",
+      x:"Un equipo teme que los usuarios estén molestos durante meses por un cambio de navegación, pero las quejas bajan en pocos días a medida que se adaptan. Planifica la comunicación del cambio, pero no dejes que el miedo bloquee las mejoras."}},
+ "Pessimism bias": {
+  en:{d:"Overestimating the likelihood that bad things will happen.",
+      x:"The team assumes users will hate any change to pricing and never tests alternatives. Small, reversible experiments test those fears cheaply."},
+  es:{d:"Sobrestimar la probabilidad de que ocurran cosas malas.",
+      x:"El equipo supone que los usuarios odiarán cualquier cambio en los precios y nunca prueba alternativas. Los experimentos pequeños y reversibles ponen a prueba esos temores a bajo costo."}},
+ "Planning fallacy": {
+  en:{d:"Underestimating how long a task will take, even when we know similar tasks took longer in the past.",
+      x:"A team estimates the design system migration at two sprints, again, after the previous migration took far longer. Use data from past projects and add buffers for review and QA."},
+  es:{d:"Subestimar cuánto tardará una tarea, aun sabiendo que tareas similares tomaron más tiempo en el pasado.",
+      x:"Un equipo estima de nuevo la migración del design system en dos sprints, después de que la migración anterior tardó mucho más. Usa datos de proyectos pasados y agrega margen para revisión y QA."}},
+ "Time-saving bias": {
+  en:{d:"Misjudging time saved by going faster: overestimating gains when speeding up something already fast, and underestimating gains when speeding up something slow.",
+      x:"A team prioritizes making an already fast search twice as fast, and overlooks a slow manual export where a modest speed-up would save users far more time."},
+  es:{d:"Calcular mal el tiempo que se ahorra al ir más rápido: sobrestimar la ganancia al acelerar algo que ya es rápido y subestimarla al acelerar algo lento.",
+      x:"Un equipo prioriza que una búsqueda ya rápida sea el doble de rápida y pasa por alto una exportación manual lenta, donde una mejora moderada ahorraría mucho más tiempo a los usuarios."}},
+ "Pro-innovation bias": {
+  en:{d:"Believing a new technology should be adopted widely as-is, while overlooking its limitations and weaknesses.",
+      x:"A team adds an AI assistant to every screen because it is new, without checking whether users need it there. Start from user problems, not from the technology."},
+  es:{d:"Creer que una tecnología nueva debe adoptarse ampliamente tal como está, pasando por alto sus limitaciones y debilidades.",
+      x:"Un equipo agrega un asistente de IA en cada pantalla porque es novedoso, sin verificar si los usuarios lo necesitan ahí. Parte de los problemas del usuario, no de la tecnología."}},
+ "Projection bias": {
+  en:{d:"Assuming our future preferences and needs will match our current ones.",
+      x:"Excited new users turn on every notification type during onboarding and then disable them all a week later. Start with sensible defaults and ask again once users know the product."},
+  es:{d:"Suponer que nuestras preferencias y necesidades futuras serán iguales a las actuales.",
+      x:"Los usuarios nuevos y entusiasmados activan todos los tipos de notificación en el onboarding y una semana después los desactivan todos. Empieza con valores predeterminados sensatos y vuelve a preguntar cuando conozcan el producto."}},
+ "Restraint bias": {
+  en:{d:"Overestimating our ability to control impulsive behavior and resist temptation.",
+      x:"Users leave autoplay and infinite scroll on, believing they’ll stop when they want, and then lose more time than planned. Easy-to-find limits and break reminders respect their real behavior."},
+  es:{d:"Sobrestimar nuestra capacidad de controlar los impulsos y resistir la tentación.",
+      x:"Los usuarios dejan activados la reproducción automática y el scroll infinito creyendo que pararán cuando quieran, y terminan perdiendo más tiempo del previsto. Los límites fáciles de encontrar y los recordatorios de pausa respetan su conducta real."}},
+ "Self-consistency bias": {
+  en:{d:"Remembering our past attitudes and behaviors as more similar to our current ones than they really were.",
+      x:"Long-time users say they “always” used a feature that analytics show they adopted recently. In longitudinal research, compare current statements with earlier recorded answers."},
+  es:{d:"Recordar nuestras actitudes y conductas pasadas como más parecidas a las actuales de lo que realmente fueron.",
+      x:"Usuarios antiguos dicen que “siempre” usaron una función que la analítica muestra que adoptaron hace poco. En investigación longitudinal, compara lo que dicen hoy con respuestas registradas antes."}}
+});
+
+Object.assign(INFO, {
+ "Overconfidence effect": {
+  en:{d:"Our confidence in our own judgments is reliably higher than their actual accuracy.",
+      x:"Before a test, designers are sure which prototype will win, and are often wrong. Writing down predictions and comparing them with results calibrates the team over time."},
+  es:{d:"La confianza en nuestros propios juicios es sistemáticamente mayor que su precisión real.",
+      x:"Antes de un test, los diseñadores están seguros de qué prototipo ganará, y a menudo se equivocan. Anotar las predicciones y compararlas con los resultados calibra al equipo con el tiempo."}},
+ "Social desirability bias": {
+  en:{d:"Answering questions in a way that will be viewed favorably by others, over-reporting good behavior and under-reporting bad behavior.",
+      x:"In a survey, users say they read privacy policies and set strong passwords, but behavioral data shows otherwise. Anonymous surveys and observed behavior give more honest data."},
+  es:{d:"Responder de una forma que los demás verán con buenos ojos, exagerando las conductas positivas y minimizando las negativas.",
+      x:"En una encuesta, los usuarios dicen que leen las políticas de privacidad y usan contraseñas seguras, pero los datos de conducta muestran otra cosa. Las encuestas anónimas y la conducta observada dan datos más honestos."}},
+ "Third-person effect": {
+  en:{d:"Believing that media messages and persuasion affect other people more than they affect us.",
+      x:"Participants say dark patterns trick “other people” but not them, then accept a pre-checked add-on in the next task. Test the pattern instead of asking whether it would work on them."},
+  es:{d:"Creer que los mensajes de los medios y la persuasión afectan más a los demás que a nosotros.",
+      x:"Los participantes dicen que los dark patterns engañan a “otras personas” pero no a ellos, y en la siguiente tarea aceptan un extra que venía marcado por defecto. Prueba el patrón en lugar de preguntar si funcionaría con ellos."}},
+ "False consensus effect": {
+  en:{d:"Overestimating how much other people share our beliefs, preferences and habits.",
+      x:"A designer who loves keyboard shortcuts assumes most users want them too and hides the visible buttons. Your preferences are one data point; research tells you about the rest."},
+  es:{d:"Sobrestimar cuánto comparten los demás nuestras creencias, preferencias y hábitos.",
+      x:"Un diseñador que ama los atajos de teclado supone que la mayoría de los usuarios también los quiere y oculta los botones visibles. Tus preferencias son un dato; la investigación te informa sobre el resto."}},
+ "Hard-easy effect": {
+  en:{d:"Being overconfident about hard tasks and underconfident about easy ones.",
+      x:"A team confidently estimates a complex redesign but pads a simple copy update. Using past data for both kinds of tasks makes estimates more realistic."},
+  es:{d:"Tener exceso de confianza en las tareas difíciles y falta de confianza en las fáciles.",
+      x:"Un equipo estima con seguridad un rediseño complejo, pero infla el tiempo de un simple cambio de textos. Usar datos pasados para ambos tipos de tarea hace las estimaciones más realistas."}},
+ "Lake Wobegone effect": {
+  en:{d:"The tendency for most people to rate themselves as above average. It is named after a fictional town where “all the children are above average”, and is another name for illusory superiority.",
+      x:"Most users rate their own tech skills as above average, so self-reported skill is a weak screener for recruiting. Use a short task or behavioral questions instead."},
+  es:{d:"La tendencia de la mayoría de las personas a considerarse por encima del promedio. Debe su nombre a un pueblo ficticio donde “todos los niños están por encima del promedio” y es otro nombre de la superioridad ilusoria.",
+      x:"La mayoría de los usuarios califica sus habilidades tecnológicas como superiores al promedio, así que la autoevaluación es un mal filtro para reclutar. Usa una tarea breve o preguntas sobre conducta."}},
+ "Dunning-Kruger effect": {
+  en:{d:"People with limited skill in a domain tend to overestimate their ability, while experts may underestimate theirs. How large the effect is remains debated.",
+      x:"A new team member dismisses accessibility guidelines as easy, while an experienced designer worries about missing details. Pairing reviews with clear checklists helps both levels."},
+  es:{d:"Las personas con poca habilidad en un área tienden a sobrestimar su capacidad, mientras que los expertos pueden subestimar la suya. Qué tan grande es el efecto sigue en debate.",
+      x:"Un integrante nuevo del equipo considera fáciles las pautas de accesibilidad, mientras una diseñadora con experiencia se preocupa por los detalles. Las revisiones en pareja con checklists claros ayudan a ambos niveles."}},
+ "Egocentric bias": {
+  en:{d:"Relying too much on our own perspective, or remembering our contribution as bigger than it was.",
+      x:"After a project, each discipline believes it did most of the work. Documenting decisions and contributions as you go reduces friction in retrospectives."},
+  es:{d:"Apoyarse demasiado en la propia perspectiva o recordar nuestra contribución como mayor de lo que fue.",
+      x:"Al terminar un proyecto, cada disciplina cree que hizo la mayor parte del trabajo. Documentar las decisiones y aportes a medida que avanzan reduce la fricción en las retrospectivas."}},
+ "Optimism bias": {
+  en:{d:"Believing we are less likely than others to experience negative events and more likely to experience positive ones.",
+      x:"“Users will read the onboarding and remember it” is an optimistic assumption. Design so the key information also appears where it is needed later."},
+  es:{d:"Creer que tenemos menos probabilidad que otros de vivir hechos negativos y más de vivir hechos positivos.",
+      x:"“Los usuarios leerán el onboarding y lo recordarán” es un supuesto optimista. Diseña para que la información clave también aparezca donde se necesite después."}},
+ "Forer effect": {
+  en:{d:"Accepting vague, general descriptions as accurate descriptions of ourselves. It is the same phenomenon as the Barnum effect.",
+      x:"Personality-style results such as “You value quality but also want convenience” feel personal to almost everyone. Recommendations based on such vague profiles feel accurate without really being tailored."},
+  es:{d:"Aceptar descripciones vagas y generales como descripciones precisas de nosotros mismos. Es el mismo fenómeno que el efecto Barnum.",
+      x:"Resultados al estilo de un test de personalidad, como “Valoras la calidad, pero también la comodidad”, se sienten personales para casi todos. Las recomendaciones basadas en perfiles tan vagos parecen acertadas sin estar realmente personalizadas."}},
+ "Barnum effect": {
+  en:{d:"Another name for the Forer effect: rating generic statements as highly accurate for ourselves.",
+      x:"A “Your year in review” summary full of generic praise feels personal. Personalization should use the user’s real data to be meaningful, not flattering generalities."},
+  es:{d:"Otro nombre del efecto Forer: considerar muy precisas para nosotros afirmaciones genéricas.",
+      x:"Un resumen de “Tu año en revisión” lleno de elogios genéricos se siente personal. La personalización debe usar datos reales del usuario para tener sentido, no generalidades halagadoras."}},
+ "Self-serving bias": {
+  en:{d:"Taking credit for successes and blaming failures on external factors.",
+      x:"When a feature succeeds, the team credits its design; when it fails, it blames the market or “users who don’t get it”. Analyze successes and failures with the same rigor."},
+  es:{d:"Atribuirnos los éxitos y culpar a factores externos de los fracasos.",
+      x:"Cuando una función tiene éxito, el equipo lo atribuye a su diseño; cuando fracasa, culpa al mercado o a “usuarios que no la entienden”. Analiza los éxitos y los fracasos con el mismo rigor."}},
+ "Actor-observer bias": {
+  en:{d:"Explaining our own behavior by the situation, and other people’s behavior by their personality.",
+      x:"“I skipped the tutorial because I was busy”, but “users skip the tutorial because they’re lazy”. Users are in situations too: look for the context that makes them skip it."},
+  es:{d:"Explicar nuestra conducta por la situación y la de los demás por su personalidad.",
+      x:"“Me salté el tutorial porque estaba ocupado”, pero “los usuarios se saltan el tutorial porque son flojos”. Los usuarios también están en situaciones: busca el contexto que los lleva a saltarlo."}},
+ "Illusion of control": {
+  en:{d:"Overestimating our ability to control events, including those determined by chance.",
+      x:"Users repeatedly tap a “Refresh” button while a process runs, believing it speeds things up. Clear status and progress feedback reduce anxious, unnecessary actions."},
+  es:{d:"Sobrestimar nuestra capacidad para controlar los hechos, incluidos los que dependen del azar.",
+      x:"Los usuarios presionan una y otra vez “Actualizar” mientras un proceso corre, creyendo que lo aceleran. Un estado y un progreso claros reducen las acciones ansiosas e innecesarias."}},
+ "Illusory superiority": {
+  en:{d:"Overestimating our own qualities and abilities compared with others.",
+      x:"Stakeholders believe they understand users better than the research team does and override findings. Inviting them to observe sessions directly is more persuasive than reports."},
+  es:{d:"Sobrestimar nuestras cualidades y capacidades en comparación con las de los demás.",
+      x:"Los stakeholders creen entender a los usuarios mejor que el equipo de investigación y pasan por encima de los hallazgos. Invitarlos a observar sesiones en vivo convence más que los informes."}},
+ "Fundamental attribution error": {
+  en:{d:"Over-emphasizing personality to explain other people’s behavior and under-emphasizing the situation.",
+      x:"A support team labels users who fail to verify their email as “careless”, when the verification email often lands in spam. Look for situational causes first."},
+  es:{d:"Dar demasiado peso a la personalidad al explicar la conducta de los demás y muy poco a la situación.",
+      x:"El equipo de soporte califica de “descuidados” a los usuarios que no verifican su correo, cuando el mensaje de verificación suele llegar a spam. Busca primero las causas situacionales."}},
+ "Defensive attribution hypothesis": {
+  en:{d:"Blaming victims more when we feel dissimilar to them, as a way to protect ourselves from the idea that the same could happen to us.",
+      x:"After a user falls for a phishing message, the team says “they should have known better”, avoiding the uncomfortable thought that anyone could be fooled. Design defenses that work even for careful users."},
+  es:{d:"Culpar más a las víctimas cuando nos sentimos distintos a ellas, como forma de protegernos de la idea de que nos podría pasar lo mismo.",
+      x:"Cuando un usuario cae en un mensaje de phishing, el equipo dice que “debió darse cuenta”, evitando la idea incómoda de que cualquiera puede ser engañado. Diseña defensas que funcionen incluso para usuarios cuidadosos."}},
+ "Trait ascription bias": {
+  en:{d:"Seeing ourselves as variable and flexible, while seeing others as predictable and fixed in their traits.",
+      x:"Designers describe themselves as having different needs depending on the day, but write personas with fixed behaviors. Add contexts and modes to personas, not just stable traits."},
+  es:{d:"Vernos a nosotros mismos como variables y flexibles, y ver a los demás como predecibles y con rasgos fijos.",
+      x:"Los diseñadores se describen con necesidades distintas según el día, pero escriben personas con conductas fijas. Agrega contextos y modos de uso a las personas, no solo rasgos estables."}},
+ "Effort justification": {
+  en:{d:"Valuing an outcome more because we put a lot of effort into achieving it.",
+      x:"A team defends a feature that took months to build, even though usage is low, because so much work went into it. Measure value by user outcomes, not by effort spent."},
+  es:{d:"Valorar más un resultado porque nos costó mucho esfuerzo conseguirlo.",
+      x:"Un equipo defiende una función que tomó meses construir, aunque se use poco, porque se invirtió mucho trabajo en ella. Mide el valor por los resultados para el usuario, no por el esfuerzo invertido."}},
+ "Risk compensation": {
+  en:{d:"Taking more risks when we feel more protected.",
+      x:"After enabling two-factor login, some users choose weaker passwords because they feel safe. Security features should be paired with guidance so that one protection doesn’t weaken another."},
+  es:{d:"Asumir más riesgos cuando nos sentimos más protegidos.",
+      x:"Tras activar el inicio de sesión en dos pasos, algunos usuarios eligen contraseñas más débiles porque se sienten seguros. Las funciones de seguridad deben acompañarse de orientación para que una protección no debilite otra."}},
+ "Peltzman effect": {
+  en:{d:"A form of risk compensation: safety measures can be partly offset by people behaving more riskily.",
+      x:"With autosave, users stop keeping copies of important work elsewhere, so a sync failure costs more. Pair autosave with visible version history and clear sync status."},
+  es:{d:"Una forma de compensación del riesgo: las medidas de seguridad pueden verse en parte anuladas porque las personas se comportan de forma más arriesgada.",
+      x:"Con el guardado automático, los usuarios dejan de guardar copias de su trabajo importante en otro lugar, así que un fallo de sincronización cuesta más. Acompaña el autoguardado con historial de versiones visible y un estado de sincronización claro."}},
+ "Hyperbolic discounting": {
+  en:{d:"Preferring smaller, immediate rewards over larger, later ones, more strongly the closer the reward is.",
+      x:"Users skip setting up a savings goal because the benefit is far away. Savings apps add immediate rewards, like progress feedback after each deposit, to make the future benefit feel present."},
+  es:{d:"Preferir recompensas pequeñas e inmediatas sobre otras mayores y tardías, con más fuerza cuanto más cercana es la recompensa.",
+      x:"Los usuarios no configuran una meta de ahorro porque el beneficio está lejos. Las apps de ahorro agregan recompensas inmediatas, como feedback de progreso tras cada depósito, para que el beneficio futuro se sienta presente."}},
+ "Appeal to novelty": {
+  en:{d:"Assuming something is better simply because it is new.",
+      x:"A team replaces a well-understood dropdown with a trendy gesture-based selector, and task time goes up. New patterns should earn their place through testing."},
+  es:{d:"Suponer que algo es mejor simplemente porque es nuevo.",
+      x:"Un equipo reemplaza un menú desplegable bien entendido por un selector de gestos de moda, y el tiempo de las tareas aumenta. Los patrones nuevos deben ganarse su lugar con pruebas."}},
+ "Identifiable victim effect": {
+  en:{d:"Feeling more compassion and willingness to help for a specific, identifiable person than for a large, anonymous group.",
+      x:"A video clip of one participant struggling convinces stakeholders more than a chart of failure rates. Use real stories to create empathy, but make sure they represent a wider pattern."},
+  es:{d:"Sentir más compasión y disposición a ayudar por una persona concreta e identificable que por un grupo grande y anónimo.",
+      x:"Un clip de un participante con dificultades convence más a los stakeholders que un gráfico de tasas de fallo. Usa historias reales para generar empatía, pero asegúrate de que representen un patrón más amplio."}},
+ "Sunk cost fallacy": {
+  en:{d:"Continuing a course of action because of what we have already invested, rather than its future value.",
+      x:"“We’ve already spent six months on this redesign” becomes a reason to launch it despite poor test results. Decide based on what the next investment will bring, not on what is already spent."},
+  es:{d:"Seguir con un curso de acción por lo que ya invertimos y no por su valor futuro.",
+      x:"“Ya llevamos seis meses en este rediseño” se convierte en motivo para lanzarlo pese a malos resultados en las pruebas. Decide según lo que aportará la siguiente inversión, no según lo ya gastado."}},
+ "Irrational escalation": {
+  en:{d:"Increasing investment in a decision based on past investment, even when new evidence suggests it was wrong.",
+      x:"Each time a feature underperforms, the team adds more sub-features to “fix” it instead of reconsidering the core idea. Set kill criteria before starting."},
+  es:{d:"Aumentar la inversión en una decisión por lo ya invertido, aun cuando la nueva evidencia indica que fue un error.",
+      x:"Cada vez que una función rinde poco, el equipo le agrega más subfunciones para “arreglarla” en lugar de replantear la idea central. Define criterios para detenerla antes de empezar."}},
+ "Escalation of commitment": {
+  en:{d:"Sticking with a failing decision because we have publicly committed to it and want to stay consistent.",
+      x:"A product lead announced a chatbot-first support strategy, and despite poor satisfaction, it keeps expanding. Framing decisions as experiments makes it easier to change course without losing face."},
+  es:{d:"Mantener una decisión que está fallando porque nos comprometimos públicamente con ella y queremos ser coherentes.",
+      x:"Un líder de producto anunció una estrategia de soporte centrada en un chatbot, y pese a la baja satisfacción sigue ampliándose. Plantear las decisiones como experimentos facilita cambiar de rumbo sin perder credibilidad."}},
+ "Generation effect": {
+  en:{d:"Information we generate ourselves is remembered better than information we simply read.",
+      x:"Asking users to name their first project or write their own goal during onboarding makes them remember it better than accepting a default."},
+  es:{d:"La información que generamos nosotros mismos se recuerda mejor que la que simplemente leemos.",
+      x:"Pedir a los usuarios que nombren su primer proyecto o escriban su propia meta en el onboarding hace que lo recuerden mejor que aceptar un valor predeterminado."}},
+ "Loss aversion": {
+  en:{d:"Losses feel more painful than equivalent gains feel pleasant.",
+      x:"“Don’t lose your saved items” motivates more than “Keep your saved items”. Loss framing is powerful, so use it honestly, not to pressure users into staying."},
+  es:{d:"Las pérdidas duelen más de lo que agradan las ganancias equivalentes.",
+      x:"“No pierdas tus elementos guardados” motiva más que “Conserva tus elementos guardados”. Este encuadre es poderoso, así que úsalo con honestidad, no para presionar a los usuarios a quedarse."}},
+ "IKEA effect": {
+  en:{d:"Placing more value on things we partly created ourselves.",
+      x:"Users who customize their dashboard during setup feel more attached to the product. The same bias makes teams overvalue their own designs, so external critique is useful."},
+  es:{d:"Valorar más las cosas que ayudamos a crear nosotros mismos.",
+      x:"Los usuarios que personalizan su dashboard durante la configuración se sienten más apegados al producto. El mismo sesgo hace que los equipos sobrevaloren sus propios diseños, por eso la crítica externa es útil."}},
+ "Unit bias": {
+  en:{d:"Treating one unit of something as the appropriate amount to consume or complete.",
+      x:"Learners tend to finish one lesson per session, whatever its length. Short, well-sized units, like five-minute lessons, encourage steady progress."},
+  es:{d:"Considerar que una unidad de algo es la cantidad adecuada para consumir o completar.",
+      x:"Los estudiantes tienden a terminar una lección por sesión, sin importar su duración. Unidades cortas y bien dimensionadas, como lecciones de cinco minutos, favorecen un progreso constante."}},
+ "Zero-risk bias": {
+  en:{d:"Preferring to eliminate a small risk completely over reducing a larger risk by a greater amount.",
+      x:"A team spends its sprint removing a rare error entirely, instead of halving a frequent one that affects many more users. Compare total impact, not whether a risk reaches zero."},
+  es:{d:"Preferir eliminar por completo un riesgo pequeño antes que reducir en mayor medida un riesgo más grande.",
+      x:"Un equipo dedica su sprint a eliminar por completo un error poco frecuente, en lugar de reducir a la mitad uno frecuente que afecta a muchos más usuarios. Compara el impacto total, no si un riesgo llega a cero."}},
+ "Disposition effect": {
+  en:{d:"In investing, selling assets that have gained value too soon and holding onto losing assets too long.",
+      x:"In a trading app, users quickly sell stocks that rose and keep the ones that fell, hoping to break even. Neutral performance views and clear cost information help them decide on fundamentals."},
+  es:{d:"En inversiones, vender demasiado pronto los activos que ganaron valor y conservar demasiado tiempo los que perdieron.",
+      x:"En una app de inversiones, los usuarios venden rápido las acciones que subieron y conservan las que bajaron, esperando recuperar. Vistas de rendimiento neutras e información clara de costos les ayudan a decidir con criterio."}},
+ "Pseudocertainty effect": {
+  en:{d:"Treating an outcome as certain when it is actually uncertain, because it is certain within one stage of a multi-stage decision.",
+      x:"Users prefer an insurance add-on that “fully covers” one type of damage over a cheaper option that reduces overall risk more. Show the overall protection, not just the part that sounds certain."},
+  es:{d:"Tratar un resultado como seguro cuando en realidad es incierto, porque es seguro dentro de una etapa de una decisión con varias etapas.",
+      x:"Los usuarios prefieren un seguro adicional que “cubre por completo” un tipo de daño antes que una opción más barata que reduce más el riesgo total. Muestra la protección total, no solo la parte que suena segura."}},
+ "Processing difficulty effect": {
+  en:{d:"Information that takes more effort to read or understand can be remembered better, because it is processed more deeply.",
+      x:"This doesn’t mean interfaces should be hard to read. In learning products, a short exercise that requires thought helps retention more than a perfectly smooth explanation."},
+  es:{d:"La información que cuesta más leer o comprender puede recordarse mejor, porque se procesa con más profundidad.",
+      x:"Esto no significa que las interfaces deban ser difíciles de leer. En productos educativos, un ejercicio breve que exige pensar ayuda más a la retención que una explicación perfectamente fluida."}},
+ "Endowment effect": {
+  en:{d:"Valuing something more simply because we own it.",
+      x:"After a free trial with all premium features, users feel they already “own” them and are more likely to pay to keep them. Be clear about what happens when the trial ends."},
+  es:{d:"Valorar más algo simplemente porque es nuestro.",
+      x:"Tras una prueba gratuita con todas las funciones premium, los usuarios sienten que ya “las tienen” y es más probable que paguen para conservarlas. Sé claro sobre lo que ocurre al terminar la prueba."}},
+ "Backfire effect": {
+  en:{d:"Being presented with evidence against a belief can sometimes strengthen it. Recent research suggests the effect is rarer than first thought.",
+      x:"Bluntly telling a stakeholder their favorite idea failed in testing can make them defend it harder. Showing session clips and exploring the problem together works better than a verdict."},
+  es:{d:"Recibir evidencia contra una creencia a veces puede reforzarla. Investigaciones recientes sugieren que el efecto es menos frecuente de lo que se pensaba.",
+      x:"Decirle de golpe a un stakeholder que su idea favorita fracasó en las pruebas puede hacer que la defienda con más fuerza. Mostrar clips de sesiones y explorar el problema juntos funciona mejor que un veredicto."}},
+ "System justification": {
+  en:{d:"Defending and supporting existing systems and arrangements, even when they work against our own interests.",
+      x:"Employees defend a clunky internal tool because “that’s just how the system works”. Their workarounds are a sign of unmet needs worth researching."},
+  es:{d:"Defender y apoyar los sistemas y acuerdos existentes, aun cuando van en contra de nuestros propios intereses.",
+      x:"Los empleados defienden una herramienta interna torpe porque “así funciona el sistema”. Sus soluciones improvisadas son señal de necesidades no cubiertas que vale la pena investigar."}},
+ "Reverse psychology": {
+  en:{d:"Advocating the opposite of what one wants, so that the other person’s resistance leads them to the desired choice.",
+      x:"Confirmshaming copy like “No thanks, I don’t like saving money” is a manipulative version of this. Decline options should be neutral and respectful."},
+  es:{d:"Defender lo contrario de lo que se desea, para que la resistencia de la otra persona la lleve a la elección buscada.",
+      x:"Un texto de “confirmshaming” como “No gracias, no me gusta ahorrar dinero” es una versión manipuladora de esto. Las opciones para rechazar deben ser neutrales y respetuosas."}},
+ "Reactance": {
+  en:{d:"Resisting when we feel our freedom of choice is being threatened, often by doing the opposite of what we are told.",
+      x:"Forced updates or repeated “Rate this app!” pop-ups make users more likely to resist or leave. Offer choice and timing, such as “Remind me later”."},
+  es:{d:"Resistirnos cuando sentimos que se amenaza nuestra libertad de elección, a menudo haciendo lo contrario de lo que nos dicen.",
+      x:"Las actualizaciones forzadas o los pop-ups repetidos de “¡Califica esta app!” hacen que los usuarios se resistan o se vayan. Ofrece elección y momento, como “Recordármelo más tarde”."}},
+ "Decoy effect": {
+  en:{d:"Adding a third, less attractive option changes how people choose between the other two.",
+      x:"A pricing page adds a mid-tier plan that costs almost as much as the premium one, making premium look like the obvious choice. Decoys are common; use them only when every option is genuinely useful."},
+  es:{d:"Agregar una tercera opción menos atractiva cambia cómo elegimos entre las otras dos.",
+      x:"Una página de precios agrega un plan intermedio que cuesta casi lo mismo que el premium, y así el premium parece la opción obvia. Los señuelos son comunes; úsalos solo si todas las opciones son realmente útiles."}},
+ "Social comparison bias": {
+  en:{d:"Disliking or feeling competitive toward people who seem better than us in some way.",
+      x:"In hiring, an interviewer rates a candidate with stronger skills lower because they feel threatened. Structured rubrics and multiple interviewers reduce this."},
+  es:{d:"Sentir rechazo o competencia hacia las personas que parecen mejores que nosotros en algún aspecto.",
+      x:"En una contratación, un entrevistador califica peor a un candidato con más habilidades porque se siente amenazado. Las rúbricas estructuradas y varios entrevistadores lo reducen."}},
+ "Status quo bias": {
+  en:{d:"Preferring things to stay the same and treating any change from the current state as a loss.",
+      x:"Most users never change default settings, so defaults effectively become decisions. Choose defaults that are in the user’s best interest, such as privacy-protective options."},
+  es:{d:"Preferir que las cosas sigan igual y percibir cualquier cambio respecto del estado actual como una pérdida.",
+      x:"La mayoría de los usuarios nunca cambia la configuración predeterminada, así que los valores por defecto terminan siendo decisiones. Elige valores que favorezcan al usuario, como opciones que protegen su privacidad."}},
+ "Ambiguity bias": {
+  en:{d:"Avoiding options when information is missing or uncertain, and preferring options whose outcomes are known.",
+      x:"Users choose the plan with a clear monthly price over a usage-based plan that would cost them less, because the final amount is unclear. A cost estimator removes the ambiguity."},
+  es:{d:"Evitar las opciones cuando falta información o hay incertidumbre, y preferir aquellas cuyo resultado se conoce.",
+      x:"Los usuarios eligen el plan con precio mensual claro en lugar de un plan por consumo que les costaría menos, porque el monto final no está claro. Un estimador de costos elimina la ambigüedad."}},
+ "Information bias": {
+  en:{d:"Seeking more information even when it won’t change the decision or action.",
+      x:"A team runs a third round of surveys before a decision that the first two rounds already supported. Before more research, ask what result would change the plan."},
+  es:{d:"Buscar más información aunque no vaya a cambiar la decisión ni la acción.",
+      x:"Un equipo hace una tercera ronda de encuestas antes de una decisión que las dos primeras ya respaldaban. Antes de investigar más, pregunta qué resultado cambiaría el plan."}},
+ "Belief bias": {
+  en:{d:"Judging the strength of an argument by how believable its conclusion is, rather than by how well it is reasoned.",
+      x:"A research readout reaching a conclusion the team already likes gets little scrutiny of its method, while one with an unwelcome conclusion is questioned in detail. Review methods equally for both."},
+  es:{d:"Juzgar la solidez de un argumento por qué tan creíble es su conclusión y no por qué tan bien está razonado.",
+      x:"Un informe de investigación con una conclusión que al equipo ya le gusta recibe poca revisión de su método, mientras que uno con una conclusión incómoda se cuestiona en detalle. Revisa el método por igual en ambos casos."}},
+ "Rhyme as reason effect": {
+  en:{d:"Statements that rhyme are perceived as more truthful and convincing.",
+      x:"Catchy slogans in design principles stick, but that doesn’t make them correct. Make sure a memorable principle is also backed by evidence."},
+  es:{d:"Las frases que riman se perciben como más verdaderas y convincentes.",
+      x:"Los eslóganes pegadizos en los principios de diseño se recuerdan, pero eso no los hace correctos. Asegúrate de que un principio memorable también esté respaldado por evidencia."}},
+ "Bike-shedding effect": {
+  en:{d:"Spending disproportionate time on trivial, easy-to-understand issues while complex, important ones get little attention. It is the same idea as the law of triviality.",
+      x:"A design review spends half an hour debating the shade of a button and five minutes on the checkout flow. A clear agenda that puts critical decisions first helps."},
+  es:{d:"Dedicar un tiempo desproporcionado a temas triviales y fáciles de entender, mientras los complejos e importantes reciben poca atención. Es la misma idea que la ley de la trivialidad.",
+      x:"Una revisión de diseño pasa media hora debatiendo el tono de un botón y cinco minutos el flujo de checkout. Una agenda clara que ponga primero las decisiones críticas ayuda."}},
+ "Law of Triviality": {
+  en:{d:"C. Northcote Parkinson’s observation that groups give disproportionate weight to trivial issues. It is the origin of “bike-shedding”.",
+      x:"Stakeholders who can’t evaluate a complex information architecture all have opinions about the logo size. Bring the questions you need answered and guide feedback toward them."},
+  es:{d:"La observación de C. Northcote Parkinson de que los grupos dan un peso desproporcionado a los temas triviales. Es el origen del término “bike-shedding”.",
+      x:"Los stakeholders que no pueden evaluar una arquitectura de información compleja tienen todos una opinión sobre el tamaño del logo. Lleva las preguntas que necesitas responder y orienta el feedback hacia ellas."}},
+ "Delmore effect": {
+  en:{d:"Setting clearer, more detailed goals for less important activities than for important ones, because big goals feel harder to define.",
+      x:"A team has a precise plan for refreshing icons, but only a vague goal to “improve onboarding”. Breaking the important goal into measurable outcomes makes it actionable."},
+  es:{d:"Fijar metas más claras y detalladas para las actividades menos importantes que para las importantes, porque las grandes metas se sienten más difíciles de definir.",
+      x:"Un equipo tiene un plan preciso para renovar los iconos, pero solo una meta vaga de “mejorar el onboarding”. Dividir la meta importante en resultados medibles la vuelve accionable."}},
+ "Conjunction fallacy": {
+  en:{d:"Judging a specific combination of conditions as more likely than one of those conditions alone.",
+      x:"A highly detailed persona, such as a busy parent who works remotely and shops at night, feels more realistic than “a busy parent”, though it describes fewer people. Detail adds empathy, not likelihood."},
+  es:{d:"Juzgar una combinación específica de condiciones como más probable que una de esas condiciones por sí sola.",
+      x:"Una persona muy detallada, como una madre ocupada que trabaja remoto y compra de noche, parece más realista que “una madre ocupada”, aunque describe a menos personas. El detalle aporta empatía, no probabilidad."}},
+ "Occam's razor": {
+  en:{d:"A problem-solving principle: prefer the explanation with the fewest assumptions. As a bias, it means accepting the simplest explanation even when the evidence points to a more complex one.",
+      x:"“Users abandon the cart because shipping is expensive” is a simple explanation, but research may show several causes at once. Use simple hypotheses as a start, not a conclusion."},
+  es:{d:"Un principio para resolver problemas: preferir la explicación con menos supuestos. Como sesgo, implica aceptar la explicación más simple aunque la evidencia apunte a una más compleja.",
+      x:"“Los usuarios abandonan el carrito porque el envío es caro” es una explicación simple, pero la investigación puede mostrar varias causas a la vez. Usa las hipótesis simples como punto de partida, no como conclusión."}},
+ "Less-is-better effect": {
+  en:{d:"When options are judged separately, a smaller or cheaper set can be preferred over a larger one, because it looks better on its own.",
+      x:"A plan with five well-chosen features can be rated higher than a plan with those five plus several weak extras, when users see each plan alone. Focused offers can feel more valuable."},
+  es:{d:"Cuando las opciones se juzgan por separado, un conjunto más pequeño o barato puede preferirse a uno mayor, porque se ve mejor por sí solo.",
+      x:"Un plan con cinco funciones bien elegidas puede valorarse más que uno con esas cinco y varios extras débiles, cuando el usuario ve cada plan por separado. Las ofertas enfocadas pueden sentirse más valiosas."}}
+});
+
+const COLORS = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)'];
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DUR = REDUCED ? 0 : 650;
+const R = {cat:155, ringIn:127, sub:215, leaf:310};
+
+let lang = 'en';
+try { const s = localStorage.getItem('codex-lang'); if(s === 'es' || s === 'en') lang = s; } catch(e){}
+const t = (k, ...a) => { const v = T[lang][k]; return typeof v === 'function' ? v(...a) : v; };
+const root = d3.hierarchy(DATA);
+const byId = new Map();
+root.descendants().forEach((d,i) => {
+  d.uid = i; byId.set(i, d);
+  d.en = d.depth === 1 ? d.data.name.replace(/^\d+\.\s*/, '') : d.data.name;
+  d.es = (d.depth === 1 ? ES_CATS : d.depth === 2 ? ES_STMT : ES_BIAS)[d.data.name] || d.en;
+  Object.defineProperty(d, 'label', {get(){ return lang === 'es' ? this.es : this.en; }});
+});
+root.children.forEach((c,i) => c.each(n => { n.cat = i; n.color = COLORS[i]; }));
+d3.cluster().size([2*Math.PI, 1])
+  .separation((a,b) => a.parent === b.parent ? 1 : (a.parent.parent === b.parent.parent ? 2.4 : 4.5))(root);
+root.each(d => d.r = [0, R.cat, R.sub, R.leaf][d.depth]);
+
+const leaves = root.leaves();
+const cats = root.children;
+const subs = root.descendants().filter(d => d.depth === 2);
+
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pt = (a, r) => [r*Math.sin(a), -r*Math.cos(a)];
+
+const svg = d3.select('#chart');
+const gz = svg.append('g');
+const zoom = d3.zoom().scaleExtent([0.8, 8]).on('zoom', e => gz.attr('transform', e.transform));
+svg.call(zoom).on('dblclick.zoom', null);
+
+const radial = d3.linkRadial().angle(d => d.x).radius(d => d.r);
+
+// Links: category to pattern, pattern to bias
+const links = root.links().filter(l => l.source.depth >= 1);
+const linkSel = gz.append('g').selectAll('path').data(links).join('path')
+  .attr('class','link').attr('d', radial).attr('stroke', d => d.target.color);
+
+// Category ring
+const gap = 0.012;
+cats.forEach(c => {
+  const ls = c.leaves();
+  c.a0 = d3.min(ls, l => l.x) - 0.02 + gap;
+  c.a1 = d3.max(ls, l => l.x) + 0.02 - gap;
+});
+const ringArc = d3.arc().innerRadius(R.ringIn).outerRadius(R.cat).startAngle(d => d.a0).endAngle(d => d.a1).cornerRadius(4);
+function labelPath(c){
+  const r = (R.ringIn + R.cat)/2, mid = (c.a0 + c.a1)/2;
+  const bottom = mid > Math.PI/2 && mid < 3*Math.PI/2;
+  const large = (c.a1 - c.a0) > Math.PI ? 1 : 0;
+  const [x0,y0] = pt(c.a0, r), [x1,y1] = pt(c.a1, r);
+  return bottom ? `M${x1},${y1} A${r},${r} 0 ${large} 0 ${x0},${y0}` : `M${x0},${y0} A${r},${r} 0 ${large} 1 ${x1},${y1}`;
+}
+const segSel = gz.append('g').selectAll('g').data(cats).join('g').attr('class','seg')
+  .attr('tabindex',0).attr('role','button').attr('aria-label', d => d.label)
+  .on('click', (e,d) => select(d))
+  .on('keydown', (e,d) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(d); }});
+segSel.append('path').attr('d', ringArc).attr('fill', d => d.color);
+segSel.append('path').attr('id', d => 'lp' + d.uid).attr('d', labelPath).attr('fill','none');
+segSel.append('text').attr('dy','0.35em').append('textPath')
+  .attr('href', d => '#lp' + d.uid).attr('startOffset','50%').attr('text-anchor','middle').text(d => d.label);
+
+
+// Center
+const core = gz.append('g').attr('class','core').on('click', () => select(root));
+core.append('circle').attr('r', 112);
+const core1 = core.append('text').attr('y',-14).attr('font-size',19).attr('font-weight',780);
+const core2 = core.append('text').attr('y',8).attr('font-size',19).attr('font-weight',780);
+const core3 = core.append('text').attr('y',32).attr('font-size',11).attr('font-weight',500).attr('fill','var(--muted)');
+
+// Pattern dots
+const tip = document.getElementById('tip');
+const stage = document.getElementById('stage');
+function showTip(e, text){
+  const b = stage.getBoundingClientRect();
+  tip.textContent = text;
+  tip.classList.add('on');
+  const x = Math.min(e.clientX - b.left + 14, b.width - 270);
+  tip.style.left = Math.max(8, x) + 'px';
+  tip.style.top = (e.clientY - b.top + 14) + 'px';
+}
+const hideTip = () => tip.classList.remove('on');
+
+const subSel = gz.append('g').selectAll('g').data(subs).join('g').attr('class','sub')
+  .attr('transform', d => { const [x,y] = pt(d.x, d.r); return `translate(${x},${y})`; })
+  .attr('tabindex',0).attr('role','button').attr('aria-label', d => d.label)
+  .on('mouseenter', (e,d) => { setHot(d); showTip(e, d.label); })
+  .on('mousemove', (e,d) => showTip(e, d.label))
+  .on('mouseleave', () => { setHot(null); hideTip(); })
+  .on('click', (e,d) => { hideTip(); select(d); })
+  .on('keydown', (e,d) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(d); }});
+subSel.append('circle').attr('r', 6).attr('fill', d => d.color);
+
+// Outer wheel with pattern statements, as in the original codex
+const RO = 505;
+gz.insert('circle', ':first-child').attr('class','wheel').attr('r', RO);
+const stmtSel = gz.append('g').selectAll('g').data(subs).join('g').attr('class','stmt')
+  .attr('tabindex',0).attr('role','button')
+  .on('mouseenter', (e,d) => setHot(d))
+  .on('mouseleave', () => setHot(null))
+  .on('click', (e,d) => select(d))
+  .on('keydown', (e,d) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(d); }});
+stmtSel.append('circle').attr('class','odot').attr('r', 6).attr('fill', d => d.color)
+  .attr('cx', d => pt(d.x, RO)[0]).attr('cy', d => pt(d.x, RO)[1]);
+const stmtText = stmtSel.append('text');
+
+function wrap(s, max){
+  const words = s.replace(/\//g, '/ ').split(' ').filter(Boolean);
+  const lines = []; let cur = '';
+  words.forEach(w => {
+    const next = cur ? cur + ' ' + w : w;
+    if(next.length > max && cur){ lines.push(cur); cur = w; } else cur = next;
+  });
+  if(cur) lines.push(cur);
+  return lines.map(l => l.replace(/\/ /g, '/'));
+}
+function layoutStatements(){
+  const LH = 13.5, GAP = 7, MAXY = 575;
+  const items = subs.map(d => {
+    const [x,y] = pt(d.x, RO);
+    const lines = wrap(d.label, lang === 'es' ? 34 : 30);
+    const hgt = lines.length * LH;
+    const c = Math.cos(d.x);
+    // near the top, text sits above its dot; near the bottom, below it; on the sides, centered on it
+    const ty = c > 0.6 ? y - hgt - 2 : c < -0.6 ? y + 4 : y - hgt/2;
+    return {d, x, y, lines, hgt, ty, right: Math.sin(d.x) >= 0};
+  });
+  [true,false].forEach(side => {
+    const g = items.filter(i => i.right === side).sort((a,b) => a.ty - b.ty);
+    for(let k = 1; k < g.length; k++) g[k].ty = Math.max(g[k].ty, g[k-1].ty + g[k-1].hgt + GAP);
+    if(g.length){ const last = g[g.length-1]; if(last.ty + last.hgt > MAXY) last.ty = MAXY - last.hgt; }
+    for(let k = g.length - 2; k >= 0; k--) g[k].ty = Math.min(g[k].ty, g[k+1].ty - g[k].hgt - GAP);
+  });
+  const byNode = new Map(items.map(i => [i.d, i]));
+  stmtText.each(function(d){
+    const i = byNode.get(d), tx = i.x + (i.right ? 12 : -12);
+    d3.select(this).attr('text-anchor', i.right ? 'start' : 'end')
+      .selectAll('tspan').data(i.lines).join('tspan')
+      .attr('x', tx).attr('y', (l,k) => i.ty + (k+1)*LH - 3.5).text(l => l);
+  });
+  stmtSel.attr('aria-label', d => d.label);
+}
+
+// Bias leaves
+const leafSel = gz.append('g').selectAll('g').data(leaves).join('g').attr('class','leaf')
+  .attr('transform', d => `rotate(${d.x*180/Math.PI - 90}) translate(${d.r},0)`)
+  .style('animation-delay', d => (d.x/(2*Math.PI))*700 + 'ms')
+  .on('mouseenter', (e,d) => setHot(d))
+  .on('mouseleave', () => setHot(null))
+  .on('click', (e,d) => select(d));
+leafSel.append('circle').attr('r', 2.3).attr('fill', d => d.color);
+leafSel.append('text').attr('dy','0.32em')
+  .attr('x', d => d.x < Math.PI ? 6 : -6)
+  .attr('text-anchor', d => d.x < Math.PI ? 'start' : 'end')
+  .attr('transform', d => d.x >= Math.PI ? 'rotate(180)' : null)
+  .text(d => d.label);
+const leafTitle = leafSel.append('title');
+
+// State
+const state = {focus:null, query:''};
+
+function activeSet(){
+  if(state.query){
+    const q = norm(state.query);
+    return new Set(leaves.filter(l => norm(l.en).includes(q) || norm(l.es).includes(q)));
+  }
+  if(!state.focus) return null;
+  if(state.focus.depth === 3) return new Set(state.focus.parent.leaves());
+  return new Set(state.focus.leaves());
+}
+function update(){
+  const act = activeSet();
+  const has = n => !act || n.leaves().some(l => act.has(l));
+  leafSel.classed('dim', d => act && !act.has(d)).classed('sel', d => state.focus === d);
+  linkSel.classed('dim', d => !has(d.target));
+  subSel.classed('dim', d => !has(d)).classed('sel', d => state.focus === d);
+  segSel.classed('dim', d => !has(d));
+  stmtSel.classed('dim', d => !has(d)).classed('sel', d => state.focus === d || (state.focus && state.focus.parent === d));
+}
+function setHot(node){
+  const hot = node ? new Set([...node.ancestors(), ...node.descendants()]) : null;
+  linkSel.classed('hot', d => hot && hot.has(d.target) && hot.has(d.source));
+  leafSel.classed('hot', d => node === d);
+}
+function zoomTo(node){
+  let t = d3.zoomIdentity;
+  if(node && node !== root){
+    const k = {1:1.45, 2:2.1, 3:2.7}[node.depth];
+    const rr = node.depth === 3 ? node.r + 55 : node.depth === 2 ? 380 : 300;
+    const [px,py] = pt(node.x, rr);
+    t = d3.zoomIdentity.translate(-k*px, -k*py).scale(k);
+  }
+  svg.transition().duration(DUR).call(zoom.transform, t);
+}
+
+const qInput = document.getElementById('q');
+const detail = document.getElementById('detail');
+const panel = document.getElementById('panel');
+
+function select(node){
+  state.focus = (!node || node === root) ? null : node;
+  state.query = '';
+  qInput.value = '';
+  update(); renderPanel(); zoomTo(node);
+  if(window.innerWidth <= 820) detail.scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block:'start'});
+  else panel.scrollTop = 0;
+}
+
+function crumbs(node){
+  const chain = node.ancestors().reverse().slice(0, -1);
+  return `<nav class="crumbs" aria-label="${t('path')}">${chain.map(n =>
+    `<button data-uid="${n.uid}">${esc(n.depth === 0 ? t('all') : (n.depth === 2 ? shortStmt(n.label) : n.label))}</button><span aria-hidden="true">/</span>`).join('')}</nav>`;
+}
+function shortStmt(s){ return s.length > 38 ? s.slice(0, 36).trim() + '…' : s; }
+
+function info(f){
+  const i = INFO[f.data.name];
+  if(!i) return '';
+  const v = i[lang];
+  return `<section class="about"><h3>${t('whatIs')}<span class="info"><button type="button" class="info-btn" aria-label="${t('aiLabel')}" aria-describedby="ai-tip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="7.2" r="0.6"/></svg></button><span role="tooltip" id="ai-tip" class="info-tip">${t('aiNote')}</span></span></h3><p>${esc(v.d)}</p></section>
+    <section class="example"><h3><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M8 13h5M8 16h8"/></svg>${t('example')}</h3><p>${esc(v.x)}</p></section>`;
+}
+function renderPanel(){
+  let h = '';
+  if(state.query){
+    const act = [...activeSet()];
+    h = `<h2>${act.length ? t('matches', act.length) : t('noMatch')}</h2>`;
+    h += act.length
+      ? `<ul class="list" style="margin-top:12px">${act.map(l =>
+          `<li><button class="item" data-uid="${l.uid}">${esc(l.label)}<small>${esc(l.parent.parent.label)}</small></button></li>`).join('')}</ul>`
+      : `<p class="muted" style="margin-top:8px">${t('noMatchHelp')}</p>`;
+  } else if(!state.focus){
+    h = `<p>${t('intro', leaves.length)}</p>
+      <div class="cats" style="margin-top:16px">${cats.map(c =>
+        `<button class="cat-btn" style="--cc:${c.color}" data-uid="${c.uid}"><strong>${esc(c.label)}</strong><span>${t('patterns', c.children.length)}, ${t('biases', c.leaves().length)}</span></button>`).join('')}</div>
+      <div class="actions" style="margin-top:16px"><button class="btn" data-action="random">${t('random')}</button></div>`;
+  } else {
+    const f = state.focus;
+    const cc = `style="--cc:${f.color}"`;
+    h = crumbs(f);
+    if(f.depth === 1){
+      h += `<h2 class="big" style="margin-top:10px">${esc(f.label)}</h2>
+        <p class="muted" style="margin-top:6px">${t('patterns', f.children.length)}, ${t('biases', f.leaves().length)}</p>
+        <ul class="list" style="margin-top:14px">${f.children.map(s =>
+          `<li><button class="item" data-uid="${s.uid}"><span class="count">${s.children.length}</span>${esc(s.label)}</button></li>`).join('')}</ul>`;
+    } else if(f.depth === 2){
+      h += `<div ${cc} style="margin-top:12px">
+        <h2 class="statement" ${cc}>${esc(f.label)}</h2></div>
+        <p class="muted small" style="margin-top:14px">${t('inPattern', f.children.length)}</p>
+        <ul class="list" style="margin-top:6px">${f.children.map(l =>
+          `<li><button class="item" data-uid="${l.uid}">${esc(l.label)}</button></li>`).join('')}</ul>`;
+    } else {
+      const sib = f.parent.children;
+      const url = `https://${lang}.wikipedia.org/wiki/Special:Search?search=` + encodeURIComponent(f.label);
+      h += `<div ${cc} style="margin-top:12px">
+        <h2 class="big">${esc(f.label)}</h2>
+        <p class="statement" ${cc} style="margin-top:12px">${esc(f.parent.label)}</p></div>
+        ${info(f)}
+        <div class="actions" style="margin-top:16px">
+          <a class="ext" href="${url}" target="_blank" rel="noopener">${t('wiki')}</a>
+        </div>
+        <div class="actions" style="margin-top:14px"><button class="btn ghost" data-action="random">${t('another')}</button></div>
+        <details class="acc" style="margin-top:18px" ${state.sameOpen ? 'open' : ''}><summary><span>${t('same')}</span><span class="acc-count">${sib.length}</span><svg class="acc-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <ul class="list" style="margin-top:8px">${sib.map(l =>
+          `<li><button class="item${l === f ? ' current' : ''}" data-uid="${l.uid}" ${l === f ? 'aria-current="true"' : ''}>${esc(l.label)}</button></li>`).join('')}</ul></details>`;
+    }
+  }
+  detail.innerHTML = h;
+}
+
+detail.addEventListener('click', e => {
+  const b = e.target.closest('[data-uid],[data-action]');
+  if(!b) return;
+  if(b.dataset.action === 'random'){ select(leaves[Math.floor(Math.random()*leaves.length)]); return; }
+  select(byId.get(+b.dataset.uid));
+});
+// remember the accordion's open state while moving between biases (closed on first load)
+detail.addEventListener('toggle', e => { if(e.target.matches('details.acc')) state.sameOpen = e.target.open; }, true);
+qInput.addEventListener('input', () => {
+  state.query = qInput.value.trim();
+  if(state.query && state.focus){ state.focus = null; zoomTo(root); }
+  update(); renderPanel();
+});
+qInput.addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ const act = activeSet(); if(act && act.size === 1) select([...act][0]); }
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') select(root); });
+document.getElementById('zin').onclick = () => svg.transition().duration(DUR/2).call(zoom.scaleBy, 1.4);
+document.getElementById('zout').onclick = () => svg.transition().duration(DUR/2).call(zoom.scaleBy, 1/1.4);
+document.getElementById('zreset').onclick = () => select(root);
+
+function applyLang(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-label]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nLabel)); el.title = t(el.dataset.i18nLabel); });
+  qInput.placeholder = t('placeholder');
+  document.getElementById('zin').setAttribute('aria-label', t('zin'));
+  document.getElementById('zout').setAttribute('aria-label', t('zout'));
+  document.getElementById('langGroup').setAttribute('aria-label', t('language'));
+  document.getElementById('themeGroup').setAttribute('aria-label', t('theme'));
+  svg.attr('aria-label', t('chart'));
+  document.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  leafSel.select('text').text(d => d.label);
+  leafTitle.text(d => `${d.label}\n${d.parent.label}`);
+  subSel.attr('aria-label', d => d.label);
+  segSel.attr('aria-label', d => d.label);
+  segSel.select('textPath').text(d => d.label);
+  segSel.select('text').style('font-size', d => Math.min(10.5, ((d.a1 - d.a0) * (R.ringIn + R.cat) / 2 - 10) / (d.label.length * 0.6)) + 'px');
+  layoutStatements();
+  core1.text(t('core1')); core2.text(t('core2')); core3.text(t('core3', leaves.length, subs.length));
+  renderPanel();
+}
+function setTheme(th){
+  document.documentElement.dataset.theme = th;
+  document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeBtn === th));
+  try { localStorage.setItem('codex-theme', th); } catch(e){}
+}
+document.getElementById('langGroup').addEventListener('click', e => {
+  const b = e.target.closest('[data-lang]'); if(!b) return;
+  lang = b.dataset.lang;
+  try { localStorage.setItem('codex-lang', lang); } catch(e){}
+  applyLang();
+});
+document.getElementById('themeGroup').addEventListener('click', e => {
+  const b = e.target.closest('[data-theme-btn]'); if(b) setTheme(b.dataset.themeBtn);
+});
+let theme = 'light';
+try { const s = localStorage.getItem('codex-theme'); if(s === 'dark' || s === 'light') theme = s; } catch(e){}
+setTheme(theme);
+update(); applyLang();
+</script>
+</body>
+</html>
