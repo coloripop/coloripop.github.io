@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cognitive Bias Codex, interactive / Códice de sesgos cognitivos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Outfit:wght@300..600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --ink:#1A2230; --muted:#5A6577; --line:#C9D0DA; --hover:#E6EAF0;
+  --c1:#1F7A78; --c2:#3A5BA0; --c3:#5E7A1E; --c4:#7A5578; --on-c:#FFFFFF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131922; --surface:#1B2330; --ink:#E4E9F0; --muted:#97A3B4; --line:#334052; --hover:#253043;
+    --c1:#4DB3AF; --c2:#7F9BE0; --c3:#9DBE52; --c4:#C094BC; --on-c:#0F151D;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131922; --surface:#1B2330; --ink:#E4E9F0; --muted:#97A3B4; --line:#334052; --hover:#253043;
+  --c1:#4DB3AF; --c2:#7F9BE0; --c3:#9DBE52; --c4:#C094BC; --on-c:#0F151D;
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.5}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 370px;height:100%}
+.stage{position:relative;min-height:0;overflow:hidden}
+#chart{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#chart:active{cursor:grabbing}
+.panel{background:var(--surface);border-left:1px solid var(--line);overflow-y:auto;padding:28px 24px 32px;display:flex;flex-direction:column;gap:22px;min-height:0}
+h1,h2,h3{font-family:'Bricolage Grotesque','Atkinson Hyperlegible',system-ui,sans-serif;margin:0;letter-spacing:-0.012em}
+h1{font-size:30px;line-height:1.05;font-weight:780}
+h2{font-size:23px;line-height:1.2;font-weight:700}
+h2.big{font-size:32px;line-height:1.08;font-weight:780}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.search{position:relative}
+.search input{width:100%;font:inherit;font-size:15px;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.search input:focus{outline:none;border-color:var(--ink)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--ink);outline-offset:2px}
+.cats{display:flex;flex-direction:column;gap:8px}
+.cat-btn{display:block;width:100%;text-align:left;background:transparent;border:1px solid var(--line);border-left:7px solid var(--cc);border-radius:10px;padding:11px 14px}
+.cat-btn:hover{background:var(--hover)}
+.cat-btn strong{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:17px;font-weight:700}
+.cat-btn span{font-size:13px;color:var(--muted)}
+.crumbs{display:flex;flex-wrap:wrap;gap:4px 6px;font-size:13px;color:var(--muted)}
+.crumbs button{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.crumbs button:hover{color:var(--ink)}
+.statement{border-left:4px solid var(--cc);padding:2px 0 2px 12px;color:var(--ink)}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--cc)}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.item{display:block;width:100%;text-align:left;background:none;border:0;border-radius:7px;padding:7px 10px}
+.item:hover{background:var(--hover)}
+.item.current{background:var(--hover);font-weight:700}
+.item small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+.item .count{float:right;color:var(--muted);font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1.5px solid var(--ink);background:var(--ink);color:var(--surface);border-radius:999px;padding:8px 16px;font-weight:700;font-size:14px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+a.ext{color:var(--ink);font-weight:700;text-underline-offset:3px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+.seg-ctl{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--bg)}
+.seg-ctl button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--muted)}
+.seg-ctl button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.credit{margin-top:auto;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.tools{position:absolute;top:14px;right:14px;display:flex;gap:6px}
+.tools button{min-width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:18px;font-weight:700;padding:0 12px}
+.tools button.text{font-size:13px}
+.tools button:hover{border-color:var(--ink)}
+.hint{position:absolute;left:12px;bottom:12px;font-size:12.5px;color:var(--muted);pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.tip{position:absolute;pointer-events:none;max-width:260px;background:var(--ink);color:var(--surface);font-size:13px;line-height:1.4;padding:8px 11px;border-radius:8px;opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+
+/* SVG */
+.link{fill:none;stroke-width:1;stroke-opacity:.42;transition:stroke-opacity .2s,stroke-width .2s}
+.link.dim{stroke-opacity:.06}
+.link.hot{stroke-opacity:1;stroke-width:1.9}
+.leaf{cursor:pointer;transition:opacity .2s;animation:sweep .5s ease-out backwards}
+.leaf text{font-size:8.6px;fill:var(--ink)}
+.leaf.dim{opacity:.13}
+.leaf.hot text,.leaf.sel text{font-weight:700}
+.leaf.sel text{font-size:10.5px}
+.leaf.sel circle{r:3.6}
+.sub circle{cursor:pointer;stroke:var(--surface);stroke-width:1.5;transition:opacity .2s}
+.sub.dim{opacity:.18}
+.sub.sel circle{stroke:var(--ink);stroke-width:2}
+.sub:focus,.seg:focus{outline:none}
+.sub:focus-visible circle{stroke:var(--ink);stroke-width:3}
+.seg:focus-visible path:first-child{stroke:var(--ink);stroke-width:3}
+.seg{cursor:pointer;transition:opacity .2s}
+.seg.dim{opacity:.28}
+.seg text{fill:var(--on-c);font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:700;font-size:10.5px;pointer-events:none}
+.wheel{fill:none;stroke:var(--line);stroke-width:1.3}
+.stmt{cursor:pointer;transition:opacity .2s}
+.stmt text{font-size:11px;fill:var(--ink)}
+.stmt .odot{stroke:var(--surface);stroke-width:2}
+.stmt:hover text,.stmt.sel text{font-weight:700}
+.stmt.dim{opacity:.22}
+.stmt:focus{outline:none}
+.stmt:focus-visible text{text-decoration:underline}
+.core{cursor:pointer}
+.core circle{fill:var(--surface);stroke:var(--line)}
+.core text{fill:var(--ink);text-anchor:middle;font-family:'Bricolage Grotesque',system-ui,sans-serif}
+@keyframes sweep{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  .leaf{animation:none}
+  .link,.leaf,.sub circle,.seg,.tip{transition:none}
+}
+@media (max-width:820px){
+  body{height:auto}
+  .app{grid-template-columns:1fr;height:auto}
+  .stage{height:64vh;min-height:360px}
+  .panel{border-left:0;border-top:1px solid var(--line);overflow:visible}
+  .hint{display:none}
+}
+
+/* ===== UI skin: soft card style (interface only, graphic untouched) ===== */
+:root[data-theme="light"]{
+  --bg:#ECEDF0; --hover:#F2F3F6; --ui-muted:#6E7480;
+  --card:#FFFFFF;
+  --wash:radial-gradient(120% 60% at 95% 0%, rgba(178,238,247,.55), transparent 55%), radial-gradient(90% 50% at 100% 70%, rgba(222,210,255,.40), transparent 60%);
+  --card-shadow:0 40px 70px -30px rgba(28,36,64,.22), 0 2px 8px rgba(28,36,64,.04);
+  --pill-bg:linear-gradient(180deg,#FFFFFF 0%,#F7F8FA 100%);
+  --pill-shadow:inset 0 1px 0 #FFFFFF, inset 0 -3px 8px rgba(24,32,60,.035), 0 10px 22px -12px rgba(28,36,64,.22), 0 0 0 1px rgba(24,32,60,.045);
+  --track:#F1F2F5;
+}
+:root[data-theme="dark"]{
+  --bg:#0F1217; --hover:#222833; --ui-muted:#8B93A1;
+  --card:#181D25;
+  --wash:radial-gradient(120% 60% at 95% 0%, rgba(77,179,190,.16), transparent 55%), radial-gradient(90% 50% at 100% 70%, rgba(150,120,255,.14), transparent 60%);
+  --card-shadow:0 40px 70px -30px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+  --pill-bg:linear-gradient(180deg,#232A35 0%,#1D232C 100%);
+  --pill-shadow:inset 0 1px 0 rgba(255,255,255,.06), inset 0 -3px 8px rgba(0,0,0,.25), 0 10px 22px -12px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05);
+  --track:#12161C;
+}
+:root{ --accent:radial-gradient(circle at 28% 25%, #C08BFF 0%, #8B6CF7 45%, #4F9DFF 100%); --ring:#7B6CF6; }
+
+.panel,.tools,.hint,.tip{font-family:'Outfit','Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif}
+.app{grid-template-columns:minmax(0,1fr) 410px}
+.panel{
+  --muted:var(--ui-muted);
+  margin:16px 16px 16px 0;border:0;border-radius:40px;
+  background:var(--wash),var(--card);box-shadow:var(--card-shadow);
+  padding:30px 28px 28px;gap:24px;font-weight:400;
+}
+.panel h1{font-family:inherit;font-weight:500;font-size:34px;line-height:1.05;letter-spacing:-0.025em}
+.panel h2{font-family:inherit;font-weight:500;font-size:19px;line-height:1.3;letter-spacing:-0.01em}
+.panel h2.big{font-weight:600;font-size:24px;line-height:1.2;letter-spacing:-0.015em;margin:6px 0 4px}
+.panel .small{font-size:14px}
+:focus-visible{outline:2.5px solid var(--ring);outline-offset:3px}
+
+/* segmented controls */
+.seg-ctl{background:var(--track);border:0;padding:4px;box-shadow:inset 0 1px 3px rgba(24,32,60,.06)}
+.seg-ctl button{font-weight:500;font-size:14px;padding:7px 15px;color:var(--muted)}
+.seg-ctl button[aria-pressed="true"]{background:var(--pill-bg);box-shadow:var(--pill-shadow);color:var(--ink)}
+
+/* search */
+.field{position:relative}
+.field-icon{position:absolute;left:18px;top:50%;width:20px;height:20px;transform:translateY(-50%);fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.search label{font-size:15px}
+.search input{height:54px;padding:0 20px 0 50px;border:0;border-radius:999px;background:var(--pill-bg);box-shadow:var(--pill-shadow);font-family:inherit;font-size:16px}
+.search input::placeholder{color:var(--muted)}
+.search input:focus{box-shadow:var(--pill-shadow),0 0 0 2.5px var(--ring)}
+
+/* problem cards: soft pills with a tinted tile */
+.cats{gap:12px}
+.cat-btn{display:grid;grid-template-columns:46px 1fr;column-gap:14px;align-items:center;border:0;border-radius:24px;padding:12px 16px 12px 12px;background:var(--pill-bg);box-shadow:var(--pill-shadow)}
+.cat-btn::before{content:'';grid-row:1 / 3;width:46px;height:46px;border-radius:15px;
+  background:radial-gradient(circle, var(--cc) 0 6px, transparent 6.5px), color-mix(in srgb, var(--cc) 13%, var(--card))}
+.cat-btn:hover{background:var(--pill-bg);transform:translateY(-1px)}
+.cat-btn strong{font-family:inherit;font-weight:500;font-size:17px}
+.cat-btn span{font-size:14px}
+
+/* buttons */
+.btn{border:0;background:var(--accent);color:#fff;font-weight:500;font-size:15px;padding:12px 22px;box-shadow:0 14px 26px -12px rgba(123,108,246,.7)}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:var(--pill-bg);color:var(--ink);box-shadow:var(--pill-shadow)}
+.btn.ghost:hover{border-color:transparent}
+a.ext{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:999px;background:var(--pill-bg);box-shadow:var(--pill-shadow);text-decoration:none;font-weight:500}
+
+/* lists, crumbs, statement */
+.item{border-radius:16px;padding:9px 14px;font-size:15px}
+.item.current{background:var(--pill-bg);box-shadow:var(--pill-shadow);font-weight:500}
+.item small{font-size:13px}
+.crumbs{font-size:13px;gap:2px 6px;line-height:1.4}
+.crumbs button{text-decoration:none;padding:0;background:none;color:var(--muted)}
+.crumbs button:hover{color:var(--ink);text-decoration:underline}
+.statement{border-left-width:3px;border-radius:2px;padding-left:14px}
+.panel p.statement{font-size:15.5px;line-height:1.45;color:color-mix(in srgb, var(--ink) 78%, var(--card))}
+.seg-ctl.icons button{width:42px;height:34px;padding:0;display:grid;place-items:center}
+.seg-ctl.icons svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.credit{border-top:0;padding-top:0;font-size:12.5px;line-height:1.5}
+
+/* stage controls */
+.tools{top:18px;right:18px;gap:10px}
+.tools button{min-width:48px;height:48px;border:0;border-radius:999px;background:var(--wash),var(--card);box-shadow:var(--pill-shadow);font-size:20px;font-weight:400;padding:0 16px}
+.tools button.text{font-size:14px;font-weight:500}
+.tools button:hover{border-color:transparent;transform:translateY(-1px)}
+.hint{left:18px;bottom:18px;border:0;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;max-width:calc(100% - 36px);padding:6px 12px 6px 10px;font-size:12px;font-weight:500;line-height:1.2;
+  background:color-mix(in srgb, var(--card) 78%, transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:var(--pill-shadow)}
+.hint svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hint span{overflow:hidden;text-overflow:ellipsis}
+.x-unused{
+  background:color-mix(in srgb, var(--card) 78%, transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:var(--pill-shadow)}
+.tip{background:color-mix(in srgb, var(--card) 92%, transparent);color:var(--ink);border-radius:16px;padding:10px 14px;font-size:13.5px;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:var(--card-shadow)}
+.cat-btn,.tools button{transition:transform .15s}
+@media (prefers-reduced-motion: reduce){.cat-btn,.tools button{transition:none}.cat-btn:hover,.tools button:hover{transform:none}}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .panel{margin:0 12px 12px;border-radius:32px;border-top:0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="stage" id="stage">
+    <svg id="chart" viewBox="-735 -590 1470 1180" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Radial map of cognitive biases grouped into four problems and twenty patterns"></svg>
+    <div class="tools">
+      <button id="zin" aria-label="Zoom in">+</button>
+      <button id="zout" aria-label="Zoom out">−</button>
+      <button id="zreset" class="text" data-i18n="reset">Reset view</button>
+    </div>
+    <div class="hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/></svg><span data-i18n="hint">Drag to move, scroll or pinch to zoom</span></div>
+    <div class="tip" id="tip" role="tooltip"></div>
+  </div>
+  <aside class="panel" id="panel">
+    <div class="controls">
+      <div class="seg-ctl" role="group" id="langGroup" aria-label="Language">
+        <button data-lang="en" lang="en">English</button><button data-lang="es" lang="es">Español</button>
+      </div>
+      <div class="seg-ctl icons" role="group" id="themeGroup" aria-label="Theme">
+        <button data-theme-btn="light" data-i18n-label="light" aria-label="Light" title="Light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button><button data-theme-btn="dark" data-i18n-label="dark" aria-label="Dark" title="Dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.3 8.3 0 0 1 9.4 4a8.3 8.3 0 1 0 10.6 10.6Z"/></svg></button>
+      </div>
+    </div>
+    <h1 data-i18n="title">Cognitive bias codex</h1>
+    <div class="search">
+      <label for="q" class="small muted" style="display:block;margin-bottom:6px" data-i18n="find">Find a bias</label>
+      <div class="field">
+        <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        <input id="q" type="search" placeholder="Try anchoring, halo, sunk cost" autocomplete="off">
+      </div>
+    </div>
+    <div id="detail"></div>
+    <p class="credit" data-i18n="credit">Bias list and categories from the Cognitive Bias Codex (2016): concept and categorization by Buster Benson, layout and design by John Manoogian III, research by Wikipedia contributors. Original licensed CC BY-SA 4.0. This is an independent interactive rendering of that data.</p>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const RAW = [
+ ["1. Too Much Information", [
+  ["We notice things already primed in memory or repeated often.", ["Availability heuristic","Attentional bias","Illusory truth effect","Mere exposure effect","Context effect","Cue-dependent forgetting","Mood-congruent memory bias","Frequency illusion","Baader-Meinhof Phenomenon","Empathy gap","Omission bias","Base rate fallacy"]],
+  ["Bizarre/funny/visually-striking/anthropomorphic things stick out more than non-bizarre/unfunny things.", ["Bizarreness effect","Humor effect","Von Restorff effect","Picture superiority effect","Self-relevance effect","Negativity bias"]],
+  ["We notice when something has changed.", ["Anchoring","Conservatism","Contrast effect","Distinction bias","Focusing effect","Framing effect","Money illusion","Weber–Fechner law"]],
+  ["We are drawn to details that confirm our own existing beliefs", ["Confirmation bias","Congruence bias","Post-purchase rationalization","Choice-supportive bias","Selective perception","Observer-expectancy effect","Experimenter's bias","Observer effect","Expectation bias","Ostrich effect","Subjective validation","Continued influence effect","Semmelweis reflex"]],
+  ["We notice flaws in others more easily than flaws in ourselves.", ["Bias blind spot","Naïve cynicism","Naïve realism"]]
+ ]],
+ ["2. Not Enough Meaning", [
+  ["We find stories and patterns even in sparse data", ["Confabulation","Clustering illusion","Insensitivity to sample size","Neglect of probability","Anecdotal fallacy","Illusion of validity","Masked man fallacy","Recency illusion","Gambler's fallacy","Hot-hand fallacy","Illusory correlation","Pareidolia","Anthropomorphism"]],
+  ["We fill in characteristics from stereotypes, generalities, and prior histories", ["Group attribution error","Ultimate attribution error","Stereotyping","Essentialism","Functional fixedness","Moral credential effect","Just-world hypothesis","Argument from fallacy","Authority bias","Automation bias","Bandwagon effect","Placebo effect"]],
+  ["We imagine things and people we're familiar with or fond of as better", ["Out-group homogeneity bias","Cross-race effect","In-group bias","Halo effect","Cheerleader effect","Positivity effect","Not invented here","Reactive devaluation","Well-traveled road effect"]],
+  ["We simplify probabilities and numbers to make them easier to think about", ["Mental accounting","Appeal to probability fallacy","Normalcy bias","Murphy's Law","Zero sum bias","Survivorship bias","Subadditivity effect","Denomination effect","Magic number 7+-2"]],
+  ["We think we know what other people are thinking", ["Illusion of transparency","Curse of knowledge","Spotlight effect","Extrinsic incentive error","Illusion of external agency","Illusion of asymmetric insight"]],
+  ["We project our current mindset and assumptions onto the past and future", ["Telescoping effect","Rosy retrospection","Hindsight bias","Outcome bias","Moral luck","Declinism","Impact bias","Pessimism bias","Planning fallacy","Time-saving bias","Pro-innovation bias","Projection bias","Restraint bias","Self-consistency bias"]]
+ ]],
+ ["3. Need To Act Fast", [
+  ["To act, we must be confident we can make an impact and feel what we do is important", ["Overconfidence effect","Social desirability bias","Third-person effect","False consensus effect","Hard-easy effect","Lake Wobegone effect","Dunning-Kruger effect","Egocentric bias","Optimism bias","Forer effect","Barnum effect","Self-serving bias","Actor-observer bias","Illusion of control","Illusory superiority","Fundamental attribution error","Defensive attribution hypothesis","Trait ascription bias","Effort justification","Risk compensation","Peltzman effect"]],
+  ["To stay focused, we favor the immediate, relatable thing in front of us", ["Hyperbolic discounting","Appeal to novelty","Identifiable victim effect"]],
+  ["To get anything done, we tend to complete things we've invested time & energy in.", ["Sunk cost fallacy","Irrational escalation","Escalation of commitment","Generation effect","Loss aversion","IKEA effect","Unit bias","Zero-risk bias","Disposition effect","Pseudocertainty effect","Processing difficulty effect","Endowment effect","Backfire effect"]],
+  ["To avoid mistakes, we tend to preserve our autonomy and group status, and avoid irreversible decisions.", ["System justification","Reverse psychology","Reactance","Decoy effect","Social comparison bias","Status quo bias"]],
+  ["We favor options that appear simple or have more complete information over more complex, ambiguous options.", ["Ambiguity bias","Information bias","Belief bias","Rhyme as reason effect","Bike-shedding effect","Law of Triviality","Delmore effect","Conjunction fallacy","Occam's razor","Less-is-better effect"]]
+ ]],
+ ["4. What Should We Remember?", [
+  ["We edit and reinforce some memories after the fact", ["Misattribution of memory","Source confusion","Cryptomnesia","False memory","Suggestibility","Spacing effect"]],
+  ["We discard specifics to form generalities", ["Implicit associations","Implicit stereotypes","Stereotypical bias","Prejudice","Negativity bias","Fading affect bias"]],
+  ["We reduce events and lists to their key elements", ["Peak–end rule","Leveling and sharpening","Misinformation effect","Serial recall effect","List-length effect","Duration neglect","Modality effect","Memory inhibition","Primacy effect","Recency effect","Part-list cueing effect","Serial position effect","Suffix effect"]],
+  ["We store memories differently based on how they were experienced", ["Levels of processing effect","Absent-mindedness","Testing effect","Next-in-line effect","Google effect","Tip of the tongue phenomenon"]]
+ ]]
+];
+const DATA = {name:"biases", children: RAW.map(([c,subs]) => ({name:c, children: subs.map(([s,ls]) => ({name:s, children: ls.map(n => ({name:n}))}))}))};
+
+const ES_CATS = {
+ "1. Too Much Information":"Demasiada información",
+ "2. Not Enough Meaning":"Falta de significado",
+ "3. Need To Act Fast":"Necesidad de actuar rápido",
+ "4. What Should We Remember?":"¿Qué debemos recordar?"
+};
+const ES_STMT = {
+ "We notice things already primed in memory or repeated often.":"Notamos lo que ya está activado en la memoria o lo que se repite a menudo.",
+ "Bizarre/funny/visually-striking/anthropomorphic things stick out more than non-bizarre/unfunny things.":"Lo extraño, gracioso, visualmente llamativo o antropomórfico destaca más que lo que no lo es.",
+ "We notice when something has changed.":"Notamos cuando algo ha cambiado.",
+ "We are drawn to details that confirm our own existing beliefs":"Nos atraen los detalles que confirman nuestras creencias previas.",
+ "We notice flaws in others more easily than flaws in ourselves.":"Notamos los defectos ajenos con más facilidad que los propios.",
+ "We find stories and patterns even in sparse data":"Encontramos historias y patrones incluso en datos escasos.",
+ "We fill in characteristics from stereotypes, generalities, and prior histories":"Completamos características a partir de estereotipos, generalidades e historias previas.",
+ "We imagine things and people we're familiar with or fond of as better":"Imaginamos mejores las cosas y personas que nos son familiares o queridas.",
+ "We simplify probabilities and numbers to make them easier to think about":"Simplificamos probabilidades y números para que sean más fáciles de pensar.",
+ "We think we know what other people are thinking":"Creemos saber lo que piensan los demás.",
+ "We project our current mindset and assumptions onto the past and future":"Proyectamos nuestra mentalidad y supuestos actuales sobre el pasado y el futuro.",
+ "To act, we must be confident we can make an impact and feel what we do is important":"Para actuar, necesitamos confiar en que podemos tener impacto y sentir que lo que hacemos es importante.",
+ "To stay focused, we favor the immediate, relatable thing in front of us":"Para mantener el enfoque, favorecemos lo inmediato y cercano que tenemos delante.",
+ "To get anything done, we tend to complete things we've invested time & energy in.":"Para terminar las cosas, tendemos a completar aquello en lo que ya invertimos tiempo y energía.",
+ "To avoid mistakes, we tend to preserve our autonomy and group status, and avoid irreversible decisions.":"Para evitar errores, tendemos a preservar nuestra autonomía y estatus en el grupo, y a evitar decisiones irreversibles.",
+ "We favor options that appear simple or have more complete information over more complex, ambiguous options.":"Preferimos opciones que parecen simples o tienen información más completa frente a opciones complejas y ambiguas.",
+ "We edit and reinforce some memories after the fact":"Editamos y reforzamos algunos recuerdos después de los hechos.",
+ "We discard specifics to form generalities":"Descartamos detalles para formar generalidades.",
+ "We reduce events and lists to their key elements":"Reducimos eventos y listas a sus elementos clave.",
+ "We store memories differently based on how they were experienced":"Almacenamos los recuerdos de forma distinta según cómo los vivimos."
+};
+const ES_BIAS = {
+ "Availability heuristic":"Heurística de disponibilidad","Attentional bias":"Sesgo atencional","Illusory truth effect":"Efecto de la verdad ilusoria","Mere exposure effect":"Efecto de mera exposición","Context effect":"Efecto de contexto","Cue-dependent forgetting":"Olvido dependiente de claves","Mood-congruent memory bias":"Sesgo de memoria congruente con el ánimo","Frequency illusion":"Ilusión de frecuencia","Baader-Meinhof Phenomenon":"Fenómeno Baader-Meinhof","Empathy gap":"Brecha de empatía","Omission bias":"Sesgo de omisión","Base rate fallacy":"Falacia de la tasa base",
+ "Bizarreness effect":"Efecto de lo extraño","Humor effect":"Efecto del humor","Von Restorff effect":"Efecto Von Restorff","Picture superiority effect":"Efecto de superioridad de la imagen","Self-relevance effect":"Efecto de autorreferencia","Negativity bias":"Sesgo de negatividad",
+ "Anchoring":"Anclaje","Conservatism":"Conservadurismo","Contrast effect":"Efecto de contraste","Distinction bias":"Sesgo de distinción","Focusing effect":"Efecto de focalización","Framing effect":"Efecto de encuadre","Money illusion":"Ilusión monetaria","Weber–Fechner law":"Ley de Weber-Fechner",
+ "Confirmation bias":"Sesgo de confirmación","Congruence bias":"Sesgo de congruencia","Post-purchase rationalization":"Racionalización poscompra","Choice-supportive bias":"Sesgo de apoyo a la elección","Selective perception":"Percepción selectiva","Observer-expectancy effect":"Efecto de expectativa del observador","Experimenter's bias":"Sesgo del experimentador","Observer effect":"Efecto del observador","Expectation bias":"Sesgo de expectativa","Ostrich effect":"Efecto avestruz","Subjective validation":"Validación subjetiva","Continued influence effect":"Efecto de influencia continuada","Semmelweis reflex":"Reflejo de Semmelweis",
+ "Bias blind spot":"Punto ciego del sesgo","Naïve cynicism":"Cinismo ingenuo","Naïve realism":"Realismo ingenuo",
+ "Confabulation":"Confabulación","Clustering illusion":"Ilusión de agrupamiento","Insensitivity to sample size":"Insensibilidad al tamaño de muestra","Neglect of probability":"Desatención a la probabilidad","Anecdotal fallacy":"Falacia anecdótica","Illusion of validity":"Ilusión de validez","Masked man fallacy":"Falacia del hombre enmascarado","Recency illusion":"Ilusión de lo reciente","Gambler's fallacy":"Falacia del jugador","Hot-hand fallacy":"Falacia de la mano caliente","Illusory correlation":"Correlación ilusoria","Pareidolia":"Pareidolia","Anthropomorphism":"Antropomorfismo",
+ "Group attribution error":"Error de atribución grupal","Ultimate attribution error":"Error de atribución último","Stereotyping":"Estereotipación","Essentialism":"Esencialismo","Functional fixedness":"Fijación funcional","Moral credential effect":"Efecto de credencial moral","Just-world hypothesis":"Hipótesis del mundo justo","Argument from fallacy":"Falacia de la falacia","Authority bias":"Sesgo de autoridad","Automation bias":"Sesgo de automatización","Bandwagon effect":"Efecto de arrastre","Placebo effect":"Efecto placebo",
+ "Out-group homogeneity bias":"Sesgo de homogeneidad del exogrupo","Cross-race effect":"Efecto de otra raza","In-group bias":"Sesgo endogrupal","Halo effect":"Efecto halo","Cheerleader effect":"Efecto porrista","Positivity effect":"Efecto de positividad","Not invented here":"Síndrome de «no inventado aquí»","Reactive devaluation":"Devaluación reactiva","Well-traveled road effect":"Efecto del camino conocido",
+ "Mental accounting":"Contabilidad mental","Appeal to probability fallacy":"Falacia de apelación a la probabilidad","Normalcy bias":"Sesgo de normalidad","Murphy's Law":"Ley de Murphy","Zero sum bias":"Sesgo de suma cero","Survivorship bias":"Sesgo de supervivencia","Subadditivity effect":"Efecto de subaditividad","Denomination effect":"Efecto de denominación","Magic number 7+-2":"Número mágico 7±2",
+ "Illusion of transparency":"Ilusión de transparencia","Curse of knowledge":"Maldición del conocimiento","Spotlight effect":"Efecto foco","Extrinsic incentive error":"Error del incentivo extrínseco","Illusion of external agency":"Ilusión de agencia externa","Illusion of asymmetric insight":"Ilusión de perspicacia asimétrica",
+ "Telescoping effect":"Efecto telescopio","Rosy retrospection":"Retrospección color de rosa","Hindsight bias":"Sesgo retrospectivo","Outcome bias":"Sesgo de resultado","Moral luck":"Suerte moral","Declinism":"Declinismo","Impact bias":"Sesgo de impacto","Pessimism bias":"Sesgo de pesimismo","Planning fallacy":"Falacia de planificación","Time-saving bias":"Sesgo de ahorro de tiempo","Pro-innovation bias":"Sesgo proinnovación","Projection bias":"Sesgo de proyección","Restraint bias":"Sesgo de autocontrol","Self-consistency bias":"Sesgo de autoconsistencia",
+ "Overconfidence effect":"Efecto de exceso de confianza","Social desirability bias":"Sesgo de deseabilidad social","Third-person effect":"Efecto de la tercera persona","False consensus effect":"Efecto de falso consenso","Hard-easy effect":"Efecto difícil-fácil","Lake Wobegone effect":"Efecto Lake Wobegon","Dunning-Kruger effect":"Efecto Dunning-Kruger","Egocentric bias":"Sesgo egocéntrico","Optimism bias":"Sesgo de optimismo","Forer effect":"Efecto Forer","Barnum effect":"Efecto Barnum","Self-serving bias":"Sesgo de autoservicio","Actor-observer bias":"Sesgo actor-observador","Illusion of control":"Ilusión de control","Illusory superiority":"Superioridad ilusoria","Fundamental attribution error":"Error fundamental de atribución","Defensive attribution hypothesis":"Hipótesis de atribución defensiva","Trait ascription bias":"Sesgo de atribución de rasgos","Effort justification":"Justificación del esfuerzo","Risk compensation":"Compensación del riesgo","Peltzman effect":"Efecto Peltzman",
+ "Hyperbolic discounting":"Descuento hiperbólico","Appeal to novelty":"Apelación a la novedad","Identifiable victim effect":"Efecto de la víctima identificable",
+ "Sunk cost fallacy":"Falacia del costo hundido","Irrational escalation":"Escalada irracional","Escalation of commitment":"Escalada del compromiso","Generation effect":"Efecto de generación","Loss aversion":"Aversión a la pérdida","IKEA effect":"Efecto IKEA","Unit bias":"Sesgo de unidad","Zero-risk bias":"Sesgo de riesgo cero","Disposition effect":"Efecto disposición","Pseudocertainty effect":"Efecto de pseudocerteza","Processing difficulty effect":"Efecto de dificultad de procesamiento","Endowment effect":"Efecto dotación","Backfire effect":"Efecto contraproducente",
+ "System justification":"Justificación del sistema","Reverse psychology":"Psicología inversa","Reactance":"Reactancia","Decoy effect":"Efecto señuelo","Social comparison bias":"Sesgo de comparación social","Status quo bias":"Sesgo del statu quo",
+ "Ambiguity bias":"Sesgo de ambigüedad","Information bias":"Sesgo de información","Belief bias":"Sesgo de creencia","Rhyme as reason effect":"Efecto de la rima como razón","Bike-shedding effect":"Efecto del cobertizo para bicicletas","Law of Triviality":"Ley de la trivialidad","Delmore effect":"Efecto Delmore","Conjunction fallacy":"Falacia de la conjunción","Occam's razor":"Navaja de Ockham","Less-is-better effect":"Efecto «menos es mejor»",
+ "Misattribution of memory":"Atribución errónea del recuerdo","Source confusion":"Confusión de la fuente","Cryptomnesia":"Criptomnesia","False memory":"Falso recuerdo","Suggestibility":"Sugestionabilidad","Spacing effect":"Efecto de espaciado",
+ "Implicit associations":"Asociaciones implícitas","Implicit stereotypes":"Estereotipos implícitos","Stereotypical bias":"Sesgo estereotípico","Prejudice":"Prejuicio","Fading affect bias":"Sesgo de desvanecimiento afectivo",
+ "Peak–end rule":"Regla del pico-final","Leveling and sharpening":"Nivelación y acentuación","Misinformation effect":"Efecto de desinformación","Serial recall effect":"Efecto de recuerdo serial","List-length effect":"Efecto de longitud de lista","Duration neglect":"Desatención a la duración","Modality effect":"Efecto de modalidad","Memory inhibition":"Inhibición de la memoria","Primacy effect":"Efecto de primacía","Recency effect":"Efecto de recencia","Part-list cueing effect":"Efecto de clave de lista parcial","Serial position effect":"Efecto de posición serial","Suffix effect":"Efecto sufijo",
+ "Levels of processing effect":"Efecto de niveles de procesamiento","Absent-mindedness":"Distracción","Testing effect":"Efecto de la evaluación","Next-in-line effect":"Efecto del siguiente en la fila","Google effect":"Efecto Google","Tip of the tongue phenomenon":"Fenómeno de la punta de la lengua"
+};
+const T = {
+ en: {
+  title:'Cognitive bias codex', find:'Find a bias', placeholder:'Try anchoring or halo',
+  hint:'Drag to move, scroll or pinch to zoom',
+  reset:'Reset view', zin:'Zoom in', zout:'Zoom out', light:'Light', dark:'Dark', language:'Language', theme:'Theme',
+  chart:'Radial map of cognitive biases grouped into four problems and twenty patterns',
+  core1:'Cognitive', core2:'biases', core3:(n,s) => `${n} entries, ${s} patterns`,
+  intro:n => `The codex groups ${n} cognitive biases by the four problems they help our brains handle. Pick a problem to see its patterns, then a pattern to see its biases.`,
+  patterns:n => n === 1 ? '1 pattern' : `${n} patterns`, biases:n => n === 1 ? '1 bias' : `${n} biases`,
+  matches:n => n === 1 ? '1 match' : `${n} matches`, noMatch:'No matches',
+  noMatchHelp:'Check the spelling or try part of the name, such as “halo” or “fallacy”.',
+  random:'Show a random bias', another:'Show another random bias', wiki:'Read about it on Wikipedia',
+  same:'Same pattern', inPattern:n => n === 1 ? '1 bias in this pattern' : `${n} biases in this pattern`,
+  all:'All problems', path:'Path',
+  credit:'Bias list and categories from the Cognitive Bias Codex (2016): concept and categorization by Buster Benson, layout and design by John Manoogian III, research by Wikipedia contributors. Original licensed CC BY-SA 4.0. This is an independent interactive rendering of that data.'
+ },
+ es: {
+  title:'Códice de sesgos cognitivos', find:'Buscar un sesgo', placeholder:'Ej.: anclaje o halo',
+  hint:'Arrastra para mover y desplaza para hacer zoom',
+  reset:'Restablecer vista', zin:'Acercar', zout:'Alejar', light:'Claro', dark:'Oscuro', language:'Idioma', theme:'Tema',
+  chart:'Mapa radial de sesgos cognitivos agrupados en cuatro problemas y veinte patrones',
+  core1:'Sesgos', core2:'cognitivos', core3:(n,s) => `${n} entradas, ${s} patrones`,
+  intro:n => `El códice agrupa ${n} sesgos cognitivos según los cuatro problemas que nuestro cerebro intenta resolver. Elige un problema para ver sus patrones y luego un patrón para ver sus sesgos.`,
+  patterns:n => n === 1 ? '1 patrón' : `${n} patrones`, biases:n => n === 1 ? '1 sesgo' : `${n} sesgos`,
+  matches:n => n === 1 ? '1 resultado' : `${n} resultados`, noMatch:'Sin resultados',
+  noMatchHelp:'Revisa la ortografía o prueba con parte del nombre, como «halo» o «falacia».',
+  random:'Mostrar un sesgo al azar', another:'Mostrar otro sesgo al azar', wiki:'Leer en Wikipedia',
+  same:'Mismo patrón', inPattern:n => n === 1 ? '1 sesgo en este patrón' : `${n} sesgos en este patrón`,
+  all:'Todos los problemas', path:'Ruta',
+  credit:'Lista de sesgos y categorías del Cognitive Bias Codex (2016): concepto y categorización de Buster Benson, diseño de John Manoogian III, investigación de colaboradores de Wikipedia. Original con licencia CC BY-SA 4.0. Esta es una representación interactiva independiente de esos datos. Traducción al español elaborada para esta versión.'
+ }
+};
+
+const COLORS = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)'];
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const DUR = REDUCED ? 0 : 650;
+const R = {cat:155, ringIn:127, sub:215, leaf:310};
+
+let lang = 'en';
+try { const s = localStorage.getItem('codex-lang'); if(s === 'es' || s === 'en') lang = s; } catch(e){}
+const t = (k, ...a) => { const v = T[lang][k]; return typeof v === 'function' ? v(...a) : v; };
+const root = d3.hierarchy(DATA);
+const byId = new Map();
+root.descendants().forEach((d,i) => {
+  d.uid = i; byId.set(i, d);
+  d.en = d.depth === 1 ? d.data.name.replace(/^\d+\.\s*/, '') : d.data.name;
+  d.es = (d.depth === 1 ? ES_CATS : d.depth === 2 ? ES_STMT : ES_BIAS)[d.data.name] || d.en;
+  Object.defineProperty(d, 'label', {get(){ return lang === 'es' ? this.es : this.en; }});
+});
+root.children.forEach((c,i) => c.each(n => { n.cat = i; n.color = COLORS[i]; }));
+d3.cluster().size([2*Math.PI, 1])
+  .separation((a,b) => a.parent === b.parent ? 1 : (a.parent.parent === b.parent.parent ? 2.4 : 4.5))(root);
+root.each(d => d.r = [0, R.cat, R.sub, R.leaf][d.depth]);
+
+const leaves = root.leaves();
+const cats = root.children;
+const subs = root.descendants().filter(d => d.depth === 2);
+
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pt = (a, r) => [r*Math.sin(a), -r*Math.cos(a)];
+
+const svg = d3.select('#chart');
+const gz = svg.append('g');
+const zoom = d3.zoom().scaleExtent([0.8, 8]).on('zoom', e => gz.attr('transform', e.transform));
+svg.call(zoom).on('dblclick.zoom', null);
+
+const radial = d3.linkRadial().angle(d => d.x).radius(d => d.r);
+
+// Links: category to pattern, pattern to bias
+const links = root.links().filter(l => l.source.depth >= 1);
+const linkSel = gz.append('g').selectAll('path').data(links).join('path')
+  .attr('class','link').attr('d', radial).attr('stroke', d => d.target.color);
+
+// Category ring
+const gap = 0.012;
+cats.forEach(c => {
+  const ls = c.leaves();
+  c.a0 = d3.min(ls, l => l.x) - 0.02 + gap;
+  c.a1 = d3.max(ls, l => l.x) + 0.02 - gap;
+});
+const ringArc = d3.arc().innerRadius(R.ringIn).outerRadius(R.cat).startAngle(d => d.a0).endAngle(d => d.a1).cornerRadius(4);
+function labelPath(c){
+  const r = (R.ringIn + R.cat)/2, mid = (c.a0 + c.a1)/2;
+  const bottom = mid > Math.PI/2 && mid < 3*Math.PI/2;
+  const large = (c.a1 - c.a0) > Math.PI ? 1 : 0;
+  const [x0,y0] = pt(c.a0, r), [x1,y1] = pt(c.a1, r);
+  return bottom ? `M${x1},${y1} A${r},${r} 0 ${large} 0 ${x0},${y0}` : `M${x0},${y0} A${r},${r} 0 ${large} 1 ${x1},${y1}`;
+}
+const segSel = gz.append('g').selectAll('g').data(cats).join('g').attr('class','seg')
+  .attr('tabindex',0).attr('role','button').attr('aria-label', d => d.label)
+  .on('click', (e,d) => select(d))
+  .on('keydown', (e,d) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(d); }});
+segSel.append('path').attr('d', ringArc).attr('fill', d => d.color);
+segSel.append('path').attr('id', d => 'lp' + d.uid).attr('d', labelPath).attr('fill','none');
+segSel.append('text').attr('dy','0.35em').append('textPath')
+  .attr('href', d => '#lp' + d.uid).attr('startOffset','50%').attr('text-anchor','middle').text(d => d.label);
+
+
+// Center
+const core = gz.append('g').attr('class','core').on('click', () => select(root));
+core.append('circle').attr('r', 112);
+const core1 = core.append('text').attr('y',-14).attr('font-size',19).attr('font-weight',780);
+const core2 = core.append('text').attr('y',8).attr('font-size',19).attr('font-weight',780);
+const core3 = core.append('text').attr('y',32).attr('font-size',11).attr('font-weight',500).attr('fill','var(--muted)');
+
+// Pattern dots
+const tip = document.getElementById('tip');
+const stage = document.getElementById('stage');
+function showTip(e, text){
+  const b = stage.getBoundingClientRect();
+  tip.textContent = text;
+  tip.classList.add('on');
+  const x = Math.min(e.clientX - b.left + 14, b.width - 270);
+  tip.style.left = Math.max(8, x) + 'px';
+  tip.style.top = (e.clientY - b.top + 14) + 'px';
+}
+const hideTip = () => tip.classList.remove('on');
+
+const subSel = gz.append('g').selectAll('g').data(subs).join('g').attr('class','sub')
+  .attr('transform', d => { const [x,y] = pt(d.x, d.r); return `translate(${x},${y})`; })
+  .attr('tabindex',0).attr('role','button').attr('aria-label', d => d.label)
+  .on('mouseenter', (e,d) => { setHot(d); showTip(e, d.label); })
+  .on('mousemove', (e,d) => showTip(e, d.label))
+  .on('mouseleave', () => { setHot(null); hideTip(); })
+  .on('click', (e,d) => { hideTip(); select(d); })
+  .on('keydown', (e,d) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(d); }});
+subSel.append('circle').attr('r', 6).attr('fill', d => d.color);
+
+// Outer wheel with pattern statements, as in the original codex
+const RO = 505;
+gz.insert('circle', ':first-child').attr('class','wheel').attr('r', RO);
+const stmtSel = gz.append('g').selectAll('g').data(subs).join('g').attr('class','stmt')
+  .attr('tabindex',0).attr('role','button')
+  .on('mouseenter', (e,d) => setHot(d))
+  .on('mouseleave', () => setHot(null))
+  .on('click', (e,d) => select(d))
+  .on('keydown', (e,d) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(d); }});
+stmtSel.append('circle').attr('class','odot').attr('r', 6).attr('fill', d => d.color)
+  .attr('cx', d => pt(d.x, RO)[0]).attr('cy', d => pt(d.x, RO)[1]);
+const stmtText = stmtSel.append('text');
+
+function wrap(s, max){
+  const words = s.replace(/\//g, '/ ').split(' ').filter(Boolean);
+  const lines = []; let cur = '';
+  words.forEach(w => {
+    const next = cur ? cur + ' ' + w : w;
+    if(next.length > max && cur){ lines.push(cur); cur = w; } else cur = next;
+  });
+  if(cur) lines.push(cur);
+  return lines.map(l => l.replace(/\/ /g, '/'));
+}
+function layoutStatements(){
+  const LH = 13.5, GAP = 7, MAXY = 575;
+  const items = subs.map(d => {
+    const [x,y] = pt(d.x, RO);
+    const lines = wrap(d.label, lang === 'es' ? 34 : 30);
+    const hgt = lines.length * LH;
+    const c = Math.cos(d.x);
+    // near the top, text sits above its dot; near the bottom, below it; on the sides, centered on it
+    const ty = c > 0.6 ? y - hgt - 2 : c < -0.6 ? y + 4 : y - hgt/2;
+    return {d, x, y, lines, hgt, ty, right: Math.sin(d.x) >= 0};
+  });
+  [true,false].forEach(side => {
+    const g = items.filter(i => i.right === side).sort((a,b) => a.ty - b.ty);
+    for(let k = 1; k < g.length; k++) g[k].ty = Math.max(g[k].ty, g[k-1].ty + g[k-1].hgt + GAP);
+    if(g.length){ const last = g[g.length-1]; if(last.ty + last.hgt > MAXY) last.ty = MAXY - last.hgt; }
+    for(let k = g.length - 2; k >= 0; k--) g[k].ty = Math.min(g[k].ty, g[k+1].ty - g[k].hgt - GAP);
+  });
+  const byNode = new Map(items.map(i => [i.d, i]));
+  stmtText.each(function(d){
+    const i = byNode.get(d), tx = i.x + (i.right ? 12 : -12);
+    d3.select(this).attr('text-anchor', i.right ? 'start' : 'end')
+      .selectAll('tspan').data(i.lines).join('tspan')
+      .attr('x', tx).attr('y', (l,k) => i.ty + (k+1)*LH - 3.5).text(l => l);
+  });
+  stmtSel.attr('aria-label', d => d.label);
+}
+
+// Bias leaves
+const leafSel = gz.append('g').selectAll('g').data(leaves).join('g').attr('class','leaf')
+  .attr('transform', d => `rotate(${d.x*180/Math.PI - 90}) translate(${d.r},0)`)
+  .style('animation-delay', d => (d.x/(2*Math.PI))*700 + 'ms')
+  .on('mouseenter', (e,d) => setHot(d))
+  .on('mouseleave', () => setHot(null))
+  .on('click', (e,d) => select(d));
+leafSel.append('circle').attr('r', 2.3).attr('fill', d => d.color);
+leafSel.append('text').attr('dy','0.32em')
+  .attr('x', d => d.x < Math.PI ? 6 : -6)
+  .attr('text-anchor', d => d.x < Math.PI ? 'start' : 'end')
+  .attr('transform', d => d.x >= Math.PI ? 'rotate(180)' : null)
+  .text(d => d.label);
+const leafTitle = leafSel.append('title');
+
+// State
+const state = {focus:null, query:''};
+
+function activeSet(){
+  if(state.query){
+    const q = norm(state.query);
+    return new Set(leaves.filter(l => norm(l.en).includes(q) || norm(l.es).includes(q)));
+  }
+  if(!state.focus) return null;
+  if(state.focus.depth === 3) return new Set(state.focus.parent.leaves());
+  return new Set(state.focus.leaves());
+}
+function update(){
+  const act = activeSet();
+  const has = n => !act || n.leaves().some(l => act.has(l));
+  leafSel.classed('dim', d => act && !act.has(d)).classed('sel', d => state.focus === d);
+  linkSel.classed('dim', d => !has(d.target));
+  subSel.classed('dim', d => !has(d)).classed('sel', d => state.focus === d);
+  segSel.classed('dim', d => !has(d));
+  stmtSel.classed('dim', d => !has(d)).classed('sel', d => state.focus === d || (state.focus && state.focus.parent === d));
+}
+function setHot(node){
+  const hot = node ? new Set([...node.ancestors(), ...node.descendants()]) : null;
+  linkSel.classed('hot', d => hot && hot.has(d.target) && hot.has(d.source));
+  leafSel.classed('hot', d => node === d);
+}
+function zoomTo(node){
+  let t = d3.zoomIdentity;
+  if(node && node !== root){
+    const k = {1:1.45, 2:2.1, 3:2.7}[node.depth];
+    const rr = node.depth === 3 ? node.r + 55 : node.depth === 2 ? 380 : 300;
+    const [px,py] = pt(node.x, rr);
+    t = d3.zoomIdentity.translate(-k*px, -k*py).scale(k);
+  }
+  svg.transition().duration(DUR).call(zoom.transform, t);
+}
+
+const qInput = document.getElementById('q');
+const detail = document.getElementById('detail');
+const panel = document.getElementById('panel');
+
+function select(node){
+  state.focus = (!node || node === root) ? null : node;
+  state.query = '';
+  qInput.value = '';
+  update(); renderPanel(); zoomTo(node);
+  if(window.innerWidth <= 820) detail.scrollIntoView({behavior: REDUCED ? 'auto' : 'smooth', block:'start'});
+  else panel.scrollTop = 0;
+}
+
+function crumbs(node){
+  const chain = node.ancestors().reverse().slice(0, -1);
+  return `<nav class="crumbs" aria-label="${t('path')}">${chain.map(n =>
+    `<button data-uid="${n.uid}">${esc(n.depth === 0 ? t('all') : (n.depth === 2 ? shortStmt(n.label) : n.label))}</button><span aria-hidden="true">/</span>`).join('')}</nav>`;
+}
+function shortStmt(s){ return s.length > 38 ? s.slice(0, 36).trim() + '…' : s; }
+
+function renderPanel(){
+  let h = '';
+  if(state.query){
+    const act = [...activeSet()];
+    h = `<h2>${act.length ? t('matches', act.length) : t('noMatch')}</h2>`;
+    h += act.length
+      ? `<ul class="list" style="margin-top:12px">${act.map(l =>
+          `<li><button class="item" data-uid="${l.uid}">${esc(l.label)}<small>${esc(l.parent.parent.label)}</small></button></li>`).join('')}</ul>`
+      : `<p class="muted" style="margin-top:8px">${t('noMatchHelp')}</p>`;
+  } else if(!state.focus){
+    h = `<p>${t('intro', leaves.length)}</p>
+      <div class="cats" style="margin-top:16px">${cats.map(c =>
+        `<button class="cat-btn" style="--cc:${c.color}" data-uid="${c.uid}"><strong>${esc(c.label)}</strong><span>${t('patterns', c.children.length)}, ${t('biases', c.leaves().length)}</span></button>`).join('')}</div>
+      <div class="actions" style="margin-top:16px"><button class="btn" data-action="random">${t('random')}</button></div>`;
+  } else {
+    const f = state.focus;
+    const cc = `style="--cc:${f.color}"`;
+    h = crumbs(f);
+    if(f.depth === 1){
+      h += `<h2 class="big" style="margin-top:10px">${esc(f.label)}</h2>
+        <p class="muted" style="margin-top:6px">${t('patterns', f.children.length)}, ${t('biases', f.leaves().length)}</p>
+        <ul class="list" style="margin-top:14px">${f.children.map(s =>
+          `<li><button class="item" data-uid="${s.uid}"><span class="count">${s.children.length}</span>${esc(s.label)}</button></li>`).join('')}</ul>`;
+    } else if(f.depth === 2){
+      h += `<div ${cc} style="margin-top:12px">
+        <h2 class="statement" ${cc}>${esc(f.label)}</h2></div>
+        <p class="muted small" style="margin-top:14px">${t('inPattern', f.children.length)}</p>
+        <ul class="list" style="margin-top:6px">${f.children.map(l =>
+          `<li><button class="item" data-uid="${l.uid}">${esc(l.label)}</button></li>`).join('')}</ul>`;
+    } else {
+      const sib = f.parent.children;
+      const url = `https://${lang}.wikipedia.org/wiki/Special:Search?search=` + encodeURIComponent(f.label);
+      h += `<div ${cc} style="margin-top:12px">
+        <h2 class="big">${esc(f.label)}</h2>
+        <p class="statement" ${cc} style="margin-top:12px">${esc(f.parent.label)}</p></div>
+        <div class="actions" style="margin-top:16px">
+          <a class="ext" href="${url}" target="_blank" rel="noopener">${t('wiki')}</a>
+        </div>
+        <div class="actions" style="margin-top:14px"><button class="btn ghost" data-action="random">${t('another')}</button></div>
+        <p class="muted small" style="margin-top:18px">${t('same')}</p>
+        <ul class="list" style="margin-top:6px">${sib.map(l =>
+          `<li><button class="item${l === f ? ' current' : ''}" data-uid="${l.uid}" ${l === f ? 'aria-current="true"' : ''}>${esc(l.label)}</button></li>`).join('')}</ul>`;
+    }
+  }
+  detail.innerHTML = h;
+}
+
+detail.addEventListener('click', e => {
+  const b = e.target.closest('[data-uid],[data-action]');
+  if(!b) return;
+  if(b.dataset.action === 'random'){ select(leaves[Math.floor(Math.random()*leaves.length)]); return; }
+  select(byId.get(+b.dataset.uid));
+});
+qInput.addEventListener('input', () => {
+  state.query = qInput.value.trim();
+  if(state.query && state.focus){ state.focus = null; zoomTo(root); }
+  update(); renderPanel();
+});
+qInput.addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ const act = activeSet(); if(act && act.size === 1) select([...act][0]); }
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') select(root); });
+document.getElementById('zin').onclick = () => svg.transition().duration(DUR/2).call(zoom.scaleBy, 1.4);
+document.getElementById('zout').onclick = () => svg.transition().duration(DUR/2).call(zoom.scaleBy, 1/1.4);
+document.getElementById('zreset').onclick = () => select(root);
+
+function applyLang(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-label]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nLabel)); el.title = t(el.dataset.i18nLabel); });
+  qInput.placeholder = t('placeholder');
+  document.getElementById('zin').setAttribute('aria-label', t('zin'));
+  document.getElementById('zout').setAttribute('aria-label', t('zout'));
+  document.getElementById('langGroup').setAttribute('aria-label', t('language'));
+  document.getElementById('themeGroup').setAttribute('aria-label', t('theme'));
+  svg.attr('aria-label', t('chart'));
+  document.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  leafSel.select('text').text(d => d.label);
+  leafTitle.text(d => `${d.label}\n${d.parent.label}`);
+  subSel.attr('aria-label', d => d.label);
+  segSel.attr('aria-label', d => d.label);
+  segSel.select('textPath').text(d => d.label);
+  segSel.select('text').style('font-size', d => Math.min(10.5, ((d.a1 - d.a0) * (R.ringIn + R.cat) / 2 - 10) / (d.label.length * 0.6)) + 'px');
+  layoutStatements();
+  core1.text(t('core1')); core2.text(t('core2')); core3.text(t('core3', leaves.length, subs.length));
+  renderPanel();
+}
+function setTheme(th){
+  document.documentElement.dataset.theme = th;
+  document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeBtn === th));
+  try { localStorage.setItem('codex-theme', th); } catch(e){}
+}
+document.getElementById('langGroup').addEventListener('click', e => {
+  const b = e.target.closest('[data-lang]'); if(!b) return;
+  lang = b.dataset.lang;
+  try { localStorage.setItem('codex-lang', lang); } catch(e){}
+  applyLang();
+});
+document.getElementById('themeGroup').addEventListener('click', e => {
+  const b = e.target.closest('[data-theme-btn]'); if(b) setTheme(b.dataset.themeBtn);
+});
+let theme = 'light';
+try { const s = localStorage.getItem('codex-theme'); if(s === 'dark' || s === 'light') theme = s; } catch(e){}
+setTheme(theme);
+update(); applyLang();
+</script>
+</body>
+</html>
