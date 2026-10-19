@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System Prompt Suite - Figma Assistant</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        figma: {
+                            purple: '#0ACF83',
+                            blue: '#1ABCFE',
+                            red: '#F24E1E',
+                            dark: '#0e1117',
+                            card: '#161b22',
+                            border: '#30363d',
+                            accent: '#2f81f7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .tab-active {
+            border-bottom: 2px solid #58a6ff;
+            color: #58a6ff;
+            background-color: rgba(56, 139, 253, 0.1);
+        }
+        .code-scroll::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: #161b22;
+            border-radius: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-thumb:hover {
+            background: #8b949e;
+        }
+    </style>
+    <script>
+        let currentLang = 'es'; // 'es' or 'en'
+
+        const promptsData = {
+            es: [
+                {
+                    id: "colors",
+                    title: "1. Colores (Color Tokens & Styles)",
+                    category: "Variables: Color | Estilos: Color",
+                    badge: "Primitivas + Semánticas + Color Styles",
+                    colorClass: "pink",
+                    icon: "fa-palette",
+                    description: "Genera variables de Color Primitivas (`color/[hue]/[scale]`), Alias Semánticos (`color/[role]`) y Color Styles locales dinámicos en Figma, reutilizando colecciones existentes sin duplicados.",
+                    promptText: `[PROMPT DE GENERACIÓN DE TOKENS DE COLOR: PRIMITIVAS CROMÁTICAS Y SEMÁNTICAS EN INGLÉS]
+
+Rol: Actúa como un experto en Design Systems especializado en la arquitectura de tokens de color en Figma.
+
+REGLA DE REUTILIZACIÓN DE COLECCIONES Y MODOS:
+* Comprobación de Colecciones Existentes: Revisa si ya existen las colecciones llamadas Primitives, Semantic, UI Kit Foundations (o nombres equivalentes).
+* Si la colección YA EXISTE: Agrega o actualiza las variables dentro de este mismo marco sin duplicarla ni crear una nueva colección desde cero.
+
+ESTRUCTURA Y NIVEL DE AGRUPACIÓN (CRUCIAL):
+* Todas las variables DEBEN estar agrupadas bajo la categoría superior "color".
+
+IDIOMA Y NOMENCLATURA STRICTA:
+* Toda la nomenclatura DEBE ser exclusivamente en INGLÉS. Traduce los conceptos adecuadamente (ej. "Neutros" -> neutral, "Éxito" -> success, "Advertencia" -> warning, "Error" -> error, "Primarios" -> primary).
+* Regla de Nombres PUROS del círculo cromático en inglés (ej. blue, slate, red, emerald, amber). NO uses nombres de interfaz o archivo con significado o propósito funcional en las primitivas.
+
+Paso 1: Análisis Dinámico y Mapeo del Canvas
+Escanea el marco visible:
+1. Para cada muestra de color: Extrae el código Hexadecimal y la etiqueta del lienzo.
+2. Identifica si tiene escala (ej. 50, 100, 200... 900) o infiere el nombre del color puro real basándote en el valor Hex o matiz.
+
+Paso 2: Creación de Variables Primitivas ("Primitives")
+Crea/actualiza en la colección Primitives dentro del grupo "color":
+* Nomenclatura: color / [Pure_Chromatic_Name_English] / [Scale]
+* Ejemplos: color / red / 500, color / slate / 100.
+* Mantén el Hexadecimal exacto.
+
+Paso 3: Creación de Variables Semánticas ("Semantic")
+Crea/actualiza en la colección Semantic dentro del grupo "color":
+* Nomenclatura: color / [Role_or_Function_English]
+* Conecta como Alias (Referencia) a la variable primitiva correspondiente.
+
+Paso 4: Estilos de Color Locales (Color Styles)
+Genera los Local Color Styles usando la nomenclatura:
+\`color / [Role_or_Category] / [Name]\`
+* Enlaza directamente a las variables de color creadas.
+
+Reporte de Salida:
+Confirma las colecciones reutilizadas o creadas, la lista completa de variables Primitivas y Semánticas bajo la carpeta raíz 'color', y los Local Color Styles vinculados.`
+                },
+                {
+                    id: "typography",
+                    title: "2. Tipografía (Typography Tokens & Styles)",
+                    category: "Variables: Typography | Estilos: Text Styles",
+                    badge: "Font Family + Size + Weight + Text Styles",
+                    colorClass: "blue",
+                    icon: "fa-font",
+                    description: "Genera variables primitivas de tipografía (`typography/font-family`, `typography/font-size` redondeado/ordenado y `typography/font-weight`) y crea Local Text Styles 100% adaptados a la jerarquía del lienzo.",
+                    promptText: `[PROMPT DE GENERACIÓN DE TOKENS Y ESTILOS TIPOGRÁFICOS DINÁMICOS]
+
+Rol: Actúa como un experto en Design Systems especializado en tipografía web, tokens y escalado tipográfico en Figma.
+
+REGLA DE REUTILIZACIÓN DE COLECCIONES:
+* Comprobación de Colecciones Existentes: Revisa si ya existen las colecciones Primitives o Semantic.
+* Si la colección YA EXISTE: Incorpora las variables tipográficas bajo el grupo raíz "typography". NO crees colecciones duplicadas.
+
+IDIOMA Y NOMENCLATURA STRICTA:
+* Toda la nomenclatura DEBE estar en INGLÉS. Traduce adecuadamente (ej. "Titulare" -> heading, "Cuerpo" -> body).
+
+---
+
+Paso 1: Análisis Dinámico del Canvas
+Escanea la sección de tipografía en el lienzo:
+1. Identifica familias tipográficas, tamaños de fuente (px), pesos (Font Weight) e interlineados (Line Height).
+2. Lee las etiquetas o categorías de nivel superior definidas por el usuario (ej. Heading, Body, Display) y las sub-etiquetas (ej. H1, H2, Large, Regular).
+
+---
+
+Paso 2: Creación de Variables Primitivas de Tipografía ("Primitives")
+Crea/actualiza en la colección Primitives dentro del grupo raíz "typography":
+
+1. Font Family:
+   - typography / font-family / primary (o el nombre de la fuente ej. inter, roboto)
+
+2. Font Size (OBLIGATORIO: Valores Números Enteros y Ordenados):
+   - Nomenclatura: typography / font-size / [Integer_Size]
+   - Redondeo Obligatorio: NUNCA guardes decimales. Redondea siempre al número entero más cercano.
+   - Orden Ascendente: Genera las variables ordenadas numéricamente de menor a mayor (ej. 12, 14, 16, 20, 24, 32, 40, 48).
+
+3. Font Weight:
+   - Nomenclatura: typography / font-weight / [Weight_Name] (ej. regular, medium, semi-bold, bold).
+
+---
+
+Paso 3: Creación Dinámica de Estilos de Texto Locales (Text Styles)
+Crea los Local Text Styles respetando exactamente los nombres y la estructura del usuario:
+
+* Nomenclatura Dinámica:
+  \`[User_Category_Translated] / [User_Sublabel]\`
+  Ejemplos según la estructura detectada:
+  - Heading / H1
+  - Heading / H2
+  - Body / Medium
+  - Body / Small
+
+* Vinculación de Propiedades:
+  - Font Family -> Alias a typography / font-family / ...
+  - Font Size -> Alias a typography / font-size / ...
+  - Font Weight -> Alias a typography / font-weight / ...
+
+---
+
+Reporte de Salida:
+Muestra la lista de variables primitivas tipográficas creadas en orden ascendente y los Local Text Styles generados agrupados según la jerarquía del lienzo.`
+                },
+                {
+                    id: "spacing",
+                    title: "3. Espacios (Spacing Tokens)",
+                    category: "Variables: Spacing (Primitivas + Semánticas)",
+                    badge: "Spacing Scale + Semantic Aliases",
+                    colorClass: "emerald",
+                    icon: "fa-ruler-combined",
+                    description: "Crea la escala de espaciados numérica pura en Primitivas (ordenada ascendentemente y sin 'px' en el nombre) y conecta los Alias Semánticos definidos dinámicamente por el usuario.",
+                    promptText: `[PROMPT DE GENERACIÓN DE TOKENS DE ESPACIADO (SPACING)]
+
+Rol: Actúa como un experto en Design Systems especializado en layout, espaciados y sistemas de grillas en Figma.
+
+REGLA DE REUTILIZACIÓN DE COLECCIONES:
+* Comprobación de Colecciones Existentes: Revisa si ya existen Primitives o Semantic.
+* Si la colección YA EXISTE: Incorpora las variables de espaciado dentro del grupo raíz "spacing". NO dupliques colecciones.
+
+IDIOMA Y NOMENCLATURA STRICTA:
+* Nomenclatura totalmente en INGLÉS.
+* Regla de Limpieza: OMITIR la palabra "px" en los nombres de las variables.
+
+---
+
+Paso 1: Análisis Dinámico del Canvas
+Escanea las tarjetas o muestras de espaciado:
+1. Extrae los valores numéricos exactos de píxeles (ej. 4, 8, 12, 16, 24, 32, 48, 64).
+2. Detecta las etiquetas semánticas o nombres dados por el usuario (ej. xxs, xs, sm, md, lg, xl o gap-1, padding-s).
+
+---
+
+Paso 2: Creación de Variables Primitivas de Espaciado ("Primitives")
+Crea/actualiza en Primitives dentro del grupo raíz "spacing":
+* Nomenclatura: spacing / [Integer_Value] (ej. spacing / 4, spacing / 8, spacing / 16).
+* Tipo de Variable: FLOAT / NUMBER.
+* Orden Ascendente: Organiza las variables strictly de menor a mayor.
+
+---
+
+Paso 3: Creación de Variables Semánticas de Espaciado ("Semantic")
+Crea/actualiza en Semantic dentro del grupo raíz "spacing":
+* Nomenclatura Dinámica: spacing / [User_Defined_Label] usando las etiquetas detectadas en el lienzo (ej. spacing / xs, spacing / sm, spacing / md).
+* Conexión: Vincula como Alias a la variable primitiva correspondiente de spacing.
+
+---
+
+Reporte de Salida:
+Muestra las colecciones actualizadas, la lista ascendente de primitivas numéricas de espaciado y el mapa de alias semánticos de espaciado creados.`
+                },
+                {
+                    id: "radius",
+                    title: "4. Border Radius (Border Radius Tokens)",
+                    category: "Variables: Radius (Primitivas + Semánticas)",
+                    badge: "Radius Scale + Semantic Aliases",
+                    colorClass: "amber",
+                    icon: "fa-vector-square",
+                    description: "Genera la escala numérica limpia de redondeos en Primitivas (`radius/[value]`) ordenada ascendentemente y asigna los alias semánticos según las sub-etiquetas exactamente escritas en el canvas.",
+                    promptText: `[PROMPT DE GENERACIÓN DE TOKENS DE BORDER RADIUS]
+
+Rol: Actúa como un experto en Design Systems especializado en tokens de bordes y esquinas redondeadas en Figma.
+
+REGLA DE REUTILIZACIÓN DE COLECCIONES:
+* Comprobación de Colecciones Existentes: Revisa si ya existen Primitives o Semantic.
+* Si la colección YA EXISTE: Agrega las variables dentro del grupo raíz "radius" (o "border-radius"). NO crees colecciones duplicadas.
+
+IDIOMA Y NOMENCLATURA STRICTA:
+* Nomenclatura en INGLÉS. Omitir la extensión "px" en los nombres.
+
+---
+
+Paso 1: Análisis Dinámico del Canvas
+Escanea la sección de Border Radius:
+1. Extrae los valores numéricos de redondeo (ej. 0, 2, 4, 8, 12, 16, 9999).
+2. Lee las sub-etiquetas o nombres asignados por el usuario a cada muestra (ej. none, sm, md, lg, full, max).
+
+---
+
+Paso 2: Creación de Variables Primitivas ("Primitives")
+Crea/actualiza en Primitives dentro del grupo raíz "radius":
+* Nomenclatura: radius / [Integer_Value] (ej. radius / 0, radius / 4, radius / 8, radius / 999).
+* Tipo de Variable: FLOAT / NUMBER.
+* Orden Ascendente: Ordena la lista numéricamente de menor a mayor.
+
+---
+
+Paso 3: Creación de Variables Semánticas ("Semantic")
+Crea/actualiza en Semantic dentro del grupo raíz "radius":
+* Nomenclatura Dinámica: radius / [User_Defined_Name] utilizando estrictamente los nombres del lienzo (ej. radius / none, radius / sm, radius / max).
+* Conexión: Enlaza como Alias a la primitiva numérica correspondiente.
+
+---
+
+Reporte de Salida:
+Confirma la creación de las primitivas de border radius ordenadas numéricamente y el listado de alias semánticos enlazados.`
+                },
+                {
+                    id: "grids",
+                    title: "5. Grillas y Pantallas (Layout Grids & Screen Sizes)",
+                    category: "Variables: Screen Sizes | Estilos: Local Layout Grids",
+                    badge: "Breakpoints + Local Grid Styles",
+                    colorClass: "purple",
+                    icon: "fa-border-all",
+                    description: "Totalmente dinámico. Genera las variables Primitivas y Semánticas para Screen Sizes (`screen/[value]`) y crea los Local Layout Grid Styles respetando la jerarquía y nombres exactos diseñados por el usuario.",
+                    promptText: `[PROMPT DE GENERACIÓN DE ESTILOS DE GRILLAS Y TOKENS DE SCREEN SIZES EN INGLÉS]
+
+Rol: Actúa como un experto en Design Systems especializado en responsive design, layout grids y breakpoints de pantalla en Figma.
+
+REGLA DE REUTILIZACIÓN DE COLECCIONES:
+* Comprobación de Colecciones Existentes: Revisa si ya existen las colecciones llamadas Primitives, Semantic o UI Kit Foundations.
+* Si la colección YA EXISTE: Incorpora las variables de dimensiones de pantalla dentro del grupo/carpeta raíz "screen" (o "breakpoint") en las colecciones de Primitivas y Semánticas ya creadas. NO crees colecciones duplicadas.
+
+IDIOMA Y NOMENCLATURA STRICTA:
+* Toda la nomenclatura DEBE estar en INGLÉS. Traduce únicamente los títulos o categorías si están en español ("Grillas" -> Grid, "Pequeño" -> Small, "Mediano" -> Medium, "Grande" -> Large).
+
+---
+
+Paso 1: Análisis y Detección Dinámica del Canvas
+Escanea el marco o sección visible en el lienzo (ej. "Grillas" o "Layout Grids"):
+
+1. Para Tamaños de Pantalla (Breakpoints / Screen Sizes):
+   - Detecta los rangos o valores de resolución definidos en las etiquetas/subtítulos (ej. 320px - 599px -> 320, 600px - 1135px -> 600, 1136px & Larger -> 1136).
+   - Lee dinámicamente el nombre o etiqueta semántica definida por el usuario para cada rango (ej. Small, Medium, Large, Fluid container, o cualquier otra etiqueta escrita en el canvas).
+
+2. Para Configuración de Grillas (Layout Grids):
+   - Extrae las propiedades técnicas de cada muestra de grilla:
+     * Count / Columns: Número de columnas (ej. 4 columns, 6 columns, 8 columns, 12 columns).
+     * Margin: Valor en px (ej. 16px, 32px, 112px, 24px).
+     * Gutter: Valor en px (ej. 12px, 20px, 32px, 24px).
+     * Type: Stretch / Auto o Centered según la especificación del lienzo.
+
+---
+
+Paso 2: Creación de Variables de Tamaños de Pantalla ("Primitives" & "Semantic")
+*(Aplica ÚNICAMENTE a Screen Sizes / Breakpoints; las grillas NO generan variables)*
+
+* Primitivas ("Primitives"):
+  - Crea/actualiza en la colección Primitives dentro del grupo raíz "screen" (o "breakpoint"):
+  - Nomenclatura Limpia: screen / [Integer] (ej. screen / 320, screen / 600, screen / 1136).
+  - Orden Ascendente: Genera las variables ordenadas numéricamente de menor a mayor.
+
+* Semánticas ("Semantic"):
+  - Crea/actualiza en la colección Semantic dentro del grupo raíz "screen" (o "breakpoint"):
+  - Nomenclatura Dinámica: screen / [User_Defined_Name] utilizando exactamente los nombres/etiquetas definidos por el usuario en el lienzo traducidos al inglés (ej. screen / small -> alias de screen / 320, screen / medium -> alias de screen / 600, screen / large -> alias de screen / 1136).
+
+---
+
+Paso 3: Creación Dinámica de Estilos de Grilla Locales (Grid Styles)
+Genera los Local Layout Grid Styles en Figma basándote exclusivamente en la jerarquía y nombres que el usuario estructuró en su lienzo:
+
+* Nomenclatura Dinámica de Estilos:
+  \`[Section_or_Category] / [User_Defined_Label_or_Columns]\`
+  Ejemplos según lo detectado en el lienzo:
+  - Si detectas sección "Small" y tarjeta "4 columns" -> Small / 4 Columns
+  - Si detectas sección "Medium" y tarjeta "8 columns" -> Medium / 8 Columns
+  - Si detectas sección "Fluid container / Layout" y tarjeta "12 columns (auto)" -> Fluid Layout / 12 Columns
+
+* Propiedades Aplicadas al Layout Grid:
+  - Pattern: Columns
+  - Count: Número de columnas extraído.
+  - Gutter: Valor numérico de gutter extraído.
+  - Margin: Valor numérico de margin extraído.
+
+---
+
+Reporte de Salida:
+Confirma en el chat al finalizar:
+1. Colecciones existentes reutilizadas para las variables de screen.
+2. Lista de variables Primitivas y Semánticas de Screen Sizes creadas de forma ascendente.
+3. Lista completa de los Local Grid Styles creados en Figma respetando la nomenclatura del usuario y sus parámetros técnicos (Columnas, Margin, Gutter).`
+                },
+                {
+                    id: "effects",
+                    title: "6. Efectos (Effect Styles)",
+                    category: "Estilos: Local Effect Styles (Sin Variables)",
+                    badge: "Drop Shadow + Focus + Blurs",
+                    colorClass: "cyan",
+                    icon: "fa-wand-magic-sparkles",
+                    description: "Extrae sombras, anillos de focus y efectos visuales del lienzo para registrar únicamente Local Effect Styles en Figma, organizándolos dinámicamente según los nombres de sección y muestra del usuario.",
+                    promptText: `[PROMPT DE GENERACIÓN DE ESTILOS DE EFECTOS DINÁMICOS EN INGLÉS]
+
+Rol: Actúa como un experto en Design Systems especializado en estilos de efectos visuales (Effect Styles: Sombras, Anillos de Enfoque/Focus, Blurs) en Figma.
+
+REGLA IMPORTANTE SOBRE VARIABLES:
+* NO crees variables Primitivas ni Semánticas para esta sección. Los efectos se deben registrar exclusivamente como Effect Styles locales de Figma (Local Effect Styles).
+
+IDIOMA Y NOMENCLATURA STRICTA:
+* Toda la nomenclatura DEBE estar en INGLÉS. Traduce dinámicamente únicamente el nombre principal de la sección o categoría si está en español (ej. "Efectos" -> Effects, "Sombras" -> Shadows o Shadow, "Focus" -> Focus).
+
+---
+
+Paso 1: Análisis y Detección Dinámica del Canvas (Efectos)
+Escanea el marco, sección o tarjetas visibles dentro de la zona de "Efectos". Para cada muestra visual detectada:
+1. Categoría o Sección principal: Detecta el título del grupo/bloque en el lienzo (ej. "Sombras", "Focus", "Elevations", "Blurs").
+2. Nombre o Etiqueta de la Muestra: Lee el texto, nombre del nodo o etiqueta específica escrita por el usuario (ej. shadow-xs, shadow-s, focus-s, focus-m, elevation-1).
+3. Propiedades Técnicas del Efecto: Extrae de la capa inspeccionada todos sus parámetros de efecto:
+   - Type: Drop Shadow, Inner Shadow, Layer Blur o Background Blur.
+   - Color & Opacity: Hexadecimal y porcentaje de transparencia/alpha.
+   - Coordinates & Blur: Offset X, Offset Y, Blur radius y Spread radius.
+
+---
+
+Paso 2: Creación Dinámica de Estilos de Efectos Locales (Effect Styles)
+Genera los Local Effect Styles en Figma dependiendo exclusivamente de las secciones y etiquetas que el usuario diseñó en su lienzo:
+
+Estructura de Nomenclatura Dinámica:
+\`[Category Translated] / [Detected Label]\` o \`[Detected Label]\`
+
+---
+
+Paso 3: Aplicación de Parámetros Técnicos
+Asigna a cada Estilo de Efecto local creado los valores exactos (Offset X, Offset Y, Blur, Spread, Color y Opacidad) extraídos de la muestra correspondiente del canvas.
+
+---
+
+Reporte de Salida:
+Confirma en el chat al finalizar:
+1. Las categorías de efectos detectadas en el lienzo (ej. Shadows, Focus).
+2. Confirmación de que NO se crearon variables (cumpliendo las buenas prácticas de Design Systems).
+3. La lista completa de los Local Effect Styles creados en Figma respetando los nombres y la estructura diseñados por el usuario, junto con sus parámetros técnicos principales.`
+                }
+            ],
+            en: [
+                {
+                    id: "colors",
+                    title: "1. Colors (Color Tokens & Styles)",
+                    category: "Variables: Color | Styles: Color",
+                    badge: "Primitives + Semantics + Color Styles",
+                    colorClass: "pink",
+                    icon: "fa-palette",
+                    description: "Generates Primitive Color variables (`color/[hue]/[scale]`), Semantic Aliases (`color/[role]`), and dynamic local Color Styles in Figma, reusing existing collections without duplicates.",
+                    promptText: `[COLOR TOKEN GENERATION PROMPT: CHROMATIC PRIMITIVES AND SEMANTICS IN ENGLISH]
+
+Role: Act as a Design Systems expert specializing in Figma color token architecture.
+
+COLLECTION AND MODE REUSE RULE:
+* Existing Collection Check: Check if collections named Primitives, Semantic, or UI Kit Foundations (or equivalent) already exist.
+* If collection EXISTS: Add or update variables within this exact framework without duplicating or creating a new collection from scratch.
+
+STRUCTURE AND GROUPING LEVEL (CRUCIAL):
+* All variables MUST be grouped under the top-level "color" category.
+
+LANGUAGE AND STRICT NAMING CONVENTIONS:
+* All naming MUST be strictly in ENGLISH. Translate concepts accordingly (e.g., "Neutros" -> neutral, "Éxito" -> success, "Advertencia" -> warning, "Error" -> error, "Primarios" -> primary).
+* PURE chromatic circle name rule in English (e.g., blue, slate, red, emerald, amber). DO NOT use UI or semantic names with functional purpose for primitive variables.
+
+Step 1: Dynamic Canvas Analysis and Mapping
+Scan the visible frame:
+1. For each color sample: Extract Hex code and label from the canvas.
+2. Identify color scales (e.g., 50, 100, 200... 900) or infer the real pure color hue name based on Hex value.
+
+Step 2: Primitive Variable Creation ("Primitives")
+Create/update in Primitives collection under "color" group:
+* Naming: color / [Pure_Chromatic_Name_English] / [Scale]
+* Examples: color / red / 500, color / slate / 100.
+* Keep exact Hexadecimal values.
+
+Step 3: Semantic Variable Creation ("Semantic")
+Create/update in Semantic collection under "color" group:
+* Naming: color / [Role_or_Function_English]
+* Connect as Alias (Reference) to the corresponding primitive variable.
+
+Step 4: Local Color Styles
+Generate Local Color Styles using the structure:
+\`color / [Role_or_Category] / [Name]\`
+* Link directly to created color variables.
+
+Output Report:
+Confirm reused or created collections, full list of Primitive and Semantic variables under 'color', and linked Local Color Styles.`
+                },
+                {
+                    id: "typography",
+                    title: "2. Typography (Typography Tokens & Styles)",
+                    category: "Variables: Typography | Styles: Text Styles",
+                    badge: "Font Family + Size + Weight + Text Styles",
+                    colorClass: "blue",
+                    icon: "fa-font",
+                    description: "Generates primitive typography variables (`typography/font-family`, rounded/sorted `typography/font-size`, `typography/font-weight`) and creates Local Text Styles 100% adapted to canvas hierarchy.",
+                    promptText: `[DYNAMIC TYPOGRAPHY TOKENS AND STYLES GENERATION PROMPT]
+
+Role: Act as a Design Systems expert specializing in web typography, tokens, and typographic scaling in Figma.
+
+COLLECTION REUSE RULE:
+* Existing Collection Check: Check if Primitives or Semantic collections already exist.
+* If collection EXISTS: Incorporate typography variables under the "typography" root group. DO NOT create duplicate collections.
+
+STRICT LANGUAGE AND NAMING:
+* All naming MUST be in ENGLISH. Translate terms appropriately (e.g., "Titulares" -> heading, "Cuerpo" -> body).
+
+---
+
+Step 1: Dynamic Canvas Analysis
+Scan the typography section on canvas:
+1. Identify font families, font sizes (px), font weights, and line heights.
+2. Read top-level labels/categories defined by user (e.g., Heading, Body, Display) and sub-labels (e.g., H1, H2, Large, Regular).
+
+---
+
+Step 2: Primitive Typography Variable Creation ("Primitives")
+Create/update in Primitives collection under "typography" root group:
+
+1. Font Family:
+   - typography / font-family / primary (or font name e.g., inter, roboto)
+
+2. Font Size (MANDATORY: Integer Values & Ascending Order):
+   - Naming: typography / font-size / [Integer_Size]
+   - Mandatory Rounding: NEVER save decimals. Round to nearest whole integer.
+   - Ascending Order: Generate variables sorted numerically from smallest to largest (e.g., 12, 14, 16, 20, 24, 32, 40, 48).
+
+3. Font Weight:
+   - Naming: typography / font-weight / [Weight_Name] (e.g., regular, medium, semi-bold, bold).
+
+---
+
+Step 3: Dynamic Creation of Local Text Styles
+Create Local Text Styles honoring user canvas structure and naming:
+
+* Dynamic Naming:
+  \`[User_Category_Translated] / [User_Sublabel]\`
+  Examples:
+  - Heading / H1
+  - Heading / H2
+  - Body / Medium
+  - Body / Small
+
+* Property Linking:
+  - Font Family -> Alias to typography / font-family / ...
+  - Font Size -> Alias to typography / font-size / ...
+  - Font Weight -> Alias to typography / font-weight / ...
+
+---
+
+Output Report:
+List created primitive typography variables in ascending order and Local Text Styles grouped by canvas hierarchy.`
+                },
+                {
+                    id: "spacing",
+                    title: "3. Spacing (Spacing Tokens)",
+                    category: "Variables: Spacing (Primitives + Semantics)",
+                    badge: "Spacing Scale + Semantic Aliases",
+                    colorClass: "emerald",
+                    icon: "fa-ruler-combined",
+                    description: "Creates pure numeric spacing scales in Primitives (sorted ascendingly, omitting 'px') and links semantic aliases dynamically extracted from user labels.",
+                    promptText: `[SPACING TOKENS GENERATION PROMPT]
+
+Role: Act as a Design Systems expert specializing in layout, spacing, and grid systems in Figma.
+
+COLLECTION REUSE RULE:
+* Check for existing Primitives or Semantic collections. Incorporate spacing variables into root group "spacing". DO NOT duplicate collections.
+
+STRICT NAMING:
+* All naming in ENGLISH. Omit "px" suffix in variable names.
+
+---
+
+Step 1: Dynamic Canvas Analysis
+Scan spacing swatches/cards:
+1. Extract exact numerical pixel values (e.g., 4, 8, 12, 16, 24, 32, 48, 64).
+2. Detect semantic labels or names given by user (e.g., xxs, xs, sm, md, lg, xl or gap-1, padding-s).
+
+---
+
+Step 2: Primitive Spacing Variables ("Primitives")
+Create/update in Primitives under "spacing" group:
+* Naming: spacing / [Integer_Value] (e.g., spacing / 4, spacing / 8, spacing / 16).
+* Variable Type: FLOAT / NUMBER.
+* Ascending Order: Strictly sort variables from smallest to largest.
+
+---
+
+Step 3: Semantic Spacing Variables ("Semantic")
+Create/update in Semantic under "spacing" group:
+* Dynamic Naming: spacing / [User_Defined_Label] using labels detected on canvas (e.g., spacing / xs, spacing / sm, spacing / md).
+* Connection: Link as Alias to corresponding primitive spacing variable.
+
+---
+
+Output Report:
+Show updated collections, ascending list of primitive spacing numbers, and map of created semantic spacing aliases.`
+                },
+                {
+                    id: "radius",
+                    title: "4. Border Radius (Border Radius Tokens)",
+                    category: "Variables: Radius (Primitives + Semantics)",
+                    badge: "Radius Scale + Semantic Aliases",
+                    colorClass: "amber",
+                    icon: "fa-vector-square",
+                    description: "Generates clean numeric border radius scale in Primitives (`radius/[value]`) sorted ascendingly and assigns semantic aliases based on canvas sub-labels.",
+                    promptText: `[BORDER RADIUS TOKENS GENERATION PROMPT]
+
+Role: Act as a Design Systems expert specializing in corner radius and border tokens in Figma.
+
+COLLECTION REUSE RULE:
+* Add variables under "radius" group in existing Primitives or Semantic collections. Avoid duplication.
+
+STRICT NAMING:
+* English naming. Omit "px" extension in variable names.
+
+---
+
+Step 1: Dynamic Canvas Analysis
+Scan Border Radius section:
+1. Extract numerical radius values (e.g., 0, 2, 4, 8, 12, 16, 9999).
+2. Read sub-labels assigned by user to each swatch (e.g., none, sm, md, lg, full, max).
+
+---
+
+Step 2: Primitive Variable Creation ("Primitives")
+Create/update in Primitives under "radius" group:
+* Naming: radius / [Integer_Value] (e.g., radius / 0, radius / 4, radius / 8, radius / 999).
+* Variable Type: FLOAT / NUMBER.
+* Ascending Order: Sort numerically from smallest to largest.
+
+---
+
+Step 3: Semantic Variable Creation ("Semantic")
+Create/update in Semantic under "radius" group:
+* Dynamic Naming: radius / [User_Defined_Name] strictly using canvas names (e.g., radius / none, radius / sm, radius / max).
+* Connection: Link as Alias to matching numeric primitive.
+
+---
+
+Output Report:
+Confirm creation of ascending primitive radius values and list of linked semantic aliases.`
+                },
+                {
+                    id: "grids",
+                    title: "5. Grids & Screens (Layout Grids & Screen Sizes)",
+                    category: "Variables: Screen Sizes | Styles: Local Layout Grids",
+                    badge: "Breakpoints + Local Grid Styles",
+                    colorClass: "purple",
+                    icon: "fa-border-all",
+                    description: "Fully dynamic. Generates Primitive & Semantic Screen Size variables (`screen/[value]`) and creates Local Layout Grid Styles respecting user structure.",
+                    promptText: `[LAYOUT GRID STYLES & SCREEN SIZE TOKENS PROMPT]
+
+Role: Act as a Design Systems expert specializing in responsive design, layout grids, and screen breakpoints in Figma.
+
+COLLECTION REUSE RULE:
+* Incorporate screen size variables into root group "screen" (or "breakpoint") inside existing Primitives and Semantic collections.
+
+STRICT NAMING:
+* All naming MUST be in ENGLISH. Translate titles/categories if in Spanish ("Grillas" -> Grid, "Pequeño" -> Small, "Mediano" -> Medium, "Grande" -> Large).
+
+---
+
+Step 1: Dynamic Canvas Detection & Analysis
+Scan visible layout grids section on canvas:
+
+1. Screen Sizes / Breakpoints:
+   - Detect resolution ranges or values defined in labels (e.g., 320px - 599px -> 320, 600px - 1135px -> 600, 1136px & Larger -> 1136).
+   - Read semantic label for each range (e.g., Small, Medium, Large, Fluid container).
+
+2. Layout Grid Settings:
+   - Extract technical properties:
+     * Count / Columns: Column count (e.g., 4 columns, 6 columns, 8 columns, 12 columns).
+     * Margin: Pixel value (e.g., 16px, 32px, 112px, 24px).
+     * Gutter: Pixel value (e.g., 12px, 20px, 32px, 24px).
+     * Type: Stretch / Auto or Centered.
+
+---
+
+Step 2: Screen Size Variable Creation ("Primitives" & "Semantic")
+*(Applies ONLY to Screen Sizes / Breakpoints; grids do not create variables)*
+
+* Primitives:
+  - Create/update in Primitives under "screen":
+  - Clean Naming: screen / [Integer] (e.g., screen / 320, screen / 600, screen / 1136).
+  - Ascending Order: Sort numerically from smallest to largest.
+
+* Semantic:
+  - Create/update in Semantic under "screen":
+  - Dynamic Naming: screen / [User_Defined_Name] translated to English (e.g., screen / small -> alias of screen / 320).
+
+---
+
+Step 3: Dynamic Creation of Local Grid Styles
+Generate Local Layout Grid Styles based on canvas structure:
+* Dynamic Style Naming: \`[Section_or_Category] / [User_Defined_Label_or_Columns]\`
+* Properties Applied: Pattern (Columns), Count, Gutter, Margin.
+
+---
+
+Output Report:
+Confirm reused collections, list of ascending Primitive/Semantic Screen Size variables, and list of created Local Grid Styles with specs.`
+                },
+                {
+                    id: "effects",
+                    title: "6. Effects (Effect Styles)",
+                    category: "Styles: Local Effect Styles (No Variables)",
+                    badge: "Drop Shadow + Focus + Blurs",
+                    colorClass: "cyan",
+                    icon: "fa-wand-magic-sparkles",
+                    description: "Extracts shadows, focus rings, and visual effects to register exclusively Local Effect Styles in Figma, dynamically organized by section titles and swatch labels.",
+                    promptText: `[DYNAMIC EFFECT STYLES GENERATION PROMPT]
+
+Role: Act as a Design Systems expert specializing in visual effect styles (Effect Styles: Shadows, Focus Rings, Blurs) in Figma.
+
+VARIABLE RULE:
+* DO NOT create Primitive or Semantic variables for this section. Effects MUST be registered exclusively as Figma Local Effect Styles.
+
+STRICT NAMING:
+* All naming MUST be in ENGLISH. Translate section titles dynamically (e.g., "Sombras" -> Shadows, "Focus" -> Focus).
+
+---
+
+Step 1: Dynamic Canvas Analysis (Effects)
+Scan visible "Effects" area on canvas:
+1. Category or Main Section: Detect section title (e.g., "Shadows", "Focus", "Elevations", "Blurs").
+2. Sample Label: Read label/text (e.g., shadow-xs, shadow-s, focus-s, focus-m, elevation-1).
+3. Technical Parameters: Extract parameters:
+   - Type: Drop Shadow, Inner Shadow, Layer Blur, or Background Blur.
+   - Color & Opacity: Hex code and opacity/alpha percentage.
+   - Coordinates & Blur: Offset X, Offset Y, Blur radius, Spread radius.
+
+---
+
+Step 2: Dynamic Creation of Local Effect Styles
+Generate Local Effect Styles in Figma depending on canvas structure:
+* Dynamic Naming: \`[Category Translated] / [Detected Label]\` or \`[Detected Label]\`
+
+---
+
+Step 3: Applying Technical Parameters
+Assign exact extracted parameters (Offset X, Offset Y, Blur, Spread, Color, Opacity) to created Local Effect Styles.
+
+---
+
+Output Report:
+Confirm detected effect categories, confirm NO variables were created, and output list of created Local Effect Styles with key parameters.`
+                }
+            ]
+        };
+
+        const i18n = {
+            es: {
+                subtitle: "Prompts dinámicos optimizados para la extracción e implementación automática de tokens y estilos.",
+                searchPlaceholder: "Buscar palabras clave...",
+                copyActive: "Copiar Activo",
+                copied: "¡Copiado!",
+                copyPrompt: "Copiar Prompt",
+                langBtn: "English",
+                tabs: ["Colores", "Tipografía", "Espacios", "Border Radius", "Grillas y Pantallas", "Efectos"],
+                toastSuffix: "copiado!",
+                footer: "Design System Automator for Figma Agents • prompts listos para copiar y ejecutar directamente."
+            },
+            en: {
+                subtitle: "Dynamic prompts optimized for automated token & style extraction and implementation.",
+                searchPlaceholder: "Search keywords...",
+                copyActive: "Copy Active",
+                copied: "Copied!",
+                copyPrompt: "Copy Prompt",
+                langBtn: "Español",
+                tabs: ["Colors", "Typography", "Spacing", "Border Radius", "Grids & Screens", "Effects"],
+                toastSuffix: "copied!",
+                footer: "Design System Automator for Figma Agents • prompts ready to copy and execute."
+            }
+        };
+
+        let currentTabIndex = 0;
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            document.documentElement.lang = currentLang;
+            updateUIStrings();
+            renderContents();
+            switchTab(currentTabIndex);
+        }
+
+        function updateUIStrings() {
+            const strings = i18n[currentLang];
+            document.getElementById('subtitleText').textContent = strings.subtitle;
+            document.getElementById('searchInput').placeholder = strings.searchPlaceholder;
+            document.getElementById('globalCopyText').textContent = strings.copyActive;
+            document.getElementById('langToggleBtnText').textContent = strings.langBtn;
+            document.getElementById('footerText').textContent = strings.footer;
+
+            // Update Tab Labels
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach((btn, idx) => {
+                const icon = btn.querySelector('i');
+                btn.childNodes[btn.childNodes.length - 1].textContent = ` ${strings.tabs[idx]}`;
+            });
+        }
+
+        function switchTab(index) {
+            currentTabIndex = index;
+            const buttons = document.querySelectorAll('.tab-btn');
+            const panes = document.querySelectorAll('.tab-pane');
+
+            buttons.forEach((btn, i) => {
+                if (i === index) {
+                    btn.classList.add('tab-active');
+                    btn.classList.remove('text-gray-400');
+                } else {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('text-gray-400');
+                }
+            });
+
+            panes.forEach((pane, i) => {
+                if (i === index) {
+                    pane.classList.remove('hidden');
+                } else {
+                    pane.classList.add('hidden');
+                }
+            });
+        }
+
+        function copyCurrentPrompt() {
+            copyPromptText(currentTabIndex);
+        }
+
+        function copyPromptText(index) {
+            const data = promptsData[currentLang][index];
+            const promptContent = data.promptText;
+
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = promptContent;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            const btnText = document.getElementById(`btnText-${index}`);
+            const globalCopyText = document.getElementById(`globalCopyText`);
+
+            const copiedMsg = i18n[currentLang].copied;
+            if (btnText) btnText.textContent = copiedMsg;
+            if (globalCopyText) globalCopyText.textContent = copiedMsg;
+
+            const titleClean = data.title.split('.')[1] || data.title;
+            showToast(`${titleClean} ${i18n[currentLang].toastSuffix}`);
+
+            setTimeout(() => {
+                if (btnText) btnText.textContent = i18n[currentLang].copyPrompt;
+                if (globalCopyText) globalCopyText.textContent = i18n[currentLang].copyActive;
+            }, 2500);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            if (!toast || !toastMsg) return;
+
+            toastMsg.textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderContents() {
+            const container = document.getElementById('tabContents');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const currentPrompts = promptsData[currentLang];
+            const strings = i18n[currentLang];
+
+            currentPrompts.forEach((item, index) => {
+                const isHidden = index !== currentTabIndex ? 'hidden' : '';
+                
+                const cardHtml = `
+                    <div id="content-${index}" class="tab-pane ${isHidden} space-y-6">
+                        <div class="bg-figma-card border border-figma-border rounded-xl p-6 shadow-xl relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-${item.colorClass}-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                            
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center space-x-3 mb-2">
+                                        <span class="p-2 bg-${item.colorClass}-500/20 text-${item.colorClass}-400 rounded-lg text-lg">
+                                            <i class="fa-solid ${item.icon}"></i>
+                                        </span>
+                                        <h2 class="text-2xl font-bold text-white tracking-tight">${item.title}</h2>
+                                    </div>
+                                    <p class="text-gray-400 text-sm max-w-3xl leading-relaxed">${item.description}</p>
+                                </div>
+
+                                <div class="flex items-center space-x-3 shrink-0">
+                                    <span class="text-xs px-3 py-1.5 rounded-full bg-figma-dark border border-figma-border font-mono text-gray-300">
+                                        ${item.badge}
+                                    </span>
+                                    <button onclick="copyPromptText(${index})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2 rounded-lg text-sm flex items-center space-x-2 transition-all shadow-md">
+                                        <i class="fa-regular fa-copy"></i>
+                                        <span id="btnText-${index}">${strings.copyPrompt}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-figma-card border border-figma-border rounded-xl shadow-xl overflow-hidden">
+                            <div class="bg-figma-dark/80 px-5 py-3 border-b border-figma-border flex items-center justify-between text-xs text-gray-400 font-mono">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                                    <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                                    <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                                    <span class="ml-2 font-sans font-medium text-gray-300">Prompt_Figma_Agent_${item.id}.txt</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <span>UTF-8</span>
+                                    <span>Markdown</span>
+                                </div>
+                            </div>
+
+                            <div class="p-6 overflow-x-auto code-scroll max-h-[600px] bg-[#0b0e14]">
+                                <pre id="promptText-${index}" class="text-sm font-mono text-gray-200 whitespace-pre-wrap leading-relaxed select-all">${escapeHtml(item.promptText)}</pre>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+    </script>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header Section -->
+    <header class="border-b border-figma-border bg-figma-card/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-tr from-purple-500 to-blue-500 rounded-lg text-white font-bold shadow-lg">
+                    <i class="fa-brands fa-figma text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                        Design System Generator Suite
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Figma AI Assistant</span>
+                    </h1>
+                    <p id="subtitleText" class="text-xs text-gray-400">Prompts dinámicos optimizados para la extracción e implementación automática de tokens y estilos.</p>
+                </div>
+            </div>
+
+            <!-- Global Actions & Search & Language Toggle -->
+            <div class="flex items-center space-x-3 w-full md:w-auto">
+                <div class="relative w-full md:w-56">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar palabras clave..." class="w-full bg-figma-dark border border-figma-border text-sm rounded-lg pl-9 pr-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-figma-accent transition-colors">
+                </div>
+
+                <!-- Language Selector Toggle -->
+                <button onclick="toggleLanguage()" class="bg-figma-dark hover:bg-figma-border border border-figma-border text-gray-200 text-sm font-medium px-3 py-2 rounded-lg flex items-center space-x-2 transition-all shrink-0">
+                    <i class="fa-solid fa-globe text-blue-400"></i>
+                    <span id="langToggleBtnText">English</span>
+                </button>
+
+                <button onclick="copyCurrentPrompt()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center space-x-2 transition-all shadow-md shrink-0">
+                    <i class="fa-regular fa-copy"></i>
+                    <span id="globalCopyText">Copiar Activo</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2">
+            <nav class="flex space-x-1 overflow-x-auto no-scrollbar border-b border-figma-border/50 text-sm" id="tabNav">
+                <button onclick="switchTab(0)" class="tab-btn tab-active px-4 py-3 font-medium whitespace-nowrap rounded-t-lg transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-palette text-pink-400"></i> Colores
+                </button>
+                <button onclick="switchTab(1)" class="tab-btn px-4 py-3 font-medium whitespace-nowrap rounded-t-lg transition-colors text-gray-400 hover:text-gray-200 flex items-center gap-2">
+                    <i class="fa-solid fa-font text-blue-400"></i> Tipografía
+                </button>
+                <button onclick="switchTab(2)" class="tab-btn px-4 py-3 font-medium whitespace-nowrap rounded-t-lg transition-colors text-gray-400 hover:text-gray-200 flex items-center gap-2">
+                    <i class="fa-solid fa-ruler-combined text-emerald-400"></i> Espacios
+                </button>
+                <button onclick="switchTab(3)" class="tab-btn px-4 py-3 font-medium whitespace-nowrap rounded-t-lg transition-colors text-gray-400 hover:text-gray-200 flex items-center gap-2">
+                    <i class="fa-vector-square fa-solid text-amber-400"></i> Border Radius
+                </button>
+                <button onclick="switchTab(4)" class="tab-btn px-4 py-3 font-medium whitespace-nowrap rounded-t-lg transition-colors text-gray-400 hover:text-gray-200 flex items-center gap-2">
+                    <i class="fa-solid fa-border-all text-purple-400"></i> Grillas y Pantallas
+                </button>
+                <button onclick="switchTab(5)" class="tab-btn px-4 py-3 font-medium whitespace-nowrap rounded-t-lg transition-colors text-gray-400 hover:text-gray-200 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i> Efectos
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- Tab Content Containers -->
+        <div id="tabContents">
+            <!-- Content populated dynamically via Javascript -->
+        </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-emerald-600 text-white px-5 py-3 rounded-lg shadow-2xl flex items-center space-x-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50 border border-emerald-400/30">
+        <i class="fa-solid fa-circle-check text-xl"></i>
+        <span id="toastMsg" class="font-medium text-sm">¡Prompt copiado al portapapeles!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-figma-border bg-figma-card/40 py-6 text-center text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p id="footerText">Design System Automator for Figma Agents • prompts listos para copiar y ejecutar directamente.</p>
+        </div>
+    </footer>
+
+    <!-- App Initialization Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            renderContents();
+            switchTab(0);
+
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const query = e.target.value.toLowerCase();
+                    if (!query) {
+                        switchTab(currentTabIndex);
+                        return;
+                    }
+
+                    const currentPrompts = promptsData[currentLang];
+                    currentPrompts.forEach((item, idx) => {
+                        const text = (item.title + " " + item.description + " " + item.promptText).toLowerCase();
+                        const pane = document.getElementById(`content-${idx}`);
+                        if (pane) {
+                            if (text.includes(query)) {
+                                pane.classList.remove('hidden');
+                            } else {
+                                pane.classList.add('hidden');
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
