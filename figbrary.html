@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biblioteca de video tutoriales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDEDEF;
+  --surface: #FAFAFB;
+  --raised: #FFFFFF;
+  --ink: #0A0A0A;
+  --muted: #8E8E93;
+  --line: rgba(0,0,0,0.04);
+  --shadow-lg: 0 40px 80px -30px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.03);
+  --shadow-sm: 0 10px 24px -14px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.9);
+  --pressed: #EFEFF1;
+  --fab: #000000;
+  --fab-ink: #FFFFFF;
+  --c-cards: #7B6CE0;   --c-cards-soft: #CFC8F6;
+  --c-modal: #4A86E8;   --c-modal-soft: #BCD3F7;
+  --c-header: #EE6B63;  --c-header-soft: #F8C6C2;
+  --c-footer: #F08A24;  --c-footer-soft: #F9D0A6;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121214; --surface: #1B1B1E; --raised: #232327; --ink: #F4F4F5; --muted: #9A9AA1;
+    --line: rgba(255,255,255,0.05);
+    --shadow-lg: 0 40px 80px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+    --shadow-sm: 0 10px 24px -14px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    --pressed: #2B2B30; --fab: #F4F4F5; --fab-ink: #0A0A0A;
+    --c-cards: #A498F2; --c-cards-soft: #4A4377;
+    --c-modal: #7EAAF2; --c-modal-soft: #2F4670;
+    --c-header: #F59B95; --c-header-soft: #6E3A37;
+    --c-footer: #F6AA5E; --c-footer-soft: #6F4A25;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121214; --surface: #1B1B1E; --raised: #232327; --ink: #F4F4F5; --muted: #9A9AA1;
+  --line: rgba(255,255,255,0.05);
+  --shadow-lg: 0 40px 80px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-sm: 0 10px 24px -14px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+  --pressed: #2B2B30; --fab: #F4F4F5; --fab-ink: #0A0A0A;
+  --c-cards: #A498F2; --c-cards-soft: #4A4377;
+  --c-modal: #7EAAF2; --c-modal-soft: #2F4670;
+  --c-header: #F59B95; --c-header-soft: #6E3A37;
+  --c-footer: #F6AA5E; --c-footer-soft: #6F4A25;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "Outfit", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  font-size: 16px; line-height: 1.45; -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--c-modal); outline-offset: 3px; }
+
+.shell {
+  max-width: 1080px; margin: 40px auto 140px; padding: 0 20px;
+}
+.panel {
+  background: var(--surface); border-radius: 56px; box-shadow: var(--shadow-lg);
+  padding: 48px 48px 56px;
+}
+
+/* Header */
+.top { display: flex; align-items: center; gap: 22px; }
+.avatar {
+  width: 84px; height: 84px; border-radius: 50%; flex: none;
+  background: var(--raised); box-shadow: var(--shadow-sm);
+  display: grid; place-items: center;
+}
+.avatar svg { width: 34px; height: 34px; }
+.greet { flex: 1; min-width: 0; }
+.greet small { display: block; color: var(--muted); font-size: 17px; }
+.greet h1 { margin: 2px 0 0; font-size: clamp(26px, 4vw, 34px); font-weight: 500; letter-spacing: -0.01em; }
+.search {
+  display: flex; align-items: center; gap: 10px; height: 64px; padding: 0 22px;
+  border-radius: 32px; background: var(--raised); box-shadow: var(--shadow-sm);
+  width: 64px; transition: width .35s ease; overflow: hidden; cursor: text;
+}
+.search.open, .search:focus-within { width: min(300px, 42vw); }
+.search svg { flex: none; width: 22px; height: 22px; }
+.theme-btn {
+  flex: none; width: 64px; height: 64px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--raised); box-shadow: var(--shadow-sm); display: grid; place-items: center;
+}
+.theme-btn svg { width: 22px; height: 22px; }
+.theme-btn .sun { display: none; }
+:root[data-theme="dark"] .theme-btn .sun { display: block; }
+:root[data-theme="dark"] .theme-btn .moon { display: none; }
+.search input {
+  border: 0; background: transparent; outline: none; font: inherit; color: var(--ink);
+  width: 100%; min-width: 0;
+}
+.search input::placeholder { color: var(--muted); }
+
+/* Category tiles */
+.row-head { display: flex; justify-content: space-between; align-items: baseline; margin: 44px 4px 18px; }
+.row-head h2 { margin: 0; font-size: 21px; font-weight: 500; }
+.row-head span { color: var(--muted); font-size: 18px; }
+.cats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.cat {
+  position: relative; display: flex; align-items: center; gap: 26px; text-align: left;
+  border: 0; cursor: pointer; padding: 28px 30px; border-radius: 34px;
+  background: var(--surface); box-shadow: var(--shadow-sm), 0 0 0 1px var(--line);
+  transition: transform .15s ease, background .2s ease;
+}
+.cat:active { transform: scale(.985); }
+.cat[aria-pressed="true"] { background: var(--pressed); }
+.cat svg { width: 54px; height: 54px; flex: none; }
+.cat b { display: block; font-weight: 500; font-size: 22px; color: var(--tone); }
+.cat em { font-style: normal; color: var(--muted); font-size: 18px; }
+.cat .count { position: absolute; top: 20px; right: 30px; font-size: 26px; font-weight: 500; }
+
+/* Sections */
+.sec { margin-top: 52px; }
+.sec[hidden] { display: none; }
+.sec-head { display: flex; align-items: center; gap: 14px; margin: 0 4px 18px; }
+.sec-head .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--tone); }
+.sec-head h3 { margin: 0; font-size: 21px; font-weight: 500; }
+.sec-head .n { color: var(--muted); margin-left: auto; font-size: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.video {
+  border: 0; cursor: pointer; text-align: left; padding: 12px 12px 20px; border-radius: 30px;
+  background: var(--surface); box-shadow: var(--shadow-sm), 0 0 0 1px var(--line);
+  transition: transform .15s ease;
+}
+.video:active { transform: scale(.985); }
+.thumb {
+  position: relative; aspect-ratio: 16/9; border-radius: 22px; overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 85% 10%, var(--soft) 0%, transparent 60%),
+    radial-gradient(90% 80% at 10% 100%, var(--soft) 0%, transparent 55%),
+    var(--raised);
+  display: grid; place-items: center;
+}
+.thumb svg.glyph { position: absolute; left: 18px; bottom: 16px; width: 40px; height: 40px; opacity: .9; }
+.play {
+  width: 58px; height: 58px; border-radius: 50%; background: var(--fab); color: var(--fab-ink);
+  display: grid; place-items: center; box-shadow: 0 14px 28px -10px rgba(0,0,0,.45);
+}
+.play svg { width: 20px; height: 20px; margin-left: 3px; }
+.video h4 { margin: 16px 10px 2px; font-size: 18px; font-weight: 500; }
+.video p { margin: 0 10px; color: var(--muted); font-size: 15px; }
+.empty { color: var(--muted); padding: 8px 4px; }
+
+/* Bottom nav */
+.dock {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 4px; padding: 10px;
+  border-radius: 60px; background: var(--surface); box-shadow: var(--shadow-lg), 0 0 0 1px var(--line);
+  z-index: 20; max-width: calc(100% - 24px);
+}
+.dock button {
+  display: flex; align-items: center; gap: 10px; height: 60px; padding: 0 18px;
+  border: 0; border-radius: 30px; background: transparent; cursor: pointer; color: var(--muted);
+  transition: background .25s ease, color .25s ease;
+}
+.dock button svg { width: 26px; height: 26px; flex: none; }
+.dock button span { display: none; font-size: 18px; font-weight: 500; white-space: nowrap; }
+.dock button[aria-current="true"] { background: var(--pressed); color: var(--ink); padding: 0 24px; }
+.dock button[aria-current="true"] span { display: inline; }
+
+/* Modal */
+.modal {
+  position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 20px;
+  background: rgba(20,20,24,.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.modal.open { display: grid; }
+.sheet {
+  width: min(880px, 100%); background: var(--surface); border-radius: 40px; padding: 18px 18px 26px;
+  box-shadow: var(--shadow-lg); animation: rise .28s ease;
+}
+@keyframes rise { from { transform: translateY(14px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+.player { position: relative; aspect-ratio: 16/9; border-radius: 26px; overflow: hidden; background: #000; }
+.player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.sheet-meta { display: flex; align-items: center; gap: 16px; padding: 20px 10px 0; flex-wrap: wrap; }
+.sheet-meta .tag { padding: 6px 14px; border-radius: 20px; background: var(--soft); color: var(--tone); font-weight: 500; font-size: 14px; }
+.sheet-meta h4 { margin: 0; font-size: 22px; font-weight: 500; flex: 1; min-width: 200px; }
+.actions { display: flex; gap: 10px; margin-left: auto; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 20px;
+  border-radius: 25px; border: 0; cursor: pointer; text-decoration: none; font-weight: 500;
+  background: var(--raised); color: var(--ink); box-shadow: var(--shadow-sm);
+}
+.btn.dark { background: var(--fab); color: var(--fab-ink); }
+.btn svg { width: 18px; height: 18px; }
+.note { margin: 12px 10px 0; color: var(--muted); font-size: 14px; }
+
+@media (max-width: 720px) {
+  .shell { margin-top: 16px; padding: 0 12px; }
+  .panel { padding: 28px 20px 36px; border-radius: 40px; }
+  .avatar { width: 60px; height: 60px; }
+  .greet small { font-size: 14px; }
+  .search { height: 52px; width: 52px; padding: 0 15px; }
+  .theme-btn { width: 52px; height: 52px; }
+  .top { gap: 12px; }
+  .cats { grid-template-columns: 1fr; gap: 14px; }
+  .cat { padding: 22px; gap: 18px; }
+  .cat svg { width: 44px; height: 44px; }
+  .dock button { padding: 0 12px; height: 52px; }
+  .dock button[aria-current="true"] { padding: 0 16px; }
+  .dock button span { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<main class="shell">
+  <div class="panel">
+    <header class="top">
+      <div class="avatar" aria-hidden="true">
+        <svg viewBox="0 0 38 57"><path fill="#1ABCFE" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0ACF83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#FF7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#F24E1E" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#A259FF" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg>
+      </div>
+      <div class="greet">
+        <small id="updated">Actualizado recientemente</small>
+        <h1>Video tutoriales</h1>
+      </div>
+      <label class="search" id="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Buscar tutorial" aria-label="Buscar tutorial">
+      </label>
+      <button class="theme-btn" id="themeBtn" aria-label="Cambiar a modo oscuro">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </header>
+
+    <div class="row-head">
+      <h2>Categorías</h2>
+      <span id="total"></span>
+    </div>
+    <div class="cats" id="cats"></div>
+
+    <div id="sections"></div>
+  </div>
+</main>
+
+<nav class="dock" id="dock" aria-label="Filtrar por categoría"></nav>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="sheet" id="sheet">
+    <div class="player" id="player"></div>
+    <div class="sheet-meta">
+      <span class="tag" id="mTag"></span>
+      <h4 id="mTitle"></h4>
+      <div class="actions">
+        <a class="btn" id="mLink" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+          Abrir en YouTube
+        </a>
+        <button class="btn dark" id="mClose">Cerrar</button>
+      </div>
+    </div>
+    <p class="note">Si el video no carga aquí, ábrelo en YouTube.</p>
+  </div>
+</div>
+
+<script>
+/* ------- Datos: agrega videos aquí ------- */
+const videos = [
+  { title: "Header 1", description: "Tutorial de header", category: "header", url: "https://www.youtube.com/watch?v=lVqJnvayPFY", updated: "2026-10-23" },
+  { title: "Header 2", description: "Tutorial de header", category: "header", url: "https://www.youtube.com/watch?v=8FlxIA4akGQ", updated: "2026-10-23" },
+  { title: "Header 3", description: "Tutorial de header", category: "header", url: "https://www.youtube.com/watch?v=rVBZmYoNUso", updated: "2026-10-23" },
+  { title: "Header 4", description: "Tutorial de header", category: "header", url: "https://www.youtube.com/watch?v=zo7FVhjOq68", updated: "2026-10-23" },
+  { title: "Footer 1", description: "Tutorial de footer", category: "footer", url: "https://www.youtube.com/watch?v=pzUgkWN0aDc", updated: "2026-10-23" },
+  { title: "Footer 2", description: "Tutorial de footer", category: "footer", url: "https://www.youtube.com/watch?v=ZurFm8V-b7U", updated: "2026-10-23" },
+  { title: "Footer 3", description: "Tutorial de footer", category: "footer", url: "https://www.youtube.com/watch?v=nPpUfJtuUt8", updated: "2026-10-23" },
+  { title: "Footer 4", description: "Tutorial de footer", category: "footer", url: "https://www.youtube.com/watch?v=OVEH7hvqdBY", updated: "2026-10-23" },
+  { title: "Footer 5", description: "Tutorial de footer", category: "footer", url: "https://www.youtube.com/watch?v=geKawL1tCSs", updated: "2026-10-23" },
+  { title: "Modal 1", description: "Tutorial de modal", category: "modal", url: "https://www.youtube.com/watch?v=tobBoHVOccc", updated: "2026-10-23" },
+  { title: "Modal 2", description: "Tutorial de modal", category: "modal", url: "https://www.youtube.com/watch?v=WMfTLPJFGgY&t=52s", updated: "2026-10-23" },
+  { title: "Modal 3", description: "Tutorial de modal", category: "modal", url: "https://www.youtube.com/watch?v=bzPwbVFjPGY", updated: "2026-10-23" },
+  { title: "Card 1", description: "Tutorial de card", category: "cards", url: "https://www.youtube.com/shorts/5NjY5wTLWTI", updated: "2026-10-23" },
+  { title: "Card 2", description: "Tutorial de card", category: "cards", url: "https://www.youtube.com/shorts/Ju98Yv5z3EE", updated: "2026-10-23" },
+  { title: "Card 3", description: "Tutorial de card", category: "cards", url: "https://www.youtube.com/watch?v=GYXGk_CUFAg", updated: "2026-10-23" },
+  { title: "Card 4", description: "Tutorial de card", category: "cards", url: "https://www.youtube.com/watch?v=od-A41YnzvI", updated: "2026-10-23" },
+  { title: "Card 5", description: "Tutorial de card", category: "cards", url: "https://www.youtube.com/shorts/VJh_P6jvkLs", updated: "2026-10-23" }
+];
+
+/* ------- Categorías ------- */
+const icons = {
+  cards: `<svg viewBox="0 0 56 56"><rect x="8" y="12" width="40" height="32" rx="7" fill="var(--c-cards-soft)"/><rect x="14" y="30" width="18" height="4" rx="2" fill="var(--c-cards)"/><rect x="14" y="37" width="11" height="3" rx="1.5" fill="var(--c-cards)" opacity=".6"/><rect x="14" y="18" width="28" height="8" rx="3" fill="var(--c-cards)" opacity=".35"/></svg>`,
+  modal: `<svg viewBox="0 0 56 56"><rect x="4" y="8" width="48" height="40" rx="8" fill="var(--c-modal-soft)" opacity=".6"/><rect x="13" y="16" width="30" height="24" rx="6" fill="var(--c-modal-soft)"/><rect x="18" y="22" width="20" height="3.5" rx="1.75" fill="var(--c-modal)"/><rect x="24" y="31" width="14" height="5" rx="2.5" fill="var(--c-modal)"/></svg>`,
+  header: `<svg viewBox="0 0 56 56"><rect x="6" y="10" width="44" height="36" rx="7" fill="var(--c-header-soft)"/><path d="M6 17a7 7 0 0 1 7-7h30a7 7 0 0 1 7 7v4H6z" fill="var(--c-header)"/><circle cx="12" cy="15.5" r="2" fill="#fff"/><rect x="34" y="14.5" width="11" height="2.5" rx="1.25" fill="#fff"/></svg>`,
+  footer: `<svg viewBox="0 0 56 56"><rect x="6" y="10" width="44" height="36" rx="7" fill="var(--c-footer-soft)"/><path d="M6 35h44v4a7 7 0 0 1-7 7H13a7 7 0 0 1-7-7z" fill="var(--c-footer)"/><rect x="12" y="39" width="8" height="2.5" rx="1.25" fill="#fff"/><rect x="24" y="39" width="8" height="2.5" rx="1.25" fill="#fff"/><rect x="36" y="39" width="8" height="2.5" rx="1.25" fill="#fff"/></svg>`
+};
+const cats = [
+  { id: "cards",  name: "Cards",   tone: "var(--c-cards)",  soft: "var(--c-cards-soft)" },
+  { id: "modal",  name: "Modales", tone: "var(--c-modal)",  soft: "var(--c-modal-soft)" },
+  { id: "header", name: "Header",  tone: "var(--c-header)", soft: "var(--c-header-soft)" },
+  { id: "footer", name: "Footer",  tone: "var(--c-footer)", soft: "var(--c-footer-soft)" }
+];
+const dockIcons = {
+  all: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 10.6a2 2 0 0 1 .8-1.6l7-5.3a2 2 0 0 1 2.4 0l7 5.3a2 2 0 0 1 .8 1.6V19a2 2 0 0 1-2 2h-3.5v-5.5a2.5 2.5 0 0 0-5 0V21H5a2 2 0 0 1-2-2z"/></svg>`,
+  cards: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="14" rx="3.5"/><path d="M7 14h6M7 17h3" stroke-linecap="round"/></svg>`,
+  modal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="3.5" width="19" height="17" rx="3.5" opacity=".45"/><rect x="6.5" y="7.5" width="11" height="9" rx="2.5"/></svg>`,
+  header: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="4" width="17" height="16" rx="3.5"/><path d="M3.5 9h17"/></svg>`,
+  footer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="4" width="17" height="16" rx="3.5"/><path d="M3.5 15h17"/></svg>`
+};
+
+const ytId = u => { const m = u.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/); return m ? m[1] : ""; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const plural = n => n === 1 ? "1 video" : `${n} videos`;
+
+let active = "all";
+let query = "";
+
+function renderCats() {
+  document.getElementById("cats").innerHTML = cats.map(c => {
+    const n = videos.filter(v => v.category === c.id).length;
+    return `<button class="cat" data-cat="${c.id}" style="--tone:${c.tone}" aria-pressed="${active === c.id}">
+      ${icons[c.id]}
+      <div><b>${c.name}</b><em>${plural(n)}</em></div>
+      <span class="count">${n}</span>
+    </button>`;
+  }).join("");
+  document.getElementById("total").textContent = `${plural(videos.length)} en total`;
+}
+
+function renderDock() {
+  const items = [{ id: "all", name: "Todos" }, ...cats];
+  document.getElementById("dock").innerHTML = items.map(i =>
+    `<button data-cat="${i.id}" aria-current="${active === i.id}" aria-label="${i.name}">${dockIcons[i.id]}<span>${i.name}</span></button>`
+  ).join("");
+}
+
+function renderSections() {
+  const q = query.trim().toLowerCase();
+  document.getElementById("sections").innerHTML = cats.map(c => {
+    const list = videos.filter(v => v.category === c.id &&
+      (!q || (v.title + " " + v.description).toLowerCase().includes(q)));
+    const hidden = (active !== "all" && active !== c.id) || (q && !list.length);
+    return `<section class="sec" id="sec-${c.id}" style="--tone:${c.tone};--soft:${c.soft}" ${hidden ? "hidden" : ""}>
+      <div class="sec-head"><span class="dot"></span><h3>${c.name}</h3><span class="n">${plural(list.length)}</span></div>
+      ${list.length ? `<div class="grid">${list.map(v => `
+        <button class="video" data-i="${videos.indexOf(v)}">
+          <div class="thumb">${icons[c.id].replace("<svg", '<svg class="glyph"')}
+            <span class="play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L8.5 3.94A1 1 0 0 0 7 4.8z"/></svg></span>
+          </div>
+          <h4>${esc(v.title)}</h4>
+          <p>${esc(v.description)}</p>
+        </button>`).join("")}</div>`
+      : `<p class="empty">Aún no hay videos en esta categoría.</p>`}
+    </section>`;
+  }).join("");
+}
+
+function setActive(id) {
+  active = (active === id && id !== "all") ? "all" : id;
+  try { localStorage.setItem("vtl-cat", active); } catch (e) {}
+  renderCats(); renderDock(); renderSections();
+  if (active !== "all") document.getElementById("sec-" + active)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* Modal */
+const modal = document.getElementById("modal");
+let lastFocus = null;
+function openVideo(i) {
+  const v = videos[i], c = cats.find(x => x.id === v.category), id = ytId(v.url);
+  lastFocus = document.activeElement;
+  document.getElementById("sheet").style.cssText = `--tone:${c.tone};--soft:${c.soft}`;
+  document.getElementById("mTag").textContent = c.name;
+  document.getElementById("mTitle").textContent = v.title;
+  document.getElementById("mLink").href = v.url;
+  document.getElementById("player").innerHTML =
+    `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0${(v.url.match(/[?&]t=(\d+)/) || [])[1] ? "&start=" + v.url.match(/[?&]t=(\d+)/)[1] : ""}" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  modal.classList.add("open");
+  document.getElementById("mClose").focus();
+}
+function closeVideo() {
+  modal.classList.remove("open");
+  document.getElementById("player").innerHTML = "";
+  lastFocus?.focus();
+}
+
+document.addEventListener("click", e => {
+  const cat = e.target.closest("[data-cat]");
+  if (cat) return setActive(cat.dataset.cat);
+  const vid = e.target.closest(".video");
+  if (vid) return openVideo(+vid.dataset.i);
+  if (e.target === modal || e.target.closest("#mClose")) closeVideo();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) closeVideo(); });
+document.getElementById("q").addEventListener("input", e => { query = e.target.value; renderSections(); });
+
+/* Fecha de última actualización */
+(function () {
+  const latest = videos.map(v => v.updated).sort().pop();
+  if (!latest) return;
+  const d = new Date(latest + "T12:00:00");
+  document.getElementById("updated").textContent =
+    "Actualizado el " + d.toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
+})();
+
+/* Tema claro / oscuro (claro por defecto) */
+const themeBtn = document.getElementById("themeBtn");
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  themeBtn.setAttribute("aria-label", t === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
+}
+let theme = "light";
+try { if (localStorage.getItem("vtl-theme") === "dark") theme = "dark"; } catch (e) {}
+applyTheme(theme);
+themeBtn.addEventListener("click", () => {
+  theme = theme === "dark" ? "light" : "dark";
+  applyTheme(theme);
+  try { localStorage.setItem("vtl-theme", theme); } catch (e) {}
+});
+
+try { const saved = localStorage.getItem("vtl-cat"); if (saved && (saved === "all" || cats.some(c => c.id === saved))) active = saved; } catch (e) {}
+renderCats(); renderDock(); renderSections();
+</script>
+</body>
+</html>
