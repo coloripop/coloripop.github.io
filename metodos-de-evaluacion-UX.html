@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evaluación de UX: métodos analíticos y empíricos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9E9EB; --shell:#F7F7F8; --card:#FFFFFF; --ink:#141414; --muted:#8C8D93; --line:#DCDCE0;
+  --soft:#EFEFF1; --shadow:0 18px 40px -18px rgba(20,20,30,.18), 0 2px 6px rgba(20,20,30,.04);
+  --shadow-sm:0 8px 22px -12px rgba(20,20,30,.16); --fab:#000; --fab-ink:#fff;
+  --purple:#7465DC; --purple-soft:#CFC8F7; --blue:#4A82E6; --blue-soft:#BCD3F8;
+  --coral:#E9675B; --coral-soft:#F8C5BE; --orange:#EA8427; --orange-soft:#F8D2AE;
+  --ana:var(--purple); --emp:var(--coral);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121315; --shell:#1B1C1F; --card:#242529; --ink:#F1F1F3; --muted:#9B9CA4; --line:#34353B;
+    --soft:#2C2D32; --shadow:0 18px 40px -18px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.3);
+    --shadow-sm:0 8px 22px -12px rgba(0,0,0,.55); --fab:#F1F1F3; --fab-ink:#121315;
+    --purple:#9A8EF0; --purple-soft:#4A4380; --blue:#78A6F2; --blue-soft:#2F4A78;
+    --coral:#F28A80; --coral-soft:#6E3530; --orange:#F2A35C; --orange-soft:#6B4421;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121315; --shell:#1B1C1F; --card:#242529; --ink:#F1F1F3; --muted:#9B9CA4; --line:#34353B;
+  --soft:#2C2D32; --shadow:0 18px 40px -18px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-sm:0 8px 22px -12px rgba(0,0,0,.55); --fab:#F1F1F3; --fab-ink:#121315;
+  --purple:#9A8EF0; --purple-soft:#4A4380; --blue:#78A6F2; --blue-soft:#2F4A78;
+  --coral:#F28A80; --coral-soft:#6E3530; --orange:#F2A35C; --orange-soft:#6B4421;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Urbanist",ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--blue);outline-offset:3px}
+
+.wrap{max-width:1320px;margin:0 auto;padding:clamp(14px,4vw,48px)}
+.shell{background:var(--shell);border-radius:clamp(28px,4vw,48px);box-shadow:var(--shadow);padding:clamp(20px,3.4vw,40px);position:relative}
+
+/* header */
+.top{display:flex;align-items:center;gap:18px}
+.badge{width:64px;height:64px;border-radius:50%;flex:none;background:var(--card);box-shadow:var(--shadow-sm);display:grid;place-items:center}
+.top .meta{flex:1;min-width:0}
+.top .meta small{display:block;color:var(--muted);font-size:15px;font-weight:500;margin-bottom:4px}
+.top h1{margin:0;font-size:clamp(26px,3.4vw,38px);font-weight:600;letter-spacing:-.01em;line-height:1.1}
+.bell{width:58px;height:58px;border-radius:50%;border:0;background:var(--card);box-shadow:var(--shadow-sm);display:grid;place-items:center;position:relative;flex:none}
+.bell .dot{position:absolute;top:14px;right:15px;width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 2px var(--card)}
+
+.row{display:flex;justify-content:space-between;align-items:baseline;margin:30px 4px 14px;gap:12px;flex-wrap:wrap}
+.row h2{margin:0;font-size:19px;font-weight:600}
+.row span{color:var(--muted);font-size:17px;font-weight:500}
+
+/* stage */
+.scroller{overflow-x:auto;overflow-y:hidden;border-radius:30px;-webkit-overflow-scrolling:touch}
+.stage{position:relative;min-width:1060px;height:740px;border-radius:30px;background:var(--soft)}
+.links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transition:opacity .5s}
+.links path{fill:none;stroke:var(--line);stroke-width:1.6;vector-effect:non-scaling-stroke}
+.links path.a{stroke:color-mix(in srgb,var(--ana) 35%,var(--line))}
+.links path.e{stroke:color-mix(in srgb,var(--emp) 35%,var(--line))}
+
+.node{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:198px;border:0;text-align:left;
+  background:var(--card);border-radius:24px;box-shadow:var(--shadow-sm);padding:13px 14px 13px 12px;display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;
+  transition:left .7s cubic-bezier(.65,0,.25,1),top .7s cubic-bezier(.65,0,.25,1),opacity .4s,transform .4s,box-shadow .2s}
+.node:hover{box-shadow:var(--shadow)}
+.node .t{font-weight:600;font-size:16px;line-height:1.15}
+.node .s{color:var(--muted);font-size:13.5px;margin-top:3px;font-weight:500}
+.node .n{white-space:nowrap;align-self:start;font-size:19px;font-weight:600;line-height:1}
+.node.sel{box-shadow:0 0 0 2px var(--c),var(--shadow)}
+.node.dim{opacity:.22}
+.node.gone{opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.85)}
+
+.hub{position:absolute;transform:translate(-50%,-50%);border-radius:999px;background:var(--card);box-shadow:var(--shadow-sm);padding:10px 18px;text-align:center;white-space:nowrap;transition:opacity .4s,transform .4s;pointer-events:none}
+.hub b{display:block;font-size:17px;font-weight:700}
+.hub em{font-style:normal;color:var(--muted);font-size:13.5px;font-weight:500}
+.hub.center{background:var(--fab);color:var(--fab-ink);padding:14px 20px}
+.hub.center em{color:color-mix(in srgb,var(--fab-ink) 65%,transparent)}
+.hub.gone{opacity:0;transform:translate(-50%,-50%) scale(.8)}
+
+/* landscape axes */
+.axes{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s}
+.axes.on{opacity:1}
+.axes .v{position:absolute;left:50%;top:5%;bottom:5%;border-left:1.5px dashed var(--line)}
+.axes .h{position:absolute;top:50%;left:3%;right:3%;border-top:1.5px dashed var(--line)}
+.axes .lab{position:absolute;font-size:13.5px;font-weight:600;color:var(--muted);background:var(--soft);padding:2px 8px}
+.axes .lx1{left:3%;top:50%;transform:translateY(-50%)}
+.axes .lx2{right:3%;top:50%;transform:translateY(-50%)}
+.axes .ly1{left:50%;top:2.5%;transform:translateX(-50%)}
+.axes .ly2{left:50%;bottom:2.5%;transform:translateX(-50%)}
+.axes .q{position:absolute;font-size:13px;color:var(--muted);font-weight:500;max-width:150px;line-height:1.3}
+.axes .q b{display:block;color:var(--ink);font-weight:600;font-size:14px}
+
+/* timeline */
+.history{position:absolute;inset:0;padding:24px 0 18px;opacity:0;pointer-events:none;transition:opacity .5s;display:flex;flex-direction:column}
+.history.on{opacity:1;pointer-events:auto}
+.hhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 28px 6px}
+.legend{display:flex;gap:10px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--muted);background:var(--card);border-radius:999px;padding:7px 14px;box-shadow:var(--shadow-sm)}
+.legend span.dash{background:transparent;box-shadow:none;border:1.5px dashed var(--line)}
+.legend i{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,var(--purple),var(--coral))}
+.arrows{display:flex;gap:8px}
+.arrows button{width:44px;height:44px;border-radius:50%;border:0;background:var(--card);box-shadow:var(--shadow-sm);display:grid;place-items:center}
+.hscroll{flex:1;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scroll-padding:0 28px;padding:0 28px 14px;scrollbar-width:thin}
+.hrow{display:flex;gap:14px;position:relative;width:max-content;padding-top:46px;align-items:flex-start}
+.hrow::before{content:"";position:absolute;left:0;right:0;top:22px;height:4px;border-radius:4px;background:var(--line)}
+.ev{position:relative;width:236px;flex:none;scroll-snap-align:start}
+.ev::before{content:"";position:absolute;left:26px;top:-33px;width:16px;height:16px;border-radius:50%;background:var(--card);box-shadow:0 0 0 5px var(--c)}
+.mcard{width:100%;background:var(--card);border-radius:24px;box-shadow:var(--shadow-sm);padding:16px 18px;display:flex;flex-direction:column;gap:8px;border:0;text-align:left;min-height:260px}
+.mcard.val{background:transparent;box-shadow:none;border:1.5px dashed color-mix(in srgb,var(--ink) 22%,transparent)}
+.mcard .mtop{display:flex;align-items:center;justify-content:space-between}
+.mcard .y{font-size:30px;font-weight:700;color:var(--c);line-height:1}
+.mcard .kind{font-size:12.5px;font-weight:600;color:var(--muted)}
+.mcard h3{margin:0;font-size:17px;font-weight:600;line-height:1.2}
+.mcard p{margin:0;color:var(--muted);font-size:14px;line-height:1.45;font-weight:500}
+.mcard .who{font-size:13px;color:var(--ink);font-weight:600;margin-top:auto;padding-top:4px}
+.flag{display:inline-block;font-size:12px;font-weight:600;color:var(--orange);background:color-mix(in srgb,var(--orange) 14%,transparent);border-radius:999px;padding:3px 10px;width:max-content;max-width:100%}
+
+/* costs */
+.costs{position:absolute;inset:0;padding:22px 26px 18px;opacity:0;pointer-events:none;transition:opacity .5s;display:flex;flex-direction:column}
+.costs.on{opacity:1;pointer-events:auto}
+.cgrid{display:grid;grid-template-columns:240px 1fr 120px 104px;gap:16px;align-items:center}
+.chead{padding:0 12px 10px;color:var(--muted);font-size:13px;font-weight:600}
+.ticks{position:relative;height:18px}
+.ticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.ticks span:first-child{transform:none}
+.ticks span:last-child{transform:translateX(-100%)}
+.chead .r{text-align:right}
+.crows{display:flex;flex-direction:column;gap:7px;flex:1}
+.crow{background:var(--card);border:0;border-radius:18px;box-shadow:var(--shadow-sm);padding:9px 12px;text-align:left;width:100%}
+.crow:hover{box-shadow:var(--shadow)}
+.crow .nm{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--c);line-height:1.15}
+.crow .nm svg{flex:none}
+.cwrap{display:block;position:relative;padding-top:17px}
+.cwrap::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent calc(25% - 1px),var(--grid) 25%,transparent calc(25% + 1px),transparent calc(50% - 1px),var(--grid) 50%,transparent calc(50% + 1px),transparent calc(75% - 1px),var(--grid) 75%,transparent calc(75% + 1px))}
+.ctrack{--grid:color-mix(in srgb,var(--ink) 16%,transparent);display:block;position:relative;height:12px;border-radius:12px;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.cwrap{--grid:color-mix(in srgb,var(--ink) 16%,transparent)}
+.clab{position:absolute;top:0;font-size:12px;font-weight:700;color:var(--c);white-space:nowrap;line-height:1}
+.clab.end{transform:translateX(-100%)}
+.cbar{position:absolute;top:0;bottom:0;border-radius:12px;background:var(--c);min-width:12px}
+.cbar.open::after{content:"";position:absolute;right:-10px;top:3px;border:3px solid transparent;border-left:6px solid var(--c)}
+.rng{font-weight:700;font-size:15px;text-align:right;white-space:nowrap}
+.eff{justify-self:end;font-size:12.5px;font-weight:600;border-radius:999px;padding:5px 11px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.eff.hi{color:var(--coral);background:color-mix(in srgb,var(--coral) 14%,transparent)}
+.cfoot{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:12px;color:var(--muted);font-size:13.5px;font-weight:500;line-height:1.4}
+.cfoot button{flex:none;border:0;background:var(--card);box-shadow:var(--shadow-sm);border-radius:999px;padding:10px 16px;font-weight:600;font-size:14px}
+.tools{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tools li{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;line-height:1.35}
+.tools b{font-weight:600}
+.tools span{color:var(--muted);text-align:right;font-weight:500}
+.costline{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px}
+.costline b{font-size:22px;font-weight:700;color:var(--c)}
+.note h4{margin:0 0 4px;font-size:15px}
+
+/* wizard */
+.wz-top{display:flex;align-items:center;gap:12px;margin:2px 56px 18px 0}
+.wz-back{border:0;background:var(--card);box-shadow:var(--shadow-sm);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none}
+.wz-back[disabled]{visibility:hidden}
+.wz-prog{flex:1;height:8px;border-radius:8px;background:color-mix(in srgb,var(--ink) 9%,transparent);overflow:hidden}
+.wz-prog i{display:block;height:100%;border-radius:8px;background:var(--ink);transition:width .35s}
+.wz-count{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+.wz-crit{display:inline-block;font-size:12.5px;font-weight:700;color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent);border-radius:999px;padding:4px 11px;margin-bottom:10px}
+.wz-q{font-size:22px;font-weight:600;line-height:1.2;margin:0 0 6px;outline:none}
+.wz-help{color:var(--muted);font-size:14.5px;line-height:1.45;margin:0 0 16px;font-weight:500}
+.wz-opts{display:grid;gap:10px}
+.wz-opts .opt{width:100%}
+.ans{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.ans button{border:0;background:var(--card);box-shadow:var(--shadow-sm);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.rec{display:block;width:100%;border:0;text-align:left;background:var(--card);border-radius:24px;box-shadow:var(--shadow-sm);padding:16px 18px;margin-bottom:12px}
+.rec.top{box-shadow:0 0 0 2px var(--c),var(--shadow-sm)}
+.rec .rh{display:flex;gap:12px;align-items:center}
+.rec .rh svg{flex:none}
+.rec .tag{display:block;font-size:12px;font-weight:700;color:var(--c)}
+.rec h4{margin:2px 0 0;font-size:18px;font-weight:600;line-height:1.2}
+.rec ul{margin:10px 0 0;padding-left:18px;font-size:14.5px;line-height:1.45}
+.rec .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.rec .meta span{font-size:12.5px;font-weight:600;background:var(--soft);border-radius:999px;padding:4px 10px;color:var(--muted)}
+.wz-box{background:var(--card);border-radius:22px;box-shadow:var(--shadow-sm);padding:14px 16px;margin-bottom:12px;font-size:14.5px;line-height:1.45}
+.wz-box h4{margin:0 0 6px;font-size:14.5px;font-weight:700}
+.wz-box ul{margin:0;padding-left:18px}
+.wz-box.warn{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--orange) 55%,transparent)}
+.wz-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.wz-actions button{border:0;border-radius:999px;padding:12px 18px;font-weight:600;font-size:15px;background:var(--card);box-shadow:var(--shadow-sm)}
+.wz-actions .primary{background:var(--fab);color:var(--fab-ink)}
+.clearhl{border:0;background:var(--card);box-shadow:var(--shadow-sm);border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px;margin-left:auto}
+
+#fabLottie{display:none;width:52px;height:52px}
+.fab.lottie-on #fabLottie{display:block}
+.fab.lottie-on #fabFallback{display:none}
+#fabLottie path{stroke:var(--fab-ink)}
+
+.langbtn{font-weight:700;font-size:16px;letter-spacing:.02em}
+html[lang="en"] [data-lang="es"],html[lang="es"] [data-lang="en"]{display:none}
+
+#logoLottie{display:none;width:42px;height:42px}
+.badge.lottie-on #logoLottie{display:block}
+.badge.lottie-on #logoFallback{display:none}
+#logoLottie path{stroke:var(--ink)}
+
+/* bottom bar */
+.bar{display:flex;align-items:center;gap:16px;margin-top:24px}
+.nav{flex:1;display:flex;align-items:center;gap:6px;background:var(--card);border-radius:999px;padding:8px;box-shadow:var(--shadow-sm)}
+.tab{border:0;background:transparent;border-radius:999px;height:60px;min-width:60px;padding:0 16px;display:flex;align-items:center;gap:10px;color:var(--muted);font-weight:600;font-size:17px;transition:background .25s,color .25s}
+.tab span{display:none}
+.tab[aria-selected="true"]{background:var(--soft);color:var(--ink);padding:0 24px 0 20px}
+.tab[aria-selected="true"] span{display:inline}
+.nav .hint{margin-left:auto;padding-right:16px;color:var(--muted);font-size:14px;font-weight:500}
+.fab{width:84px;height:84px;border-radius:50%;border:0;background:var(--fab);color:var(--fab-ink);display:grid;place-items:center;box-shadow:var(--shadow);flex:none}
+
+/* panels */
+.scrim{position:fixed;inset:0;background:rgba(10,10,14,.28);opacity:0;pointer-events:none;transition:opacity .3s;z-index:20}
+.scrim.on{opacity:1;pointer-events:auto}
+.panel{position:fixed;z-index:30;top:calc(16px + env(safe-area-inset-top,0px));right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(420px,calc(100% - 32px));
+  background:var(--shell);border-radius:36px;box-shadow:var(--shadow);padding:28px;overflow-y:auto;transform:translateX(calc(100% + 40px));transition:transform .45s cubic-bezier(.65,0,.25,1)}
+.panel.on{transform:none}
+.panel .x{position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;border:0;background:var(--card);box-shadow:var(--shadow-sm);display:grid;place-items:center}
+.ph{display:flex;gap:14px;align-items:center;margin:4px 50px 18px 0}
+.ph .ic{width:58px;height:58px;border-radius:20px;background:var(--card);box-shadow:var(--shadow-sm);display:grid;place-items:center;flex:none}
+.ph h3{margin:0;font-size:23px;font-weight:600;line-height:1.15;color:var(--c)}
+.ph small{display:block;color:var(--muted);font-size:14px;font-weight:500;margin-top:3px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.pill{font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--card);box-shadow:var(--shadow-sm)}
+.pill.k{color:var(--c)}
+.stat{background:var(--card);border-radius:24px;box-shadow:var(--shadow-sm);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat b{font-size:30px;font-weight:700}
+.stat span{color:var(--muted);font-weight:500;font-size:14.5px;max-width:60%;text-align:right;line-height:1.3}
+.sec{background:var(--card);border-radius:24px;box-shadow:var(--shadow-sm);padding:16px 18px;margin-bottom:12px}
+.sec h4{margin:0 0 6px;font-size:14.5px;font-weight:700}
+.sec p{margin:0;font-size:15px;line-height:1.5;color:var(--ink);opacity:.86}
+.ref{color:var(--muted);font-size:13.5px;font-weight:500;margin:4px 6px 0;line-height:1.45}
+
+.q{margin-bottom:18px}
+.q h4{margin:0 0 10px;font-size:16px;font-weight:600}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{border:0;background:var(--card);border-radius:20px;box-shadow:var(--shadow-sm);padding:14px;text-align:left;font-weight:600;font-size:15px;line-height:1.25}
+.opt small{display:block;color:var(--muted);font-weight:500;font-size:13px;margin-top:4px}
+.opt[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink),var(--shadow-sm)}
+.result{background:var(--card);border-radius:24px;box-shadow:var(--shadow-sm);padding:16px 18px;margin-top:6px}
+.result p{margin:0 0 10px;color:var(--muted);font-size:14.5px;font-weight:500}
+.chip{display:flex;align-items:center;gap:10px;border:0;background:var(--soft);border-radius:16px;padding:8px 12px 8px 8px;width:100%;margin-top:8px;text-align:left;font-weight:600;font-size:15px}
+.chip svg{flex:none}
+.ghost{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:14.5px;padding:10px 4px;margin-top:6px}
+.note{background:var(--card);border-radius:22px;box-shadow:var(--shadow-sm);padding:14px 16px;margin-bottom:10px;font-size:14.5px;line-height:1.45}
+.note b{font-weight:700}
+.note s{color:var(--muted)}
+
+@media (max-width:640px){
+  .badge{width:52px;height:52px}
+  .bell{width:50px;height:50px}
+  .tab{height:52px;min-width:52px;padding:0 12px}
+  .tab[aria-selected="true"]{padding:0 16px 0 14px}
+  .nav .hint{display:none}
+  .fab{width:68px;height:68px}
+  .scroller::after{content:"";display:block}
+  .panel{top:auto;left:8px;right:8px;width:auto;max-height:82vh;border-radius:30px;transform:translateY(calc(100% + 40px))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main class="shell">
+    <header class="top">
+      <div class="badge" id="logoBadge" aria-hidden="true">
+        <span id="logoLottie"></span><svg id="logoFallback" width="34" height="34" viewBox="0 0 34 34"><circle cx="12" cy="17" r="9" fill="var(--purple-soft)"/><circle cx="22" cy="17" r="9" fill="var(--coral-soft)" style="mix-blend-mode:multiply"/><circle cx="12" cy="17" r="3" fill="var(--purple)"/><circle cx="22" cy="17" r="3" fill="var(--coral)"/></svg>
+      </div>
+      <div class="meta">
+        <small>Métodos analíticos frente a métodos empíricos</small>
+        <h1>Evaluación de UX</h1>
+      </div>
+      <button class="bell langbtn" id="langBtn"></button>
+      <button class="bell" id="themeBtn" aria-label="Cambiar tema"></button>
+      <button class="bell" id="bellBtn" aria-label="Notas de verificación de fuentes" hidden style="display:none">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>
+        <i class="dot"></i>
+      </button>
+    </header>
+
+    <div class="row"><h2 id="viewTitle">Mapa de métodos</h2><button class="clearhl" id="clearHL" style="display:none">Quitar resaltado</button><span id="viewSub">10 métodos</span></div>
+
+    <div class="scroller">
+      <div class="stage" id="stage">
+        <svg class="links" id="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="axes" id="axes" aria-hidden="true">
+          <div class="v"></div><div class="h"></div>
+          <span class="lab lx1">Analítico, sin usuarios</span>
+          <span class="lab lx2">Empírico, con usuarios</span>
+          <span class="lab ly1">¿Por qué pasa? Cualitativo, formativo</span>
+          <span class="lab ly2">¿Cuánto pasa? Cuantitativo, sumativo</span>
+          <div class="q" style="left:4%;top:7%"><b>Opinión experta</b>Rápido y barato, ideal al inicio</div>
+          <div class="q" style="right:4%;top:7%;text-align:right"><b>Comprender al usuario</b>Modelos mentales y fricción real</div>
+          <div class="q" style="left:4%;bottom:7%"><b>Predicción</b>Puntajes y tiempos sin reclutar</div>
+          <div class="q" style="right:4%;bottom:7%;text-align:right"><b>Medición</b>Evidencia de comportamiento real</div>
+        </div>
+        <div class="hub center" id="hubC"><b>Evaluación de UX</b><em>¿quién juzga la interfaz?</em></div>
+        <div class="hub" id="hubA"><b style="color:var(--ana)">Analíticos</b><em>inspección por expertos</em></div>
+        <div class="hub" id="hubE"><b style="color:var(--emp)">Empíricos</b><em>investigación con usuarios</em></div>
+        <div id="nodes"></div>
+        <section class="history" id="history" aria-label="Origen de los métodos y evidencia de validez">
+          <div class="hhead">
+            <div class="legend"><span><i></i>Origen del método</span><span class="dash">Evidencia de validez</span></div>
+            <div class="arrows"><button id="hPrev" aria-label="Hitos anteriores"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><button id="hNext" aria-label="Hitos siguientes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
+          </div>
+          <div class="hscroll" id="hscroll"><div class="hrow" id="miles"></div></div>
+        </section>
+        <section class="costs" id="costs" aria-label="Costos por método">
+          <div class="cgrid chead"><span>Método</span><div class="ticks"><span>$0</span><span style="left:25%">$100</span><span style="left:50%">$1k</span><span style="left:75%">$10k</span><span style="left:100%">$100k</span></div><span class="r">Gasto por estudio</span><span class="r">Esfuerzo interno</span></div>
+          <div class="crows" id="crows"></div>
+          <div class="cfoot"><span>Las barras muestran gasto externo y licencias por estudio, en USD y escala logarítmica. No incluyen las horas del equipo. Precios consultados en octubre de 2026; los rangos son estimaciones.</span><button id="srcBtn">Fuentes y vigencia</button></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="bar">
+      <nav class="nav" role="tablist" aria-label="Vistas">
+        <button class="tab" role="tab" data-view="mapa" aria-selected="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.4"/><circle cx="4.5" cy="6" r="2.2"/><circle cx="4.5" cy="18" r="2.2"/><circle cx="19.5" cy="6" r="2.2"/><circle cx="19.5" cy="18" r="2.2"/><path d="M5.5 7l5 3.6M5.5 17l5-3.6M18.5 7l-5 3.6M18.5 17l-5-3.6" stroke="currentColor" stroke-width="1.6"/></svg>
+          <span>Mapa</span>
+        </button>
+        <button class="tab" role="tab" data-view="matriz" aria-selected="false">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 3v18M3 12h18"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor"/><circle cx="16.5" cy="16.5" r="1.2" fill="currentColor"/></svg>
+          <span>Matriz</span>
+        </button>
+        <button class="tab" role="tab" data-view="historia" aria-selected="false">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="4"/><path d="M8 2.8v3.4M16 2.8v3.4M3 10h18"/><circle cx="8" cy="15" r=".9" fill="currentColor"/><circle cx="12" cy="15" r=".9" fill="currentColor"/><circle cx="16" cy="15" r=".9" fill="currentColor"/></svg>
+          <span>Historia</span>
+        </button>
+        <button class="tab" role="tab" data-view="costos" aria-selected="false">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M14.6 9.3c-.5-.9-1.5-1.4-2.6-1.4-1.5 0-2.6.8-2.6 2s1.1 1.6 2.6 1.9 2.7.8 2.7 2.1-1.2 2-2.7 2c-1.2 0-2.2-.5-2.7-1.4M12 6.3v1.6M12 16.5v1.4"/></svg>
+          <span>Costos</span>
+        </button>
+        <span class="hint" id="hint">Toca un método para ver el detalle</span>
+      </nav>
+      <button class="fab" id="fabBtn" aria-label="¿Qué método uso? Abrir asistente">
+        <span id="fabLottie" aria-hidden="true"></span><svg id="fabFallback" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="7"/><path d="M15.8 15.8L21 21"/><path d="M8.7 8.9a1.9 1.9 0 1 1 2.7 1.7c-.55.27-.9.75-.9 1.3v.35"/><circle cx="10.5" cy="14.1" r=".55" fill="currentColor" stroke="none"/></svg>
+      </button>
+    </div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="panel" id="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <button class="x" data-close aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div id="detailBody"></div>
+</aside>
+
+<aside class="panel" id="wizard" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+  <button class="x" data-close aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="ph" style="--c:var(--ink)"><div><h3 id="wTitle">¿Qué método uso?</h3><small>7 preguntas según los criterios de selección</small></div></div>
+  <div id="wzBody"></div>
+</aside>
+
+<aside class="panel" id="notes" role="dialog" aria-modal="true" aria-labelledby="nTitle">
+  <button class="x" data-close aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="ph" style="--c:var(--ink)"><div><h3 id="nTitle">Fuentes y vigencia</h3><small>Verificación de costos y correcciones de la infografía de origen</small></div></div>
+  <div data-lang="es">
+  <div class="note"><h4>Herramientas retiradas de la tabla original</h4>Validately fue comprada por UserZoom, que en 2023 se fusionó con UserTesting. Usabilla pasó a SurveyMonkey y ClickTale a Contentsquare, ambas en 2019. Google Optimize cerró en septiembre de 2023. TryMyUI ahora es Trymata y cobra por plan mensual, no por test.</div>
+  <div class="note"><h4>Sin vigencia confirmada</h4>No pude confirmar precio ni operación actual de Silverback, Verify, OpenHallway, WebEffective, Concept Feedback, WebSort.net ni Loop11, así que no aparecen. <span class="flag">Revisar si se quieren conservar</span></div>
+  <div class="note"><h4>Reclutamiento e incentivos</h4>Los $107 por participante y $64 por hora vienen de una encuesta de NN/g de 2003; en 2013 NN/g indicó que habían subido cerca de un 20%. Hoy conviene tomarlos como piso, no como referencia actual.</div>
+  <div class="note"><h4>Rangos por estudio</h4>Son estimaciones de práctica habitual, no precios publicados. Las pruebas moderadas van de reclutar 5 usuarios por cuenta propia (cerca de $1k) a contratar agencia, laboratorio y consultoría (más de $20k).</div>
+  <div class="note"><h4>Fila eliminada</h4>Estudios cuantitativos a gran escala no es un método: mezclaba card sorting, analítica y benchmarks. Se separó en card sorting, tree testing y pruebas A/B con analítica.</div>
+  <div class="note"><b>Gray &amp; Salzman (1998)</b>, autores de <i>Damaged Merchandise?</i>. La fuente decía <s>Cray &amp; Selsmon</s>.</div>
+  <div class="note"><b>Nielsen &amp; Molich (1990)</b> presentan la evaluación heurística. La lista actual de 10 heurísticas la consolida Nielsen en 1994. La fuente decía <s>Moliah</s>.</div>
+  <div class="note"><b>Lewis, Polson, Wharton &amp; Rieman (1990)</b> publican el recorrido cognitivo basado en CE+. Se mantuvo 1990.</div>
+  <div class="note"><b>Efecto evaluador.</b> Los autores de la fuente son ilegibles (<s>Mahatedy &amp; Ncíabí, 2010</s>). Se atribuye a Hertzum &amp; Jacobsen (2001) y a los estudios CUE de Molich. <span class="flag">Confirmar cita</span></div>
+  <div class="note"><b>PURE (Rohrer et al., 2016).</b> Las cifras de correlación y acuerdo entre evaluadores aparecen ilegibles en la fuente, así que se describen sin números. <span class="flag">Confirmar en el paper</span></div>
+  <div class="note"><b>Años de origen.</b> Card sorting no tiene un año único: nace en la psicología de los años 50. A/B y teardown marcan su llegada o popularización en producto digital, no la invención de la idea.</div>
+  <div class="note"><b>Participantes típicos</b> son referencias de práctica habitual (p. ej., 5 usuarios por ronda formativa, unos 15 en card sorting), no reglas fijas.</div>
+  </div>
+  <div data-lang="en">
+  <div class="note"><h4>Tools removed from the original table</h4>Validately was acquired by UserZoom, which merged with UserTesting in 2023. Usabilla went to SurveyMonkey and ClickTale to Contentsquare, both in 2019. Google Optimize shut down in September 2023. TryMyUI is now Trymata and charges by monthly plan, not per test.</div>
+  <div class="note"><h4>Currency not confirmed</h4>I couldn’t confirm current pricing or operation for Silverback, Verify, OpenHallway, WebEffective, Concept Feedback, WebSort.net or Loop11, so they don’t appear. <span class="flag">Review whether to keep them</span></div>
+  <div class="note"><h4>Recruiting and incentives</h4>The $107 per participant and $64 per hour come from a 2003 NN/g survey; in 2013 NN/g noted they had risen about 20%. Today they’re best treated as a floor, not a current reference.</div>
+  <div class="note"><h4>Ranges per study</h4>These are estimates from common practice, not published prices. Moderated tests range from recruiting 5 users yourself (about $1k) to hiring an agency, lab and consultancy (over $20k).</div>
+  <div class="note"><h4>Row removed</h4>Large-scale quantitative studies isn’t a method: it mixed card sorting, analytics and benchmarks. It was split into card sorting, tree testing and A/B testing with analytics.</div>
+  <div class="note"><b>Gray &amp; Salzman (1998)</b>, authors of <i>Damaged Merchandise?</i>. The source said <s>Cray &amp; Selsmon</s>.</div>
+  <div class="note"><b>Nielsen &amp; Molich (1990)</b> introduce heuristic evaluation. Nielsen consolidated the current list of 10 heuristics in 1994. The source said <s>Moliah</s>.</div>
+  <div class="note"><b>Lewis, Polson, Wharton &amp; Rieman (1990)</b> publish the cognitive walkthrough based on CE+. 1990 was kept.</div>
+  <div class="note"><b>Evaluator effect.</b> The source’s authors are illegible (<s>Mahatedy &amp; Ncíabí, 2010</s>). It’s attributed to Hertzum &amp; Jacobsen (2001) and Molich’s CUE studies. <span class="flag">Confirm citation</span></div>
+  <div class="note"><b>PURE (Rohrer et al., 2016).</b> The correlation and inter-rater agreement figures are illegible in the source, so they’re described without numbers. <span class="flag">Confirm in the paper</span></div>
+  <div class="note"><b>Origin years.</b> Card sorting has no single year: it was born in 1950s psychology. A/B and teardown mark their arrival or popularization in digital products, not the invention of the idea.</div>
+  <div class="note"><b>Typical participants</b> are common-practice references (e.g., 5 users per formative round, about 15 for card sorting), not fixed rules.</div>
+</div>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
+<script>
+let LANG='es'; try{const sl=localStorage.getItem('ux-eval-lang'); if(sl==='en'||sl==='es')LANG=sl}catch(e){}
+document.documentElement.lang=LANG;
+const EN={"Se ejecuta de inmediato, sin reclutar":"Runs immediately, no recruiting","Siguiente paso":"Next step","Con participantes novatos se observa la aprendibilidad real":"With novice participants you observe real learnability","Revela cómo agrupan y nombran el contenido":"Reveals how they group and name content","Comparación de conceptos con prototipos en papel":"Concept comparison with paper prototypes","Métodos analíticos frente a métodos empíricos":"Analytical methods vs. empirical methods","Evaluación de UX":"UX Evaluation","Mapa de métodos":"Method map","Quitar resaltado":"Clear highlight","10 métodos":"10 methods","Analítico, sin usuarios":"Analytical, no users","Empírico, con usuarios":"Empirical, with users","¿Por qué pasa? Cualitativo, formativo":"Why does it happen? Qualitative, formative","¿Cuánto pasa? Cuantitativo, sumativo":"How much does it happen? Quantitative, summative","Opinión experta":"Expert judgment","Rápido y barato, ideal al inicio":"Fast and cheap, ideal early on","Comprender al usuario":"Understanding users","Modelos mentales y fricción real":"Mental models and real friction","Predicción":"Prediction","Puntajes y tiempos sin reclutar":"Scores and times without recruiting","Medición":"Measurement","Evidencia de comportamiento real":"Evidence of real behavior","¿quién juzga la interfaz?":"who judges the interface?","Analíticos":"Analytical","inspección por expertos":"expert inspection","Empíricos":"Empirical","investigación con usuarios":"research with users","Origen del método":"Method origin","Evidencia de validez":"Validity evidence","Método":"Method","$1k":"$1k","$10k":"$10k","$100k":"$100k","Gasto por estudio":"Spend per study","Esfuerzo interno":"Internal effort","Las barras muestran gasto externo y licencias por estudio, en USD y escala logarítmica. No incluyen las horas del equipo. Precios consultados en octubre de 2026; los rangos son estimaciones.":"Bars show external spend and licenses per study, in USD on a logarithmic scale. They don’t include team hours. Prices checked in October 2026; ranges are estimates.","Fuentes y vigencia":"Sources and currency","Mapa":"Map","Matriz":"Matrix","Historia":"History","Costos":"Costs","Toca un método para ver el detalle":"Tap a method to see details","¿Qué método uso?":"Which method should I use?","7 preguntas según los criterios de selección":"7 questions based on the selection criteria","Verificación de costos y correcciones de la infografía de origen":"Cost verification and corrections to the source infographic","Cambiar tema":"Change theme","Notas de verificación de fuentes":"Source verification notes","Origen de los métodos y evidencia de validez":"Method origins and validity evidence","Hitos anteriores":"Previous milestones","Hitos siguientes":"Next milestones","Costos por método":"Costs by method","Vistas":"Views","¿Qué método uso? Abrir asistente":"Which method should I use? Open assistant","Cerrar":"Close","Evaluación de UX: métodos analíticos y empíricos":"UX Evaluation: analytical and empirical methods","Cambiar a modo oscuro":"Switch to dark mode","Cambiar a modo claro":"Switch to light mode","Matriz de métodos":"Method matrix","quién y qué mide":"who judges and what it measures","Origen y validez":"Origin and validity","1950s a 2016":"1950s to 2016","Toca un hito para ver el método":"Tap a milestone to see the method","gasto externo por estudio":"external spend per study","Toca un método para ver sus herramientas":"Tap a method to see its tools","Evaluación heurística":"Heuristic evaluation","método analítico":"analytical method","método empírico":"empirical method","Ver detalle":"See details","Ver detalle del método":"See method details","Cualitativo, formativo":"Qualitative, formative","Recorrido cognitivo":"Cognitive walkthrough","Aprendibilidad":"Learnability","Método PURE":"PURE method","Cuantitativo, benchmark":"Quantitative, benchmark","KLM-GOMS":"KLM-GOMS","Cuantitativo, predictivo":"Quantitative, predictive","UX teardown":"UX teardown","Cualitativo, crítico":"Qualitative, critical","Design critique":"Design critique","Entre pares":"Peer-based","Pruebas de usabilidad":"Usability testing","Mixto, en lab o remoto":"Mixed, lab or remote","Card sorting":"Card sorting","Modelos mentales":"Mental models","Tree testing":"Tree testing","Cuantitativo, hallazgo":"Quantitative, findability","Pruebas A/B y analítica":"A/B testing and analytics","Cuantitativo, sumativo":"Quantitative, summative","Pruebas no moderadas":"Unmoderated testing","Pruebas moderadas":"Moderated testing","Medio":"Medium","Bajo":"Low","Medio-alto":"Medium-high","Alto":"High","Nace en la psicología cognitiva para estudiar cómo las personas agrupan conceptos. El diseño web lo adopta en los años 90 para definir la arquitectura de información.":"Born in cognitive psychology to study how people group concepts. Web design adopted it in the 1990s to define information architecture.","Psicología cognitiva":"Cognitive psychology","Primer modelo predictivo de tiempos en interfaces: suma operadores de bajo nivel para estimar cuánto tarda un experto. Se amplía en el libro de 1983.":"First predictive timing model for interfaces: it adds up low-level operators to estimate how long an expert takes. Expanded in the 1983 book.","Card, Moran & Newell, Xerox PARC":"Card, Moran & Newell, Xerox PARC","Pruebas de usabilidad con pensar en voz alta":"Think-aloud usability testing","El protocolo de pensar en voz alta pasa de la psicología a la evaluación de interfaces y se vuelve el núcleo de las pruebas con usuarios.":"The think-aloud protocol moves from psychology into interface evaluation and becomes the core of user testing.","Clayton Lewis, IBM":"Clayton Lewis, IBM","Método de inspección basado en la teoría CE+: el usuario aprende explorando y evaluando la respuesta del sistema.":"An inspection method based on CE+ theory: users learn by exploring and evaluating the system’s response.","Lewis, Polson, Wharton & Rieman":"Lewis, Polson, Wharton & Rieman","Se formaliza la inspección por principios. La lista actual de 10 heurísticas se consolida en 1994.":"Principle-based inspection is formalized. The current list of 10 heuristics was consolidated in 1994.","Nielsen & Molich":"Nielsen & Molich","Validez":"Validity","Debate sobre el rigor":"The rigor debate","Una revisión crítica muestra que los experimentos que comparaban métodos de evaluación tenían fallas que impedían conclusiones sólidas.":"A critical review shows that experiments comparing evaluation methods had flaws that prevented solid conclusions.","Gray & Salzman":"Gray & Salzman","Pruebas A/B en la web":"A/B testing on the web","Google corre su primer A/B para decidir cuántos resultados mostrar por página. Los experimentos controlados ya existían en medicina y publicidad.":"Google runs its first A/B test to decide how many results to show per page. Controlled experiments already existed in medicine and advertising.","Google":"Google","El efecto evaluador":"The evaluator effect","Evaluadores distintos detectan problemas muy distintos al revisar la misma interfaz, incluso con el mismo método.":"Different evaluators detect very different problems when reviewing the same interface, even with the same method.","Fuente original ilegible":"Original source illegible","Hertzum & Jacobsen; estudios CUE de Molich":"Hertzum & Jacobsen; Molich’s CUE studies","Se describe la clasificación basada en tarjetas: buscar elementos en una jerarquía hecha con fichas de papel. Después se populariza en línea como tree testing.":"Card-based classification is described: finding items in a hierarchy made of paper index cards. It later became popular online as tree testing.","Donna Spencer":"Donna Spencer","UserOnboard publica críticas anotadas, pantalla por pantalla, de productos conocidos y populariza el término teardown.":"UserOnboard publishes annotated, screen-by-screen critiques of well-known products and popularizes the term teardown.","Popularización; la crítica experta es anterior":"Popularization; expert critique is older","Samuel Hulick":"Samuel Hulick","Se sistematiza la crítica de diseño para equipos de producto: una práctica de retroalimentación ligada a objetivos, distinta de una revisión de aprobación.":"Design critique is systematized for product teams: a goal-oriented feedback practice, distinct from an approval review.","La crítica de taller es mucho más antigua":"Studio critique is much older","Adam Connor & Aaron Irizarry":"Adam Connor & Aaron Irizarry","PURE y su validez":"PURE and its validity","Se presenta PURE y se reporta que sus puntajes se relacionan con métricas empíricas por tarea, como SEQ, con acuerdo entre evaluadores.":"PURE is introduced, with reports that its scores correlate with empirical task-level metrics such as SEQ, and with agreement between evaluators.","Confirmar cifras":"Confirm figures","Rohrer et al.":"Rohrer et al.","Método analítico, inspección por expertos":"Analytical method, expert inspection","Método empírico, investigación con usuarios":"Empirical method, research with users","evaluadores expertos por revisión":"expert evaluators per review","Qué es":"What it is","Cuándo usarlo":"When to use it","Qué obtienes":"What you get","Limitación":"Limitation","Expertos inspeccionan la interfaz contra 10 principios de usabilidad, como visibilidad del estado del sistema, prevención de errores y consistencia, para detectar fallos sin involucrar usuarios.":"Experts inspect the interface against 10 usability principles, such as visibility of system status, error prevention and consistency, to detect flaws without involving users.","Al inicio o entre iteraciones, cuando necesitas un diagnóstico rápido y barato antes de probar con usuarios.":"Early on or between iterations, when you need a quick, cheap diagnosis before testing with users.","Lista de problemas asociados a cada heurística y priorizados por severidad.":"A list of problems mapped to each heuristic and prioritized by severity.","Dos expertos rara vez encuentran los mismos problemas, y algunos hallazgos son falsos positivos que ningún usuario sufriría.":"Two experts rarely find the same problems, and some findings are false positives no user would experience.","Sin usuarios; el costo real son 3 a 5 evaluadores":"No users; the real cost is 3 to 5 evaluators","Hoja de cálculo, Miro o FigJam":"Spreadsheet, Miro or FigJam","$0 en planes gratuitos":"$0 on free plans","FigJam en Figma Professional":"FigJam in Figma Professional","asiento Collab desde $3/mes (anual)":"Collab seat from $3/month (annual)","Origen: 1990. Nielsen & Molich, CHI 90. Lista de 10 heurísticas consolidada por Nielsen en 1994.":"Origin: 1990. Nielsen & Molich, CHI 90. List of 10 heuristics consolidated by Nielsen in 1994.","analistas recorriendo cada tarea":"analysts walking through each task","Se recorre paso a paso la ruta correcta de una tarea preguntando si un usuario nuevo sabría qué hacer, vería el control adecuado y entendería la respuesta del sistema. Se basa en la teoría CE+ de aprendizaje por exploración.":"The correct path of a task is walked through step by step, asking whether a new user would know what to do, notice the right control and understand the system’s response. It’s based on the CE+ theory of exploratory learning.","Productos de uso sin entrenamiento: kioscos, onboarding, flujos que alguien hace una sola vez.":"Walk-up-and-use products: kiosks, onboarding, flows someone does only once.","Puntos exactos del flujo donde el aprendizaje se rompe, con su causa.":"The exact points in the flow where learning breaks down, with their cause.","Solo evalúa la ruta ideal; no explora errores ni rutas alternativas, y es lento en tareas largas.":"It only evaluates the ideal path; it doesn’t explore errors or alternative paths, and it’s slow for long tasks.","Sin usuarios; requiere el prototipo y las tareas definidas":"No users; requires the prototype and defined tasks","Documento o FigJam":"Document or FigJam","Prototipo en Figma":"Figma prototype","asiento Full $16/mes (anual)":"Full seat $16/month (annual)","Origen: 1990. Lewis, Polson, Wharton & Rieman, CHI 90.":"Origin: 1990. Lewis, Polson, Wharton & Rieman, CHI 90.","evaluadores capacitados":"trained evaluators","Practical Usability Ratings by Experts. Tres evaluadores califican la fricción de cada paso en las tareas fundamentales (1 baja, 2 media, 3 alta) y suman un puntaje por tarea y por producto.":"Practical Usability Ratings by Experts. Three evaluators rate the friction of each step in fundamental tasks (1 low, 2 medium, 3 high) and add up a score per task and per product.","Para comparar versiones o competidores con números cuando no hay presupuesto para un estudio grande con usuarios.":"To compare versions or competitors with numbers when there’s no budget for a large user study.","Puntaje de fricción por paso, por tarea y global, fácil de visualizar en verde, amarillo y rojo.":"A friction score per step, per task and overall, easy to visualize in green, yellow and red.","Depende de que los evaluadores representen bien al usuario objetivo; complementa a las pruebas empíricas, no las reemplaza.":"It depends on evaluators representing the target user well; it complements empirical testing, it doesn’t replace it.","Sin usuarios; 3 evaluadores capacitados":"No users; 3 trained evaluators","Hoja de cálculo con escala 1 a 3":"Spreadsheet with a 1 to 3 scale","Producto o prototipo a evaluar":"Product or prototype to evaluate","sin costo adicional":"no additional cost","Origen: 2016. Rohrer, Wendt, Sauro, Boyle & Cole, CHI 2016.":"Origin: 2016. Rohrer, Wendt, Sauro, Boyle & Cole, CHI 2016.","analista que modela las tareas; no requiere usuarios":"analyst who models the tasks; no users needed","Predice cuánto tarda un usuario experto, sin errores, sumando operadores elementales: teclear, apuntar, mover la mano entre teclado y mouse, y prepararse mentalmente.":"Predicts how long an expert user takes, error-free, by adding up elementary operators: keystrokes, pointing, moving the hand between keyboard and mouse, and mental preparation.","Para comparar alternativas en flujos repetitivos de alta frecuencia, como captura de datos o atención telefónica.":"To compare alternatives in high-frequency repetitive flows, such as data entry or call-center work.","Tiempo estimado en segundos por flujo y diferencia entre alternativas.":"Estimated time in seconds per flow and the difference between alternatives.","No modela errores, aprendizaje, fatiga ni satisfacción; asume desempeño experto.":"It doesn’t model errors, learning, fatigue or satisfaction; it assumes expert performance.","No requiere usuarios ni licencias; el costo real son las horas del analista que descompone cada tarea en operadores y calcula los tiempos":"No users or licenses needed; the real cost is the hours of the analyst who breaks each task into operators and calculates the times","Cogulator":"Cogulator","gratis, código abierto (MITRE)":"free, open source (MITRE)","CogTool":"CogTool","gratis, código abierto":"free, open source","Hoja de cálculo":"Spreadsheet","Origen: 1980. Card, Moran & Newell, Communications of the ACM; ampliado en The Psychology of Human-Computer Interaction (1983).":"Origin: 1980. Card, Moran & Newell, Communications of the ACM; expanded in The Psychology of Human-Computer Interaction (1983).","experto analizando el producto":"expert analyzing the product","Crítica externa que desarma un producto existente, propio o de la competencia, pantalla por pantalla, para explicar por qué funciona o falla. Es ingeniería inversa del diseño.":"An external critique that takes apart an existing product, your own or a competitor’s, screen by screen, to explain why it works or fails. It’s reverse engineering of the design.","Análisis competitivo, auditorías iniciales o para enseñar patrones con ejemplos reales.":"Competitive analysis, initial audits, or teaching patterns with real examples.","Recorrido anotado con aciertos, fricciones y oportunidades.":"An annotated walkthrough with strengths, friction points and opportunities.","Es opinión argumentada, no evidencia del comportamiento de los usuarios.":"It’s reasoned opinion, not evidence of user behavior.","Sin usuarios; capturas del producto analizado":"No users; screenshots of the analyzed product","Figma o FigJam para anotar":"Figma or FigJam for annotation","$0 a $16/mes":"$0 to $16/month","Origen del término: 2013. Samuel Hulick lo populariza con UserOnboard; la crítica experta como práctica es anterior.":"Origin of the term: 2013. Samuel Hulick popularized it with UserOnboard; expert critique as a practice is older.","colegas en la sesión":"colleagues in the session","Sesión estructurada en la que colegas analizan un diseño en progreso frente a sus objetivos: qué intenta lograr, qué elementos lo apoyan, cuáles no y por qué.":"A structured session in which colleagues analyze a work-in-progress design against its goals: what it’s trying to achieve, which elements support that, which don’t, and why.","Durante todo el proceso, sobre todo temprano y entre iteraciones, antes de invertir en pruebas con usuarios.":"Throughout the process, especially early and between iterations, before investing in user testing.","Retroalimentación accionable ligada a objetivos, vocabulario compartido y alineación del equipo.":"Actionable, goal-linked feedback, a shared vocabulary and team alignment.","Es opinión de pares, no evidencia del usuario. Si se convierte en aprobación o gusto personal pierde valor; necesita facilitación y reglas claras.":"It’s peer opinion, not user evidence. If it turns into approval or personal taste it loses value; it needs facilitation and clear rules.","Sin usuarios; tiempo de reunión del equipo":"No users; team meeting time","Figma Professional":"Figma Professional","asiento Full $16/mes anual o $20 mensual":"Full seat $16/month annual or $20 monthly","FigJam":"FigJam","asiento Collab $3/mes (anual)":"Collab seat $3/month (annual)","Zoom, Meet o Teams":"Zoom, Meet or Teams","$0 o licencia corporativa":"$0 or corporate license","Raíz en la crítica de taller de arte y arquitectura. Sistematizada para equipos de producto por Connor & Irizarry, Discussing Design (2015).":"Rooted in art and architecture studio critique. Systematized for product teams by Connor & Irizarry, Discussing Design (2015).","usuarios por ronda formativa; más para medir":"users per formative round; more to measure","Participantes realizan tareas en escenarios realistas, en laboratorio o de forma remota, mientras se observa dónde dudan, se equivocan o abandonan.":"Participants perform tasks in realistic scenarios, in a lab or remotely, while you observe where they hesitate, make mistakes or give up.","En cualquier etapa en que exista un prototipo o producto que se pueda usar.":"At any stage where there’s a usable prototype or product.","Problemas observados con su evidencia, tasa de éxito, tiempo por tarea y escalas como SEQ o SUS.":"Observed problems with their evidence, success rate, time on task and scales such as SEQ or SUS.","El contexto es artificial y reclutar cuesta; con pocos usuarios no conviene reportar porcentajes.":"The context is artificial and recruiting costs money; with few users, reporting percentages isn’t advisable.","Pago por test o participante, de 5 a 20 personas":"Pay per test or participant, 5 to 20 people","Userfeel":"Userfeel","créditos de $60; desde $30 con testers propios":"$60 credits; from $30 with your own testers","Userlytics":"Userlytics","~$30 a $180 por participante, según perfil":"~$30 to $180 per participant, depending on profile","Trymata (antes TryMyUI)":"Trymata (formerly TryMyUI)","planes de ~$99 a $399/mes":"plans from ~$99 to $399/month","Reclutamiento ~$107 por participante e incentivo ~$64/h (NN/g, 2003; ~20% más en 2013)":"Recruiting ~$107 per participant and incentive ~$64/h (NN/g, 2003; ~20% higher by 2013)","$0 a $20/mes":"$0 to $20/month","Lookback":"Lookback","Team $99/mes o Insights $229/mes, anual":"Team $99/month or Insights $229/month, annual","Origen: 1982. Clayton Lewis aplica el pensar en voz alta a interfaces en IBM; Gould & Lewis (1985) consolidan la medición empírica en el diseño.":"Origin: 1982. Clayton Lewis applies think-aloud to interfaces at IBM; Gould & Lewis (1985) establish empirical measurement in design.","participantes, referencia habitual":"participants, common benchmark","Los participantes agrupan y nombran tarjetas de contenido. Puede ser abierto, cerrado o híbrido, y revela cómo organizan la información en su cabeza.":"Participants group and name content cards. It can be open, closed or hybrid, and it reveals how they organize information in their heads.","Al diseñar o reorganizar la arquitectura de información y el etiquetado.":"When designing or reorganizing information architecture and labeling.","Matriz de similitud, agrupaciones frecuentes y el vocabulario de los usuarios.":"A similarity matrix, frequent groupings and users’ vocabulary.","No prueba la navegación real: solo cómo agruparían, no si encuentran las cosas.":"It doesn’t test real navigation: only how people would group things, not whether they find them.","Panel de participantes opcional":"Optional participant panel","Fichas en papel":"Paper index cards","Optimal Workshop (OptimalSort)":"Optimal Workshop (OptimalSort)","Starter $199/mes, solo anual":"Starter $199/month, annual only","Origen: años 50, en psicología cognitiva. Adoptado para arquitectura de información web en los años 90.":"Origin: 1950s, in cognitive psychology. Adopted for web information architecture in the 1990s.","Los participantes buscan elementos en una jerarquía de solo texto, sin diseño visual, para medir qué tan fácil es encontrar cada cosa.":"Participants look for items in a text-only hierarchy, with no visual design, to measure how easy each thing is to find.","Antes y después de rediseñar la arquitectura, a menudo justo después de un card sorting.":"Before and after redesigning the architecture, often right after a card sort.","Tasa de éxito, rutas directas o con retrocesos, y primer clic por tarea.":"Success rate, direct or backtracking paths, and first click per task.","Aísla la estructura de la búsqueda, el diseño visual y el contenido real de las páginas.":"It isolates the structure from search, visual design and the pages’ real content.","Fichas en papel, como el método original":"Paper index cards, like the original method","Optimal Workshop (Treejack)":"Optimal Workshop (Treejack)","Origen: 2003. Donna Spencer, Card-Based Classification Evaluation (Boxes and Arrows). También llamado card sorting inverso.":"Origin: 2003. Donna Spencer, Card-Based Classification Evaluation (Boxes and Arrows). Also called reverse card sorting.","usuarios reales en producción":"real users in production","El tráfico real se asigna al azar entre variantes de diseño y se compara su impacto en clics, navegación y conversión.":"Real traffic is randomly assigned to design variants and their impact on clicks, navigation and conversion is compared.","Con el producto en producción y tráfico suficiente para alcanzar significancia estadística.":"With the product live and enough traffic to reach statistical significance.","Diferencia medible entre variantes en métricas de comportamiento y negocio.":"A measurable difference between variants in behavioral and business metrics.","Dice qué pasa pero no por qué; necesita volumen y solo compara opciones que ya diseñaste.":"It tells you what happens but not why; it needs volume and only compares options you’ve already designed.","Usa tráfico propio; requiere desarrollo y estadística":"Uses your own traffic; requires development and statistics","VWO":"VWO","plan gratuito hasta 50k visitantes/mes":"free plan up to 50k visitors/month","GrowthBook o PostHog":"GrowthBook or PostHog","código abierto o con nivel gratuito":"open source or with a free tier","Crazy Egg (mapas de calor)":"Crazy Egg (heatmaps)","$29 a $599/mes, anual":"$29 to $599/month, annual","Plataformas enterprise":"Enterprise platforms","pueden superar $60k/año":"can exceed $60k/year","Origen en la web: 2000, primer A/B de Google. Los experimentos controlados son muy anteriores (medicina, publicidad).":"Origin on the web: 2000, Google’s first A/B test. Controlled experiments are much older (medicine, advertising).","Criterio 1: pregunta de investigación":"Criterion 1: research question","¿Qué necesitas averiguar?":"What do you need to find out?","La decisión guía la pregunta, y la pregunta define el método. No al revés.":"The decision drives the question, and the question defines the method. Not the other way around.","¿Por qué se frustran o abandonan?":"Why do users get frustrated or drop off?","Entender la causa raíz de un problema":"Understand the root cause of a problem","¿Hay errores evidentes antes de desarrollar?":"Are there obvious errors before development?","Diagnóstico rápido del diseño":"Quick design diagnosis","¿Es fácil de aprender la primera vez?":"Is it easy to learn the first time?","Aprendibilidad para usuarios nuevos":"Learnability for new users","¿Entienden los menús y las categorías?":"Do they understand the menus and categories?","Arquitectura de información":"Information architecture","¿Completan las tareas clave? ¿Cuánto mejoró?":"Do they complete key tasks? How much did it improve?","Éxito, tiempo y satisfacción medibles":"Measurable success, time and satisfaction","¿Cuál de dos diseños funciona mejor?":"Which of two designs works better?","Comparar alternativas con datos":"Compare alternatives with data","¿Cuánto tarda un experto en una tarea repetitiva?":"How long does an expert take on a repetitive task?","Eficiencia en tareas de alta frecuencia":"Efficiency in high-frequency tasks","¿Cómo lo resuelven otros productos?":"How do other products solve it?","Patrones y vacíos de la competencia":"Competitors’ patterns and gaps","Criterio 2: fase del ciclo de vida":"Criterion 2: lifecycle phase","¿En qué estado está el producto?":"What stage is the product in?","La fase define qué métodos son viables: no se puede hacer un A/B sobre un boceto.":"The phase defines which methods are viable: you can’t A/B test a sketch.","Estrategia":"Strategy","Bocetos, conceptos o todavía sin interfaz":"Sketches, concepts or no interface yet","Diseño":"Design","Wireframes o prototipos interactivos":"Wireframes or interactive prototypes","Lanzado":"Launched","En producción o listo para lanzar":"Live or ready to launch","Criterio 3: restricciones, tiempo":"Criterion 3: constraints, time","¿Cuándo necesitas la respuesta?":"When do you need the answer?","Con poco tiempo, reclutar suele ser el cuello de botella.":"With little time, recruiting is usually the bottleneck.","En días":"In days","Sprint o lanzamiento inminente":"Sprint or imminent launch","En semanas o más":"In weeks or more","Hay margen para reclutar y hacer un piloto":"There’s room to recruit and run a pilot","Criterio 3: restricciones, presupuesto":"Criterion 3: constraints, budget","¿Con qué presupuesto cuentas?":"What budget do you have?","Incentivos, agencias y plataformas de pago.":"Incentives, agencies and paid platforms.","Nulo o muy limitado":"None or very limited","Sin incentivos, agencias ni software de pago":"No incentives, agencies or paid software","Medio o alto":"Medium or high","Puedo pagar incentivos, plataformas o agencia":"I can pay for incentives, platforms or an agency","Criterio 3: restricciones, equipo":"Criterion 3: constraints, team","¿Quiénes pueden participar?":"Who can take part?","Algunos métodos necesitan varios evaluadores para ser confiables.":"Some methods need several evaluators to be reliable.","Solo yo":"Just me","Una persona prepara, ejecuta y analiza":"One person prepares, runs and analyzes","Dos o más personas de UX":"Two or more UX people","Varios evaluadores o un equipo de diseño":"Several evaluators or a design team","Criterio 3: restricciones, riesgo":"Criterion 3: constraints, risk","¿Qué tan riesgosa es la decisión?":"How risky is the decision?","¿Cuánto riesgo de falla estamos dispuestos a aceptar?":"How much risk of failure are we willing to accept?","Baja y reversible":"Low and reversible","Un texto, un banner, un ajuste menor":"A label, a banner, a minor tweak","Alta inversión o difícil de revertir":"High investment or hard to reverse","Un rediseño, un flujo de pago, una plataforma nueva":"A redesign, a checkout flow, a new platform","Criterio 4: acceso a usuarios":"Criterion 4: access to users","¿A quién puedes llegar?":"Who can you reach?","Define si una prueba empírica es factible o si conviene empezar por inspección.":"It determines whether an empirical test is feasible or whether you should start with inspection.","A nadie por ahora":"No one for now","Sin acceso a usuarios":"No access to users","Usuarios internos":"Internal users","Empleados: ideal para herramientas internas o pilotos":"Employees: ideal for internal tools or pilots","Público general":"General public","Clientes o consumidores fáciles de reclutar":"Customers or consumers who are easy to recruit","Perfiles difíciles":"Hard-to-reach profiles","Especialistas B2B, adultos mayores, tecnologías de asistencia":"B2B specialists, older adults, assistive technology users","Prueba exploratoria con prototipo en papel":"Exploratory test with a paper prototype","Requiere participantes y hoy no hay acceso":"Requires participants and there’s no access right now","Sin un prototipo interactivo no hay tareas que medir a distancia":"Without an interactive prototype there are no tasks to measure remotely","El método ideal está bloqueado":"The ideal method is blocked","Lo que sigue es la mejor aproximación posible.":"What follows is the best possible approximation.","Mejor opción disponible":"Best available option","Anticipa causas probables sin depender de usuarios":"Anticipates likely causes without depending on users","Costo externo de $0":"$0 external cost","Suficiente para una decisión reversible":"Enough for a reversible decision","Analítico":"Analytical","Alternativa":"Alternative","Revisa paso a paso dónde podría trabarse alguien, sin depender de usuarios":"Reviews step by step where someone might get stuck, without depending on users","Trata los hallazgos como hipótesis y valídalos con usuarios en cuanto haya acceso.":"Treat the findings as hypotheses and validate them with users as soon as you have access.","Ten en cuenta":"Keep in mind","Un solo evaluador encuentra una fracción de los problemas: suma al menos un colega si puedes.":"A single evaluator finds only a fraction of the problems: add at least one colleague if you can.","Descartados":"Ruled out","Ver en el mapa":"View on the map","Empezar de nuevo":"Start over","Recomendado":"Recommended","Observa la causa raíz con el protocolo de pensar en voz alta":"Observes the root cause with the think-aloud protocol","Discount usability: 5 personas reclutadas por conveniencia":"Discount usability: 5 people recruited by convenience","Reclutamiento rápido y sin incentivos":"Fast recruiting, no incentives","Empírico":"Empirical","$0–$300 en incentivos simbólicos":"$0–$300 in token incentives","Corrige y repite con otra ronda corta.":"Fix and repeat with another short round.","Si el producto es para público externo, los usuarios internos sesgan los resultados: úsalos como piloto.":"If the product is for an external audience, internal users bias the results: use them as a pilot.","Reclutar perfiles especiales suma 1 a 2 semanas":"Recruiting special profiles adds 1 to 2 weeks","Corrige lo más severo y valida con 5 usuarios en una prueba moderada.":"Fix the most severe issues and validate with 5 users in a moderated test.","Confirma los puntos críticos observando a usuarios novatos.":"Confirm the critical points by observing novice users.","Decisión de alto riesgo sin acceso a usuarios: trata todo hallazgo como hipótesis y planifica cómo validarlo.":"High-risk decision with no access to users: treat every finding as a hypothesis and plan how to validate it.","Una decisión de alto riesgo justifica observar usuarios":"A high-risk decision justifies observing users","Triangula: tras corregir, mide a escala con pruebas no moderadas o A/B.":"Triangulate: after fixing, measure at scale with unmoderated tests or A/B.","Reduce la dependencia de perfiles difíciles de reclutar":"Reduces dependence on hard-to-recruit profiles","Decisión de alto riesgo, pero con estas condiciones ninguna prueba con usuarios es viable todavía: planifica la validación en cuanto haya más tiempo o acceso.":"High-risk decision, but under these conditions no user test is viable yet: plan the validation as soon as there’s more time or access.","Varios evaluadores encuentran más problemas":"Several evaluators find more problems","Con perfiles especiales, reserva 1 a 2 semanas extra para reclutar por canales directos o comunitarios.":"With special profiles, set aside 1 to 2 extra weeks to recruit through direct or community channels.","Prueba de guerrilla con 3 a 5 personas":"Guerrilla test with 3 to 5 people","Los videos muestran dónde abandonan, aunque sin poder repreguntar":"Videos show where they drop off, though you can’t ask follow-up questions","Las plataformas entregan resultados en pocos días":"Platforms deliver results in a few days","Es asíncrona: no exige moderar en vivo":"It’s asynchronous: no live moderation required","~$150–$300 con testers propios":"~$150–$300 with your own testers","Revisa las sesiones con más fallas en una prueba moderada para entender el porqué.":"Review the sessions with the most failures in a moderated test to understand why.","Pruebas moderadas en modo RITE":"Moderated testing in RITE mode","Plataformas con panel de participantes y video":"Platforms with a participant panel and video","Pruebas moderadas con pensar en voz alta":"Moderated think-aloud testing","Permite medir el producto terminado":"Lets you measure the finished product","Necesita al menos dos colegas":"Needs at least two colleagues","Detecta violaciones a principios antes de desarrollar":"Detects principle violations before development","Revisa paso a paso los flujos críticos":"Reviews critical flows step by step","Confirma con usuarios los errores más graves":"Confirms the most serious errors with users","Revisa el diseño contra sus objetivos":"Reviews the design against its goals","Sobre bocetos, la crítica entre pares rinde más que una inspección por principios":"On sketches, peer critique yields more than a principle-based inspection","Lleva los cambios acordados a una evaluación heurística o a una prueba con usuarios.":"Take the agreed changes into a heuristic evaluation or a user test.","Para triangular":"To triangulate","Decisión de alto riesgo: combina la inspección con la opción marcada como “Para triangular”.":"High-risk decision: combine the inspection with the option marked “To triangulate”.","Hay pares para la crítica":"There are peers for the critique","Valida con usuarios lo que encuentre la inspección":"Validates with users what the inspection finds","Con equipo, poco tiempo y riesgo bajo, una sesión de crítica resuelve más rápido":"With a team, little time and low risk, a critique session resolves things faster","Predice dónde se traba un usuario primerizo":"Predicts where a first-time user gets stuck","Revisa principios de reconocimiento y ayuda sin depender de usuarios":"Reviews recognition and help principles without depending on users","Con participantes nuevos, muestra dónde fallan la primera vez":"With new participants, it shows where they fail the first time","Pruebas moderadas con usuarios novatos":"Moderated testing with novice users","Revisa etiquetas y navegación contra principios, sin medir con usuarios":"Reviews labels and navigation against principles, without measuring with users","En estrategia ayuda a crear la estructura":"In strategy, it helps create the structure","Mide si encuentran cada elemento en la jerarquía":"Measures whether they find each item in the hierarchy","Valida la jerarquía resultante con tree testing.":"Validate the resulting hierarchy with tree testing.","Si una rama falla, usa card sorting para rehacer esa parte de la estructura.":"If a branch fails, use card sorting to rework that part of the structure.","Necesita un producto en producción con tráfico":"Needs a live product with traffic","Necesita flujos definidos para calificarlos":"Needs defined flows to rate them","Todavía es pronto para medir":"It’s still too early to measure","Las métricas de éxito, tiempo y satisfacción necesitan tareas sobre un prototipo o un producto. En estrategia, valida primero el concepto con una prueba exploratoria y vuelve a medir en diseño o tras el lanzamiento.":"Success, time and satisfaction metrics need tasks on a prototype or product. In strategy, first validate the concept with an exploratory test, and measure later in design or after launch.","Requiere tres evaluadores capacitados":"Requires three trained evaluators","No hay un método adecuado con estas condiciones":"No suitable method under these conditions","Lo que bloquea cada opción:":"What blocks each option:","Cambia alguna de esas condiciones para desbloquearlo.":"Change one of those conditions to unblock it.","Revisa si alguna restricción puede flexibilizarse.":"Check whether any constraint can be relaxed.","Mide éxito, tiempo y satisfacción con muestras grandes":"Measures success, time and satisfaction with large samples","Da un puntaje de fricción comparable sin usuarios":"Gives a comparable friction score without users","Repite el puntaje después del rediseño para comparar, y valida con métricas de usuarios como SEQ.":"Repeat the score after the redesign to compare, and validate with user metrics such as SEQ.","Benchmark no moderado":"Unmoderated benchmark","Un A/B necesita semanas de tráfico para ser concluyente":"An A/B test needs weeks of traffic to be conclusive","Mide el comportamiento real del producto lanzado":"Measures real behavior on the launched product","Necesita una secuencia de pasos ya definida":"Needs an already defined sequence of steps","Compara los problemas de cada alternativa por severidad, sin usuarios ni puntajes":"Compares each alternative’s problems by severity, without users or scores","Compara el tiempo de ejecución experta de cada alternativa":"Compares expert execution time for each alternative","Herramientas gratuitas como Cogulator":"Free tools such as Cogulator","Confirma con usuarios expertos cronometrados en las tareas modeladas.":"Confirm by timing expert users on the modeled tasks.","Compara alternativas con las mismas tareas y métricas":"Compares alternatives with the same tasks and metrics","Compara la fricción de cada alternativa sin usuarios":"Compares each alternative’s friction without users","Compara variantes con comportamiento real":"Compares variants with real behavior","Hay tráfico real para experimentar":"There’s real traffic to experiment with","Complementa con pruebas cualitativas: el A/B dice qué variante gana, no por qué.":"Complement with qualitative testing: A/B tells you which variant wins, not why.","La eficiencia experta se calcula sobre un flujo ya definido. Define el flujo y vuelve en la fase de diseño, donde KLM-GOMS compara alternativas antes de construirlas.":"Expert efficiency is calculated on an already defined flow. Define the flow and come back in the design phase, where KLM-GOMS compares alternatives before they’re built.","Predice el tiempo de ejecución experta sin usuarios":"Predicts expert execution time without users","Cronometra la tarea con usuarios expertos reales":"Times the task with real expert users","Desarma productos competidores pantalla por pantalla":"Takes competitor products apart screen by screen","Convierte los hallazgos en hipótesis y pruébalas con usuarios.":"Turn the findings into hypotheses and test them with users.","Pruebas moderadas con productos competidores":"Moderated testing with competitor products","Permite un benchmark de tareas en ambos productos":"Enables a task benchmark across both products","Compara la fricción propia contra la competencia":"Compares your friction against the competition"};
+const MISS=new Set();
+const T=x=>{if(LANG!=='en'||!x)return x; if(EN[x]!==undefined)return EN[x]; if(/[a-záéíóúñ]/i.test(x))MISS.add(x); return x};
+const L=(es,en)=>LANG==='en'?en:es;
+const lc=x=>x.charAt(0).toLowerCase()+x.slice(1);
+(function(){
+  if(LANG!=='en')return;
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('script,style,[data-lang]')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  const nodes=[];while(w.nextNode())nodes.push(w.currentNode);
+  nodes.forEach(n=>{const k=n.nodeValue.trim(); if(k)n.nodeValue=n.nodeValue.replace(k,T(k))});
+  document.querySelectorAll('[aria-label]').forEach(e=>e.setAttribute('aria-label',T(e.getAttribute('aria-label'))));
+  document.title=T(document.title);
+})();
+const LOGO_ANIM={"v":"5.12.1","fr":60,"ip":0,"op":90,"w":512,"h":512,"nm":"Notebook Search#note,book,school,teach,teaching,notebook,student,learn,learning","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"Path 9 :M","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":1,"k":[{"i":{"x":0.34,"y":1},"o":{"x":0.66,"y":0},"t":0,"s":[224.802,251.15,0],"to":[0,0,0],"ti":[0,0,0]},{"i":{"x":0.34,"y":1},"o":{"x":0.66,"y":0},"t":29,"s":[255.869,256.092,0],"to":[0,0,0],"ti":[0,0,0]},{"i":{"x":0.34,"y":1},"o":{"x":0.66,"y":0},"t":57,"s":[255.869,256.092,0],"to":[0,0,0],"ti":[0,0,0]},{"t":90,"s":[224.802,251.15,0]}],"ix":2,"l":2},"a":{"a":0,"k":[224.802,251.15,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ty":"gr","it":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.34,"y":1},"o":{"x":0.66,"y":0},"t":0,"s":[{"i":[[0,0],[25.267,0],[0,0],[0,-0.358],[0,0],[-25.261,0],[0,0],[0.097,25.377]],"o":[[0,-25.267],[0,0],[-0.358,0],[0,0],[0,25.263],[0,0],[25.377,0],[0,0]],"v":[[148.771,-100.501],[103.022,-146.25],[-148.881,-146.25],[-149.53,-145.601],[-149.52,100.501],[-103.771,146.25],[103.707,146.25],[149.532,100.25]],"c":true}]},{"i":{"x":0.34,"y":1},"o":{"x":0.66,"y":0},"t":29,"s":[{"i":[[0,0],[25.267,0],[0,0],[-0.001,-20.283],[0,0],[-25.261,0],[0,0],[0.1,26.39]],"o":[[0,-25.267],[0,0],[-20.283,0],[0,0],[0,25.263],[0,0],[26.39,0],[0,0]],"v":[[103.65,-139.031],[57.901,-184.781],[-112.826,-184.58],[-149.551,-147.853],[-149.52,100.501],[-103.771,146.25],[56.774,146.049],[104.43,98.212]],"c":true}]},{"i":{"x":0.34,"y":1},"o":{"x":0.66,"y":0},"t":57,"s":[{"i":[[0,0],[25.267,0],[0,0],[-0.001,-20.283],[0,0],[-25.261,0],[0,0],[0.1,26.39]],"o":[[0,-25.267],[0,0],[-20.283,0],[0,0],[0,25.263],[0,0],[26.39,0],[0,0]],"v":[[103.65,-139.031],[57.901,-184.781],[-112.826,-184.58],[-149.551,-147.853],[-149.52,100.501],[-103.771,146.25],[56.774,146.049],[104.43,98.212]],"c":true}]},{"t":90,"s":[{"i":[[0,0],[25.267,0],[0,0],[0,-0.358],[0,0],[-25.261,0],[0,0],[0.097,25.377]],"o":[[0,-25.267],[0,0],[-0.358,0],[0,0],[0,25.263],[0,0],[25.377,0],[0,0]],"v":[[148.771,-100.501],[103.022,-146.25],[-148.881,-146.25],[-149.53,-145.601],[-149.52,100.501],[-103.771,146.25],[103.707,146.25],[149.532,100.25]],"c":true}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tm","s":{"a":0,"k":0,"ix":1},"e":{"a":1,"k":[{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[68.3]},{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.7],"y":[0]},"t":23,"s":[73.859]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.7],"y":[0]},"t":63,"s":[73.3]},{"t":90,"s":[68.3]}],"ix":2},"o":{"a":1,"k":[{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[-14.5]},{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.7],"y":[0]},"t":23,"s":[-131.4]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.7],"y":[0]},"t":63,"s":[54.9]},{"t":90,"s":[-14.5]}],"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"tr","p":{"a":0,"k":[-149.714,0],"ix":2},"a":{"a":0,"k":[-149.714,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":90,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[98.022,100.348],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"tm","s":{"a":0,"k":0,"ix":1},"e":{"a":0,"k":23.9,"ix":2},"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[-86.4]},{"t":90,"s":[633.6]}],"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"tr","p":{"a":0,"k":[1.022,3.846],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Ellipse","np":2,"cix":2,"bm":0,"ix":2,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[97.942,302.403],"ix":2},"a":{"a":0,"k":[-149.551,0.653],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":1,"k":[{"i":{"x":[0.34],"y":[1]},"o":{"x":[0.66],"y":[0]},"t":0,"s":[0]},{"i":{"x":[0.34],"y":[1]},"o":{"x":[0.66],"y":[0]},"t":29,"s":[-13.9]},{"i":{"x":[0.34],"y":[1]},"o":{"x":[0.66],"y":[0]},"t":57,"s":[-13.9]},{"t":90,"s":[0]}],"ix":4},"sa":{"a":0,"k":90,"ix":5},"nm":"Transform"}],"nm":"Path 9","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[247.494,301.75],"ix":2},"a":{"a":0,"k":[247.494,301.75],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":1,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"st","c":{"a":0,"k":[0,0,0,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":32,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false}],"ip":0,"op":90,"st":0,"ct":1,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"Path 9","parent":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[224.643,149.13,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":1,"k":[{"i":{"x":0.34,"y":1},"o":{"x":0.167,"y":0.167},"t":71,"s":[{"i":[[0,0],[0,0],[0.258,-0.066],[0,0],[0,-5.078],[0,0]],"o":[[0,0],[0,-0.266],[0,0],[-4.919,1.269],[0,0],[0,25.263]],"v":[[126.912,-13.398],[126.078,-16.027],[125.569,-16.421],[-118.544,-3.204],[-126.901,7.578],[-126.67,85.13]],"c":false}]},{"t":90,"s":[{"i":[[0,0],[0,0],[22.313,-5.75],[0,0],[0,-13.949],[0,0]],"o":[[0,0],[0,-23.04],[0,0],[-13.513,3.487],[0,0],[0,25.263]],"v":[[126.872,4.493],[126.67,-49.871],[82.625,-83.996],[-103.713,-35.902],[-126.67,-6.281],[-126.67,85.13]],"c":false}]}],"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"st","c":{"a":0,"k":[0,0,0,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":32,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tm","s":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":74,"s":[31.6]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":77,"s":[20.1]},{"t":81,"s":[0]}],"ix":1},"e":{"a":0,"k":100,"ix":2},"o":{"a":0,"k":0,"ix":3},"m":1,"ix":3,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false}],"ip":74,"op":90,"st":0,"ct":1,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"Path 8","parent":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[224.643,149.13,0],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0],[22.313,-5.75],[0,0],[0,-13.949],[0,0]],"o":[[0,0],[0,-23.04],[0,0],[-13.513,3.487],[0,0],[0,25.263]],"v":[[126.872,4.493],[126.67,-49.871],[82.625,-83.996],[-103.713,-35.902],[-126.67,-6.281],[-126.67,85.13]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"st","c":{"a":0,"k":[0,0,0,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":32,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tm","s":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"t":21,"s":[16]}],"ix":1},"e":{"a":0,"k":100,"ix":2},"o":{"a":0,"k":0,"ix":3},"m":1,"ix":3,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false}],"ip":0,"op":25,"st":0,"ct":1,"bm":0},{"ddd":0,"ind":4,"ty":4,"nm":"Boolean","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.167],"y":[0.167]},"t":5,"s":[0]},{"i":{"x":[0.3],"y":[1]},"o":{"x":[0.7],"y":[0]},"t":27,"s":[86]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.7],"y":[0]},"t":68,"s":[-10]},{"t":90,"s":[0]}],"ix":10},"p":{"a":1,"k":[{"i":{"x":0.3,"y":1},"o":{"x":0.167,"y":0.167},"t":0,"s":[338,368,0],"to":[-24.222,43.556,0],"ti":[28.716,50.623,0]},{"i":{"x":0.3,"y":1},"o":{"x":0.7,"y":0},"t":23,"s":[142.84,384.043,0],"to":[161.506,76.488,0],"ti":[70.494,161.735,0]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.7,"y":0},"t":63,"s":[361.506,105.821,0],"to":[32.222,81.623,0],"ti":[70.688,-80.839,0]},{"t":90,"s":[338,368,0]}],"ix":2,"l":2},"a":{"a":0,"k":[-6.687,-9.029,0],"ix":1,"l":2},"s":{"a":0,"k":[100,100,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ty":"gr","it":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0]],"o":[[0,0],[0,0]],"v":[[-16.834,-16.802],[16.834,16.802]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tr","p":{"a":0,"k":[52.516,54.143],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":1,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[-34.519,0],[0,-34.519],[34.519,0],[0,34.519]],"o":[[34.519,0],[0,34.519],[-34.519,0],[0,-34.519]],"v":[[0,-62.499],[62.5,-0.001],[0,62.499],[-62.5,-0.001]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tr","p":{"a":0,"k":[-6.85,-8.446],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 2","np":1,"cix":2,"bm":0,"ix":2,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667],"y":[1,1]},"o":{"x":[0.167,0.167],"y":[0.167,0.167]},"t":0,"s":[100,100]},{"i":{"x":[0.667,0.667],"y":[1,1]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":10,"s":[74.2,74.2]},{"t":20,"s":[100,100]}],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[-6.321,-9.086],"ix":2},"a":{"a":0,"k":[-6.321,-9.086],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":1,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"st","c":{"a":0,"k":[0,0,0,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":32,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false}],"ip":0,"op":90,"st":0,"ct":1,"bm":0}],"markers":[],"props":{}};
+const FAB_ANIM={"v":"4.8.0","meta":{"g":"LottieFiles AE 3.5.3","a":"","k":"","d":"","tc":""},"fr":60,"ip":0,"op":90,"w":512,"h":512,"nm":"31 Ai brain search 3","assets":[],"layers":[{"ind":1,"ty":4,"nm":"Layer 4","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.17],"y":[1]},"o":{"x":[0.333],"y":[0]},"t":4,"s":[45]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.83],"y":[0]},"t":23,"s":[-41]},{"t":41,"s":[45]}],"ix":10},"p":{"a":1,"k":[{"i":{"x":0.17,"y":1},"o":{"x":0.333,"y":0},"t":0,"s":[391.043,157.89,0],"to":[0,0,0],"ti":[0,0,0]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.83,"y":0},"t":19,"s":[116.043,157.89,0],"to":[0,0,0],"ti":[0,0,0]},{"t":37,"s":[391.043,157.89,0]}],"ix":2},"a":{"a":0,"k":[-125,-124,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"ef":[{"ty":5,"nm":"Elastic Controller","np":5,"ix":1,"en":1,"ef":[{"ty":0,"nm":"Amplitude","ix":1,"v":{"a":0,"k":14.8,"ix":1}},{"ty":0,"nm":"Frequency","ix":2,"v":{"a":0,"k":60,"ix":2}},{"ty":0,"nm":"Decay","ix":3,"v":{"a":0,"k":90,"ix":3}}]}],"shapes":[{"ty":"gr","it":[{"ty":"gr","it":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0]],"o":[[0,0],[0,0]],"v":[[-126.226,-54.426],[-126.153,-3.33]],"c":false},"ix":2},"nm":"Path 1"},{"ind":1,"ty":"sh","ix":2,"ks":{"a":0,"k":{"i":[[36.833,0.074],[0,36.759],[-36.759,0],[0,-36.759]],"o":[[-36.759,0],[0,-36.759],[36.759,0],[0.074,36.833]],"v":[[-126.226,-54.426],[-192.834,-121.034],[-126.226,-187.642],[-59.618,-121.034]],"c":true},"ix":2},"nm":"Path 2"},{"ty":"tr","p":{"a":0,"k":[-125.062,-124.062],"ix":2},"a":{"a":0,"k":[-125.062,-124.062],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.25,0.25],"y":[1,1]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":3,"s":[100,100]},{"i":{"x":[0.667,0.667],"y":[1,1]},"o":{"x":[0.75,0.75],"y":[0,0]},"t":22,"s":[-100,100]},{"t":37,"s":[100,100]}],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","cix":2,"ix":1},{"ty":"tr","p":{"a":0,"k":[-125.125,-124.025],"ix":2},"a":{"a":0,"k":[-125.125,-124.025],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.833,0.833],"y":[0.833,1]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":0,"s":[100,100]},{"i":{"x":[0.667,0.667],"y":[1,1]},"o":{"x":[0.167,0.167],"y":[0,0]},"t":7,"s":[80,100]},{"i":{"x":[0.833,0.833],"y":[0.833,1]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":31,"s":[80,100]},{"t":36,"s":[100,100]}],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","cix":2,"ix":1},{"ty":"tr","p":{"a":0,"k":[-125,-124.087],"ix":2},"a":{"a":0,"k":[-125,-124.087],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.833,0.833],"y":[1,0.833]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":0,"s":[100,100]},{"i":{"x":[0.667,0.667],"y":[1,1]},"o":{"x":[0.167,0.167],"y":[0,0]},"t":7,"s":[100,80]},{"i":{"x":[0.833,0.833],"y":[1,0.833]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":28,"s":[100,80]},{"t":33,"s":[100,100]}],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","cix":2,"ix":1},{"ty":"st","c":{"a":0,"k":[0,0,0,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":30.72,"ix":5},"lc":2,"lj":2,"nm":"Stroke 1"}],"ip":0,"op":90,"st":0},{"ind":2,"ty":4,"nm":"Layer 1","sr":1,"ks":{"o":{"a":0,"k":40,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[249.094,251.489,0],"ix":2},"a":{"a":0,"k":[157.094,178.489,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"ef":[{"ty":5,"nm":"Elastic Controller","np":5,"ix":1,"en":1,"ef":[{"ty":0,"nm":"Amplitude","ix":1,"v":{"a":0,"k":15,"ix":1}},{"ty":0,"nm":"Frequency","ix":2,"v":{"a":0,"k":60,"ix":2}},{"ty":0,"nm":"Decay","ix":3,"v":{"a":0,"k":90,"ix":3}}]},{"ty":5,"nm":"Elastic Controller 2","np":5,"ix":2,"en":1,"ef":[{"ty":0,"nm":"Amplitude","ix":1,"v":{"a":0,"k":20,"ix":1}},{"ty":0,"nm":"Frequency","ix":2,"v":{"a":0,"k":60,"ix":2}},{"ty":0,"nm":"Decay","ix":3,"v":{"a":0,"k":90,"ix":3}}]}],"shapes":[{"ty":"gr","it":[{"ty":"gr","it":[{"ty":"gr","it":[{"ty":"gr","it":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[-5.462,-25.887],[-11.618,-32.138],[44.364,-39.467],[103.39,-4.877],[0,0],[0.917,0],[0,0],[0.204,0.564],[0,0],[12.641,22.574],[-1.77,47.552],[19.283,19.891],[-30.073,43.455],[-23.985,22.118],[0.016,0.04],[-52.495,-17.558]],"o":[[11.955,0.172],[18.737,17.475],[26.199,12.321],[0,0],[0,0.846],[0,0],[-0.612,0],[0,0],[-14.476,6.678],[-27.647,26.242],[-22.02,16.302],[-28.138,-29.025],[0,0],[24.708,-22.785],[32.361,-24.265],[49.516,-19.061]],"v":[[285.929,66.265],[333.387,115.113],[333.636,215.654],[268.141,310.107],[268.141,345.815],[266.509,347.414],[232.234,347.5],[230.807,346.559],[206.225,287.073],[156.647,266.258],[77.02,236.698],[-6.283,232.359],[-11.667,126.718],[11.429,70.43],[62.993,51.363],[201.84,27.366]],"c":true},"ix":2},"nm":"Path 1"},{"ty":"tm","s":{"a":0,"k":26.6,"ix":1},"e":{"a":0,"k":100,"ix":2},"o":{"a":1,"k":[{"i":{"x":[0.17],"y":[1]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[-41]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.83],"y":[0]},"t":15,"s":[-137]},{"t":36,"s":[-41]}],"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1"},{"ty":"tr","p":{"a":0,"k":[42.777,51.85],"ix":2},"a":{"a":0,"k":[163.527,183.85],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","cix":2,"ix":1},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[-95.699,-49.816]],"o":[[-79.566,-20.307],[0,0]],"v":[[27.147,170.782],[97.651,62.447]],"c":false},"ix":2},"nm":"Path 3"},{"ty":"tm","s":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":2,"s":[100]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":6,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":29,"s":[0]},{"t":33,"s":[100]}],"ix":1},"e":{"a":0,"k":0,"ix":2},"o":{"a":0,"k":0,"ix":3},"m":1,"ix":2,"nm":"Trim Paths 2"},{"ind":2,"ty":"sh","ix":3,"ks":{"a":0,"k":{"i":[[0,0],[0,0]],"o":[[-8.48,28.547],[0,0]],"v":[[97.767,207.315],[63.697,243.72]],"c":false},"ix":2},"nm":"Path 4"},{"ind":3,"ty":"sh","ix":4,"ks":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":7,"s":[{"i":[[0,0],[0,0]],"o":[[-26.917,6.735],[0,0]],"v":[[105.517,133.065],[68.697,123.47]],"c":false}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":10,"s":[{"i":[[0,0],[0,0]],"o":[[-6.816,0.401],[0,0]],"v":[[84.29,129.072],[68.697,123.47]],"c":false}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":11,"s":[{"i":[[0,0],[0,0]],"o":[[-0.023,0.001],[0,0]],"v":[[78.762,133.114],[78.709,133.095]],"c":false}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":29,"s":[{"i":[[0,0],[0,0]],"o":[[-0.023,0.001],[0,0]],"v":[[78.762,133.114],[78.709,133.095]],"c":false}]},{"t":33,"s":[{"i":[[0,0],[0,0]],"o":[[-26.917,6.735],[0,0]],"v":[[105.517,133.065],[68.697,123.47]],"c":false}]}],"ix":2},"nm":"Path 5"},{"ty":"tr","p":{"a":0,"k":[-77.528,-20.776],"ix":2},"a":{"a":0,"k":[43.222,111.224],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 2","cix":2,"ix":2},{"ty":"tr","p":{"a":0,"k":[120.9,131.95],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 3","cix":2,"ix":1},{"ty":"tr","p":{"a":0,"k":[175.9,103.95],"ix":2},"a":{"a":0,"k":[175.9,103.95],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","cix":2,"ix":1},{"ty":"tr","p":{"a":0,"k":[175.9,103.7],"ix":2},"a":{"a":0,"k":[175.9,103.7],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.833,0.833],"y":[0.833,1]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":0,"s":[100,100]},{"i":{"x":[0.667,0.667],"y":[1,1]},"o":{"x":[0.167,0.167],"y":[0,0]},"t":7,"s":[115,100]},{"i":{"x":[0.833,0.833],"y":[0.833,1]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":29,"s":[115,100]},{"t":33,"s":[100,100]}],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","cix":2,"ix":1},{"ty":"tr","p":{"a":0,"k":[175.9,103.95],"ix":2},"a":{"a":0,"k":[175.9,103.95],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.833,0.833],"y":[1,0.833]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":0,"s":[100,100]},{"i":{"x":[0.667,0.667],"y":[1,1]},"o":{"x":[0.167,0.167],"y":[0,0]},"t":7,"s":[100,115]},{"i":{"x":[0.833,0.833],"y":[1,0.833]},"o":{"x":[0.333,0.333],"y":[0,0]},"t":33,"s":[100,115]},{"t":37,"s":[100,100]}],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","cix":2,"ix":1},{"ty":"st","c":{"a":0,"k":[0,0,0,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":30.72,"ix":5},"lc":2,"lj":2,"nm":"Stroke 1"}],"ip":0,"op":91,"st":0}],"markers":[]};
+const ICONS = {
+  crit:`<svg width="40" height="40" viewBox="0 0 40 40"><rect x="3" y="5" width="22" height="16" rx="6" fill="var(--blue-soft)"/><path d="M8 20l-1 6 7-6z" fill="var(--blue-soft)"/><rect x="15" y="15" width="22" height="16" rx="6" fill="var(--blue)"/><path d="M32 30l1 6-7-6z" fill="var(--blue)"/><circle cx="21" cy="23" r="1.6" fill="#fff"/><circle cx="26" cy="23" r="1.6" fill="#fff"/><circle cx="31" cy="23" r="1.6" fill="#fff"/></svg>`,
+  heur:`<svg width="40" height="40" viewBox="0 0 40 40"><rect x="8" y="7" width="24" height="29" rx="5" fill="var(--purple-soft)"/><rect x="14" y="4" width="12" height="7" rx="3" fill="var(--purple)"/><path d="M13 18l2 2 4-4M13 27l2 2 4-4" stroke="var(--purple)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="22" y="17" width="6" height="2.6" rx="1.3" fill="var(--purple)"/><rect x="22" y="26" width="6" height="2.6" rx="1.3" fill="var(--purple)"/></svg>`,
+  walk:`<svg width="40" height="40" viewBox="0 0 40 40"><path d="M8 32c0-8 8-6 12-12s12-4 12-12" stroke="var(--blue-soft)" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="8" cy="32" r="4" fill="var(--blue)"/><circle cx="20" cy="20" r="4" fill="var(--blue)"/><circle cx="32" cy="8" r="4" fill="var(--blue)"/></svg>`,
+  pure:`<svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="22" width="8" height="12" rx="3" fill="var(--purple-soft)"/><rect x="16" y="15" width="8" height="19" rx="3" fill="var(--purple-soft)"/><rect x="27" y="6" width="8" height="28" rx="3" fill="var(--purple)"/></svg>`,
+  klm:`<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="22" r="13" fill="var(--blue-soft)"/><rect x="16" y="4" width="8" height="5" rx="2.5" fill="var(--blue)"/><path d="M20 22V14" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/><circle cx="20" cy="22" r="2.6" fill="var(--blue)"/></svg>`,
+  tear:`<svg width="40" height="40" viewBox="0 0 40 40"><rect x="4" y="7" width="26" height="20" rx="5" fill="var(--purple-soft)"/><circle cx="25" cy="24" r="7" fill="none" stroke="var(--purple)" stroke-width="3"/><path d="M30 29l5 5" stroke="var(--purple)" stroke-width="3.4" stroke-linecap="round"/></svg>`,
+  test:`<svg width="40" height="40" viewBox="0 0 40 40"><rect x="4" y="7" width="32" height="21" rx="5" fill="var(--coral-soft)"/><rect x="15" y="31" width="10" height="4" rx="2" fill="var(--coral)"/><path d="M17 13l9 4-4 1.5-1.6 4z" fill="var(--coral)"/></svg>`,
+  sort:`<svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="9" width="17" height="22" rx="4" fill="var(--orange-soft)" transform="rotate(-10 13 20)"/><rect x="18" y="9" width="17" height="22" rx="4" fill="var(--orange)" transform="rotate(8 26 20)"/><rect x="21" y="15" width="10" height="2.6" rx="1.3" fill="#fff" transform="rotate(8 26 20)"/></svg>`,
+  tree:`<svg width="40" height="40" viewBox="0 0 40 40"><path d="M20 9v8M20 17H10v7M20 17h10v7M30 24v6" stroke="var(--coral-soft)" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="20" cy="8" r="4.5" fill="var(--coral-soft)"/><circle cx="10" cy="27" r="4.5" fill="var(--coral-soft)"/><circle cx="30" cy="25" r="4.5" fill="var(--coral)"/><circle cx="30" cy="33" r="3.5" fill="var(--coral)"/></svg>`,
+  ab:`<svg width="40" height="40" viewBox="0 0 40 40"><rect x="4" y="8" width="15" height="24" rx="4" fill="var(--orange-soft)"/><rect x="21" y="8" width="15" height="24" rx="4" fill="var(--orange)"/><text x="11.5" y="25" text-anchor="middle" font-family="Urbanist,sans-serif" font-size="12" font-weight="700" fill="var(--orange)">A</text><text x="28.5" y="25" text-anchor="middle" font-family="Urbanist,sans-serif" font-size="12" font-weight="700" fill="#fff">B</text></svg>`
+};
+
+const M = [
+ {id:'heur',side:'a',c:'var(--purple)',name:'Evaluación heurística',sub:'Cualitativo, formativo',n:'3–5',nl:'evaluadores expertos por revisión',
+  what:'Expertos inspeccionan la interfaz contra 10 principios de usabilidad, como visibilidad del estado del sistema, prevención de errores y consistencia, para detectar fallos sin involucrar usuarios.',
+  when:'Al inicio o entre iteraciones, cuando necesitas un diagnóstico rápido y barato antes de probar con usuarios.',
+  out:'Lista de problemas asociados a cada heurística y priorizados por severidad.',
+  lim:'Dos expertos rara vez encuentran los mismos problemas, y algunos hallazgos son falsos positivos que ningún usuario sufriría.',
+  ref:'Origen: 1990. Nielsen & Molich, CHI 90. Lista de 10 heurísticas consolidada por Nielsen en 1994.', m:1, map:[14,9], land:[14,30]},
+ {id:'walk',side:'a',c:'var(--blue)',name:'Recorrido cognitivo',sub:'Aprendibilidad',n:'1–3',nl:'analistas recorriendo cada tarea',
+  what:'Se recorre paso a paso la ruta correcta de una tarea preguntando si un usuario nuevo sabría qué hacer, vería el control adecuado y entendería la respuesta del sistema. Se basa en la teoría CE+ de aprendizaje por exploración.',
+  when:'Productos de uso sin entrenamiento: kioscos, onboarding, flujos que alguien hace una sola vez.',
+  out:'Puntos exactos del flujo donde el aprendizaje se rompe, con su causa.',
+  lim:'Solo evalúa la ruta ideal; no explora errores ni rutas alternativas, y es lento en tareas largas.',
+  ref:'Origen: 1990. Lewis, Polson, Wharton & Rieman, CHI 90.', m:0, map:[11,25.5], land:[30,47]},
+ {id:'pure',side:'a',c:'var(--purple)',name:'Método PURE',sub:'Cuantitativo, benchmark',n:'3',nl:'evaluadores capacitados',
+  what:'Practical Usability Ratings by Experts. Tres evaluadores califican la fricción de cada paso en las tareas fundamentales (1 baja, 2 media, 3 alta) y suman un puntaje por tarea y por producto.',
+  when:'Para comparar versiones o competidores con números cuando no hay presupuesto para un estudio grande con usuarios.',
+  out:'Puntaje de fricción por paso, por tarea y global, fácil de visualizar en verde, amarillo y rojo.',
+  lim:'Depende de que los evaluadores representen bien al usuario objetivo; complementa a las pruebas empíricas, no las reemplaza.',
+  ref:'Origen: 2016. Rohrer, Wendt, Sauro, Boyle & Cole, CHI 2016.', m:4, map:[9,42], land:[14,66]},
+ {id:'klm',side:'a',c:'var(--blue)',name:'KLM-GOMS',sub:'Cuantitativo, predictivo',n:'1',nl:'analista que modela las tareas; no requiere usuarios',
+  what:'Predice cuánto tarda un usuario experto, sin errores, sumando operadores elementales: teclear, apuntar, mover la mano entre teclado y mouse, y prepararse mentalmente.',
+  when:'Para comparar alternativas en flujos repetitivos de alta frecuencia, como captura de datos o atención telefónica.',
+  out:'Tiempo estimado en segundos por flujo y diferencia entre alternativas.',
+  lim:'No modela errores, aprendizaje, fatiga ni satisfacción; asume desempeño experto.',
+  ref:'Origen: 1980. Card, Moran & Newell, Communications of the ACM; ampliado en The Psychology of Human-Computer Interaction (1983).', m:-1, map:[9,58], land:[31,80]},
+ {id:'tear',side:'a',c:'var(--purple)',name:'UX teardown',sub:'Cualitativo, crítico',n:'1',nl:'experto analizando el producto',
+  what:'Crítica externa que desarma un producto existente, propio o de la competencia, pantalla por pantalla, para explicar por qué funciona o falla. Es ingeniería inversa del diseño.',
+  when:'Análisis competitivo, auditorías iniciales o para enseñar patrones con ejemplos reales.',
+  out:'Recorrido anotado con aciertos, fricciones y oportunidades.',
+  lim:'Es opinión argumentada, no evidencia del comportamiento de los usuarios.',
+  ref:'Origen del término: 2013. Samuel Hulick lo populariza con UserOnboard; la crítica experta como práctica es anterior.', m:-1, map:[11,74.5], land:[30,13]},
+ {id:'crit',side:'a',c:'var(--blue)',name:'Design critique',sub:'Entre pares',n:'3–6',nl:'colegas en la sesión',
+  what:'Sesión estructurada en la que colegas analizan un diseño en progreso frente a sus objetivos: qué intenta lograr, qué elementos lo apoyan, cuáles no y por qué.',
+  when:'Durante todo el proceso, sobre todo temprano y entre iteraciones, antes de invertir en pruebas con usuarios.',
+  out:'Retroalimentación accionable ligada a objetivos, vocabulario compartido y alineación del equipo.',
+  lim:'Es opinión de pares, no evidencia del usuario. Si se convierte en aprobación o gusto personal pierde valor; necesita facilitación y reglas claras.',
+  ref:'Raíz en la crítica de taller de arte y arquitectura. Sistematizada para equipos de producto por Connor & Irizarry, Discussing Design (2015).', m:-1, map:[14,91], land:[38,31]},
+ {id:'test',side:'e',c:'var(--coral)',name:'Pruebas de usabilidad',sub:'Mixto, en lab o remoto',n:'5',nl:'usuarios por ronda formativa; más para medir',
+  what:'Participantes realizan tareas en escenarios realistas, en laboratorio o de forma remota, mientras se observa dónde dudan, se equivocan o abandonan.',
+  when:'En cualquier etapa en que exista un prototipo o producto que se pueda usar.',
+  out:'Problemas observados con su evidencia, tasa de éxito, tiempo por tarea y escalas como SEQ o SUS.',
+  lim:'El contexto es artificial y reclutar cuesta; con pocos usuarios no conviene reportar porcentajes.',
+  ref:'Origen: 1982. Clayton Lewis aplica el pensar en voz alta a interfaces en IBM; Gould & Lewis (1985) consolidan la medición empírica en el diseño.', m:-1, map:[87,15], land:[60,50]},
+ {id:'sort',side:'e',c:'var(--orange)',name:'Card sorting',sub:'Modelos mentales',n:'15',nl:'participantes, referencia habitual',
+  what:'Los participantes agrupan y nombran tarjetas de contenido. Puede ser abierto, cerrado o híbrido, y revela cómo organizan la información en su cabeza.',
+  when:'Al diseñar o reorganizar la arquitectura de información y el etiquetado.',
+  out:'Matriz de similitud, agrupaciones frecuentes y el vocabulario de los usuarios.',
+  lim:'No prueba la navegación real: solo cómo agruparían, no si encuentran las cosas.',
+  ref:'Origen: años 50, en psicología cognitiva. Adoptado para arquitectura de información web en los años 90.', m:-1, map:[89.5,38.5], land:[82,30]},
+ {id:'tree',side:'e',c:'var(--coral)',name:'Tree testing',sub:'Cuantitativo, hallazgo',n:'50',nl:'participantes, referencia habitual',
+  what:'Los participantes buscan elementos en una jerarquía de solo texto, sin diseño visual, para medir qué tan fácil es encontrar cada cosa.',
+  when:'Antes y después de rediseñar la arquitectura, a menudo justo después de un card sorting.',
+  out:'Tasa de éxito, rutas directas o con retrocesos, y primer clic por tarea.',
+  lim:'Aísla la estructura de la búsqueda, el diseño visual y el contenido real de las páginas.',
+  ref:'Origen: 2003. Donna Spencer, Card-Based Classification Evaluation (Boxes and Arrows). También llamado card sorting inverso.', m:-1, map:[89.5,61.5], land:[79,64]},
+ {id:'ab',side:'e',c:'var(--orange)',name:'Pruebas A/B y analítica',sub:'Cuantitativo, sumativo',n:'1k+',nl:'usuarios reales en producción',
+  what:'El tráfico real se asigna al azar entre variantes de diseño y se compara su impacto en clics, navegación y conversión.',
+  when:'Con el producto en producción y tráfico suficiente para alcanzar significancia estadística.',
+  out:'Diferencia medible entre variantes en métricas de comportamiento y negocio.',
+  lim:'Dice qué pasa pero no por qué; necesita volumen y solo compara opciones que ya diseñaste.',
+  ref:'Origen en la web: 2000, primer A/B de Google. Los experimentos controlados son muy anteriores (medicina, publicidad).', m:-1, map:[87,85], land:[66,83]}
+];
+
+const MILES = [
+ {y:'1950s',id:'sort',t:'Card sorting',p:'Nace en la psicología cognitiva para estudiar cómo las personas agrupan conceptos. El diseño web lo adopta en los años 90 para definir la arquitectura de información.',who:'Psicología cognitiva'},
+ {y:'1980',id:'klm',t:'KLM-GOMS',p:'Primer modelo predictivo de tiempos en interfaces: suma operadores de bajo nivel para estimar cuánto tarda un experto. Se amplía en el libro de 1983.',who:'Card, Moran & Newell, Xerox PARC'},
+ {y:'1982',id:'test',t:'Pruebas de usabilidad con pensar en voz alta',p:'El protocolo de pensar en voz alta pasa de la psicología a la evaluación de interfaces y se vuelve el núcleo de las pruebas con usuarios.',who:'Clayton Lewis, IBM'},
+ {y:'1990',id:'walk',t:'Recorrido cognitivo',p:'Método de inspección basado en la teoría CE+: el usuario aprende explorando y evaluando la respuesta del sistema.',who:'Lewis, Polson, Wharton & Rieman'},
+ {y:'1990',id:'heur',t:'Evaluación heurística',p:'Se formaliza la inspección por principios. La lista actual de 10 heurísticas se consolida en 1994.',who:'Nielsen & Molich'},
+ {y:'1998',val:true,c:'var(--blue)',t:'Debate sobre el rigor',p:'Una revisión crítica muestra que los experimentos que comparaban métodos de evaluación tenían fallas que impedían conclusiones sólidas.',who:'Gray & Salzman'},
+ {y:'2000',id:'ab',t:'Pruebas A/B en la web',p:'Google corre su primer A/B para decidir cuántos resultados mostrar por página. Los experimentos controlados ya existían en medicina y publicidad.',who:'Google'},
+ {y:'2001',val:true,c:'var(--orange)',link:'heur',t:'El efecto evaluador',p:'Evaluadores distintos detectan problemas muy distintos al revisar la misma interfaz, incluso con el mismo método.',who:'Hertzum & Jacobsen; estudios CUE de Molich',flag:'Fuente original ilegible'},
+ {y:'2003',id:'tree',t:'Tree testing',p:'Se describe la clasificación basada en tarjetas: buscar elementos en una jerarquía hecha con fichas de papel. Después se populariza en línea como tree testing.',who:'Donna Spencer'},
+ {y:'2013',id:'tear',t:'UX teardown',p:'UserOnboard publica críticas anotadas, pantalla por pantalla, de productos conocidos y populariza el término teardown.',who:'Samuel Hulick',flag:'Popularización; la crítica experta es anterior'},
+ {y:'2015',id:'crit',t:'Design critique',p:'Se sistematiza la crítica de diseño para equipos de producto: una práctica de retroalimentación ligada a objetivos, distinta de una revisión de aprobación.',who:'Adam Connor & Aaron Irizarry',flag:'La crítica de taller es mucho más antigua'},
+ {y:'2016',id:'pure',t:'PURE y su validez',p:'Se presenta PURE y se reporta que sus puntajes se relacionan con métricas empíricas por tarea, como SEQ, con acuerdo entre evaluadores.',who:'Rohrer et al.',flag:'Confirmar cifras'}
+];
+
+const stage=document.getElementById('stage'), nodesEl=document.getElementById('nodes'), links=document.getElementById('links');
+const hubs={C:document.getElementById('hubC'),A:document.getElementById('hubA'),E:document.getElementById('hubE')};
+const HUBPOS={C:[50,50],A:[31.5,50],E:[68.5,50]};
+let view='mapa', selected=null;
+
+M.forEach(m=>{
+  const b=document.createElement('button');
+  b.className='node'; b.dataset.id=m.id; b.style.setProperty('--c',m.c);
+  b.setAttribute('aria-label',`${T(m.name)}, ${T(m.side==='a'?'método analítico':'método empírico')}. ${T('Ver detalle')}`);
+  b.innerHTML=`<span aria-hidden="true">${ICONS[m.id]}</span><span><div class="t" style="color:${m.c}">${T(m.name)}</div><div class="s">${T(m.sub)}</div></span><span class="n" aria-hidden="true">${m.n}</span>`;
+  b.addEventListener('click',()=>openDetail(m.id));
+  nodesEl.appendChild(b); m.el=b;
+});
+
+function curve(a,b){const mx=(a[0]+b[0])/2;return `M${a[0]} ${a[1]} C${mx} ${a[1]} ${mx} ${b[1]} ${b[0]} ${b[1]}`}
+function drawLinks(){
+  let d=`<path class="a" d="${curve(HUBPOS.C,HUBPOS.A)}"/><path class="e" d="${curve(HUBPOS.C,HUBPOS.E)}"/>`;
+  M.forEach(m=>{d+=`<path class="${m.side==='a'?'a':'e'}" d="${curve(m.side==='a'?HUBPOS.A:HUBPOS.E,m.map)}"/>`});
+  links.innerHTML=d;
+}
+drawLinks();
+Object.entries(HUBPOS).forEach(([k,p])=>{hubs[k].style.left=p[0]+'%';hubs[k].style.top=p[1]+'%'});
+
+const miles=document.getElementById('miles'), hs=document.getElementById('hscroll');
+MILES.forEach(e=>{
+  const m=e.id?M.find(x=>x.id===e.id):null, color=m?m.c:e.c, target=e.id||e.link;
+  const w=document.createElement('div'); w.className='ev'; w.style.setProperty('--c',color);
+  const c=document.createElement(target?'button':'div'); c.className='mcard'+(e.val?' val':''); c.style.setProperty('--c',color);
+  c.innerHTML=`<span class="mtop"><span class="y">${e.y}</span>${m?ICONS[m.id].replace('width="40" height="40"','width="34" height="34"'):'<span class="kind">'+T('Validez')+'</span>'}</span><h3>${T(e.t)}</h3><p>${T(e.p)}</p>${e.flag?`<span class="flag">${T(e.flag)}</span>`:''}<span class="who">${T(e.who)}</span>`;
+  if(target){c.setAttribute('aria-label',`${e.y}, ${T(e.t)}. ${T('Ver detalle del método')}`);c.addEventListener('click',()=>openDetail(target))}
+  w.appendChild(c); miles.appendChild(w);
+});
+const step=()=>Math.max(250,hs.clientWidth*.8);
+document.getElementById('hPrev').addEventListener('click',()=>hs.scrollBy({left:-step(),behavior:'smooth'}));
+document.getElementById('hNext').addEventListener('click',()=>hs.scrollBy({left:step(),behavior:'smooth'}));
+
+const COSTS={
+ klm:{name:'KLM-GOMS',min:0,max:0,eff:'Medio',ext:'No requiere usuarios ni licencias; el costo real son las horas del analista que descompone cada tarea en operadores y calcula los tiempos',tools:[['Cogulator','gratis, código abierto (MITRE)'],['CogTool','gratis, código abierto'],['Hoja de cálculo','$0']]},
+ heur:{name:'Evaluación heurística',min:0,max:50,eff:'Medio',ext:'Sin usuarios; el costo real son 3 a 5 evaluadores',tools:[['Hoja de cálculo, Miro o FigJam','$0 en planes gratuitos'],['FigJam en Figma Professional','asiento Collab desde $3/mes (anual)']]},
+ walk:{name:'Recorrido cognitivo',min:0,max:50,eff:'Medio',ext:'Sin usuarios; requiere el prototipo y las tareas definidas',tools:[['Documento o FigJam','$0'],['Prototipo en Figma','asiento Full $16/mes (anual)']]},
+ pure:{name:'Método PURE',min:0,max:50,eff:'Medio',ext:'Sin usuarios; 3 evaluadores capacitados',tools:[['Hoja de cálculo con escala 1 a 3','$0'],['Producto o prototipo a evaluar','sin costo adicional']]},
+ tear:{name:'UX teardown',min:0,max:50,eff:'Bajo',ext:'Sin usuarios; capturas del producto analizado',tools:[['Figma o FigJam para anotar','$0 a $16/mes']]},
+ crit:{name:'Design critique',min:0,max:50,eff:'Bajo',ext:'Sin usuarios; tiempo de reunión del equipo',tools:[['Figma Professional','asiento Full $16/mes anual o $20 mensual'],['FigJam','asiento Collab $3/mes (anual)'],['Zoom, Meet o Teams','$0 o licencia corporativa']]},
+ sort:{name:'Card sorting',min:0,max:3000,eff:'Medio',ext:'Panel de participantes opcional',tools:[['Fichas en papel','$0'],['Optimal Workshop (OptimalSort)','Starter $199/mes, solo anual']]},
+ tree:{name:'Tree testing',min:0,max:3000,eff:'Medio',ext:'Panel de participantes opcional',tools:[['Fichas en papel, como el método original','$0'],['Optimal Workshop (Treejack)','Starter $199/mes, solo anual']]},
+ ab:{name:'Pruebas A/B y analítica',min:0,max:100000,open:true,eff:'Medio-alto',ext:'Usa tráfico propio; requiere desarrollo y estadística',tools:[['VWO','plan gratuito hasta 50k visitantes/mes'],['GrowthBook o PostHog','código abierto o con nivel gratuito'],['Crazy Egg (mapas de calor)','$29 a $599/mes, anual'],['Plataformas enterprise','pueden superar $60k/año']]},
+ un:{name:'Pruebas no moderadas',id:'test',min:300,max:2000,eff:'Medio',ext:'Pago por test o participante, de 5 a 20 personas',tools:[['Userfeel','créditos de $60; desde $30 con testers propios'],['Userlytics','~$30 a $180 por participante, según perfil'],['Trymata (antes TryMyUI)','planes de ~$99 a $399/mes']]},
+ mod:{name:'Pruebas moderadas',id:'test',min:1000,max:20000,open:true,eff:'Alto',ext:'Reclutamiento ~$107 por participante e incentivo ~$64/h (NN/g, 2003; ~20% más en 2013)',tools:[['Zoom, Meet o Teams','$0 a $20/mes'],['Lookback','Team $99/mes o Insights $229/mes, anual']]}
+};
+const CORDER=['klm','tear','crit','heur','walk','pure','sort','tree','ab','un','mod'];
+const pos=x=>x<=0?0:x<100?x/100*25:Math.min(100,25+(Math.log10(x)-2)*25);
+const money=x=>x>=1000?'$'+(x/1000)+'k':'$'+x;
+const rangeTxt=c=>c.max===0?'$0':`${money(c.min)}–${money(c.max)}${c.open?'+':''}`;
+const crows=document.getElementById('crows');
+CORDER.forEach(k=>{
+  const c=COSTS[k], id=c.id||k, m=M.find(x=>x.id===id);
+  const b=document.createElement('button'); b.className='crow cgrid'; b.style.setProperty('--c',m.c);
+  b.setAttribute('aria-label',`${T(c.name)}: ${rangeTxt(c)} ${L('por estudio','per study')}, ${L('esfuerzo interno','internal effort')} ${lc(T(c.eff))}. ${L('Ver herramientas','See tools')}`);
+  const l=pos(c.min), w=Math.max(0,pos(c.max)-l);
+  b.innerHTML=`<span class="nm">${ICONS[id].replace('width="40" height="40"','width="28" height="28"')}${T(c.name)}</span><span class="cwrap">${c.max===0?`<span class="clab" style="left:0">${L('$0 en licencias','$0 in licenses')}</span>`:w<24?`<span class="clab" style="left:${l}%">${money(c.min)} ${L('a','to')} ${money(c.max)}${c.open?'+':''}</span>`:`<span class="clab" style="left:${l}%">${L('desde','from')} ${money(c.min)}</span><span class="clab end" style="left:${l+w}%">${L('hasta','up to')} ${money(c.max)}${c.open?'+':''}</span>`}<span class="ctrack"><span class="cbar${c.open?' open':''}" style="left:${l}%;width:${w}%"></span></span></span><span class="rng">${rangeTxt(c)}</span><span class="eff${c.eff==='Alto'?' hi':''}">${T(c.eff)}</span>`;
+  b.addEventListener('click',()=>openDetail(id));
+  crows.appendChild(b);
+});
+function costHTML(id){
+  return Object.values(COSTS).filter(c=>(c.id||Object.keys(COSTS).find(k=>COSTS[k]===c))===id).map(c=>`<div class="sec"><div class="costline"><h4>${L('Costo','Cost')}${c.id?': '+L(c.name.replace('Pruebas ',''),lc(T(c.name).replace(/ testing$/,''))):''}</h4><b>${rangeTxt(c)}</b></div><p>${T(c.ext)}. ${L('Esfuerzo interno','Internal effort')}: ${lc(T(c.eff))}.</p><ul class="tools">${c.tools.map(t=>`<li><b>${T(t[0])}</b><span>${T(t[1])}</span></li>`).join('')}</ul></div>`).join('');
+}
+document.getElementById('srcBtn').addEventListener('click',()=>show(document.getElementById('notes')));
+
+const TITLES={mapa:['Mapa de métodos','10 métodos'],matriz:['Matriz de métodos','quién y qué mide'],historia:['Origen y validez','1950s a 2016'],costos:['Costos por método','gasto externo por estudio']};
+function setView(v){
+  view=v;
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.view===v));
+  document.getElementById('viewTitle').textContent=T(TITLES[v][0]);
+  document.getElementById('viewSub').textContent=T(TITLES[v][1]);
+  document.getElementById('hint').textContent=T(v==='historia'?'Toca un hito para ver el método':v==='costos'?'Toca un método para ver sus herramientas':'Toca un método para ver el detalle');
+  links.style.opacity=v==='mapa'?1:0;
+  document.getElementById('axes').classList.toggle('on',v==='matriz');
+  document.getElementById('history').classList.toggle('on',v==='historia');
+  document.getElementById('costs').classList.toggle('on',v==='costos');
+  Object.values(hubs).forEach(h=>h.classList.toggle('gone',v!=='mapa'));
+  M.forEach(m=>{
+    const p=v==='matriz'?m.land:m.map;
+    m.el.style.left=p[0]+'%'; m.el.style.top=p[1]+'%';
+    m.el.classList.toggle('gone',v==='historia'||v==='costos');
+    m.el.tabIndex=(v==='historia'||v==='costos')?-1:0;
+  });
+  try{history.replaceState(null,'','#'+v)}catch(e){}
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setView(t.dataset.view)));
+
+/* panels */
+const scrim=document.getElementById('scrim'); let openPanel=null, lastFocus=null;
+function show(p){ if(openPanel) openPanel.classList.remove('on'); lastFocus=document.activeElement; openPanel=p; p.classList.add('on'); scrim.classList.add('on'); setTimeout(()=>p.querySelector('.x').focus(),50) }
+function hide(){ if(!openPanel) return; openPanel.classList.remove('on'); scrim.classList.remove('on'); openPanel=null; M.forEach(m=>m.el.classList.remove('sel')); if(lastFocus) lastFocus.focus() }
+scrim.addEventListener('click',hide);
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',hide));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hide()});
+
+function openDetail(id){
+  const m=M.find(x=>x.id===id);
+  M.forEach(x=>x.el.classList.toggle('sel',x.id===id));
+  const panel=document.getElementById('detail'); panel.style.setProperty('--c',m.c);
+  const sec=(h,t)=>`<div class="sec"><h4>${T(h)}</h4><p>${T(t)}</p></div>`;
+  document.getElementById('detailBody').innerHTML=`
+    <div class="ph"><div class="ic">${ICONS[m.id]}</div><div><h3 id="dTitle">${T(m.name)}</h3><small>${T(m.side==='a'?'Método analítico, inspección por expertos':'Método empírico, investigación con usuarios')}</small></div></div>
+    <div class="pills"><span class="pill k">${T(m.sub)}</span></div>
+    <div class="stat"><b>${m.n}</b><span>${T(m.nl)}</span></div>
+    ${sec('Qué es',m.what)}${sec('Cuándo usarlo',m.when)}${sec('Qué obtienes',m.out)}${sec('Limitación',m.lim)}${costHTML(m.id)}
+    <p class="ref">${T(m.ref)}</p>`;
+  show(panel);
+}
+
+/* wizard */
+const WQ=[
+ {k:'need',c:'var(--purple)',crit:'Criterio 1: pregunta de investigación',q:'¿Qué necesitas averiguar?',help:'La decisión guía la pregunta, y la pregunta define el método. No al revés.',opts:[
+  ['causa','¿Por qué se frustran o abandonan?','Entender la causa raíz de un problema'],
+  ['errores','¿Hay errores evidentes antes de desarrollar?','Diagnóstico rápido del diseño'],
+  ['aprender','¿Es fácil de aprender la primera vez?','Aprendibilidad para usuarios nuevos'],
+  ['estructura','¿Entienden los menús y las categorías?','Arquitectura de información'],
+  ['escala','¿Completan las tareas clave? ¿Cuánto mejoró?','Éxito, tiempo y satisfacción medibles'],
+  ['variante','¿Cuál de dos diseños funciona mejor?','Comparar alternativas con datos'],
+  ['experto','¿Cuánto tarda un experto en una tarea repetitiva?','Eficiencia en tareas de alta frecuencia'],
+  ['competencia','¿Cómo lo resuelven otros productos?','Patrones y vacíos de la competencia']]},
+ {k:'phase',c:'var(--blue)',crit:'Criterio 2: fase del ciclo de vida',q:'¿En qué estado está el producto?',help:'La fase define qué métodos son viables: no se puede hacer un A/B sobre un boceto.',opts:[
+  ['estrategia','Estrategia','Bocetos, conceptos o todavía sin interfaz'],
+  ['diseno','Diseño','Wireframes o prototipos interactivos'],
+  ['produccion','Lanzado','En producción o listo para lanzar']]},
+ {k:'time',c:'var(--orange)',crit:'Criterio 3: restricciones, tiempo',q:'¿Cuándo necesitas la respuesta?',help:'Con poco tiempo, reclutar suele ser el cuello de botella.',opts:[
+  ['dias','En días','Sprint o lanzamiento inminente'],
+  ['semanas','En semanas o más','Hay margen para reclutar y hacer un piloto']]},
+ {k:'budget',c:'var(--orange)',crit:'Criterio 3: restricciones, presupuesto',q:'¿Con qué presupuesto cuentas?',help:'Incentivos, agencias y plataformas de pago.',opts:[
+  ['nulo','Nulo o muy limitado','Sin incentivos, agencias ni software de pago'],
+  ['medio','Medio o alto','Puedo pagar incentivos, plataformas o agencia']]},
+ {k:'team',c:'var(--orange)',crit:'Criterio 3: restricciones, equipo',q:'¿Quiénes pueden participar?',help:'Algunos métodos necesitan varios evaluadores para ser confiables.',opts:[
+  ['solo','Solo yo','Una persona prepara, ejecuta y analiza'],
+  ['varios','Dos o más personas de UX','Varios evaluadores o un equipo de diseño']]},
+ {k:'risk',c:'var(--orange)',crit:'Criterio 3: restricciones, riesgo',q:'¿Qué tan riesgosa es la decisión?',help:'¿Cuánto riesgo de falla estamos dispuestos a aceptar?',opts:[
+  ['bajo','Baja y reversible','Un texto, un banner, un ajuste menor'],
+  ['alto','Alta inversión o difícil de revertir','Un rediseño, un flujo de pago, una plataforma nueva']]},
+ {k:'access',c:'var(--coral)',crit:'Criterio 4: acceso a usuarios',q:'¿A quién puedes llegar?',help:'Define si una prueba empírica es factible o si conviene empezar por inspección.',opts:[
+  ['ninguno','A nadie por ahora','Sin acceso a usuarios'],
+  ['internos','Usuarios internos','Empleados: ideal para herramientas internas o pilotos'],
+  ['externos','Público general','Clientes o consumidores fáciles de reclutar'],
+  ['especial','Perfiles difíciles','Especialistas B2B, adultos mayores, tecnologías de asistencia']]}
+];
+const NODE={heur:'heur',walk:'walk',pure:'pure',klm:'klm',tear:'tear',crit:'crit',mod:'test',un:'test',sort:'sort',tree:'tree',ab:'ab'};
+const ANALYTIC=['heur','walk','pure','klm','tear','crit'];
+const FIT={
+ causa:[['mod',3,'Observa la causa raíz con el protocolo de pensar en voz alta'],['un',2,'Los videos muestran dónde abandonan, aunque sin poder repreguntar'],['heur',1,'Anticipa causas probables sin depender de usuarios'],['walk',1,'Revisa paso a paso dónde podría trabarse alguien, sin depender de usuarios']],
+ errores:[['heur',3,'Detecta violaciones a principios antes de desarrollar'],['crit',2,'Revisa el diseño contra sus objetivos'],['walk',2,'Revisa paso a paso los flujos críticos'],['mod',2,'Confirma con usuarios los errores más graves']],
+ aprender:[['walk',3,'Predice dónde se traba un usuario primerizo'],['mod',3,'Con participantes novatos se observa la aprendibilidad real'],['un',2,'Con participantes nuevos, muestra dónde fallan la primera vez'],['heur',1,'Revisa principios de reconocimiento y ayuda sin depender de usuarios']],
+ estructura:[['tree',3,'Mide si encuentran cada elemento en la jerarquía'],['sort',3,'Revela cómo agrupan y nombran el contenido'],['heur',1,'Revisa etiquetas y navegación contra principios, sin medir con usuarios']],
+ escala:[['un',3,'Mide éxito, tiempo y satisfacción con muestras grandes'],['ab',2,'Mide el comportamiento real del producto lanzado'],['pure',2,'Da un puntaje de fricción comparable sin usuarios']],
+ variante:[['ab',3,'Compara variantes con comportamiento real'],['un',3,'Compara alternativas con las mismas tareas y métricas'],['pure',2,'Compara la fricción de cada alternativa sin usuarios'],['klm',2,'Compara el tiempo de ejecución experta de cada alternativa'],['heur',1,'Compara los problemas de cada alternativa por severidad, sin usuarios ni puntajes']],
+ experto:[['klm',3,'Predice el tiempo de ejecución experta sin usuarios'],['un',2,'Cronometra la tarea con usuarios expertos reales']],
+ competencia:[['tear',3,'Desarma productos competidores pantalla por pantalla'],['pure',2,'Compara la fricción propia contra la competencia'],['un',2,'Permite un benchmark de tareas en ambos productos']]
+};
+const EMPIRIC=['mod','un','sort','tree','ab'];
+function scoreMethods(a){
+  const C={};
+  FIT[a.need].forEach(([k,t,w],i)=>C[k]={tier:t,m:0,ord:i,why:[w],out:null});
+  const has=k=>C[k];
+  const ex=(k,w)=>{if(has(k)&&!C[k].out)C[k].out=w};
+  const mod=(k,n,w)=>{if(!has(k))return;C[k].m+=n;if(w&&n>0&&!C[k].why.includes(w))C[k].why.push(w)};
+  /* capa 1: filtros duros */
+  if(a.phase==='estrategia'){ex('ab','Necesita un producto en producción con tráfico');ex('klm','Necesita una secuencia de pasos ya definida');ex('pure','Necesita flujos definidos para calificarlos');ex('un','Sin un prototipo interactivo no hay tareas que medir a distancia')}
+  if(a.phase==='diseno')ex('ab','Necesita un producto en producción con tráfico');
+  if(a.access==='ninguno')EMPIRIC.forEach(k=>ex(k,'Requiere participantes y hoy no hay acceso'));
+  if(a.team==='solo'){ex('pure','Requiere tres evaluadores capacitados');ex('crit','Necesita al menos dos colegas')}
+  if(a.time==='dias'){ex('ab','Un A/B necesita semanas de tráfico para ser concluyente');if(a.access==='especial')ex('mod','Reclutar perfiles especiales suma 1 a 2 semanas')}
+  /* capa 3: restricciones, solo para ordenar dentro del mismo nivel */
+  if(a.time==='dias'){['heur','walk','crit','tear','pure'].forEach(k=>mod(k,1,'Se ejecuta de inmediato, sin reclutar'));mod('un',1,'Las plataformas entregan resultados en pocos días');mod('mod',-1)}
+  if(a.budget==='nulo'){['heur','walk','crit','tear','pure'].forEach(k=>mod(k,1,'Costo externo de $0'));mod('klm',1,'Herramientas gratuitas como Cogulator');mod('un',-1);if(a.access==='internos'||a.access==='externos')mod('mod',1,'Discount usability: 5 personas reclutadas por conveniencia')}
+  if(a.budget==='medio'){mod('un',1,'Plataformas con panel de participantes y video');mod('mod',1);mod('sort',1);mod('tree',1)}
+  if(a.team==='varios'){mod('heur',1,'Varios evaluadores encuentran más problemas');mod('crit',1,'Hay pares para la crítica');mod('pure',1)}
+  if(a.team==='solo'){mod('heur',-1);mod('mod',-1);mod('un',1,'Es asíncrona: no exige moderar en vivo')}
+  if(a.risk==='bajo'){mod('heur',1,'Suficiente para una decisión reversible');mod('crit',1);mod('mod',-1);mod('ab',-1)}
+  if(a.risk==='alto'){mod('mod',1,'Una decisión de alto riesgo justifica observar usuarios');mod('un',1);mod('ab',1)}
+  if(a.access==='internos'){mod('mod',1,'Reclutamiento rápido y sin incentivos');mod('un',-1)}
+  if(a.access==='externos'){mod('un',1);mod('ab',1)}
+  if(a.access==='especial'){['un','mod','sort','tree'].forEach(k=>mod(k,-1));mod('walk',1,'Reduce la dependencia de perfiles difíciles de reclutar');mod('heur',1,'Reduce la dependencia de perfiles difíciles de reclutar')}
+  if(a.phase==='produccion'){mod('ab',1,'Hay tráfico real para experimentar');mod('un',1,'Permite medir el producto terminado')}
+  if(a.phase==='estrategia'){mod('sort',1,'En estrategia ayuda a crear la estructura');mod('tear',1)}
+  if(a.need==='errores'&&C.crit&&!C.crit.out&&a.team==='varios'){
+    const w=a.phase==='estrategia'?'Sobre bocetos, la crítica entre pares rinde más que una inspección por principios':(a.time==='dias'&&a.risk==='bajo')?'Con equipo, poco tiempo y riesgo bajo, una sesión de crítica resuelve más rápido':null;
+    if(w){C.crit.tier=3;C.crit.m+=2;C.crit.why.splice(1,0,w)}
+  }
+  Object.values(C).forEach(c=>c.score=c.tier*10+c.m-c.ord*0.01);
+  return C;
+}
+function pickMethods(a){
+  const C=scoreMethods(a);
+  const ranked=Object.keys(C).filter(k=>!C[k].out).sort((x,y)=>C[y].score-C[x].score);
+  const picks=[];
+  ranked.forEach(k=>{
+    if(picks.length>=3)return;
+    const dupTest=NODE[k]==='test'&&picks.some(p=>NODE[p]==='test');
+    if(dupTest&&ranked.filter(r=>!picks.includes(r)&&r!==k&&NODE[r]!=='test').length)return;
+    picks.push(k);
+  });
+  let tri=null;
+  if(a.risk==='alto'&&a.access!=='ninguno'&&picks.length&&!picks.some(k=>EMPIRIC.includes(k))){
+    const cand=[...ranked.filter(k=>EMPIRIC.includes(k)),...['mod','un'].filter(k=>!C[k])];
+    for(const k of cand){
+      if(C[k]&&C[k].out)continue;
+      if(!C[k]){const t=scoreMethods({...a,need:'causa'})[k]; if(!t||t.out)continue; C[k]={tier:0,m:0,score:0,why:['Valida con usuarios lo que encuentre la inspección'],out:null}}
+      tri=k; if(picks.length>=3)picks[2]=k; else picks.push(k); break;
+    }
+  }
+  const ideal=picks.length&&C[picks[0]].tier===3;
+  const blocked=FIT[a.need].filter(([k,t])=>t>=2&&C[k].out).map(([k])=>({k,why:C[k].out,tier:C[k].tier}));
+  return {C,picks,tri,ideal,blocked};
+}
+const recLabel=(k,a)=>T(recLabelEs(k,a));
+function recLabelEs(k,a){
+  if(k==='mod'){
+    if(a.need==='competencia')return 'Pruebas moderadas con productos competidores';
+    if(a.need==='variante'&&a.phase==='estrategia')return 'Comparación de conceptos con prototipos en papel';
+    if(a.phase==='estrategia')return 'Prueba exploratoria con prototipo en papel';
+    if(a.time==='dias'&&a.budget==='nulo')return 'Prueba de guerrilla con 3 a 5 personas';
+    if(a.phase==='diseno'&&a.time==='dias')return 'Pruebas moderadas en modo RITE';
+    if(a.need==='aprender')return 'Pruebas moderadas con usuarios novatos';
+    return 'Pruebas moderadas con pensar en voz alta';
+  }
+  if(k==='un')return (a.phase==='produccion'&&(a.need==='escala'||a.need==='competencia'))?'Benchmark no moderado':'Pruebas no moderadas';
+  return M.find(m=>m.id===NODE[k]).name;
+}
+const NEXT={
+ heur:a=>a.access==='ninguno'?'Trata los hallazgos como hipótesis y valídalos con usuarios en cuanto haya acceso.':'Corrige lo más severo y valida con 5 usuarios en una prueba moderada.',
+ walk:()=>'Confirma los puntos críticos observando a usuarios novatos.',
+ crit:()=>'Lleva los cambios acordados a una evaluación heurística o a una prueba con usuarios.',
+ pure:()=>'Repite el puntaje después del rediseño para comparar, y valida con métricas de usuarios como SEQ.',
+ klm:()=>'Confirma con usuarios expertos cronometrados en las tareas modeladas.',
+ tear:()=>'Convierte los hallazgos en hipótesis y pruébalas con usuarios.',
+ sort:()=>'Valida la jerarquía resultante con tree testing.',
+ tree:()=>'Si una rama falla, usa card sorting para rehacer esa parte de la estructura.',
+ mod:a=>a.risk==='alto'?'Triangula: tras corregir, mide a escala con pruebas no moderadas o A/B.':'Corrige y repite con otra ronda corta.',
+ un:()=>'Revisa las sesiones con más fallas en una prueba moderada para entender el porqué.',
+ ab:()=>'Complementa con pruebas cualitativas: el A/B dice qué variante gana, no por qué.'
+};
+const wz={step:0,a:{}};
+const wzBody=document.getElementById('wzBody');
+const ARROW='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+function wzRender(){
+  if(wz.step>=WQ.length)return wzResult();
+  const q=WQ[wz.step];
+  wzBody.innerHTML=`<div class="wz-top"><button class="wz-back" aria-label="${L('Pregunta anterior','Previous question')}" ${wz.step?'':'disabled'}>${ARROW}</button><span class="wz-prog"><i style="width:${(wz.step+1)/WQ.length*100}%"></i></span><span class="wz-count">${wz.step+1} ${L('de','of')} ${WQ.length}</span></div>
+  <span class="wz-crit" style="--c:${q.c}">${T(q.crit)}</span><h4 class="wz-q" tabindex="-1">${T(q.q)}</h4><p class="wz-help">${T(q.help)}</p>
+  <div class="wz-opts">${q.opts.map(o=>`<button class="opt" data-v="${o[0]}" aria-pressed="${wz.a[q.k]===o[0]}">${T(o[1])}<small>${T(o[2])}</small></button>`).join('')}</div>`;
+  wzBody.querySelector('.wz-back').addEventListener('click',()=>{wz.step--;wzRender()});
+  wzBody.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>{
+    wz.a[q.k]=o.dataset.v; o.setAttribute('aria-pressed','true');
+    setTimeout(()=>{wz.step++;wzRender()},180);
+  }));
+  wzBody.querySelector('.wz-q').focus({preventScroll:true});
+  document.getElementById('wizard').scrollTop=0;
+}
+function wzResult(){
+  const a=wz.a, {C,picks,tri,ideal,blocked}=pickMethods(a), top=picks[0];
+  const warns=[];
+  if(tri)warns.push('Decisión de alto riesgo: combina la inspección con la opción marcada como “Para triangular”.');
+  else if(a.risk==='alto'&&a.access==='ninguno')warns.push('Decisión de alto riesgo sin acceso a usuarios: trata todo hallazgo como hipótesis y planifica cómo validarlo.');
+  else if(a.risk==='alto'&&!picks.some(k=>EMPIRIC.includes(k)))warns.push('Decisión de alto riesgo, pero con estas condiciones ninguna prueba con usuarios es viable todavía: planifica la validación en cuanto haya más tiempo o acceso.');
+  if(a.access==='internos')warns.push('Si el producto es para público externo, los usuarios internos sesgan los resultados: úsalos como piloto.');
+  if(a.team==='solo'&&picks.includes('heur'))warns.push('Un solo evaluador encuentra una fracción de los problemas: suma al menos un colega si puedes.');
+  if(a.access==='especial'&&a.time==='semanas'&&picks.some(k=>EMPIRIC.includes(k)))warns.push('Con perfiles especiales, reserva 1 a 2 semanas extra para reclutar por canales directos o comunitarios.');
+  const labels=WQ.map((q,i)=>{const o=q.opts.find(o=>o[0]===a[q.k]);return `<button data-step="${i}" aria-label="${L('Cambiar','Change')}: ${T(q.q)}">${T(o[1])}</button>`}).join('');
+  const tagOf=(k,i)=>k===tri?'Para triangular':i===0?(ideal?'Recomendado':'Mejor opción disponible'):'Alternativa';
+  const card=(k,i)=>{const m=M.find(x=>x.id===NODE[k]), c=COSTS[k], why=C[k].why;
+    return `<button class="rec${i===0?' top':''}" data-go="${NODE[k]}" style="--c:${m.c}"><span class="rh">${ICONS[NODE[k]].replace('width="40" height="40"','width="34" height="34"')}<span><span class="tag">${T(tagOf(k,i))}</span><h4>${recLabel(k,a)}</h4></span></span>
+    <ul>${(i===0?why.slice(0,4):why.slice(0,1)).map(w=>`<li>${T(w)}</li>`).join('')}</ul>
+    <span class="meta"><span>${T(ANALYTIC.includes(k)?'Analítico':'Empírico')}</span>${c?`<span>${(a.budget==='nulo'&&k==='mod')?T('$0–$300 en incentivos simbólicos'):(a.budget==='nulo'&&k==='un')?T('~$150–$300 con testers propios'):rangeTxt(c)+' '+L('por estudio','per study')}</span><span>${L('Esfuerzo '+lc(c.eff),T(c.eff)+' effort')}</span>`:''}</span></button>`};
+  const blockList=blocked.map(b=>`<li><b>${recLabel(b.k,a)}:</b> ${lc(T(b.why))}.</li>`).join('');
+  let html=`<div class="ans">${labels}</div>`;
+  if(!picks.length&&a.phase==='estrategia'&&(a.need==='escala'||a.need==='experto')){
+    html+=`<div class="wz-box warn"><h4>${T('Todavía es pronto para medir')}</h4>${T(a.need==='escala'?'Las métricas de éxito, tiempo y satisfacción necesitan tareas sobre un prototipo o un producto. En estrategia, valida primero el concepto con una prueba exploratoria y vuelve a medir en diseño o tras el lanzamiento.':'La eficiencia experta se calcula sobre un flujo ya definido. Define el flujo y vuelve en la fase de diseño, donde KLM-GOMS compara alternativas antes de construirlas.')}</div>`;
+  } else if(!picks.length){
+    html+=`<div class="wz-box warn"><h4>${T('No hay un método adecuado con estas condiciones')}</h4>${blockList?`${T('Lo que bloquea cada opción:')}<ul>${blockList}</ul>${T('Cambia alguna de esas condiciones para desbloquearlo.')}`:T('Revisa si alguna restricción puede flexibilizarse.')}</div>`;
+  } else {
+    if(!ideal)html+=`<div class="wz-box warn"><h4>${T('El método ideal está bloqueado')}</h4><ul>${blocked.filter(b=>b.tier===3).map(b=>`<li><b>${recLabel(b.k,a)}:</b> ${lc(T(b.why))}.</li>`).join('')}</ul>${T('Lo que sigue es la mejor aproximación posible.')}</div>`;
+    html+=picks.map(card).join('')+`<div class="wz-box"><h4>${T('Siguiente paso')}</h4>${T(NEXT[top](a))}</div>`;
+    if(warns.length)html+=`<div class="wz-box warn"><h4>${T('Ten en cuenta')}</h4><ul>${warns.map(w=>`<li>${T(w)}</li>`).join('')}</ul></div>`;
+    const other=blocked.filter(b=>ideal||b.tier!==3);
+    if(other.length)html+=`<div class="wz-box"><h4>${T('Descartados')}</h4><ul>${other.map(b=>`<li><b>${recLabel(b.k,a)}:</b> ${lc(T(b.why))}.</li>`).join('')}</ul></div>`;
+  }
+  html+=`<div class="wz-actions">${picks.length?'<button class="primary" id="wzMap">'+T('Ver en el mapa')+'</button>':''}<button id="wzAgain">${T('Empezar de nuevo')}</button></div>`;
+  wzBody.innerHTML=html;
+  wzBody.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{wz.step=+b.dataset.step;wzRender()}));
+  wzBody.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>openDetail(b.dataset.go)));
+  document.getElementById('wzAgain').addEventListener('click',()=>{wz.step=0;wz.a={};clearHL();wzRender()});
+  const mapBtn=document.getElementById('wzMap');
+  if(mapBtn)mapBtn.addEventListener('click',()=>{
+    const ids=picks.map(k=>NODE[k]);
+    hide(); setView('mapa');
+    M.forEach(m=>{m.el.classList.toggle('dim',!ids.includes(m.id));m.el.classList.toggle('sel',m.id===ids[0])});
+    document.getElementById('clearHL').style.display='';
+  });
+  document.getElementById('wizard').scrollTop=0;
+}
+function clearHL(){M.forEach(m=>m.el.classList.remove('dim','sel'));document.getElementById('clearHL').style.display='none'}
+document.getElementById('clearHL').addEventListener('click',clearHL);
+document.getElementById('fabBtn').addEventListener('click',()=>{show(document.getElementById('wizard'));wzRender()});
+document.getElementById('bellBtn').addEventListener('click',()=>show(document.getElementById('notes')));
+
+const SUN='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.8v2M12 19.2v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.8 12h2M19.2 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
+const MOON='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+const themeBtn=document.getElementById('themeBtn');
+const sysDark=()=>matchMedia('(prefers-color-scheme: dark)').matches;
+function applyTheme(t){
+  if(t) document.documentElement.setAttribute('data-theme',t);
+  const dark=t?t==='dark':sysDark();
+  themeBtn.innerHTML=dark?SUN:MOON;
+  themeBtn.setAttribute('aria-label',T(dark?'Cambiar a modo claro':'Cambiar a modo oscuro'));
+}
+let savedTheme=null; try{savedTheme=localStorage.getItem('ux-eval-theme')}catch(e){}
+applyTheme(savedTheme==='light'||savedTheme==='dark'?savedTheme:null);
+themeBtn.addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme')||(sysDark()?'dark':'light');
+  const next=cur==='dark'?'light':'dark';
+  applyTheme(next);
+  try{localStorage.setItem('ux-eval-theme',next)}catch(e){}
+});
+
+(function(){
+  const fab=document.getElementById('fabBtn'), box=document.getElementById('fabLottie');
+  if(!window.lottie)return;
+  try{
+    const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const anim=lottie.loadAnimation({container:box,renderer:'svg',loop:false,autoplay:!still,animationData:FAB_ANIM});
+    fab.classList.add('lottie-on');
+    if(still){anim.goToAndStop(0,true);return}
+    let t; anim.addEventListener('complete',()=>{clearTimeout(t);t=setTimeout(()=>anim.goToAndPlay(0,true),2500)});
+    fab.addEventListener('mouseenter',()=>{clearTimeout(t);anim.goToAndPlay(0,true)});
+  }catch(e){fab.classList.remove('lottie-on')}
+})();
+
+(function(){
+  const badge=document.getElementById('logoBadge'), box=document.getElementById('logoLottie');
+  if(!window.lottie)return;
+  try{
+    const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const anim=lottie.loadAnimation({container:box,renderer:'svg',loop:false,autoplay:!still,animationData:LOGO_ANIM});
+    badge.classList.add('lottie-on');
+    if(still){anim.goToAndStop(0,true);return}
+    let t; anim.addEventListener('complete',()=>{clearTimeout(t);t=setTimeout(()=>anim.goToAndPlay(0,true),4000)});
+    badge.addEventListener('mouseenter',()=>{clearTimeout(t);anim.goToAndPlay(0,true)});
+  }catch(e){badge.classList.remove('lottie-on')}
+})();
+
+const langBtn=document.getElementById('langBtn');
+langBtn.textContent=LANG==='en'?'ES':'EN';
+langBtn.setAttribute('lang',LANG==='en'?'es':'en');
+langBtn.setAttribute('aria-label',LANG==='en'?'Cambiar a español':'Switch to English');
+langBtn.addEventListener('click',()=>{try{localStorage.setItem('ux-eval-lang',LANG==='en'?'es':'en')}catch(e){} location.reload()});
+
+const start=(location.hash||'').slice(1);
+setView(['mapa','matriz','historia','costos'].includes(start)?start:'mapa');
+</script>
+</body>
+</html>
