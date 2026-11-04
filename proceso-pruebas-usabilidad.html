@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Proceso de pruebas de usabilidad</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--glass:rgba(244,239,230,.74);--card:rgba(255,255,255,.78);--main:rgba(255,255,255,.5);--ink:#15130f;--mut:#6d665a;--line:rgba(0,0,0,.08);--lime:#b8f23c;--limeink:#1f3a00;--pur:#8b3fd1;--pur2:#d3a6f5;--btn:#111;--btnink:#fff;--sel:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--glass:rgba(34,29,25,.72);--card:rgba(52,45,39,.8);--main:rgba(60,52,45,.45);--ink:#f6f0e6;--mut:#b9ae9d;--line:rgba(255,255,255,.1);--pur:#c58af0;--pur2:#6b3a91;--btn:#f6f0e6;--btnink:#15130f;--sel:rgba(255,255,255,.12)}}
+:root[data-theme="dark"]{--glass:rgba(34,29,25,.72);--card:rgba(52,45,39,.8);--main:rgba(60,52,45,.45);--ink:#f6f0e6;--mut:#b9ae9d;--line:rgba(255,255,255,.1);--pur:#c58af0;--pur2:#6b3a91;--btn:#f6f0e6;--btnink:#15130f;--sel:rgba(255,255,255,.12)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);min-height:100vh;padding:28px 20px;background:linear-gradient(180deg,#8c88a6 0%,#d6a672 34%,#f3b94f 50%,#b9783d 60%,#5b3a21 100%) fixed}
+.dunes{position:fixed;inset:auto 0 0 0;height:42vh;z-index:-1;pointer-events:none}
+.app{max-width:1220px;margin:auto;display:grid;grid-template-columns:240px 1fr;transition:grid-template-columns .3s ease;border-radius:30px;background:var(--glass);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);box-shadow:0 30px 80px rgba(60,30,0,.28);overflow:hidden}
+aside{padding:22px 14px;display:flex;flex-direction:column;gap:6px}
+.logo{display:flex;gap:10px;align-items:center;font-weight:600;font-size:19px;padding:0 8px 18px}
+.logo svg{width:30px;height:30px;flex:none}
+.tg{all:unset;cursor:pointer;margin-left:auto;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.4);font-size:18px;line-height:1}
+.tg:hover{background:var(--sel)}
+.logo .tx{display:grid;gap:1px;line-height:1.15;min-width:0}
+.logo .tx small{font-size:11px;font-weight:500;color:var(--mut);white-space:nowrap}
+.tg:focus-visible{outline:2px solid var(--pur);outline-offset:2px}
+@media(min-width:961px){
+.app.col{grid-template-columns:76px 1fr}
+.app.col .tx,.app.col .nv span,.app.col .nv small,.app.col .lbl,.app.col .tip{display:none}
+.app.col .logo{flex-direction:column;padding:0 0 14px}
+.app.col .tg{margin:0}
+.app.col .nv{grid-template-columns:1fr;justify-items:center;padding:10px 0}
+.app.col .side-b{justify-content:center}
+}
+.lbl{font-size:12px;color:var(--mut);padding:10px 10px 4px}
+.nv{all:unset;cursor:pointer;display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;padding:11px 10px;border-radius:14px;font-size:14px;transition:background .2s}
+.nv b{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;border:1px solid var(--line);font-size:12px;font-weight:500}
+.nv small{color:var(--mut);font-size:12px}
+.nv:hover{background:rgba(255,255,255,.35)}
+.nv.on{background:var(--sel);box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.nv.on b{background:var(--btn);color:var(--btnink);border-color:transparent}
+.side-b{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding:10px;border-radius:14px;font-size:14px}
+.side-b:hover{background:rgba(255,255,255,.35)}
+.tip{margin-top:auto;font-size:12px;color:var(--mut);line-height:1.5;padding:12px;border-radius:16px;background:rgba(255,255,255,.3)}
+kbd{font:inherit;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:0 5px;background:var(--card)}
+main{margin:10px 10px 10px 0;padding:20px;border-radius:22px;background:var(--main);display:grid;gap:14px;min-width:0}
+.top{display:flex;justify-content:flex-end;gap:12px;align-items:flex-start;flex-wrap:wrap}
+h1{font:400 36px/1.1 'Instrument Serif',Georgia,serif}
+.sub{color:var(--mut);margin-top:4px;font-size:15px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.pill{all:unset;cursor:pointer;display:inline-flex;gap:8px;align-items:center;padding:11px 16px;border-radius:14px;background:var(--card);font-size:14px;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.pill.dk{background:var(--btn);color:var(--btnink)}
+.pill:focus-visible,.nv:focus-visible,.row:focus-visible,.st:focus-visible,.ck:focus-visible,.side-b:focus-visible{outline:2px solid var(--pur);outline-offset:2px}
+.card{background:var(--card);border-radius:22px;padding:18px;min-width:0}
+.g1{display:grid;grid-template-columns:1fr;gap:14px}
+.g2{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+#det{order:-1}
+.hero{min-height:230px}
+.hero{position:relative;overflow:hidden;min-height:250px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(135deg,#fff3b8,#f9d56e 55%,#f0b94a);color:#2a1f05}
+.hero:before{content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.8),rgba(255,255,255,0) 65%);animation:fl 9s ease-in-out infinite alternate}
+@keyframes fl{to{transform:translate(-30px,30px) scale(1.15)}}
+.chip{display:inline-flex;align-self:flex-start;position:absolute;top:16px;left:16px;gap:8px;align-items:center;font-size:13px;background:rgba(255,255,255,.55);padding:6px 12px 6px 8px;border-radius:99px}
+.chip i{width:8px;height:8px;border-radius:50%;background:#2fb344;box-shadow:0 0 0 4px rgba(47,179,68,.2)}
+.hero h2{font:400 40px/1.02 'Instrument Serif',Georgia,serif;position:relative}
+.hero h2 em{font-style:italic}
+.hero p{font-size:13.5px;margin-top:10px;max-width:34ch;line-height:1.5;position:relative;opacity:.85}
+h3{font:400 22px 'Instrument Serif',Georgia,serif;margin-bottom:12px}
+.steps{display:flex;align-items:stretch;gap:6px}
+.steps s{flex:0 0 52px;align-self:center;height:3px;border-radius:3px;background:var(--pur);opacity:.4;position:relative;transition:opacity .3s}
+.steps s:after{content:"";position:absolute;right:1px;top:50%;width:12px;height:12px;border-top:3px solid var(--pur);border-right:3px solid var(--pur);border-radius:2px;transform:translateY(-50%) rotate(45deg)}
+.steps s.on{opacity:1}
+.steps s.nx{opacity:1;animation:nud 1.4s ease-in-out infinite}
+@keyframes nud{50%{transform:translateX(5px)}}
+.st{all:unset;cursor:pointer;flex:1;min-width:0;padding:12px;border-radius:16px;display:grid;gap:3px;border:1px solid var(--line);transition:all .25s}
+.st i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--line);font-size:12px;font-weight:600}
+.st span{font-size:13px;font-weight:600;margin-top:6px;line-height:1.25}
+.st em{font-style:normal;font-size:11.5px;color:var(--mut)}
+.st.past i{background:var(--lime);color:var(--limeink)}
+.st.on{background:var(--sel);box-shadow:0 6px 18px rgba(139,63,209,.15);border-color:var(--pur)}
+.st.on i{background:var(--pur);color:#fff}
+.mb{height:5px;border-radius:9px;background:var(--line);margin-top:8px;overflow:hidden}
+.mb u{display:block;height:100%;background:var(--pur);transition:width .4s}
+.th{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.th h3{margin:0}
+.th span{font-size:13px;color:var(--mut)}
+.row{all:unset;cursor:pointer;display:grid;grid-template-columns:28px 42px 1fr auto auto;gap:12px;align-items:center;padding:11px 10px;border-radius:14px;width:100%;box-sizing:border-box;transition:background .2s}
+.row:hover{background:rgba(255,255,255,.4)}
+.row.on{background:var(--sel);box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.row div b{display:block;font-size:14px;font-weight:600}
+.row div small{color:var(--mut);font-size:12.5px}
+.ck{all:unset;cursor:pointer;width:22px;height:22px;border-radius:7px;border:1.5px solid var(--mut);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--mut)}
+.ck.y{background:var(--lime);border-color:var(--lime);color:var(--limeink)}
+.tag{font-size:12px;padding:4px 10px;border-radius:99px;background:rgba(184,242,60,.28);color:inherit}
+.tag.b{background:rgba(120,160,255,.25)}
+.big{font:400 52px/1 'Instrument Serif',Georgia,serif;color:var(--pur)}
+.big small{font:400 13px Inter,sans-serif;color:var(--mut);margin-left:8px}
+.segs{display:flex;gap:3px;margin:12px 0 14px}
+.segs i{flex:1;height:26px;border-radius:3px;background:var(--line);transition:background .3s}
+.segs i.on{background:linear-gradient(var(--pur),var(--pur2))}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid var(--line);padding-top:12px}
+.mini b{font:400 24px 'Instrument Serif',Georgia,serif;color:var(--pur)}
+.mini small{font-size:12px;color:var(--mut);margin-left:4px}
+.ai{background:linear-gradient(160deg,rgba(214,230,255,.9),rgba(200,220,255,.55));color:#10203a}
+:root:not([data-theme="light"]) .ai{}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .ai{background:linear-gradient(160deg,#2b3a5c,#263250)}:root:not([data-theme="light"]) .ai,:root:not([data-theme="light"]) .ai .bub{color:#e9f0ff}:root:not([data-theme="light"]) .bub{background:rgba(255,255,255,.1)}}
+:root[data-theme="dark"] .ai{background:linear-gradient(160deg,#2b3a5c,#263250);color:#e9f0ff}
+:root[data-theme="dark"] .bub{background:rgba(255,255,255,.1);color:#e9f0ff}
+.ai .th span{background:rgba(255,255,255,.6);padding:5px 12px;border-radius:99px;color:inherit}
+.bub{background:rgba(255,255,255,.65);border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.55;margin-bottom:8px;animation:pop .35s ease}
+.bub.q{width:fit-content;max-width:90%;font-size:13px}
+.bub h4{font:400 21px/1.15 'Instrument Serif',Georgia,serif;margin-bottom:6px}
+.bub ul{padding-left:0;list-style:none;display:grid;gap:6px;margin-top:8px}
+.bub li{padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.55);font-size:13px}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}}
+.mail{animation:pop .35s ease}
+.mh{display:flex;gap:14px;align-items:center}
+.av{flex:none;width:46px;height:46px;border-radius:50%;background:var(--pur);color:#fff;display:grid;place-items:center;font-weight:600;font-size:14px}
+.mh b{display:block;font-size:16px;line-height:1.3}
+.mh small{color:var(--mut);font-size:13px}
+.msg{margin:14px 0 6px;font-size:15px;line-height:1.55}
+.kids{list-style:none;padding:0;display:grid;gap:6px;margin:8px 0}
+.kids li{padding:8px 12px;border-radius:12px;background:var(--line);font-size:13px;line-height:1.45}
+.meta{color:var(--mut);font-size:12.5px;margin:8px 0 6px}
+.sec{font-size:14px;font-weight:500;margin:16px 0 8px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.att{display:inline-flex;gap:8px;align-items:center;padding:9px 14px;border-radius:99px;background:rgba(139,63,209,.12);font-weight:600;font-size:13.5px}
+.att svg{width:16px;height:16px;flex:none;color:var(--pur)}
+.cat{padding:5px 12px;border-radius:99px;border:1.5px solid var(--mut);color:var(--mut);font-size:13px}
+.empty{color:var(--mut);font-size:13px;font-style:italic;margin-top:14px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.vc{border-radius:18px;padding:16px;border:1.5px solid var(--line)}
+.vc.m{border-color:var(--pur);background:rgba(139,63,209,.07)}
+.vc.u{border-color:#e0a21a;background:rgba(240,185,74,.14)}
+.vt{font:400 24px 'Instrument Serif',Georgia,serif}
+.vc.m .vt{color:var(--pur)}
+.vc.u .vt{color:#8a5a00}
+.vc ul{list-style:none;padding:0;display:grid;gap:6px;margin:8px 0 0;font-size:13.5px;line-height:1.45}
+.vc li:before{content:"•";margin-right:8px;font-weight:700}
+.vc.u .att{background:rgba(240,185,74,.28)}
+.vc.u .att svg{color:#9a6700}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .vc.u .vt{color:#f0b94a}}
+:root[data-theme="dark"] .vc.u .vt{color:#f0b94a}
+@media(max-width:720px){.vs{grid-template-columns:1fr}}
+#det{display:none}
+.av.sm{width:42px;height:42px;font-size:13px}
+.pill.sm{padding:8px 12px;font-size:13px}
+.th{flex-wrap:wrap;gap:10px}
+.clip{display:inline-flex;vertical-align:-3px;margin-left:8px;color:var(--pur)}
+.clip svg{width:16px;height:16px}
+.itm{border-radius:16px}
+.itm.op{background:var(--sel);box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.itm.op .row{background:none;box-shadow:none}
+.chev{font-style:normal;font-size:22px;line-height:1;color:var(--mut);transition:transform .25s}
+.itm.op .chev{transform:rotate(90deg)}
+.acc{padding:0 16px 18px;animation:pop .3s ease}
+.acc .mh{display:none}
+.acc .msg{margin-top:2px}
+@media(max-width:600px){.tag{display:none}.row{grid-template-columns:28px 42px 1fr auto}}
+.nav2{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.nav2 .pill{padding:9px 14px;font-size:13px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:960px){.app{grid-template-columns:1fr}aside{flex-direction:row;overflow-x:auto;padding:12px}.logo,.lbl,.tip,.side-b{display:none}.nv{white-space:nowrap}main{margin:0 10px 10px}.g1,.g2{grid-template-columns:1fr}.steps{overflow-x:auto}.st{min-width:150px}}
+@media(max-width:520px){h1{font-size:28px}.hero h2{font-size:32px}body{padding:12px 8px}}
+</style>
+</head>
+<body>
+<svg class="dunes" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120 Q200 40 420 110 T820 90 T1200 130 V300 H0Z" fill="#7a4b2a" opacity=".55"/><path d="M0 190 Q260 110 520 180 T1200 170 V300 H0Z" fill="#5b3a21"/></svg>
+<div class="app">
+<aside>
+<div class="logo"><svg viewBox="0 0 32 32"><g fill="currentColor"><circle cx="16" cy="8" r="6"/><circle cx="16" cy="24" r="6"/><circle cx="8" cy="16" r="6"/><circle cx="24" cy="16" r="6"/></g></svg><span class="tx"><small>Pruebas de</small>Usabilidad</span><button class="tg" data-act="collapse" aria-label="Colapsar menú lateral" aria-expanded="true" title="Colapsar menú">‹</button></div>
+<div class="lbl">Fases</div>
+<nav id="nav" style="display:contents"></nav>
+<div class="lbl">Otros</div>
+<button class="side-b" data-act="reset" title="Reiniciar progreso">↺ <span class="tx">Reiniciar progreso</span></button>
+<button class="side-b" data-act="theme" title="Cambiar tema">◐ <span class="tx">Cambiar tema</span></button>
+<div class="tip">Usa <kbd>←</kbd> <kbd>→</kbd> para avanzar o retroceder y <kbd>Enter</kbd> para abrir o cerrar un paso.</div>
+</aside>
+<main>
+<div class="top">
+<div class="acts"><button class="pill" data-act="play" id="play">▶ Recorrido automático</button><button class="pill dk" data-act="next">Siguiente paso</button></div>
+</div>
+<div class="g1">
+<section class="card hero" id="hero"></section>
+<section class="card"><h3>Flujo del proceso</h3><div class="steps" id="steps"></div></section>
+</div>
+<div class="g2">
+<section class="card"><div class="th"><div><h3 id="lt"></h3><span id="lc"></span></div><div class="acts"><button class="pill sm" data-act="exp">⊞ Expandir todos</button><button class="pill sm" data-act="col">⊟ Colapsar todos</button></div></div><div id="list"></div></section>
+<div style="display:grid;gap:14px;min-width:0">
+<section class="card" id="prog"></section>
+<section class="card" id="det"></section>
+</div>
+</div>
+</main>
+</div>
+<script>
+const P=[
+{n:'Planificación y preparación',en:'Preparations',t:'Planificación y <em>preparación</em>',s:'Se decide qué, a quién y cómo se va a probar antes de sentar a ningún usuario.',i:[
+['1.1','Alineación con stakeholders','Definir metas de investigación, alcance de la interfaz y áreas de mayor riesgo junto a los equipos de producto y desarrollo.','Alinear'],
+['1.2','Usability Test Plan','Documentar la metodología, las métricas de rendimiento (éxito, tiempo, errores) y los criterios formales del estudio.','Documento'],
+['1.3','Perfil de usuario y reclutamiento','Decidir a quién se invita a probar y cómo se le encuentra.','Reclutar',['1.3.1 Criterios de inclusión/exclusión y cuestionario filtro (Screener).','1.3.2 Convocatoria en canales de reclutamiento y agenda, incluyendo sesiones backup.']],
+['1.4','Escenarios y tareas','Redactar tareas orientadas a metas reales (Jobs-to-be-Done) con lenguaje neutro, sin revelar las etiquetas de la interfaz.','Redactar'],
+['1.5','Materiales e instrumentos','Guion del moderador, cuestionarios antecedentes, consentimiento informado, NDA y escalas estandarizadas (SUS, SEQ).','Materiales'],
+['1.6','Configuración técnica y congelamiento','Dejar listo el laboratorio o la plataforma remota y congelar la versión del prototipo (code freeze).','Técnico'],
+['1.7','Controles de calidad','Tres ensayos antes de la sesión real para detectar fallas.','Calidad',['1.7.1 Self-Run: el propio evaluador recorre los flujos básicos.','1.7.2 Dry Run: ensayo de moderación con un compañero interno.','1.7.3 Pilot Test: sesión con un usuario real para ajustar tiempos e instrucciones.']]]},
+{n:'Ejecución y moderación',en:'Execution',t:'Ejecución y <em>moderación</em>',s:'El momento con el usuario: se observa, se escucha y se interviene lo mínimo.',i:[
+['2.1','Recepción y encuadre psicológico','Recibir al usuario, firmar consentimiento/NDA y enfatizar que se evalúa al producto y no a la persona.','Acoger'],
+['2.2','Entrenamiento en Think-Aloud','Explicar y modelar la instrucción para que el participante verbalice sus pensamientos de forma continua.','Think-Aloud'],
+['2.3','Ejecución de escenarios de tarea','Presentar las tarjetas de tarea de forma secuencial y monitorear la interacción. Según el estudio, la sesión puede ser moderada o no moderada: compara ambas más abajo.','Tareas'],
+['2.4','Observación y facilitación neutral','Mirar sin guiar.','Observar',['2.4.1 Tomar notas estructuradas sobre comportamientos, vacilaciones y errores.','2.4.2 Intervenir con prompts neutros y aplicar la regla de silencio ante bloqueos.']],
+['2.5','Evaluaciones post-tarea','Cuestionarios breves de percepción (por ejemplo SEQ) al terminar cada escenario.','SEQ'],
+['2.6','Entrevista de cierre (Debriefing)','Indagar impresiones generales y aplicar escalas globales de usabilidad (SUS, PSSUQ).','SUS · PSSUQ'],
+['2.7','Cierre de sesión e higienización','Entregar la compensación, agradecer y limpiar datos o caché para la siguiente prueba.','Cierre']]},
+{n:'Análisis e interpretación',en:'Analysis',t:'Análisis e <em>interpretación</em>',s:'Los datos brutos se convierten en hallazgos con causa y prioridad.',i:[
+['3.1','Consolidación de datos brutos','Transcribir verbalizaciones, unificar los registros de los notetakers y compilar las métricas numéricas.','Datos'],
+['3.2','Codificación cualitativa y análisis temático','De observaciones sueltas a temas.','Códigos',['3.2.1 Asignar códigos a comportamientos, vacilaciones y expresiones verbales.','3.2.2 Agrupar con Diagrama de Afinidad en 4 a 7 temas clave, articulados según la meta bloqueada del usuario.']],
+['3.3','Triangulación de datos','Cruzar la evidencia cualitativa con las métricas de rendimiento (éxito, tiempos, errores) y la preferencia.','Cruzar'],
+['3.4','Categorización de hallazgos','Clasificar en problemas de usabilidad, hallazgos positivos, ideas de usuarios y defectos técnicos (bugs).','Clasificar'],
+['3.5','Causa raíz y severidad','Determinar el desfasaje del modelo mental y calificar la severidad combinando tres factores.','Severidad',['Impacto','×  Frecuencia','×  Persistencia']],
+['3.6','Propuestas de rediseño','Diseñar recomendaciones específicas y accionables para resolver las fricciones detectadas.','Rediseño']]},
+{n:'Comunicación y seguimiento',en:'Reporting',t:'Comunicación y <em>seguimiento</em>',s:'Los hallazgos solo valen si llegan a quien decide y terminan en el producto.',i:[
+['4.1','Artefactos de reporte','Sintetizar resultados en una presentación ejecutiva (Slide Deck), un informe detallado (Usability Report) o tickets directos en el backlog.','Entregable'],
+['4.2','Videoclips de evidencia','Seleccionar fragmentos cortos (highlight reels) que ilustren los problemas críticos en voz de los usuarios.','Video'],
+['4.3','Priorización para desarrollo','Clasificar correcciones con modelos impacto/esfuerzo o RICE y acordar mejoras inmediatas (quick wins).','RICE'],
+['4.4','Sesión de Readout','Presentar los hallazgos a los stakeholders con datos, video y propuestas de rediseño.','Readout'],
+['4.5','Transferencia y seguimiento','Asignar responsables de actualizar diseños o código e integrar las soluciones en el siguiente ciclo iterativo.','Seguimiento']]}
+];
+const CL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 01-7.8-7.8l8.6-8.6a3.7 3.7 0 015.2 5.2l-8.6 8.6a1.8 1.8 0 01-2.6-2.6l7.9-7.9"/></svg>';
+const Q=['Typeform','Google Forms','Qualtrics','MUIQ'],M=['Google Sheets','Microsoft Excel','Airtable'];
+const X={'2.3':[
+{t:'Moderadas',p:['Un facilitador conduce la sesión en vivo','Permite repreguntar y profundizar en el momento','Menos sesiones, mayor profundidad cualitativa'],e:'Grabaciones de audio, video y pantalla',h:['Zoom','Lookback.io','Google Meet','Microsoft Teams','GoToMeeting','WebEx','Morae / TechSmith','UX Recorder','Camtasia']},
+{t:'No moderadas',p:['Sin facilitador: la persona sigue las instrucciones sola','No hay repregunta en el momento','Más escala y rapidez, menos profundidad'],e:'Sesiones automatizadas y rutas de clic',h:['UserTesting','Maze','UserZoom','Useberry','Loop11','TryMyUI','Userlytics','UserFeel']}]};
+const CMP=g=>`<div class="vs">${g.map((c,i)=>`<div class="vc ${i?'u':'m'}"><div class="vt">${c.t}</div><ul>${c.p.map(k=>`<li>${k}</li>`).join('')}</ul><div class="sec">Entregable</div><div class="pills"><span class="att">${CL}${c.e}</span></div><div class="sec">Herramientas digitales</div><div class="pills">${c.h.map(t=>`<span class="cat">${t}</span>`).join('')}</div></div>`).join('')}</div>`;
+const E={
+'1.1':[['Documento de Alcance'],['Notion','Confluence','Google Docs']],
+'1.2':[['Usability Test Plan'],['Google Docs','Microsoft Word','Notion','Coda']],
+'1.3':[['Screener','Matriz de Reclutamiento'],['Typeform','Wufoo','Google Forms','Ethnio (intercepción en vivo)','User Interviews','Respondent.io','Google Sheets / Excel']],
+'1.4':[['Escenarios de Tarea','Happy Path'],['Figma / FigJam','Miro','Mural','Notion']],
+'1.5':[['Guion de Orientación','Formularios Legales'],['DocuSign','Adobe Sign','Dropbox Sign (HelloSign)','Google Forms']],
+'1.6':[['Entorno Congelado (Prototype Freeze)'],['Figma','Axure RP','Adobe XD','InVision']],
+'1.7':[['Registro de Prueba Piloto'],['Asana','Trello','Notion']],
+'2.1':[['Documentación Legal Validada'],['DocuSign','Adobe Sign']],
+'2.3':[['Grabaciones de audio, video y pantalla','Sesiones automatizadas y rutas de clic'],['Zoom','Lookback.io','Google Meet','Microsoft Teams','GoToMeeting','WebEx','Morae / TechSmith','UX Recorder','Camtasia','UserTesting','Maze','UserZoom','Useberry','Loop11','TryMyUI','Userlytics','UserFeel']],
+'2.4':[['Hojas de Registro de Notetakers'],['Dovetail (captura en vivo)','Miro','FigJam','Google Sheets']],
+'2.5':[['Puntuaciones SEQ'],Q],
+'2.6':[['Puntuaciones SUS o PSSUQ'],Q],
+'3.1':[['Base de Datos Unificada de Sesiones'],['Dovetail','Condens','EnjoyHQ','Otter.ai','Descript']],
+'3.2':[['Matriz de Codificación','Agrupación Temática'],['Dovetail','Condens','Miro','FigJam','Mural']],
+'3.3':[['Matriz Maestro de Hallazgos y Severidad'],M],
+'3.5':[['Matriz Maestro de Hallazgos y Severidad'],M],
+'3.6':[['Soluciones de Diseño Accionables'],['Figma','FigJam','Miro']],
+'4.1':[['Usability Test Report','Readout Deck'],['Google Slides','Microsoft PowerPoint','Pitch','Notion','Canva']],
+'4.2':[['Highlight Reel'],['Dovetail (clips con subtítulos automáticos)','Loom','Descript','CapCut','Adobe Premiere Pro']],
+'4.3':[['Tickets de Usabilidad Priorizados'],['Jira','Linear','Asana','Trello','Azure DevOps']],
+'4.5':[['Plan de Acción y Compromisos (Action Items)'],['Productboard','Jira Product Discovery','Notion']]
+};
+const F=[];P.forEach((p,a)=>p.i.forEach((x,b)=>F.push({a,b,id:x[0]})));
+const $=s=>document.querySelector(s);
+let cur=0,opened=new Set(['1.1']),done=new Set(),timer=null;
+const cnt=p=>p.i.filter(y=>done.has(y[0])).length;
+function render(){
+const f=F[cur],p=P[f.a],x=p.i[f.b],pc=Math.round(done.size/F.length*100);
+$('#nav').innerHTML=P.map((q,i)=>`<button class="nv ${i==f.a?'on':''}" data-p="${i}" title="${q.n}" aria-label="${q.n}"><b>${i+1}</b><span>${q.n}</span><small>${cnt(q)}/${q.i.length}</small></button>`).join('');
+$('#steps').innerHTML=P.map((q,i)=>`<button class="st ${i==f.a?'on':i<f.a?'past':''}" data-p="${i}"><i>${i<f.a?'✓':i+1}</i><span>${q.n}</span><em>${q.en}</em><div class="mb"><u style="width:${cnt(q)/q.i.length*100}%"></u></div></button>${i<3?`<s class="${i<f.a?'on':i==f.a?'nx':''}"></s>`:''}`).join('');
+$('#hero').innerHTML=`<span class="chip"><i></i>Fase ${f.a+1} de 4 · ${p.en}</span><h2>${p.t}</h2><p>${p.s}</p>`;
+$('#lt').textContent=p.n;$('#lc').textContent=cnt(p)+' de '+p.i.length+' entendidos';
+$('#list').innerHTML=p.i.map((y,j)=>`<div class="itm ${opened.has(y[0])?'op':''}"><div class="row ${j==f.b?'on':''}" role="button" tabindex="0" aria-expanded="${opened.has(y[0])}" data-i="${y[0]}"><button class="ck ${done.has(y[0])?'y':''}" data-c="${y[0]}" aria-label="Marcar ${y[0]} como entendido">${done.has(y[0])?'✓':''}</button><div class="av sm">${y[0]}</div><div><b>${y[1]}${E[y[0]]||X[y[0]]?`<span class="clip" title="Incluye entregable" aria-label="Incluye entregable">${CL}</span>`:''}</b>${y[4]?`<small>${y[4].length} subpasos</small>`:''}</div><span class="tag ${j%2?'b':''}">${y[3]}</span><i class="chev">›</i></div>${opened.has(y[0])?`<div class="acc">${panel(f.a,j)}</div>`:''}</div>`).join('');
+const on=Math.round(pc/100*26);
+$('#prog').innerHTML=`<div class="th"><h3>Tu progreso</h3><span>${done.size} de ${F.length} pasos</span></div><div class="big">${pc}%<small>del proceso entendido</small></div><div class="segs">${Array.from({length:26},(_,i)=>`<i class="${i<on?'on':''}"></i>`).join('')}</div><div class="mini"><div><b>${Math.round(cnt(p)/p.i.length*100)}%</b><small>de esta fase</small></div><div><b>${cur+1}/${F.length}</b><small>paso actual</small></div></div>`;
+}
+function panel(pa,xb){const p=P[pa],x=p.i[xb],f={a:pa,b:xb},cur=F.findIndex(g=>g.a==pa&&g.b==xb);return `<div class="mail"><div class="mh"><div class="av">${x[0]}</div><div><b>${x[1]}</b><small>Fase ${f.a+1}: ${p.n}</small></div></div><p class="msg">${x[2]}</p>${x[4]?`<ul class="kids">${x[4].map(k=>`<li>${k}</li>`).join('')}</ul>`:''}<div class="meta">Paso ${cur+1} de ${F.length} · ${p.en}</div>${X[x[0]]?CMP(X[x[0]]):(e=>e?`<div class="sec">${e[0].length>1?'Entregables':'Entregable'}</div><div class="pills">${e[0].map(d=>`<span class="att">${CL}${d}</span>`).join('')}</div><div class="sec">Herramientas digitales</div><div class="pills">${e[1].map(t=>`<span class="cat">${t}</span>`).join('')}</div>`:`<p class="empty">Este paso no tiene entregable ni herramientas definidas.</p>`)(E[x[0]])}</div><div class="nav2"><button class="pill" data-g="${cur-1}">← Anterior</button><button class="pill dk" data-d="${x[0]}">${done.has(x[0])?'Desmarcar':'Entendido ✓'}</button></div>`;
+}
+const go=n=>{cur=(n+F.length)%F.length;opened=new Set([F[cur].id]);render()};
+function toggle(id){done.has(id)?done.delete(id):done.add(id)}
+function play(){const b=$('#play');if(timer){clearInterval(timer);timer=null;b.textContent='▶ Recorrido automático'}else{b.textContent='❚❚ Pausar recorrido';timer=setInterval(()=>go(cur+1),7000)}}
+document.addEventListener('click',e=>{
+const c=e.target.closest('[data-c]');if(c){e.stopPropagation();toggle(c.dataset.c);return render()}
+const r=e.target.closest('[data-i]');if(r){const id=r.dataset.i;cur=F.findIndex(g=>g.id==id);opened.has(id)?opened.delete(id):opened.add(id);return render()}
+const n=e.target.closest('[data-p]');if(n)return go(F.findIndex(g=>g.a==+n.dataset.p));
+const gg=e.target.closest('[data-g]');if(gg)return go(+gg.dataset.g);const dd=e.target.closest('[data-d]');if(dd){const id=dd.dataset.d;toggle(id);const i=F.findIndex(z=>z.id==id);if(done.has(id)&&i<F.length-1){opened.delete(id);cur=i+1;opened.add(F[cur].id)}return render()}
+const a=e.target.closest('[data-act]');if(!a)return;const k=a.dataset.act;
+if(k=='next')go(cur+1);else if(k=='prev')go(cur-1);else if(k=='done'){toggle(F[cur].id);if(done.has(F[cur].id)&&cur<F.length-1)cur++;render()}
+else if(k=='exp'){P[F[cur].a].i.forEach(y=>opened.add(y[0]));render()}else if(k=='col'){opened.clear();render()}else if(k=='collapse')setCol(!$('.app').classList.contains('col'));else if(k=='play')play();else if(k=='reset'){done.clear();cur=0;render()}
+else if(k=='theme'){const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme=='dark':matchMedia('(prefers-color-scheme:dark)').matches;d.dataset.theme=dark?'light':'dark'}
+});
+document.addEventListener('keydown',e=>{
+if(e.key=='ArrowRight'||e.key=='ArrowDown'){e.preventDefault();go(cur+1)}
+else if(e.key=='ArrowLeft'||e.key=='ArrowUp'){e.preventDefault();go(cur-1)}
+else if(e.key=='Enter'&&e.target.dataset.i){const id=e.target.dataset.i;cur=F.findIndex(g=>g.id==id);opened.has(id)?opened.delete(id):opened.add(id);render();const rr=document.querySelector('[data-i="'+id+'"]');if(rr)rr.focus()}
+});
+function setCol(c){$('.app').classList.toggle('col',c);const t=$('.tg');t.textContent=c?'›':'‹';t.setAttribute('aria-expanded',!c);t.setAttribute('aria-label',c?'Expandir menú lateral':'Colapsar menú lateral');t.title=c?'Expandir menú':'Colapsar menú';try{localStorage.setItem('sbcol',c?'1':'0')}catch(e){}}
+try{if(localStorage.getItem('sbcol')=='1')setCol(true)}catch(e){}
+render();
+</script>
+</body>
+</html>
