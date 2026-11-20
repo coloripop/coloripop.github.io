@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figma Motion Tutorials — Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0e16;
+    --panel: rgba(255,255,255,0.045);
+    --panel-border: rgba(255,255,255,0.09);
+    --panel-border-hi: rgba(255,255,255,0.22);
+    --text: #e9edf5;
+    --text-dim: #8d99b3;
+    --text-dimmer: #5b6580;
+    --refract: #4fa8ff;
+    --bloom: #ffb454;
+    --line: rgba(255,255,255,0.08);
+    --radius: 14px;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: radial-gradient(ellipse 90% 60% at 15% -10%, rgba(79,168,255,0.14), transparent 60%),
+                radial-gradient(ellipse 70% 50% at 100% 10%, rgba(255,180,84,0.08), transparent 60%),
+                var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3{ font-family:'Fraunces', serif; font-weight: 500; letter-spacing: -0.01em; margin:0; }
+  a{ color: inherit; text-decoration: none; }
+
+  .frame{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 32px 90px;
+  }
+
+  .top{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 22px;
+    margin-bottom: 44px;
+  }
+  .brand{
+    display:flex;
+    align-items: flex-start;
+    gap: 16px;
+    text-align: left;
+  }
+  .brand svg{
+    flex: 0 0 auto;
+  }
+  .top h1{
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.12;
+    color: #fff;
+  }
+  .top p.sub{
+    margin-top: 10px;
+    max-width: 48ch;
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .top-controls{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .search-wrap{
+    position: relative;
+    width: 280px;
+    max-width: 100%;
+  }
+  .search-wrap svg{
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    color: var(--text-dimmer);
+    pointer-events: none;
+  }
+  .search-wrap input{
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 13.5px;
+    padding: 9px 14px 9px 34px;
+    outline: none;
+    transition: border-color .2s ease, background .2s ease;
+  }
+  .search-wrap input::placeholder{ color: var(--text-dimmer); }
+  .search-wrap input:focus{
+    border-color: var(--panel-border-hi);
+    background: rgba(255,255,255,0.07);
+  }
+  .badge{
+    font-size: 12px;
+    color: var(--text-dimmer);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+    white-space: nowrap;
+    background: var(--panel);
+  }
+  .empty{
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dimmer);
+    font-size: 14px;
+    border: 1px dashed var(--panel-border);
+    border-radius: var(--radius);
+  }
+  .empty strong{ color: var(--text-dim); }
+
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 26px;
+  }
+
+  /* ---- Book-cover card ---- */
+  .card{
+    position: relative;
+    aspect-ratio: 3 / 4.3;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 24px 60px -28px rgba(0,0,0,0.75);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .card:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 32px 76px -28px rgba(0,0,0,0.85);
+    border-color: var(--panel-border-hi);
+  }
+  .card-link{
+    position:absolute; inset:0;
+    z-index: 1;
+    cursor: pointer;
+  }
+  .card-link:focus-visible{ outline: 2px solid var(--refract); outline-offset: -2px; }
+
+  .cover{
+    position:absolute; inset:0;
+  }
+  .cover .rays{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg, transparent 38%, rgba(6,8,16,0.72) 72%, rgba(6,8,16,0.94) 100%),
+      radial-gradient(130% 95% at 0% 0%, rgba(255,255,255,0.28), transparent 58%),
+      repeating-conic-gradient(from -28deg at 2% -2%, var(--ray1, #8577f2) 0deg 7deg, var(--ray2, #4a3fae) 7deg 15deg, var(--ray3, #211a52) 15deg 23deg);
+  }
+  .cover .rays.soon{
+    background:
+      linear-gradient(180deg, transparent 38%, rgba(6,8,16,0.72) 72%, rgba(6,8,16,0.96) 100%),
+      radial-gradient(130% 95% at 0% 0%, rgba(255,255,255,0.14), transparent 58%),
+      repeating-conic-gradient(from -28deg at 2% -2%, #4a5266 0deg 7deg, #2b3040 7deg 15deg, #171b26 15deg 23deg);
+    filter: saturate(0.6);
+  }
+  .cover .grain{
+    position:absolute; inset:0;
+    opacity: 0.35;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  .mark{
+    position:absolute; top: 18px; left: 18px;
+    z-index: 2;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  }
+  .mark svg{
+    width: 22px; height: 22px;
+    display: block;
+  }
+  .mark svg path{
+    stroke: rgba(255,255,255,0.92);
+  }
+
+  .difficulty{
+    position:absolute; top: 18px; right: 18px;
+    z-index: 2;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .difficulty span{
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 4px 10px;
+    backdrop-filter: blur(6px);
+    white-space: nowrap;
+  }
+  .difficulty .tool-tag{
+    color: var(--refract);
+    border-color: rgba(79,168,255,0.35);
+  }
+  .card.soon .difficulty{ opacity: 0.5; }
+
+  .cardbody{
+    position:absolute; left:0; right:0; bottom:0;
+    z-index: 2;
+    padding: 22px 22px 24px;
+    pointer-events: none;
+  }
+  .cardbody h3{
+    font-size: 21px;
+    color:#fff;
+    margin-bottom: 8px;
+  }
+  .cardbody p{
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: rgba(233,237,245,0.72);
+    margin: 0 0 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .cardbody .meta-row{
+    display:flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .cardbody .updated{
+    font-size: 12px;
+    color: var(--text-dimmer);
+  }
+  .cardbody .source-link{
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+    font-size: 12px;
+    color: var(--refract);
+    white-space: nowrap;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cardbody .source-link:hover{ color: #fff; }
+
+  .card.soon{
+    cursor: default;
+    border-style: dashed;
+    border-color: var(--panel-border);
+  }
+  .card.soon .cardbody h3{ color: var(--text-dim); }
+  .card.soon .cardbody .updated{ color: var(--text-dimmer); }
+
+  @media (prefers-reduced-motion: reduce){
+    a.card{ transition: none; }
+  }
+  .lang-toggle{ display:inline-flex; padding:3px; border-radius:999px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.04); }
+  .lang-toggle button{ appearance:none; border:0; background:transparent; color:var(--text-dim); font:600 12px/1 Inter, system-ui, sans-serif; letter-spacing:.04em; padding:6px 11px; border-radius:999px; cursor:pointer; }
+  .lang-toggle button[aria-pressed="true"]{ background:rgba(255,255,255,0.14); color:#fff; }
+  .lang-toggle button:focus-visible{ outline:2px solid rgba(255,255,255,0.6); outline-offset:1px; }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="top">
+      <div class="brand">
+        <svg viewBox="0 0 200 300" width="34" height="34" style="margin-top:6px;flex:0 0 auto;">
+          <path fill="#0acf83" d="M50 300c27.6 0 50-22.4 50-50v-50H50c-27.6 0-50 22.4-50 50s22.4 50 50 50z"/>
+          <path fill="#a259ff" d="M0 150c0-27.6 22.4-50 50-50h50v100H50c-27.6 0-50-22.4-50-50z"/>
+          <path fill="#f24e1e" d="M0 50C0 22.4 22.4 0 50 0h50v100H50C22.4 100 0 77.6 0 50z"/>
+          <path fill="#ff7262" d="M100 0h50c27.6 0 50 22.4 50 50s-22.4 50-50 50h-50V0z"/>
+          <path fill="#1abcfe" d="M200 150c0 27.6-22.4 50-50 50s-50-22.4-50-50 22.4-50 50-50 50 22.4 50 50z"/>
+        </svg>
+        <div>
+          <h1 id="tH1">Figma Motion Tutorials</h1>
+          <p class="sub" id="tSub">Step-by-step guides to animating in Figma with Motion — keyframes, easing, looping components and shader fills that bring static frames to life.</p>
+        </div>
+      </div>
+      <div class="top-controls">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" placeholder="Search tutorials…" autocomplete="off">
+        </div>
+        <div class="badge" id="countBadge">1 guide</div>
+        <div class="lang-toggle" role="group" aria-label="Language / Idioma">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="es" aria-pressed="false">ES</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </div>
+
+<script>
+  // Add new tutorials here — each card links out to its own tutorial file.
+  const tutorials = [
+    {
+      title: "Animated Flower in Figma",
+      title_es: "Flor animada en Figma",
+      description_es: "Un componente de pétalo, un shader Moving gradient y un loop de rotación de 4 segundos en Motion — doce instances que se pliegan en un anillo y vuelven a abrirse.",
+      hue: 250,
+      description: "One petal component, a Moving gradient shader, and a 4-second rotation loop in Motion — twelve instances that keep folding into a ring and blooming back open.",
+      updated: "Updated on November 19, 2026",
+      difficulty: "Intermediate",
+      tool: "Figma Motion",
+      href: "Figma_Flower_Animation_Tutorial.html",
+      source: "https://www.youtube.com/watch?v=FjsxyqBTb0o"
+    },
+    {
+      title: "Animated Icons with Figma Motion",
+      title_es: "Íconos animados con Figma Motion",
+      description_es: "Íconos de descarga, sliders y papelera con vida propia gracias a keyframes de Position y Rotation, easing con custom bezier pronunciado y un export animado en MP4.",
+      hue: 168,
+      description: "Download, sliders and trash icons brought to life with Position and Rotation keyframes, steep custom bezier easing, and an animated MP4 export.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Beginner",
+      tool: "Figma Motion",
+      href: "Figma_Animated_Icons_Motion_Tutorial.html",
+      source: "https://www.youtube.com/watch?v=T4Rhb4vjUI0"
+    },
+    {
+      title: "Soft UI Loader in Figma",
+      title_es: "Loader soft UI en Figma",
+      description_es: "Un indicador de carga brillante hecho de elipses — controles de Arc, radial gradients y layer blur — girando en un loop continuo de 4 segundos con una cuña de luz que lo sigue.",
+      hue: 330,
+      description: "A glowing loading indicator built from ellipses — Arc controls, radial gradients and layer blur — spun on a seamless 4-second loop with a trailing light wedge.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Intermediate",
+      tool: "Figma Motion",
+      href: "Figma_Soft_UI_Loader_Tutorial.html",
+      source: "https://www.youtube.com/watch?v=odKExi5qK38"
+    },
+    {
+      title: "3D Card Flip in Figma Motion",
+      title_es: "Carta que gira en 3D con Figma Motion",
+      description_es: "Dos instances de carta apiladas con backfaces ocultas, keyframes de Rotate Y sincronizados y Perspective en el padre — una carta que se voltea en 3D real.",
+      hue: 45,
+      description: "Two stacked card instances with hidden backfaces, synced Rotate Y keyframes, and Perspective on the parent — a card that turns over in real 3D.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Intermediate",
+      tool: "Figma Motion",
+      href: "Figma_3D_Card_Flip_Tutorial.html",
+      source: "https://www.youtube.com/shorts/H_-Yz8K71DQ"
+    },
+    {
+      title: "Audio in Figma Motion",
+      title_es: "Audio en Figma Motion",
+      description_es: "Agrega sonido a una timeline de Motion — start time y volume, fade-ins con keyframes de Volume, clips divididos y reubicados, y componentes de audio reutilizables.",
+      hue: 140,
+      description: "Add sound to a Motion timeline — start time and volume, fade-ins with Volume keyframes, split and re-timed clips, and reusable audio components.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Beginner",
+      tool: "Figma Motion",
+      href: "Figma_Motion_Audio_Tutorial.html",
+      source: "https://www.youtube.com/shorts/7letdJz3XtU"
+    },
+    {
+      title: "Text Animations in Figma Motion",
+      title_es: "Animaciones de texto en Figma Motion",
+      description_es: "Animación de texto por carácter — apila Position, Opacity y Blur, crea una máquina de escribir con easing Hold y guarda efectos como animation styles reutilizables.",
+      hue: 72,
+      description: "Per-character text animation — stack Position, Opacity and Blur, build a typewriter with Hold easing, and save effects as reusable animation styles.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Beginner",
+      tool: "Figma Motion",
+      href: "Figma_Text_Animations_Tutorial.html",
+      source: "https://www.youtube.com/shorts/rV8DIcNqTYQ"
+    },
+    {
+      title: "Animated Scribbles in Figma",
+      title_es: "Garabatos animados en Figma",
+      description_es: "Trazos hechos con el Brush que se escriben solos — keyframes de Path trim escalonados como escritura a mano, exportados en MP4 y superpuestos sobre video.",
+      hue: 2,
+      description: "Hand-drawn Brush strokes that write themselves — Path trim keyframes staggered like handwriting, exported as MP4 and keyed over video.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Beginner",
+      tool: "Figma Motion",
+      href: "Figma_Animated_Scribbles_Tutorial.html",
+      source: "https://www.youtube.com/shorts/zLg5rzeen_A"
+    },
+    {
+      title: "Pan, Zoom & Rotate Path Animation",
+      title_es: "Path animado con pan, zoom y rotación",
+      description_es: "Una línea que se dibuja sola mientras un rig de cámara con frames anidados sigue la punta del lápiz, hace zoom al 200%, gira 90° y se aleja para revelar la forma.",
+      hue: 225,
+      description: "A line that draws itself while a nested-frame camera rig pans along the pen tip, zooms to 200%, swings 90° and pulls back to reveal the shape.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Intermediate",
+      tool: "Figma Motion",
+      href: "Figma_Pan_Zoom_Rotate_Tutorial.html",
+      source: "https://www.youtube.com/shorts/HlDrf4eDI-w"
+    },
+    {
+      title: "Custom Animation Styles in Figma Motion",
+      title_es: "Animation styles personalizados en Figma Motion",
+      description_es: "Apila animaciones de Scale y Opacity en entradas como Card IN y Blink In, guárdalas como animation styles con nombre y reutilízalas en cualquier capa.",
+      hue: 285,
+      description: "Stack Scale and Opacity animations into entrances like Card IN and Blink In, save them as named animation styles, and reuse them across any layer.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Intermediate",
+      tool: "Figma Motion",
+      href: "Figma_Animation_Styles_Tutorial.html",
+      source: "https://www.youtube.com/shorts/IaIhjAITQ6w"
+    },
+    {
+      title: "Arc Loaders in Figma Motion",
+      title_es: "Loaders con Arc en Figma Motion",
+      description_es: "Tres anillos concéntricos con extremos redondeados que se cierran solos — keyframes de Arc Sweep en una elipse simple, escalonados en un loader divertido.",
+      hue: 24,
+      description: "Three concentric round-capped arcs that sweep themselves closed — Arc Sweep keyframes on a plain ellipse, staggered into a playful loader.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Beginner",
+      tool: "Figma Motion",
+      href: "Figma_Arc_Loaders_Tutorial.html",
+      source: "https://www.youtube.com/shorts/8hpEKTCFe7M"
+    },
+    {
+      title: "Floating Elements in Figma Motion",
+      title_es: "Elementos flotantes en Figma Motion",
+      description_es: "Cards e ilustraciones que flotan en loops continuos — keyframes de Position de inicio, desplazamiento y regreso con ease in and out, enviados luego a Figma Make como página en vivo.",
+      hue: 196,
+      description: "Cards and illustrations that drift on seamless loops — start, nudge, return Position keyframes with ease in and out, then sent to Figma Make as a live page.",
+      updated: "Updated on November 20, 2026",
+      difficulty: "Beginner",
+      tool: "Figma Motion",
+      href: "Figma_Floating_Elements_Tutorial.html",
+      source: "https://www.youtube.com/shorts/-7gu6EAh6MM"
+    }
+  ];
+
+  // Placeholder slots so the shelf doesn't look empty — remove as real tutorials fill in.
+  const comingSoon = 0;
+
+  const FIGMA_MARK = `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18.7193 6.71997C15.5379 6.71997 12.96 9.29795 12.96 12.4794C12.96 15.6607 15.5379 18.2387 18.7193 18.2387L30.2382 18.2406C33.4195 18.2406 35.9994 15.6607 35.9994 12.4794C35.9994 9.29795 33.4195 6.71997 30.2382 6.71997H18.7193Z" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M24.48 18.2406L24.4819 6.71997V29.7611" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M30.2394 18.24C27.0599 18.24 24.48 20.818 24.48 23.9994C24.48 27.1807 27.058 29.7586 30.2394 29.7586C33.4208 29.7586 36.0006 27.1807 36.0006 23.9994C36.0006 20.818 33.4208 18.24 30.2394 18.24Z" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M18.7193 18.24C15.5379 18.24 12.96 20.8199 12.96 24.0011C12.96 27.1826 15.5379 29.7625 18.7193 29.7625" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M18.7193 29.76C15.5379 29.76 12.96 32.338 12.96 35.5194C12.96 38.7009 15.5379 41.2789 18.7193 41.2789C21.9008 41.2789 24.4805 38.7009 24.4805 35.5194V29.76H18.7193Z" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+
+  const grid = document.getElementById('grid');
+  const countBadge = document.getElementById('countBadge');
+  const searchInput = document.getElementById('searchInput');
+
+  // ---- Language (EN/ES). Figma feature names stay in English in both. ----
+  const LANG_KEY = 'figmaTutorialsLang';
+  const UI = {
+    en: { h1:'Figma Motion Tutorials', sub:'Step-by-step guides to animating in Figma with Motion — keyframes, easing, looping components and shader fills that bring static frames to life.',
+          search:'Search tutorials…', guide:n=>`${n} guide${n===1?'':'s'}`, match:n=>`${n} match${n===1?'':'es'}`,
+          empty:q=>`No tutorials match <strong>“${q}”</strong>. Try a different search.`, source:'Original post ↗', open:t=>`Open ${t} tutorial`,
+          diff:{Beginner:'Beginner',Intermediate:'Intermediate',Advanced:'Advanced'}, title:'Figma Motion Tutorials — Library' },
+    es: { h1:'Tutoriales de Figma Motion', sub:'Guías paso a paso para animar en Figma con Motion — keyframes, easing, componentes en loop y shader fills que dan vida a frames estáticos.',
+          search:'Buscar tutoriales…', guide:n=>`${n} guía${n===1?'':'s'}`, match:n=>`${n} resultado${n===1?'':'s'}`,
+          empty:q=>`Ningún tutorial coincide con <strong>“${q}”</strong>. Prueba otra búsqueda.`, source:'Video original ↗', open:t=>`Abrir el tutorial ${t}`,
+          diff:{Beginner:'Principiante',Intermediate:'Intermedio',Advanced:'Avanzado'}, title:'Tutoriales de Figma Motion — Librería' }
+  };
+  const MONTHS = {January:'enero',February:'febrero',March:'marzo',April:'abril',May:'mayo',June:'junio',July:'julio',August:'agosto',September:'septiembre',October:'octubre',November:'noviembre',December:'diciembre'};
+  function pickLang(){
+    try { const q = new URLSearchParams(location.search).get('lang'); if (q === 'en' || q === 'es') return q; } catch(e){}
+    try { const v = localStorage.getItem(LANG_KEY); if (v === 'en' || v === 'es') return v; } catch(e){}
+    return (navigator.language || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
+  }
+  let LANG = pickLang();
+  const T = () => UI[LANG];
+  const L = (t, k) => (LANG === 'es' && t[k + '_es']) ? t[k + '_es'] : t[k];
+  function updatedText(u){
+    if (LANG !== 'es' || !u) return u;
+    const m = u.match(/Updated on (\w+) (\d+), (\d{4})/);
+    return m ? `Actualizado el ${m[2]} de ${MONTHS[m[1]] || m[1]} de ${m[3]}` : u;
+  }
+  function withLang(href){ return href + (href.includes('?') ? '&' : '?') + 'lang=' + LANG; }
+
+  // Each card gets its own hue (set per tutorial, or picked from the golden-angle sequence if missing)
+  function rayStyle(t, i){
+    const h = (typeof t.hue === 'number') ? t.hue : Math.round((i * 137.508 + 250) % 360);
+    return `--ray1:hsl(${h} 82% 68%);--ray2:hsl(${h} 58% 42%);--ray3:hsl(${h} 62% 18%)`;
+  }
+
+  function cardHTML(t, i){
+    const sourceLink = t.source
+      ? `<a class="source-link" href="${t.source}" target="_blank" rel="noopener">${T().source}</a>`
+      : '';
+    return `
+    <div class="card">
+      <a class="card-link" href="${withLang(t.href)}" aria-label="${T().open(L(t,'title'))}"></a>
+      <div class="cover">
+        <div class="rays" style="${rayStyle(t, i)}"></div>
+        <div class="grain"></div>
+      </div>
+      <div class="mark">${FIGMA_MARK}</div>
+      <div class="difficulty">
+        ${t.tool ? `<span class="tool-tag">${t.tool}</span>` : ''}
+        ${t.difficulty ? `<span>${T().diff[t.difficulty] || t.difficulty}</span>` : ''}
+      </div>
+      <div class="cardbody">
+        <h3>${L(t,'title')}</h3>
+        <p>${L(t,'description')}</p>
+        <div class="meta-row">
+          <div class="updated">${updatedText(t.updated)}</div>
+          ${sourceLink}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function soonHTML(){
+    return `
+    <div class="card soon" aria-disabled="true">
+      <div class="cover">
+        <div class="rays soon"></div>
+        <div class="grain"></div>
+      </div>
+      <div class="mark">${FIGMA_MARK}</div>
+      <div class="difficulty"><span>—</span></div>
+      <div class="cardbody">
+        <h3>Coming soon</h3>
+        <p>New tutorials land here as they're written.</p>
+        <div class="meta-row">
+          <div class="updated">—</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function render(query){
+    const q = (query || '').trim().toLowerCase();
+    const matches = q
+      ? tutorials.filter(t => [t.title, t.description, t.title_es, t.description_es, t.difficulty, T().diff[t.difficulty], t.tool].some(v => (v || '').toLowerCase().includes(q)))
+      : tutorials;
+
+    countBadge.textContent = q
+      ? T().match(matches.length)
+      : T().guide(tutorials.length);
+
+    if (q && matches.length === 0) {
+      grid.innerHTML = `<div class="empty">${T().empty(escapeHtml(query))}</div>`;
+      return;
+    }
+
+    grid.innerHTML = matches.map(cardHTML).join('')
+      + (q ? '' : Array.from({length: comingSoon}).map(soonHTML).join(''));
+  }
+
+  if (searchInput && grid && countBadge) {
+    searchInput.addEventListener('input', (e) => render(e.target.value));
+    function applyLang(){
+      document.documentElement.lang = LANG;
+      document.title = T().title;
+      document.getElementById('tH1').textContent = T().h1;
+      document.getElementById('tSub').textContent = T().sub;
+      searchInput.placeholder = T().search;
+      document.querySelectorAll('.lang-toggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)));
+      render(searchInput.value);
+    }
+    document.querySelectorAll('.lang-toggle button').forEach(b => b.addEventListener('click', () => {
+      LANG = b.dataset.lang;
+      try { localStorage.setItem(LANG_KEY, LANG); } catch(e){}
+      try { const u = new URL(location.href); u.searchParams.set('lang', LANG); history.replaceState(null, '', u); } catch(e){}
+      applyLang();
+    }));
+    applyLang();
+  }
+</script>
+</body>
+</html>
