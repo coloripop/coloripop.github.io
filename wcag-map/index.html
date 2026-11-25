@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa de la WCAG</title>
+<meta name="description" content="Mapa de relación de los diferentes criterios de éxito de la WCAG 2.2: principios, pautas y niveles A, AA y AAA.">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#19213D">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://coloripop.github.io/wcag-map/">
+<meta property="og:site_name" content="Mapa de la WCAG">
+<meta property="og:title" content="Mapa de la WCAG">
+<meta property="og:description" content="Mapa de relación de los diferentes criterios de éxito de la WCAG.">
+<meta property="og:image" content="https://coloripop.github.io/wcag-map/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Mapa de la WCAG: criterios de éxito relacionados entre los niveles A, AA y AAA">
+<meta property="og:locale" content="es_ES">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mapa de la WCAG">
+<meta name="twitter:description" content="Mapa de relación de los diferentes criterios de éxito de la WCAG.">
+<meta name="twitter:image" content="https://coloripop.github.io/wcag-map/og-image.png">
+<meta name="twitter:image:alt" content="Mapa de la WCAG: criterios de éxito relacionados entre los niveles A, AA y AAA">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F8FAFF; --surface:#FFFFFF; --surface-2:#F1F3F7; --line:#E1E4ED;
+  --text:#19213D; --text-2:#5A6380; --link:#1468D6; --accent:#1A6EE0; --on-accent:#FFFFFF;
+  --sky:#E3EFFF; --sky-2:#C3DDFF; --head:#D6E4FA; --on-head:#19213D; --on-head-2:#4A5370;
+  --lvA:#FABE3F; --onA:#0C1124; --lvAA:#F36127; --onAA:#0C1124; --lvAAA:#F23857; --onAAA:#0C1124;
+  --scA-bg:#FFF4DB; --scA-bd:#F2C866; --scA-tx:#7A4A00;
+  --scAA-bg:#FFEADF; --scAA-bd:#F5A27C; --scAA-tx:#9A3412;
+  --scAAA-bg:#FFE5EA; --scAAA-bd:#F28DA1; --scAAA-tx:#A3123A;
+  --focus:#1A6EE0;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121830; --surface:#19213D; --surface-2:#232C4D; --line:#33406A;
+    --text:#FFFFFF; --text-2:#C2C7D6; --link:#8FC2FF; --accent:#5AA6FF; --on-accent:#19213D;
+    --sky:#232C4D; --sky-2:#33406A; --head:#0C1124; --on-head:#FFFFFF; --on-head-2:#C2C7D6;
+    --lvA:#FABE3F; --onA:#0C1124; --lvAA:#F36127; --onAA:#0C1124; --lvAAA:#F23857; --onAAA:#0C1124;
+    --scA-bg:#3A3119; --scA-bd:#8A6B22; --scA-tx:#FCD679;
+    --scAA-bg:#3E2619; --scAA-bd:#9A4A26; --scAA-tx:#FFB08A;
+    --scAAA-bg:#3F1B27; --scAAA-bd:#9A3450; --scAAA-tx:#FFA3B5;
+    --focus:#8FC2FF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121830; --surface:#19213D; --surface-2:#232C4D; --line:#33406A;
+  --text:#FFFFFF; --text-2:#C2C7D6; --link:#8FC2FF; --accent:#5AA6FF; --on-accent:#19213D;
+  --sky:#232C4D; --sky-2:#33406A; --head:#0C1124; --on-head:#FFFFFF; --on-head-2:#C2C7D6;
+  --lvA:#FABE3F; --onA:#0C1124; --lvAA:#F36127; --onAA:#0C1124; --lvAAA:#F23857; --onAAA:#0C1124;
+  --scA-bg:#3A3119; --scA-bd:#8A6B22; --scA-tx:#FCD679;
+  --scAA-bg:#3E2619; --scAA-bd:#9A4A26; --scAA-tx:#FFB08A;
+  --scAAA-bg:#3F1B27; --scAAA-bd:#9A3450; --scAAA-tx:#FFA3B5;
+  --focus:#8FC2FF;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.5}
+a{color:var(--link)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1200px;margin:0 auto;padding:48px 24px 64px}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:24px;width:max-content;max-width:100%;margin:0 auto;padding:8px 8px 8px 24px;border-radius:999px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 32px rgba(25,33,61,.08)}
+.nav-brand{display:flex;align-items:center;gap:10px;color:var(--text)}
+.logo{display:block;height:32px;width:auto}
+.nav-label{font-size:14px;font-weight:600;color:var(--text-2)}
+.hero{text-align:center;padding:64px 0 16px}
+.hero h1{font-size:clamp(36px,6.4vw,84px);line-height:1.04;letter-spacing:-.035em;font-weight:700;margin:0 auto 20px;max-width:16ch;color:var(--text);background:linear-gradient(100deg,var(--text) 0%,var(--text) 35%,var(--link) 50%,var(--text) 65%,var(--text) 100%);background-size:250% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sheen 2.4s ease-out .2s both}
+@keyframes sheen{from{background-position:0 0}to{background-position:100% 0}}
+.hero p{margin:0 auto;color:var(--text-2);max-width:60ch;font-size:18px}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:40px 0 28px}
+.stat{position:relative;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;align-items:flex-start;min-height:220px;padding:24px;border-radius:28px;color:#0C1124}
+.stat-all{background:#19213D;color:#FFFFFF;border:1px solid var(--line)}
+.stat-A{background:var(--lvA)} .stat-AA{background:var(--lvAA)} .stat-AAA{background:var(--lvAAA)}
+.stat-top{display:contents}
+.stat b{display:block;font-size:clamp(44px,4.6vw,60px);font-weight:800;line-height:1;letter-spacing:-.03em}
+.stat .lbl{font-size:17px;font-weight:500;line-height:1.3;margin-top:8px;max-width:9em}
+.stat-all .lbl{color:#C2C7D6}
+.stat .badge{order:3;margin-top:auto;position:relative;z-index:1;width:96px;box-shadow:0 2px 8px rgba(12,17,36,.18)}
+.badge{display:block;width:114px;height:auto;flex:none}
+.deco{position:absolute;right:-3%;bottom:-6%;width:64%;height:auto;z-index:-1;pointer-events:none}
+.deco text{font-family:Inter,system-ui,sans-serif;font-weight:800;letter-spacing:-4px}
+.controls{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:16px}
+.controls fieldset{border:0;margin:0;padding:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.controls legend{float:left;margin-right:8px;font-weight:600;font-size:14px}
+.seg button{font:inherit;font-size:14px;font-weight:600;min-height:36px;padding:6px 14px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;cursor:pointer;min-height:36px}
+.check input{width:20px;height:20px;accent-color:var(--accent);margin:0}
+.search{display:flex;align-items:center;gap:8px;margin-left:auto}
+.search label{font-size:14px;font-weight:600}
+.search input{font:inherit;font-size:14px;min-height:36px;width:220px;max-width:60vw;padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--text)}
+.status{font-size:14px;color:var(--text-2);margin:0 0 8px}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+table{border-collapse:collapse;width:100%;min-width:860px}
+caption{text-align:left;padding:0;position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+thead th{font-size:14px;font-weight:600;color:var(--text-2);text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+thead th .lv{margin-left:6px}
+tbody td,tbody th{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+tbody th[scope="row"]{font-weight:600;width:24%}
+.pnum{color:var(--link);margin-right:6px}
+.plink{display:flex;align-items:baseline;gap:8px;color:inherit;text-decoration:none;border-radius:4px}
+.plink .pnum{flex:none;min-width:2em;margin-right:0}
+.plink .pname{min-width:0}
+.plink:hover .pname{text-decoration:underline;text-underline-offset:3px}
+.plink .nw{white-space:nowrap}
+.plink .ext{display:inline-block;width:13px;height:13px;margin-left:6px;vertical-align:-1px;color:var(--link)}
+.group th{background:var(--head);color:var(--on-head);padding:0;border-bottom:0}
+.group button{all:unset;box-sizing:border-box;display:flex;width:100%;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;font-size:18px;font-weight:700}
+.group button:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.group .meta{margin-left:auto;font-size:14px;font-weight:500;color:var(--on-head-2)}
+.group .chev{width:20px;height:20px;transition:transform .2s ease;flex:none}
+.group button[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.subtotal th,.subtotal td{background:var(--sky);font-weight:600;font-size:14px}
+tfoot th,tfoot td{padding:16px;font-weight:700;border-top:2px solid var(--text);text-align:left}
+.lv{display:inline-block;font-size:12px;font-weight:700;line-height:1;padding:5px 9px;border-radius:999px}
+.lv-A{background:var(--lvA);color:var(--onA)}
+.lv-AA{background:var(--lvAA);color:var(--onAA)}
+.lv-AAA{background:var(--lvAAA);color:var(--onAAA)}
+.total{font-weight:700;font-size:18px}
+.bar{display:flex;height:8px;border-radius:999px;overflow:hidden;margin-top:8px;max-width:140px;background:var(--surface-2)}
+.bar i{display:block;height:100%}
+.bar .bA{background:var(--lvA)} .bar .bAA{background:var(--lvAA)} .bar .bAAA{background:var(--lvAAA)}
+.split{font-size:13px;color:var(--text-2);margin-top:6px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.names .chips{flex-direction:column;align-items:flex-start}
+.sc{display:inline-flex;align-items:baseline;gap:6px;text-align:left;min-height:28px;padding:3px 10px;border-radius:8px;border:1px solid var(--sky-2);background:var(--sky);color:var(--link);text-decoration:none;font-size:14px;font-weight:600}
+.sc:hover{text-decoration:underline}
+.sc[data-lv="A"]{background:var(--scA-bg);border-color:var(--scA-bd);color:var(--scA-tx)}
+.sc[data-lv="AA"]{background:var(--scAA-bg);border-color:var(--scAA-bd);color:var(--scAA-tx)}
+.sc[data-lv="AAA"]{background:var(--scAAA-bg);border-color:var(--scAAA-bd);color:var(--scAAA-tx)}
+.sc .nm{display:none;font-weight:500;color:var(--text)}
+.names .sc .nm{display:inline}
+.sc.removed{border-style:dashed;background:var(--surface-2);color:var(--text-2)}
+.sc .rm{font-weight:500;font-style:italic}
+.empty{color:var(--text-2)}
+.dim{opacity:.4}
+.hidden{display:none}
+.arrow{flex:none;width:28px;height:16px;color:var(--text-2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.lane-cell{display:flex;align-items:center;gap:10px;height:32px}
+.lane-cell .sc{flex:none}
+td.lane-lbl{padding:12px 16px 2px;font-size:13px;font-weight:600;color:var(--text-2)}
+tr.lane-lbl-row + tr td[data-col],tr.lane-lbl-row + tr td.arrow-col{padding-top:6px}
+td.arrow-col,th.arrow-col{width:48px;padding-left:0;padding-right:0;text-align:center}
+thead td.arrow-col{border-bottom:1px solid var(--line)}
+td.arrow-col .arrow{display:block;width:56px;height:16px;margin:0 auto}
+.lane-line{flex:1;min-width:0;height:0;border-top:2px solid var(--text-2)}
+.lane-cell .head{flex:none;width:10px;height:16px;margin-left:-1px;color:var(--text-2)}
+td.arrow-col .lane-cell{gap:0}
+td.arrow-col .lane-cell.with-head{padding-right:8px}
+td.gap-td{padding-left:0;padding-right:0}
+td.gap-td .lane-cell,td.arrow-col .lane-cell{gap:0}
+td.tail{padding-right:0}
+td.tail .lane-cell{gap:0}
+td.tail .lane-cell .sc{margin-right:0}
+.lane-gap{display:block;width:100%;min-width:40px;border-top:2px dashed var(--line)}
+tr.lane-cont td,tr.lane-cont th{border-bottom:0}
+tr.lane-cont th[rowspan],tr.lane-cont td[rowspan]{border-bottom:1px solid var(--line)}
+tr.lane-next td{padding-top:4px}
+tr.lane-cont td[data-col]{padding-bottom:4px}
+.sc.dup{border-style:dashed}
+.notes{margin-top:24px;color:var(--text-2);font-size:14px}
+.notes{text-align:center}
+.notes p{margin:6px 0;max-width:none}
+.prefs{display:flex;gap:12px;flex-wrap:wrap}
+.prefs .seg{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.prefs .seg button{border:0;min-height:32px;padding:4px 12px}
+@media (max-width:760px){
+  .summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat{min-height:180px;padding:18px;border-radius:22px}
+  .stat .badge{width:76px}
+  .deco{width:46%;bottom:-4%}
+  .nav{width:100%;padding-left:16px;gap:12px}
+  .prefs{gap:6px;flex-wrap:nowrap}
+  .prefs .seg button{padding:4px 9px}
+  .logo{height:26px}
+  .hero{padding-top:40px}
+  .search{margin-left:0;width:100%}
+  .search input{flex:1;width:auto}
+}
+@media (prefers-reduced-motion: reduce){.group .chev{transition:none}.hero h1{animation:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="nav">
+<div class="nav-brand"><svg class="logo" viewBox="0 0 205 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WCAG"><g clip-path="url(#clipWcag)"><path d="M74.5231 54.9895C86.9183 54.3448 97.4991 63.8473 98.183 76.2383C98.8669 88.6291 89.3963 99.2381 77.0054 99.9611C64.559 100.687 53.8903 91.1666 53.2032 78.7201C52.5162 66.2736 62.0724 55.6369 74.5231 54.9895Z" fill="currentColor"/><path d="M181.031 54.9985C193.458 54.3856 204.025 63.9692 204.624 76.3949C205.223 88.8206 195.626 99.3752 183.197 99.9595C170.789 100.543 160.253 90.9662 159.656 78.5606C159.057 66.1549 168.624 55.6101 181.031 54.9985Z" fill="currentColor"/><path d="M128.272 54.9837C140.674 54.5835 151.061 64.2975 151.487 76.6975C151.915 89.0975 142.222 99.5031 129.821 99.9574C117.381 100.413 106.935 90.6853 106.507 78.247C106.077 65.8087 115.83 55.3851 128.272 54.9837Z" fill="currentColor"/><path d="M21.7732 55.0044C34.1604 54.6094 44.5329 64.3084 44.9665 76.6922C45.4001 89.076 35.7318 99.4766 23.3472 99.9488C10.908 100.423 0.449513 90.7043 0.0140426 78.2658C-0.421569 65.8275 9.33131 55.4012 21.7732 55.0044Z" fill="currentColor"/><path d="M49.6236 1.20704C53.4841 1.0751 60.1566 1.08763 63.9903 1.25126C62.9398 5.90499 61.2186 11.3399 59.899 16.0196L52.0953 44.1377C47.4482 44.1675 42.8009 44.1692 38.1536 44.1426C37.3297 41.4753 36.7278 38.6175 35.9526 35.9315C34.4833 30.8403 33.1961 25.7389 31.7027 20.6542C29.9126 27.7752 27.2957 37.0968 25.0846 44.1405C20.5347 44.186 16.1789 44.1093 11.6163 44.2937C10.8003 40.0626 8.96191 33.1341 7.78309 28.9123C7.53437 27.3639 6.73794 24.5644 6.32584 22.9248L2.85208 9.09792C2.30295 6.87969 1.39159 3.55623 1.07682 1.35701L15.4676 1.32927L17.9859 16.3887C18.4618 19.221 18.8362 21.9292 19.4356 24.7434C21.6481 17.0527 23.5147 8.85586 25.7884 1.34152L38.2963 1.33645L44.2596 24.8329C45.4837 19.5964 46.6732 14.3518 47.8285 9.09961C48.3987 6.53541 48.9394 3.71985 49.6236 1.20704Z" fill="currentColor"/><path d="M180.897 0C191.109 0.0125324 200.371 4.77736 201.802 15.7211L187.905 15.7251C187.845 15.5389 187.78 15.3542 187.708 15.1718C187.19 13.8346 186.364 12.6642 184.991 12.1875C180.253 10.5432 174.835 12.0953 173.027 17.1043C171.754 20.6288 171.774 25.0254 173.074 28.45C174.986 33.4949 180.983 34.6424 185.515 32.7432C187.442 31.9354 188.269 30.4201 188.994 28.5352L180.701 28.4883C180.528 26.4555 180.539 21.2629 180.686 19.2655L193.658 19.2779C196.461 19.3419 199.288 19.2714 202.131 19.3407C202.358 26.2375 202.542 32.7904 197.586 38.1796C193.55 42.5834 188.364 44.5393 182.525 44.961C151.165 47.226 149.856 1.2683 180.897 0Z" fill="currentColor"/><path d="M123.915 0.933981C129.563 1.02593 135.232 0.933697 140.886 0.984671C146.164 15.19 151.161 29.796 156.357 44.075C154.683 44.2112 152.472 44.1585 150.752 44.1606L141.669 44.1654C141.099 42.1297 140.391 40.047 139.72 38.0372L139.308 36.5846C134.88 36.5502 129.831 36.4405 125.444 36.6004C124.672 39.0566 123.761 41.6803 123.138 44.1505C118.365 44.157 113.339 44.2519 108.589 44.1147C110.08 39.3728 112.213 33.818 113.919 29.0764C117.313 19.7176 120.645 10.3365 123.915 0.933981ZM128.522 26.5897C129.829 26.6091 131.159 26.615 132.463 26.6523L136.173 26.567C135.056 22.946 133.618 17.9667 132.305 14.5254C131.147 17.9248 129.383 23.1474 128.522 26.5897Z" fill="currentColor"/><path d="M86.1813 0.275266C86.3793 0.253721 86.578 0.237809 86.7769 0.227811C97.579 -0.318262 106.559 6.39148 107.094 17.547L93.259 17.5467C92.9549 14.7715 92.0248 12.6299 89.069 11.9263C86.8607 11.4005 84.4921 11.6309 82.5347 12.8461C80.2587 14.2593 79.1062 16.7811 78.5427 19.3108C77.8412 22.8168 78.0262 27.0925 79.9649 30.182C82.0701 33.537 87.4229 34.5973 90.6615 32.3106C92.4361 31.0577 92.9525 29.5869 93.3347 27.5336L104.931 27.5451L107.132 27.5533C106.809 31.4921 105.597 34.9436 102.986 37.9546C99.3844 42.0251 94.3319 44.5249 88.9103 44.9195C56.5586 47.2194 57.091 2.14695 86.1813 0.275266Z" fill="currentColor"/><path d="M65.2525 79.0938C68.3711 78.9635 71.5989 79.1301 74.7116 79.0432C78.5069 78.9372 79.7001 82.4545 76.2149 84.1326L65.0376 84.1292C62.5397 82.7728 62.5864 80.3015 65.2525 79.0938Z" fill="#4398FC"/><path d="M75.75 71.0677C78.5723 71.0422 83.498 70.8221 86.2742 71.2082C88.4386 71.5093 89.3608 74.6635 86.299 75.9991C83.9846 75.9949 76.646 76.4271 74.9515 75.6515C74.3489 75.3756 73.8251 74.9204 73.6122 74.2737C73.4011 73.633 73.5201 72.826 73.8484 72.2408C74.2623 71.503 74.9824 71.2647 75.75 71.0677Z" fill="#4398FC"/><path d="M82.447 79.1004C83.7094 79.0379 85.0323 79.0682 86.3009 79.0779C88.8223 80.4545 89.1339 83.0603 86.2297 84.1288L82.3544 84.1363C79.7681 82.8298 79.7766 80.346 82.447 79.1004Z" fill="#4398FC"/><path d="M65.2601 71.0718C67.3338 71.0279 72.2064 70.4219 70.8139 74.4926C70.5515 75.2593 69.8881 75.6798 69.1494 75.9767C67.772 76.0011 66.3942 75.996 65.017 75.9615C62.5803 74.618 62.5938 72.072 65.2601 71.0718Z" fill="#4398FC"/><path d="M181.407 66.5634C182.111 66.4755 183.097 66.6425 183.736 66.9503C184.581 67.3518 185.218 68.0877 185.495 68.98C186.246 71.3272 184.818 73.1702 182.583 73.7991L182.598 78.8421C185.024 79.8057 186.525 81.693 185.172 84.4602C184.688 85.4487 183.559 85.993 182.517 86.2586C180.745 86.3042 179.224 85.7704 178.507 84.0098C178.137 83.1079 178.144 82.0952 178.527 81.1988C179.1 79.8725 180.028 79.365 181.291 78.8678C181.279 77.1941 181.276 75.5204 181.286 73.8465C177.134 72.1431 177.137 67.6151 181.407 66.5634Z" fill="#4398FC"/><path d="M190.726 78.872C192.775 78.655 194.61 80.1389 194.829 82.1865C195.046 84.2339 193.561 86.0699 191.513 86.2874C189.466 86.5049 187.629 85.021 187.411 82.9732C187.194 80.9253 188.678 79.0891 190.726 78.872Z" fill="#4398FC"/><path d="M172.741 78.8917C174.764 78.8231 176.465 80.3967 176.552 82.4182C176.64 84.4397 175.082 86.1544 173.061 86.2611C171.013 86.3693 169.269 84.7864 169.181 82.7377C169.092 80.689 170.692 78.9613 172.741 78.8917Z" fill="#4398FC"/><path d="M178.551 73.1071C178.866 73.4235 179.246 73.7406 179.586 74.0372C178.43 75.7214 177.124 77.3342 175.999 79.0472L174.923 78.2035C176.149 76.5172 177.359 74.8183 178.551 73.1071Z" fill="#4398FC"/><path d="M185.384 73.2908C185.88 73.5246 188.407 77.3709 189.14 78.2296C188.892 78.4325 188.37 78.7259 188.077 78.902C187.421 78.308 185.035 74.9755 184.51 74.1298C184.626 73.731 185.017 73.5461 185.384 73.2908Z" fill="#4398FC"/><path d="M14.5875 70.1372C14.912 70.1372 15.2233 70.2661 15.4528 70.4956C15.6823 70.7251 15.8112 71.0364 15.8112 71.3609V76.2558C15.8112 76.418 15.8757 76.5737 15.9904 76.6884C16.1051 76.8031 16.2608 76.8676 16.423 76.8676C16.5853 76.8676 16.7409 76.8031 16.8557 76.6884C16.9704 76.5737 17.0349 76.418 17.0349 76.2558V69.5902C17.0282 69.2923 17.1265 69.0015 17.3127 68.7688C17.4988 68.5361 17.7609 68.3764 18.053 68.3175C18.2287 68.2876 18.4088 68.2964 18.5808 68.3433C18.7527 68.3902 18.9123 68.4742 19.0484 68.5892C19.1846 68.7042 19.2939 68.8476 19.3689 69.0093C19.4438 69.171 19.4825 69.3471 19.4823 69.5253V76.2558C19.4823 76.418 19.5468 76.5737 19.6615 76.6884C19.7763 76.8031 19.9319 76.8676 20.0942 76.8676C20.2565 76.8676 20.4121 76.8031 20.5268 76.6884C20.6416 76.5737 20.706 76.418 20.706 76.2558V68.9783C20.6996 68.6806 20.7981 68.3902 20.9842 68.1577C21.1703 67.9253 21.4322 67.7657 21.7242 67.7069C21.8997 67.677 22.0798 67.6858 22.2516 67.7326C22.4235 67.7795 22.583 67.8633 22.7191 67.9782C22.8552 68.0931 22.9646 68.2363 23.0396 68.3978C23.1146 68.5594 23.1535 68.7354 23.1535 68.9135V76.2558C23.1535 76.418 23.2179 76.5737 23.3327 76.6884C23.4474 76.8031 23.603 76.8676 23.7653 76.8676C23.9276 76.8676 24.0832 76.8031 24.198 76.6884C24.3127 76.5737 24.3772 76.418 24.3772 76.2558V69.5902C24.3707 69.2925 24.4692 69.002 24.6553 68.7696C24.8414 68.5371 25.1034 68.3776 25.3953 68.3188C25.5709 68.2888 25.7509 68.2976 25.9227 68.3445C26.0946 68.3913 26.2541 68.4751 26.3902 68.59C26.5264 68.7049 26.6357 68.8481 26.7108 69.0097C26.7858 69.1712 26.8246 69.3472 26.8246 69.5253V79.0617C26.8244 79.1829 26.8601 79.3014 26.9274 79.4022C26.9946 79.503 27.0902 79.5816 27.2021 79.628C27.3141 79.6744 27.4373 79.6866 27.5561 79.6629C27.6749 79.6392 27.7841 79.5807 27.8696 79.4949L30.3171 77.0475C30.5058 76.8455 30.7531 76.7078 31.0241 76.6535C31.2952 76.5993 31.5764 76.6314 31.8283 76.7452C31.9826 76.8212 32.1196 76.9279 32.2312 77.0587C32.3427 77.1896 32.4263 77.3418 32.477 77.5061C32.5276 77.6704 32.5442 77.8433 32.5257 78.0142C32.5071 78.1851 32.4539 78.3504 32.3692 78.5L29.5412 83.527C28.9025 84.6623 27.9732 85.6073 26.8487 86.2649C25.7243 86.9225 24.4451 87.2691 23.1424 87.2692H20.706C18.7587 87.2692 16.8912 86.4956 15.5143 85.1187C14.1373 83.7417 13.3638 81.8742 13.3638 79.9269V71.3609C13.3638 71.0364 13.4927 70.7251 13.7222 70.4956C13.9517 70.2661 14.2629 70.1372 14.5875 70.1372Z" fill="#4398FC"/><path d="M139.08 76.8562C139.08 76.3502 138.67 75.9396 138.164 75.9396C137.657 75.9396 137.247 76.3502 137.247 76.8562C137.247 81.4047 133.546 85.1062 128.997 85.1062C124.447 85.1062 120.747 81.4047 120.747 76.8562C120.747 76.3502 120.337 75.9396 119.83 75.9396C119.323 75.9396 118.914 76.3502 118.914 76.8562C118.914 82.1069 122.949 86.4281 128.08 86.8928V88.7729C128.08 89.2789 128.49 89.6896 128.997 89.6896C129.504 89.6896 129.914 89.2789 129.914 88.7729V86.8928C135.045 86.4271 139.08 82.1069 139.08 76.8562Z" fill="#4398FC"/><path d="M128.997 83.2729C125.459 83.2729 122.58 80.3946 122.58 76.8562V74.1062C122.58 70.5679 125.459 67.6896 128.997 67.6896C132.534 67.6896 135.414 70.5679 135.414 74.1062V76.8562C135.414 80.3946 132.534 83.2729 128.997 83.2729Z" fill="#4398FC"/></g><defs><clipPath id="clipWcag"><rect width="204.651" height="100" fill="white"/></clipPath></defs></svg><span class="nav-label">2.2</span></div>
+<div class="prefs">
+<div class="seg" role="group" id="lang-g" aria-label="Idioma / Language">
+<button type="button" data-lang="es" lang="es" aria-label="Español">ES</button>
+<button type="button" data-lang="en" lang="en" aria-label="English">EN</button>
+</div>
+<div class="seg" role="group" id="theme-g">
+<button type="button" data-theme-btn="light"></button>
+<button type="button" data-theme-btn="dark"></button>
+</div>
+</div>
+</header>
+<div class="hero">
+<h1 data-i="title"></h1>
+<p data-i="intro"></p>
+</div>
+
+<section class="summary" id="summary">
+<div class="stat stat-all"><b id="sum-all">–</b><span class="lbl" data-i="vigentes"></span></div>
+<div class="stat stat-A"><b id="sum-A">–</b><span class="lbl"><span data-i="deNivel"></span>&nbsp;A</span><img class="badge" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbDpzcGFjZT0icHJlc2VydmUiIHZpZXdCb3g9IjAgMCA4OCAzMSIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIyIj48cGF0aCBkPSJNMzUgMGg0OHYzMUgzNXoiIHRyYW5zZm9ybT0ibWF0cml4KDEuMTI1IDAgMCAxIC01LjM3NSAwKSIgZmlsbD0iI2IzY2VlMSIvPjxwYXRoIGQ9Ik0wIDBoMzV2MzFIMHoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNMCAwaDgzdjMxSDB6bC41LjV2MzBoODJWLjVILjV6IiB0cmFuc2Zvcm09InNjYWxlKDEuMDYwMjQgMSkiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxnIGFyaWEtbGFiZWw9IjIuMiBBIj48cGF0aCBkPSJNNDMuMzMyIDIzLjYzM3YxLjI3NWgtNC44MXEuMDc4LS43MjMuNDY5LTEuMzY3LjM5LS42NSAxLjU0My0xLjcyLjkyNy0uODYzIDEuMTM3LTEuMTcxLjI4NC0uNDI1LjI4NC0uODQgMC0uNDU5LS4yNS0uNzAzLS4yNDQtLjI1LS42NzgtLjI1LS40MyAwLS42ODQuMjYtLjI1NC4yNTktLjI5My44NmwtMS4zNjctLjEzOHEuMTIyLTEuMTMyLjc2Ny0xLjYyNi42NDQtLjQ5MyAxLjYxMS0uNDkzIDEuMDYgMCAxLjY2NS41NzIuNjA2LjU3LjYwNiAxLjQyIDAgLjQ4NC0uMTc2LjkyMy0uMTcxLjQzNS0uNTQ3LjkxMy0uMjUuMzE4LS44OTkuOTEzLS42NDkuNTk2LS44MjUuNzkxLS4xNy4xOTYtLjI3OC4zODFaTTQ1LjA1MyAyNC45MDh2LTEuMzcyaDEuMzcydjEuMzcyWm03LjYxOS0xLjI3NXYxLjI3NWgtNC44MXEuMDc4LS43MjMuNDY5LTEuMzY3LjM5LS42NSAxLjU0My0xLjcyLjkyNy0uODYzIDEuMTM3LTEuMTcxLjI4NC0uNDI1LjI4NC0uODQgMC0uNDU5LS4yNS0uNzAzLS4yNDQtLjI1LS42NzgtLjI1LS40MyAwLS42ODQuMjYtLjI1NC4yNTktLjI5My44NmwtMS4zNjctLjEzOHEuMTIyLTEuMTMyLjc2Ny0xLjYyNi42NDQtLjQ5MyAxLjYxMS0uNDkzIDEuMDYgMCAxLjY2NS41NzIuNjA2LjU3LjYwNiAxLjQyIDAgLjQ4NC0uMTc2LjkyMy0uMTcxLjQzNS0uNTQ3LjkxMy0uMjUuMzE4LS44OTkuOTEzLS42NDkuNTk2LS44MjUuNzkxLS4xNy4xOTYtLjI3OC4zODF6bTExLjA5MyAxLjI3NWgtMS41NzNsLS42MjUtMS42MjZoLTIuODYxbC0uNTkgMS42MjZoLTEuNTM0bDIuNzg4LTcuMTU4aDEuNTI4em0tMi42NjItMi44MzItLjk4Ni0yLjY1Ny0uOTY3IDIuNjU3eiIvPjwvZz48ZyBhcmlhLWxhYmVsPSJXQ0FHIj48cGF0aCBkPSJNMzguNSA2LjIxNGgyLjFsLjc1NiA0IDEuMTA0LTRoMi4wOTVsMS4xMDggNCAuNzU3LTRoMi4wOWwtMS41NzcgNy4xNTloLTIuMTY4TDQzLjUxIDguODY2bC0xLjI1IDQuNTA3aC0yLjE2OFpNNTQuMzMyIDEwLjQ0OGwxLjkzOC41ODZxLS4xOTUuODE1LS42MTUgMS4zNjJ0LTEuMDQ1LjgyNXEtLjYyLjI3OC0xLjU4Mi4yNzgtMS4xNjcgMC0xLjkwOS0uMzM2LS43MzctLjM0Mi0xLjI3NC0xLjE5Ny0uNTM3LS44NTQtLjUzNy0yLjE4NyAwLTEuNzc4Ljk0Mi0yLjczLjk0Ny0uOTU3IDIuNjc2LS45NTcgMS4zNTIgMCAyLjEyNC41NDcuNzc2LjU0NyAxLjE1MiAxLjY4bC0xLjk1My40MzRxLS4xMDMtLjMyNy0uMjE1LS40NzgtLjE4NS0uMjU0LS40NTQtLjM5LS4yNjktLjEzNy0uNi0uMTM3LS43NTMgMC0xLjE1My42MDUtLjMwMy40NS0uMzAzIDEuNDExIDAgMS4xOTIuMzYyIDEuNjM2LjM2MS40NCAxLjAxNS40NC42MzUgMCAuOTU3LS4zNTcuMzI3LS4zNTcuNDc0LTEuMDM1bTcuOTE3IDEuNzQzaC0yLjUybC0uMzQ3IDEuMTgyaC0yLjI2bDIuNjktNy4xNTloMi40MTJsMi42OSA3LjE1OUg2Mi42em0tLjQ2NC0xLjU0OC0uNzkxLTIuNTczLS43ODYgMi41NzN6bTcuNzU2LjEzN1Y5LjI5aDMuNDE4djMuMDUycS0uOTgyLjY3LTEuNzM4LjkxMy0uNzUyLjI0LTEuNzg3LjI0LTEuMjc1IDAtMi4wOC0uNDM1LS44MDEtLjQzNS0xLjI0Ni0xLjI5NC0uNDQtLjg2LS40NC0xLjk3MyAwLTEuMTcxLjQ4NC0yLjAzNi40ODQtLjg2OSAxLjQxNi0xLjMxOC43MjgtLjM0NyAxLjk1OC0uMzQ3IDEuMTg3IDAgMS43NzMuMjE1LjU5LjIxNS45NzYuNjY5LjM5LjQ1LjU4NiAxLjE0M2wtMi4xMzQuMzhxLS4xMzEtLjQwNS0uNDQ5LS42Mi0uMzEyLS4yMTQtLjgtLjIxNC0uNzI4IDAtMS4xNjMuNTA3LS40My41MDMtLjQzIDEuNTk3IDAgMS4xNjIuNDM1IDEuNjYuNDQuNDk4IDEuMjIuNDk4LjM3MiAwIC43MDktLjEwNy4zMzctLjEwOC43NzEtLjM2NnYtLjY3NHoiLz48L2c+PHBhdGggZD0iTS4wNjMtOS4zMzdIMS42MXEuMjQ2IDAgLjQuMTEyLjE2My4xMTMuMjE5LjI5NWwxLjM3OCA1LjM5M3EuMTIuNDIyLjIyNS45NzguMDU2LS4yNzUuMTEzLS41Mi4wNTYtLjI1NC4xMzMtLjQ2NUw1LjcxLTguOTNxLjA1Ny0uMTYxLjIxOC0uMjguMTYyLS4xMjcuMzg3LS4xMjdoLjU0MXEuMjQ3IDAgLjM5NC4xMTIuMTU1LjEwNS4yMTguMjk1bDEuNjMxIDUuMzkzcS4wNy4yMDQuMTI3LjQ1LjA2My4yNC4xMi41MDcuMDQ5LS4yNjguMDk4LS41MDcuMDU2LS4yMzkuMTEyLS40NDNsMS4zNzktNS40cS4wNDktLjE2MS4yMS0uMjguMTctLjEyNy4zOTQtLjEyN2gxLjQ0OUwxMC4yMTcgMEg4LjU0MmwtMS44NS02LjIwOXEtLjA0MS0uMTItLjA4NC0uMjY3LS4wMzUtLjE0Ny0uMDctLjMxLS4wMzUuMTYzLS4wNzcuMzEtLjA0Mi4xNDgtLjA3OC4yNjdMNC41IDBIMi44MzRabTE2LjkzMS0uMTA2cS42NDcgMCAxLjE2LjE5LjUyMS4xOS44OC41Mi4zNTguMzI0LjU0OC43NjcuMTk3LjQzNi4xOTcuOTM1IDAgLjQ0My0uMDk5Ljc4LS4wOS4zMzgtLjI3NC41OS0uMTgzLjI1NC0uNDUuNDN0LS42MDQuMjg4cTEuNTk2LjU0MSAxLjU5NiAyLjE1OSAwIC43MS0uMjYgMS4yNTEtLjI1NC41MzUtLjY5LjktLjQyOC4zNjYtMS4wMDUuNTQ5LS41Ny4xODItMS4yMDIuMTgyLS42NjggMC0xLjE4Mi0uMTU0LS41MDYtLjE1NS0uODkzLS40NjQtLjM4LS4zMTctLjY2LS43OC0uMjc1LS40NjUtLjQ3Mi0xLjA3N2wuNzQ2LS4zMTZxLjI5NS0uMTIuNTQ4LS4wNTYuMjYuMDU2LjM2Ni4yNzQuMTI2LjI0LjI2Ny40NS4xNC4yMDQuMzE2LjM2Ni4xODMuMTU0LjQxNS4yNDYuMjMyLjA5MS41MzUuMDkxLjM3MiAwIC42NDYtLjEyLjI4Mi0uMTI2LjQ2NC0uMzIzLjE4My0uMjA0LjI3NS0uNDU3LjA5MS0uMjUzLjA5MS0uNTA2IDAtLjMyNC0uMDYzLS41OS0uMDU2LS4yNjgtLjI2Ny0uNDU4LS4yMDQtLjE5LS42MDUtLjI5NS0uNC0uMTA2LTEuMDktLjEwNnYtMS4yMDJxLjU3Ny0uMDA3Ljk0Mi0uMTA1LjM3My0uMDk5LjU4NC0uMjc1LjIxLS4xODIuMjg4LS40MjguMDc4LS4yNDcuMDc4LS41NDkgMC0uNjQtLjMyNC0uOTYzLS4zMTYtLjMyNC0uODkzLS4zMjQtLjUxMyAwLS44NTguMjg5LS4zNDQuMjg4LS40NzguNzEtLjExMi4zMjMtLjMwMi40MjItLjE4My4wOTgtLjUyOC4wNDJsLS44OTItLjE1NXEuMDk4LS42ODIuMzcyLTEuMTg4LjI3NC0uNTEzLjY5LS44NS40MTQtLjM0NS45NDEtLjUxNC41MzUtLjE3NiAxLjE0Ny0uMTc2bTkuODM3IDcuMTc5cS4xNDggMCAuMjUzLjExMmwuNzM5Ljc5NXEtLjUwNy43MS0xLjI3MyAxLjA4My0uNzYuMzcyLTEuODA3LjM3Mi0uOTUgMC0xLjcwOS0uMzUxLS43NTktLjM1OS0xLjI5My0uOTkyLS41MjgtLjY0LS44MTYtMS41MTEtLjI4MS0uODgtLjI4MS0xLjkyIDAtMS4wNDcuMzAyLTEuOTIuMzEtLjg3OC44NjUtMS41MTF0MS4zMjktLjk4NHEuNzczLS4zNTIgMS43MDEtLjM1Mi45NDMgMCAxLjY2Ny4zMzguNzI0LjMzIDEuMjEuODc4bC0uNjIuODY1cS0uMDYzLjA3OC0uMTQ3LjE0LS4wNzguMDY0LS4yMjUuMDY0dC0uMjg5LS4xMTJxLS4xMzMtLjExMy0uMzM3LS4yNDYtLjE5Ny0uMTM0LS41LS4yNDctLjMwMi0uMTEyLS43NzMtLjExMi0uNTEzIDAtLjkzNS4yMTgtLjQyMi4yMS0uNzI0LjYyNi0uMzAyLjQwOC0uNDcxIDEuMDA1LS4xNjIuNTktLjE2MiAxLjM1IDAgLjc2Ny4xODMgMS4zNjR0LjQ5MiAxLjAxM3EuMzE3LjQwOC43MzguNjI2LjQyMi4yMS45MDcuMjEuMjg5IDAgLjUyLS4wMjguMjMzLS4wMzUuNDMtLjExMi4yMDQtLjA4NS4zOC0uMjExLjE3NS0uMTI3LjM1LS4zMTYuMDcxLS4wNTcuMTQyLS4wOTIuMDc3LS4wNDIuMTU0LS4wNDIiIGFyaWEtbGFiZWw9IlczQyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMy41MjcgMjAuMjcyKSIgZmlsbD0iIzAwNWE5YyIvPjwvc3ZnPg==" width="114" height="40" alt=""><svg class="deco" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><path d="M118 8c26 30 70 52 76 104 6 50-30 92-84 92S12 168 22 118c8-40 44-54 52-86 4-14 2-26 0-34 18 6 34 18 44 10z" fill="#FFFFFF" fill-opacity=".22"/><text x="194" y="188" text-anchor="end" font-size="170" fill="#F36127" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round" paint-order="stroke">A</text></svg></div>
+<div class="stat stat-AA"><b id="sum-AA">–</b><span class="lbl"><span data-i="deNivel"></span>&nbsp;AA</span><img class="badge" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbDpzcGFjZT0icHJlc2VydmUiIHZpZXdCb3g9IjAgMCA4OCAzMSIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIyIj48cGF0aCBkPSJNMzUgMGg0OHYzMUgzNXoiIHRyYW5zZm9ybT0ibWF0cml4KDEuMTI1IDAgMCAxIC01LjM3NSAwKSIgZmlsbD0iI2IzY2VlMSIvPjxwYXRoIGQ9Ik0wIDBoMzV2MzFIMHoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNMCAwaDgzdjMxSDB6bC41LjV2MzBoODJWLjVILjV6IiB0cmFuc2Zvcm09InNjYWxlKDEuMDYwMjQgMSkiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxnIGFyaWEtbGFiZWw9IjIuMiBBQSI+PHBhdGggZD0iTTQzLjMzMiAyMy42MzN2MS4yNzVoLTQuODFxLjA3OC0uNzIzLjQ2OS0xLjM2Ny4zOS0uNjUgMS41NDMtMS43Mi45MjctLjg2MyAxLjEzNy0xLjE3MS4yODQtLjQyNS4yODQtLjg0IDAtLjQ1OS0uMjUtLjcwMy0uMjQ0LS4yNS0uNjc4LS4yNS0uNDMgMC0uNjg0LjI2LS4yNTQuMjU5LS4yOTMuODZsLTEuMzY3LS4xMzhxLjEyMi0xLjEzMi43NjctMS42MjYuNjQ0LS40OTMgMS42MTEtLjQ5MyAxLjA2IDAgMS42NjUuNTcyLjYwNi41Ny42MDYgMS40MiAwIC40ODQtLjE3Ni45MjMtLjE3MS40MzUtLjU0Ny45MTMtLjI1LjMxOC0uODk5LjkxMy0uNjQ5LjU5Ni0uODI1Ljc5MS0uMTcuMTk2LS4yNzguMzgxWk00NS4wNTMgMjQuOTA4di0xLjM3MmgxLjM3MnYxLjM3MlptNy42MTktMS4yNzV2MS4yNzVoLTQuODFxLjA3OC0uNzIzLjQ2OS0xLjM2Ny4zOS0uNjUgMS41NDMtMS43Mi45MjctLjg2MyAxLjEzNy0xLjE3MS4yODQtLjQyNS4yODQtLjg0IDAtLjQ1OS0uMjUtLjcwMy0uMjQ0LS4yNS0uNjc4LS4yNS0uNDMgMC0uNjg0LjI2LS4yNTQuMjU5LS4yOTMuODZsLTEuMzY3LS4xMzhxLjEyMi0xLjEzMi43NjctMS42MjYuNjQ0LS40OTMgMS42MTEtLjQ5MyAxLjA2IDAgMS42NjUuNTcyLjYwNi41Ny42MDYgMS40MiAwIC40ODQtLjE3Ni45MjMtLjE3MS40MzUtLjU0Ny45MTMtLjI1LjMxOC0uODk5LjkxMy0uNjQ5LjU5Ni0uODI1Ljc5MS0uMTcuMTk2LS4yNzguMzgxem0xMS4wOTMgMS4yNzVoLTEuNTczbC0uNjI1LTEuNjI2aC0yLjg2MWwtLjU5IDEuNjI2aC0xLjUzNGwyLjc4OC03LjE1OGgxLjUyOHptLTIuNjYyLTIuODMyLS45ODYtMi42NTctLjk2NyAyLjY1N3ptMTAuMzgzIDIuODMyaC0xLjU3M2wtLjYyNS0xLjYyNmgtMi44NjFsLS41OSAxLjYyNmgtMS41MzRsMi43ODgtNy4xNThoMS41Mjh6bS0yLjY2Mi0yLjgzMi0uOTg2LTIuNjU3LS45NjcgMi42NTd6Ii8+PC9nPjxnIGFyaWEtbGFiZWw9IldDQUciPjxwYXRoIGQ9Ik0zOC41IDYuMjE0aDIuMWwuNzU2IDQgMS4xMDQtNGgyLjA5NWwxLjEwOCA0IC43NTctNGgyLjA5bC0xLjU3NyA3LjE1OWgtMi4xNjhMNDMuNTEgOC44NjZsLTEuMjUgNC41MDdoLTIuMTY4Wk01NC4zMzIgMTAuNDQ4bDEuOTM4LjU4NnEtLjE5NS44MTUtLjYxNSAxLjM2MnQtMS4wNDUuODI1cS0uNjIuMjc4LTEuNTgyLjI3OC0xLjE2NyAwLTEuOTA5LS4zMzYtLjczNy0uMzQyLTEuMjc0LTEuMTk3LS41MzctLjg1NC0uNTM3LTIuMTg3IDAtMS43NzguOTQyLTIuNzMuOTQ3LS45NTcgMi42NzYtLjk1NyAxLjM1MiAwIDIuMTI0LjU0Ny43NzYuNTQ3IDEuMTUyIDEuNjhsLTEuOTUzLjQzNHEtLjEwMy0uMzI3LS4yMTUtLjQ3OC0uMTg1LS4yNTQtLjQ1NC0uMzktLjI2OS0uMTM3LS42LS4xMzctLjc1MyAwLTEuMTUzLjYwNS0uMzAzLjQ1LS4zMDMgMS40MTEgMCAxLjE5Mi4zNjIgMS42MzYuMzYxLjQ0IDEuMDE1LjQ0LjYzNSAwIC45NTctLjM1Ny4zMjctLjM1Ny40NzQtMS4wMzVtNy45MTcgMS43NDNoLTIuNTJsLS4zNDcgMS4xODJoLTIuMjZsMi42OS03LjE1OWgyLjQxMmwyLjY5IDcuMTU5SDYyLjZ6bS0uNDY0LTEuNTQ4LS43OTEtMi41NzMtLjc4NiAyLjU3M3ptNy43NTYuMTM3VjkuMjloMy40MTh2My4wNTJxLS45ODIuNjctMS43MzguOTEzLS43NTIuMjQtMS43ODcuMjQtMS4yNzUgMC0yLjA4LS40MzUtLjgwMS0uNDM1LTEuMjQ2LTEuMjk0LS40NC0uODYtLjQ0LTEuOTczIDAtMS4xNzEuNDg0LTIuMDM2LjQ4NC0uODY5IDEuNDE2LTEuMzE4LjcyOC0uMzQ3IDEuOTU4LS4zNDcgMS4xODcgMCAxLjc3My4yMTUuNTkuMjE1Ljk3Ni42NjkuMzkuNDUuNTg2IDEuMTQzbC0yLjEzNC4zOHEtLjEzMS0uNDA1LS40NDktLjYyLS4zMTItLjIxNC0uOC0uMjE0LS43MjggMC0xLjE2My41MDctLjQzLjUwMy0uNDMgMS41OTcgMCAxLjE2Mi40MzUgMS42Ni40NC40OTggMS4yMi40OTguMzcyIDAgLjcwOS0uMTA3LjMzNy0uMTA4Ljc3MS0uMzY2di0uNjc0eiIvPjwvZz48cGF0aCBkPSJNLjA2My05LjMzN0gxLjYxcS4yNDYgMCAuNC4xMTIuMTYzLjExMy4yMTkuMjk1bDEuMzc4IDUuMzkzcS4xMi40MjIuMjI1Ljk3OC4wNTYtLjI3NS4xMTMtLjUyLjA1Ni0uMjU0LjEzMy0uNDY1TDUuNzEtOC45M3EuMDU3LS4xNjEuMjE4LS4yOC4xNjItLjEyNy4zODctLjEyN2guNTQxcS4yNDcgMCAuMzk0LjExMi4xNTUuMTA1LjIxOC4yOTVsMS42MzEgNS4zOTNxLjA3LjIwNC4xMjcuNDUuMDYzLjI0LjEyLjUwNy4wNDktLjI2OC4wOTgtLjUwNy4wNTYtLjIzOS4xMTItLjQ0M2wxLjM3OS01LjRxLjA0OS0uMTYxLjIxLS4yOC4xNy0uMTI3LjM5NC0uMTI3aDEuNDQ5TDEwLjIxNyAwSDguNTQybC0xLjg1LTYuMjA5cS0uMDQxLS4xMi0uMDg0LS4yNjctLjAzNS0uMTQ3LS4wNy0uMzEtLjAzNS4xNjMtLjA3Ny4zMS0uMDQyLjE0OC0uMDc4LjI2N0w0LjUgMEgyLjgzNFptMTYuOTMxLS4xMDZxLjY0NyAwIDEuMTYuMTkuNTIxLjE5Ljg4LjUyLjM1OC4zMjQuNTQ4Ljc2Ny4xOTcuNDM2LjE5Ny45MzUgMCAuNDQzLS4wOTkuNzgtLjA5LjMzOC0uMjc0LjU5LS4xODMuMjU0LS40NS40M3QtLjYwNC4yODhxMS41OTYuNTQxIDEuNTk2IDIuMTU5IDAgLjcxLS4yNiAxLjI1MS0uMjU0LjUzNS0uNjkuOS0uNDI4LjM2Ni0xLjAwNS41NDktLjU3LjE4Mi0xLjIwMi4xODItLjY2OCAwLTEuMTgyLS4xNTQtLjUwNi0uMTU1LS44OTMtLjQ2NC0uMzgtLjMxNy0uNjYtLjc4LS4yNzUtLjQ2NS0uNDcyLTEuMDc3bC43NDYtLjMxNnEuMjk1LS4xMi41NDgtLjA1Ni4yNi4wNTYuMzY2LjI3NC4xMjYuMjQuMjY3LjQ1LjE0LjIwNC4zMTYuMzY2LjE4My4xNTQuNDE1LjI0Ni4yMzIuMDkxLjUzNS4wOTEuMzcyIDAgLjY0Ni0uMTIuMjgyLS4xMjYuNDY0LS4zMjMuMTgzLS4yMDQuMjc1LS40NTcuMDkxLS4yNTMuMDkxLS41MDYgMC0uMzI0LS4wNjMtLjU5LS4wNTYtLjI2OC0uMjY3LS40NTgtLjIwNC0uMTktLjYwNS0uMjk1LS40LS4xMDYtMS4wOS0uMTA2di0xLjIwMnEuNTc3LS4wMDcuOTQyLS4xMDUuMzczLS4wOTkuNTg0LS4yNzUuMjEtLjE4Mi4yODgtLjQyOC4wNzgtLjI0Ny4wNzgtLjU0OSAwLS42NC0uMzI0LS45NjMtLjMxNi0uMzI0LS44OTMtLjMyNC0uNTEzIDAtLjg1OC4yODktLjM0NC4yODgtLjQ3OC43MS0uMTEyLjMyMy0uMzAyLjQyMi0uMTgzLjA5OC0uNTI4LjA0MmwtLjg5Mi0uMTU1cS4wOTgtLjY4Mi4zNzItMS4xODguMjc0LS41MTMuNjktLjg1LjQxNC0uMzQ1Ljk0MS0uNTE0LjUzNS0uMTc2IDEuMTQ3LS4xNzZtOS44MzcgNy4xNzlxLjE0OCAwIC4yNTMuMTEybC43MzkuNzk1cS0uNTA3LjcxLTEuMjczIDEuMDgzLS43Ni4zNzItMS44MDcuMzcyLS45NSAwLTEuNzA5LS4zNTEtLjc1OS0uMzU5LTEuMjkzLS45OTItLjUyOC0uNjQtLjgxNi0xLjUxMS0uMjgxLS44OC0uMjgxLTEuOTIgMC0xLjA0Ny4zMDItMS45Mi4zMS0uODc4Ljg2NS0xLjUxMXQxLjMyOS0uOTg0cS43NzMtLjM1MiAxLjcwMS0uMzUyLjk0MyAwIDEuNjY3LjMzOC43MjQuMzMgMS4yMS44NzhsLS42Mi44NjVxLS4wNjMuMDc4LS4xNDcuMTQtLjA3OC4wNjQtLjIyNS4wNjR0LS4yODktLjExMnEtLjEzMy0uMTEzLS4zMzctLjI0Ni0uMTk3LS4xMzQtLjUtLjI0Ny0uMzAyLS4xMTItLjc3My0uMTEyLS41MTMgMC0uOTM1LjIxOC0uNDIyLjIxLS43MjQuNjI2LS4zMDIuNDA4LS40NzEgMS4wMDUtLjE2Mi41OS0uMTYyIDEuMzUgMCAuNzY3LjE4MyAxLjM2NHQuNDkyIDEuMDEzcS4zMTcuNDA4LjczOC42MjYuNDIyLjIxLjkwNy4yMS4yODkgMCAuNTItLjAyOC4yMzMtLjAzNS40My0uMTEyLjIwNC0uMDg1LjM4LS4yMTEuMTc1LS4xMjcuMzUtLjMxNi4wNzEtLjA1Ny4xNDItLjA5Mi4wNzctLjA0Mi4xNTQtLjA0MiIgYXJpYS1sYWJlbD0iVzNDIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzLjUyNyAyMC4yNzIpIiBmaWxsPSIjMDA1YTljIi8+PC9zdmc+" width="114" height="40" alt=""><svg class="deco" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><path d="M118 8c26 30 70 52 76 104 6 50-30 92-84 92S12 168 22 118c8-40 44-54 52-86 4-14 2-26 0-34 18 6 34 18 44 10z" fill="#FFFFFF" fill-opacity=".22"/><text x="194" y="188" text-anchor="end" font-size="118" fill="#F23857" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round" paint-order="stroke">AA</text></svg></div>
+<div class="stat stat-AAA"><b id="sum-AAA">–</b><span class="lbl"><span data-i="deNivel"></span>&nbsp;AAA</span><img class="badge" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbDpzcGFjZT0icHJlc2VydmUiIHZpZXdCb3g9IjAgMCA4OCAzMSIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1taXRlcmxpbWl0PSIyIj48cGF0aCBkPSJNMzUgMGg0OHYzMUgzNXoiIHRyYW5zZm9ybT0ibWF0cml4KDEuMTI1IDAgMCAxIC01LjM3NSAwKSIgZmlsbD0iI2IzY2VlMSIvPjxwYXRoIGQ9Ik0wIDBoMzV2MzFIMHoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNMCAwaDgzdjMxSDB6bC41LjV2MzBoODJWLjVILjV6IiB0cmFuc2Zvcm09InNjYWxlKDEuMDYwMjQgMSkiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxnIGFyaWEtbGFiZWw9IjIuMiBBQUEiPjxwYXRoIGQ9Ik00My4zMzIgMjMuNjMzdjEuMjc1aC00LjgxcS4wNzgtLjcyMy40NjktMS4zNjcuMzktLjY1IDEuNTQzLTEuNzIuOTI3LS44NjMgMS4xMzctMS4xNzEuMjg0LS40MjUuMjg0LS44NCAwLS40NTktLjI1LS43MDMtLjI0NC0uMjUtLjY3OC0uMjUtLjQzIDAtLjY4NC4yNi0uMjU0LjI1OS0uMjkzLjg2bC0xLjM2Ny0uMTM4cS4xMjItMS4xMzIuNzY3LTEuNjI2LjY0NC0uNDkzIDEuNjExLS40OTMgMS4wNiAwIDEuNjY1LjU3Mi42MDYuNTcuNjA2IDEuNDIgMCAuNDg0LS4xNzYuOTIzLS4xNzEuNDM1LS41NDcuOTEzLS4yNS4zMTgtLjg5OS45MTMtLjY0OS41OTYtLjgyNS43OTEtLjE3LjE5Ni0uMjc4LjM4MVpNNDUuMDUzIDI0LjkwOHYtMS4zNzJoMS4zNzJ2MS4zNzJabTcuNjE5LTEuMjc1djEuMjc1aC00LjgxcS4wNzgtLjcyMy40NjktMS4zNjcuMzktLjY1IDEuNTQzLTEuNzIuOTI3LS44NjMgMS4xMzctMS4xNzEuMjg0LS40MjUuMjg0LS44NCAwLS40NTktLjI1LS43MDMtLjI0NC0uMjUtLjY3OC0uMjUtLjQzIDAtLjY4NC4yNi0uMjU0LjI1OS0uMjkzLjg2bC0xLjM2Ny0uMTM4cS4xMjItMS4xMzIuNzY3LTEuNjI2LjY0NC0uNDkzIDEuNjExLS40OTMgMS4wNiAwIDEuNjY1LjU3Mi42MDYuNTcuNjA2IDEuNDIgMCAuNDg0LS4xNzYuOTIzLS4xNzEuNDM1LS41NDcuOTEzLS4yNS4zMTgtLjg5OS45MTMtLjY0OS41OTYtLjgyNS43OTEtLjE3LjE5Ni0uMjc4LjM4MXptMTEuMDkzIDEuMjc1aC0xLjU3M2wtLjYyNS0xLjYyNmgtMi44NjFsLS41OSAxLjYyNmgtMS41MzRsMi43ODgtNy4xNThoMS41Mjh6bS0yLjY2Mi0yLjgzMi0uOTg2LTIuNjU3LS45NjcgMi42NTd6bTEwLjM4MyAyLjgzMmgtMS41NzNsLS42MjUtMS42MjZoLTIuODYxbC0uNTkgMS42MjZoLTEuNTM0bDIuNzg4LTcuMTU4aDEuNTI4em0tMi42NjItMi44MzItLjk4Ni0yLjY1Ny0uOTY3IDIuNjU3Wm0xMC4zODQgMi44MzJoLTEuNTczbC0uNjI1LTEuNjI2SDc0LjE1bC0uNTkgMS42MjZoLTEuNTM0bDIuNzg4LTcuMTU4aDEuNTI4em0tMi42NjItMi44MzItLjk4Ni0yLjY1Ny0uOTY3IDIuNjU3eiIvPjwvZz48ZyBhcmlhLWxhYmVsPSJXQ0FHIj48cGF0aCBkPSJNMzguNSA2LjIxNGgyLjFsLjc1NiA0IDEuMTA0LTRoMi4wOTVsMS4xMDggNCAuNzU3LTRoMi4wOWwtMS41NzcgNy4xNTloLTIuMTY4TDQzLjUxIDguODY2bC0xLjI1IDQuNTA3aC0yLjE2OFpNNTQuMzMyIDEwLjQ0OGwxLjkzOC41ODZxLS4xOTUuODE1LS42MTUgMS4zNjJ0LTEuMDQ1LjgyNXEtLjYyLjI3OC0xLjU4Mi4yNzgtMS4xNjcgMC0xLjkwOS0uMzM2LS43MzctLjM0Mi0xLjI3NC0xLjE5Ny0uNTM3LS44NTQtLjUzNy0yLjE4NyAwLTEuNzc4Ljk0Mi0yLjczLjk0Ny0uOTU3IDIuNjc2LS45NTcgMS4zNTIgMCAyLjEyNC41NDcuNzc2LjU0NyAxLjE1MiAxLjY4bC0xLjk1My40MzRxLS4xMDMtLjMyNy0uMjE1LS40NzgtLjE4NS0uMjU0LS40NTQtLjM5LS4yNjktLjEzNy0uNi0uMTM3LS43NTMgMC0xLjE1My42MDUtLjMwMy40NS0uMzAzIDEuNDExIDAgMS4xOTIuMzYyIDEuNjM2LjM2MS40NCAxLjAxNS40NC42MzUgMCAuOTU3LS4zNTcuMzI3LS4zNTcuNDc0LTEuMDM1bTcuOTE3IDEuNzQzaC0yLjUybC0uMzQ3IDEuMTgyaC0yLjI2bDIuNjktNy4xNTloMi40MTJsMi42OSA3LjE1OUg2Mi42em0tLjQ2NC0xLjU0OC0uNzkxLTIuNTczLS43ODYgMi41NzN6bTcuNzU2LjEzN1Y5LjI5aDMuNDE4djMuMDUycS0uOTgyLjY3LTEuNzM4LjkxMy0uNzUyLjI0LTEuNzg3LjI0LTEuMjc1IDAtMi4wOC0uNDM1LS44MDEtLjQzNS0xLjI0Ni0xLjI5NC0uNDQtLjg2LS40NC0xLjk3MyAwLTEuMTcxLjQ4NC0yLjAzNi40ODQtLjg2OSAxLjQxNi0xLjMxOC43MjgtLjM0NyAxLjk1OC0uMzQ3IDEuMTg3IDAgMS43NzMuMjE1LjU5LjIxNS45NzYuNjY5LjM5LjQ1LjU4NiAxLjE0M2wtMi4xMzQuMzhxLS4xMzEtLjQwNS0uNDQ5LS42Mi0uMzEyLS4yMTQtLjgtLjIxNC0uNzI4IDAtMS4xNjMuNTA3LS40My41MDMtLjQzIDEuNTk3IDAgMS4xNjIuNDM1IDEuNjYuNDQuNDk4IDEuMjIuNDk4LjM3MiAwIC43MDktLjEwNy4zMzctLjEwOC43NzEtLjM2NnYtLjY3NHoiLz48L2c+PHBhdGggZD0iTS4wNjMtOS4zMzdIMS42MXEuMjQ2IDAgLjQuMTEyLjE2My4xMTMuMjE5LjI5NWwxLjM3OCA1LjM5M3EuMTIuNDIyLjIyNS45NzguMDU2LS4yNzUuMTEzLS41Mi4wNTYtLjI1NC4xMzMtLjQ2NUw1LjcxLTguOTNxLjA1Ny0uMTYxLjIxOC0uMjguMTYyLS4xMjcuMzg3LS4xMjdoLjU0MXEuMjQ3IDAgLjM5NC4xMTIuMTU1LjEwNS4yMTguMjk1bDEuNjMxIDUuMzkzcS4wNy4yMDQuMTI3LjQ1LjA2My4yNC4xMi41MDcuMDQ5LS4yNjguMDk4LS41MDcuMDU2LS4yMzkuMTEyLS40NDNsMS4zNzktNS40cS4wNDktLjE2MS4yMS0uMjguMTctLjEyNy4zOTQtLjEyN2gxLjQ0OUwxMC4yMTcgMEg4LjU0MmwtMS44NS02LjIwOXEtLjA0MS0uMTItLjA4NC0uMjY3LS4wMzUtLjE0Ny0uMDctLjMxLS4wMzUuMTYzLS4wNzcuMzEtLjA0Mi4xNDgtLjA3OC4yNjdMNC41IDBIMi44MzRabTE2LjkzMS0uMTA2cS42NDcgMCAxLjE2LjE5LjUyMS4xOS44OC41Mi4zNTguMzI0LjU0OC43NjcuMTk3LjQzNi4xOTcuOTM1IDAgLjQ0My0uMDk5Ljc4LS4wOS4zMzgtLjI3NC41OS0uMTgzLjI1NC0uNDUuNDN0LS42MDQuMjg4cTEuNTk2LjU0MSAxLjU5NiAyLjE1OSAwIC43MS0uMjYgMS4yNTEtLjI1NC41MzUtLjY5LjktLjQyOC4zNjYtMS4wMDUuNTQ5LS41Ny4xODItMS4yMDIuMTgyLS42NjggMC0xLjE4Mi0uMTU0LS41MDYtLjE1NS0uODkzLS40NjQtLjM4LS4zMTctLjY2LS43OC0uMjc1LS40NjUtLjQ3Mi0xLjA3N2wuNzQ2LS4zMTZxLjI5NS0uMTIuNTQ4LS4wNTYuMjYuMDU2LjM2Ni4yNzQuMTI2LjI0LjI2Ny40NS4xNC4yMDQuMzE2LjM2Ni4xODMuMTU0LjQxNS4yNDYuMjMyLjA5MS41MzUuMDkxLjM3MiAwIC42NDYtLjEyLjI4Mi0uMTI2LjQ2NC0uMzIzLjE4My0uMjA0LjI3NS0uNDU3LjA5MS0uMjUzLjA5MS0uNTA2IDAtLjMyNC0uMDYzLS41OS0uMDU2LS4yNjgtLjI2Ny0uNDU4LS4yMDQtLjE5LS42MDUtLjI5NS0uNC0uMTA2LTEuMDktLjEwNnYtMS4yMDJxLjU3Ny0uMDA3Ljk0Mi0uMTA1LjM3My0uMDk5LjU4NC0uMjc1LjIxLS4xODIuMjg4LS40MjguMDc4LS4yNDcuMDc4LS41NDkgMC0uNjQtLjMyNC0uOTYzLS4zMTYtLjMyNC0uODkzLS4zMjQtLjUxMyAwLS44NTguMjg5LS4zNDQuMjg4LS40NzguNzEtLjExMi4zMjMtLjMwMi40MjItLjE4My4wOTgtLjUyOC4wNDJsLS44OTItLjE1NXEuMDk4LS42ODIuMzcyLTEuMTg4LjI3NC0uNTEzLjY5LS44NS40MTQtLjM0NS45NDEtLjUxNC41MzUtLjE3NiAxLjE0Ny0uMTc2bTkuODM3IDcuMTc5cS4xNDggMCAuMjUzLjExMmwuNzM5Ljc5NXEtLjUwNy43MS0xLjI3MyAxLjA4My0uNzYuMzcyLTEuODA3LjM3Mi0uOTUgMC0xLjcwOS0uMzUxLS43NTktLjM1OS0xLjI5My0uOTkyLS41MjgtLjY0LS44MTYtMS41MTEtLjI4MS0uODgtLjI4MS0xLjkyIDAtMS4wNDcuMzAyLTEuOTIuMzEtLjg3OC44NjUtMS41MTF0MS4zMjktLjk4NHEuNzczLS4zNTIgMS43MDEtLjM1Mi45NDMgMCAxLjY2Ny4zMzguNzI0LjMzIDEuMjEuODc4bC0uNjIuODY1cS0uMDYzLjA3OC0uMTQ3LjE0LS4wNzguMDY0LS4yMjUuMDY0dC0uMjg5LS4xMTJxLS4xMzMtLjExMy0uMzM3LS4yNDYtLjE5Ny0uMTM0LS41LS4yNDctLjMwMi0uMTEyLS43NzMtLjExMi0uNTEzIDAtLjkzNS4yMTgtLjQyMi4yMS0uNzI0LjYyNi0uMzAyLjQwOC0uNDcxIDEuMDA1LS4xNjIuNTktLjE2MiAxLjM1IDAgLjc2Ny4xODMgMS4zNjR0LjQ5MiAxLjAxM3EuMzE3LjQwOC43MzguNjI2LjQyMi4yMS45MDcuMjEuMjg5IDAgLjUyLS4wMjguMjMzLS4wMzUuNDMtLjExMi4yMDQtLjA4NS4zOC0uMjExLjE3NS0uMTI3LjM1LS4zMTYuMDcxLS4wNTcuMTQyLS4wOTIuMDc3LS4wNDIuMTU0LS4wNDIiIGFyaWEtbGFiZWw9IlczQyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMy41MjcgMjAuMjcyKSIgZmlsbD0iIzAwNWE5YyIvPjwvc3ZnPg==" width="114" height="40" alt=""><svg class="deco" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><path d="M118 8c26 30 70 52 76 104 6 50-30 92-84 92S12 168 22 118c8-40 44-54 52-86 4-14 2-26 0-34 18 6 34 18 44 10z" fill="#FFFFFF" fill-opacity=".22"/><text x="194" y="188" text-anchor="end" font-size="84" fill="#FABE3F" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round" paint-order="stroke">AAA</text></svg></div>
+</section>
+
+
+<div class="table-wrap" id="tw"><table id="t"></table></div>
+
+<div class="notes">
+<p data-i="nota1"></p>
+<p data-i="nota2"></p>
+</div>
+</main>
+
+<script>
+const BASE="https://www.w3.org/WAI/WCAG22/Understanding/";
+const T={
+ es:{title:"Mapa de la WCAG",intro:"Mapa de relación de los diferentes criterios de éxito de la WCAG.",
+  vigentes:"criterios vigentes",deNivel:"criterios de nivel",objetivo:"Objetivo de conformidad",todos:"Todos",aaaTodos:"AAA (todos)",nombres:"Mostrar nombres",mostrarRem:"Mostrar 4.1.1 (eliminado)",
+  buscar:"Buscar",ph:"Número o nombre",claro:"Claro",oscuro:"Oscuro",tema:"Tema",
+  caption:"Mapa de la WCAG: criterios de éxito de WCAG 2.2 agrupados por principio y pauta, con su nivel de conformidad",
+  cols:["Pauta","Total criterios","Nivel A","Nivel AA","Nivel AAA"],principio:"Principio",pauta:"pauta",pautas:"pautas",criterios:"criterios",
+  total:"Total",totalAll:"TOTAL WCAG 2.2",nivel:n=>"de nivel "+n,eliminado:"eliminado",elimLong:"eliminado en WCAG 2.2",masElim:"+1 eliminado",
+  nueva:"(se abre en una pestaña nueva)",sin:"Sin criterios",pasa:"pasa a",pautaCap:"Pauta",relacionadas:"Relacionadas",noRelacionadas:"No relacionadas",
+  conf:(t,a,b)=>"Para conformidad "+t+" se aplican "+a+" de "+b+" criterios mostrados. ",
+  match:(n,q)=>n+(n===1?" criterio coincide":" criterios coinciden")+" con «"+q+"».",
+  nota1:"El criterio 4.1.1 Procesamiento es obsoleto y se eliminó en WCAG 2.2; aparece como referencia y no cuenta en los totales.",
+  nota2:'Los enlaces llevan a las páginas oficiales <a href="https://www.w3.org/WAI/WCAG22/Understanding/" target="_blank" rel="noopener">Understanding WCAG 2.2</a> del W3C (en inglés) y se abren en una pestaña nueva.'},
+ en:{title:"WCAG Map",intro:"A map of how the different WCAG success criteria relate to each other.",
+  vigentes:"current criteria",deNivel:"criteria at level",objetivo:"Conformance target",todos:"All",aaaTodos:"AAA (all)",nombres:"Show names",mostrarRem:"Show 4.1.1 (removed)",
+  buscar:"Search",ph:"Number or name",claro:"Light",oscuro:"Dark",tema:"Theme",
+  caption:"WCAG Map: WCAG 2.2 success criteria grouped by principle and guideline, with their conformance level",
+  cols:["Guideline","Total criteria","Level A","Level AA","Level AAA"],principio:"Principle",pauta:"guideline",pautas:"guidelines",criterios:"criteria",
+  total:"Total",totalAll:"WCAG 2.2 TOTAL",nivel:n=>"at level "+n,eliminado:"removed",elimLong:"removed in WCAG 2.2",masElim:"+1 removed",
+  nueva:"(opens in a new tab)",sin:"No criteria",pasa:"becomes",pautaCap:"Guideline",relacionadas:"Related",noRelacionadas:"Not related",
+  conf:(t,a,b)=>"For level "+t+" conformance, "+a+" of "+b+" shown criteria apply. ",
+  match:(n,q)=>n+(n===1?" criterion matches":" criteria match")+" “"+q+"”.",
+  nota1:"Success criterion 4.1.1 Parsing is obsolete and was removed in WCAG 2.2; it is shown for reference and not counted in the totals.",
+  nota2:'Links go to the official W3C <a href="https://www.w3.org/WAI/WCAG22/Understanding/" target="_blank" rel="noopener">Understanding WCAG 2.2</a> pages and open in a new tab.'}
+};
+// [num, es, en, level, slug, removed]
+const DATA=[
+ {p:["Perceptible","Perceivable"],g:[
+  {id:"1.1",n:["Alternativas de texto","Text Alternatives"],c:[["1.1.1","Contenido no textual","Non-text Content","A","non-text-content"]]},
+  {id:"1.2",n:["Medios basados en el tiempo","Time-based Media"],c:[
+   ["1.2.1","Audio solo o vídeo solo (grabado)","Audio-only and Video-only (Prerecorded)","A","audio-only-and-video-only-prerecorded"],
+   ["1.2.2","Subtítulos (grabado)","Captions (Prerecorded)","A","captions-prerecorded"],
+   ["1.2.3","Audiodescripción o medio alternativo (grabado)","Audio Description or Media Alternative (Prerecorded)","A","audio-description-or-media-alternative-prerecorded"],
+   ["1.2.4","Subtítulos (en directo)","Captions (Live)","AA","captions-live"],
+   ["1.2.5","Audiodescripción (grabado)","Audio Description (Prerecorded)","AA","audio-description-prerecorded"],
+   ["1.2.6","Lengua de signos (grabado)","Sign Language (Prerecorded)","AAA","sign-language-prerecorded"],
+   ["1.2.7","Audiodescripción ampliada (grabado)","Extended Audio Description (Prerecorded)","AAA","extended-audio-description-prerecorded"],
+   ["1.2.8","Medio alternativo (grabado)","Media Alternative (Prerecorded)","AAA","media-alternative-prerecorded"],
+   ["1.2.9","Audio solo (en directo)","Audio-only (Live)","AAA","audio-only-live"]]},
+  {id:"1.3",n:["Adaptable","Adaptable"],c:[
+   ["1.3.1","Información y relaciones","Info and Relationships","A","info-and-relationships"],
+   ["1.3.2","Secuencia significativa","Meaningful Sequence","A","meaningful-sequence"],
+   ["1.3.3","Características sensoriales","Sensory Characteristics","A","sensory-characteristics"],
+   ["1.3.4","Orientación","Orientation","AA","orientation"],
+   ["1.3.5","Identificar el propósito de la entrada","Identify Input Purpose","AA","identify-input-purpose"],
+   ["1.3.6","Identificar el propósito","Identify Purpose","AAA","identify-purpose"]]},
+  {id:"1.4",n:["Distinguible","Distinguishable"],c:[
+   ["1.4.1","Uso del color","Use of Color","A","use-of-color"],
+   ["1.4.2","Control del audio","Audio Control","A","audio-control"],
+   ["1.4.3","Contraste (mínimo)","Contrast (Minimum)","AA","contrast-minimum"],
+   ["1.4.4","Cambio de tamaño del texto","Resize Text","AA","resize-text"],
+   ["1.4.5","Imágenes de texto","Images of Text","AA","images-of-text"],
+   ["1.4.6","Contraste (mejorado)","Contrast (Enhanced)","AAA","contrast-enhanced"],
+   ["1.4.7","Sonido de fondo bajo o ausente","Low or No Background Audio","AAA","low-or-no-background-audio"],
+   ["1.4.8","Presentación visual","Visual Presentation","AAA","visual-presentation"],
+   ["1.4.9","Imágenes de texto (sin excepciones)","Images of Text (No Exception)","AAA","images-of-text-no-exception"],
+   ["1.4.10","Reajuste de los elementos (reflow)","Reflow","AA","reflow"],
+   ["1.4.11","Contraste no textual","Non-text Contrast","AA","non-text-contrast"],
+   ["1.4.12","Espaciado del texto","Text Spacing","AA","text-spacing"],
+   ["1.4.13","Contenido en hover o foco","Content on Hover or Focus","AA","content-on-hover-or-focus"]]}]},
+ {p:["Operable","Operable"],g:[
+  {id:"2.1",n:["Accesible por teclado","Keyboard Accessible"],c:[
+   ["2.1.1","Teclado","Keyboard","A","keyboard"],
+   ["2.1.2","Sin trampas para el foco del teclado","No Keyboard Trap","A","no-keyboard-trap"],
+   ["2.1.3","Teclado (sin excepciones)","Keyboard (No Exception)","AAA","keyboard-no-exception"],
+   ["2.1.4","Atajos de teclado","Character Key Shortcuts","A","character-key-shortcuts"]]},
+  {id:"2.2",n:["Tiempo suficiente","Enough Time"],c:[
+   ["2.2.1","Tiempo ajustable","Timing Adjustable","A","timing-adjustable"],
+   ["2.2.2","Poner en pausa, detener, ocultar","Pause, Stop, Hide","A","pause-stop-hide"],
+   ["2.2.3","Sin tiempo","No Timing","AAA","no-timing"],
+   ["2.2.4","Interrupciones","Interruptions","AAA","interruptions"],
+   ["2.2.5","Volver a autenticar","Re-authenticating","AAA","re-authenticating"],
+   ["2.2.6","Límites de tiempo","Timeouts","AAA","timeouts"]]},
+  {id:"2.3",n:["Convulsiones y reacciones físicas","Seizures and Physical Reactions"],c:[
+   ["2.3.1","Umbral de tres destellos o menos","Three Flashes or Below Threshold","A","three-flashes-or-below-threshold"],
+   ["2.3.2","Tres destellos","Three Flashes","AAA","three-flashes"],
+   ["2.3.3","Animaciones desde interacciones","Animation from Interactions","AAA","animation-from-interactions"]]},
+  {id:"2.4",n:["Navegable","Navigable"],c:[
+   ["2.4.1","Evitar bloques","Bypass Blocks","A","bypass-blocks"],
+   ["2.4.2","Titulado de páginas","Page Titled","A","page-titled"],
+   ["2.4.3","Orden del foco","Focus Order","A","focus-order"],
+   ["2.4.4","Propósito de los enlaces (en contexto)","Link Purpose (In Context)","A","link-purpose-in-context"],
+   ["2.4.5","Múltiples vías","Multiple Ways","AA","multiple-ways"],
+   ["2.4.6","Encabezados y etiquetas","Headings and Labels","AA","headings-and-labels"],
+   ["2.4.7","Foco visible","Focus Visible","AA","focus-visible"],
+   ["2.4.8","Ubicación","Location","AAA","location"],
+   ["2.4.9","Propósito de los enlaces (solo enlace)","Link Purpose (Link Only)","AAA","link-purpose-link-only"],
+   ["2.4.10","Encabezados de sección","Section Headings","AAA","section-headings"],
+   ["2.4.11","Foco no oculto (mínimo)","Focus Not Obscured (Minimum)","AA","focus-not-obscured-minimum"],
+   ["2.4.12","Foco no oculto (mejorado)","Focus Not Obscured (Enhanced)","AAA","focus-not-obscured-enhanced"],
+   ["2.4.13","Apariencia del foco","Focus Appearance","AAA","focus-appearance"]]},
+  {id:"2.5",n:["Modalidades de entrada","Input Modalities"],c:[
+   ["2.5.1","Gestos del puntero","Pointer Gestures","A","pointer-gestures"],
+   ["2.5.2","Cancelación del puntero","Pointer Cancellation","A","pointer-cancellation"],
+   ["2.5.3","Etiqueta en el nombre","Label in Name","A","label-in-name"],
+   ["2.5.4","Activación mediante movimiento","Motion Actuation","A","motion-actuation"],
+   ["2.5.5","Tamaño del objetivo (mejorado)","Target Size (Enhanced)","AAA","target-size-enhanced"],
+   ["2.5.6","Mecanismos de entrada concurrentes","Concurrent Input Mechanisms","AAA","concurrent-input-mechanisms"],
+   ["2.5.7","Movimientos de arrastre","Dragging Movements","AA","dragging-movements"],
+   ["2.5.8","Tamaño del objetivo (mínimo)","Target Size (Minimum)","AA","target-size-minimum"]]}]},
+ {p:["Comprensible","Understandable"],g:[
+  {id:"3.1",n:["Legible","Readable"],c:[
+   ["3.1.1","Idioma de la página","Language of Page","A","language-of-page"],
+   ["3.1.2","Idioma de las partes","Language of Parts","AA","language-of-parts"],
+   ["3.1.3","Palabras inusuales","Unusual Words","AAA","unusual-words"],
+   ["3.1.4","Abreviaturas","Abbreviations","AAA","abbreviations"],
+   ["3.1.5","Nivel de lectura","Reading Level","AAA","reading-level"],
+   ["3.1.6","Pronunciación","Pronunciation","AAA","pronunciation"]]},
+  {id:"3.2",n:["Predecible","Predictable"],c:[
+   ["3.2.1","Al recibir el foco","On Focus","A","on-focus"],
+   ["3.2.2","Al recibir entradas","On Input","A","on-input"],
+   ["3.2.3","Navegación coherente","Consistent Navigation","AA","consistent-navigation"],
+   ["3.2.4","Identificación consistente","Consistent Identification","AA","consistent-identification"],
+   ["3.2.5","Cambios a petición","Change on Request","AAA","change-on-request"],
+   ["3.2.6","Ayuda consistente","Consistent Help","A","consistent-help"]]},
+  {id:"3.3",n:["Asistencia a la entrada de datos","Input Assistance"],c:[
+   ["3.3.1","Identificación de errores","Error Identification","A","error-identification"],
+   ["3.3.2","Etiquetas o instrucciones","Labels or Instructions","A","labels-or-instructions"],
+   ["3.3.3","Sugerencias ante errores","Error Suggestion","AA","error-suggestion"],
+   ["3.3.4","Prevención de errores (legales, financieros, datos)","Error Prevention (Legal, Financial, Data)","AA","error-prevention-legal-financial-data"],
+   ["3.3.5","Ayuda","Help","AAA","help"],
+   ["3.3.6","Prevención de errores (todos)","Error Prevention (All)","AAA","error-prevention-all"],
+   ["3.3.7","Entrada redundante","Redundant Entry","A","redundant-entry"],
+   ["3.3.8","Autenticación accesible (mínima)","Accessible Authentication (Minimum)","AA","accessible-authentication-minimum"],
+   ["3.3.9","Autenticación accesible (mejorada)","Accessible Authentication (Enhanced)","AAA","accessible-authentication-enhanced"]]}]},
+ {p:["Robusto","Robust"],g:[
+  {id:"4.1",n:["Compatible","Compatible"],c:[
+   ["4.1.1","Procesamiento","Parsing","A","parsing",true],
+   ["4.1.2","Nombre, función y valor","Name, Role, Value","A","name-role-value"],
+   ["4.1.3","Mensajes de estado","Status Messages","AA","status-messages"]]}]}
+];
+const LV=["A","AA","AAA"];
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const state={lang:store.get("wcag-lang")||"es",theme:store.get("wcag-theme"),target:"all",names:false,removed:true,q:"",closed:new Set()};
+const t=document.getElementById("t");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const L=()=>state.lang==="en"?1:0;
+const count=list=>{const r={A:0,AA:0,AAA:0};list.forEach(c=>{if(!c[5])r[c[3]]++});r.all=r.A+r.AA+r.AAA;return r};
+function el(tag,attrs={},html){const e=document.createElement(tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(html!=null)e.innerHTML=html;return e}
+function chip(c){
+  const S=T[state.lang],nm=c[1+L()];
+  const a=el("a",{class:"sc"+(c[5]?" removed":""),href:BASE+c[4]+".html",target:"_blank",rel:"noopener",
+    "aria-label":c[0]+" "+nm+(c[5]?", "+S.elimLong:"")+" "+S.nueva,title:nm+(c[5]?" — "+S.elimLong:"")});
+  a.dataset.lv=c[3];a.dataset.search=norm(c[0]+" "+c[1]+" "+c[2]);if(c[5])a.dataset.removed="1";
+  a.innerHTML=c[0]+'<span class="nm">'+nm+'</span>'+(c[5]?' <span class="rm">('+S.eliminado+')</span>':"");
+  return a;
+}
+const bar=r=>{const tot=r.all||1;return '<div class="bar" aria-hidden="true">'+LV.map(l=>'<i class="b'+l+'" style="width:'+(r[l]/tot*100)+'%"></i>').join("")+'</div>'};
+const LADDERS=[
+ {t:["Audiodescripción","Audio description"],c:["1.2.3","1.2.5","1.2.7"],d:["De aceptar una alternativa en texto, a exigir una pista de audio, a pausar el vídeo si no hay huecos.","From accepting a text alternative, to requiring an audio track, to pausing video when there are no gaps."]},
+ {t:["Alternativa a medios","Media alternative"],c:["1.2.3","1.2.8"],d:["Se exige un guion completo para todo vídeo grabado.","A full script is required for all prerecorded video."]},
+ {t:["Subtítulos","Captions"],c:["1.2.2","1.2.4"],d:["Se extienden de lo grabado a las emisiones en directo.","They extend from prerecorded to live broadcasts."]},
+ {t:["Audio solo","Audio-only"],c:["1.2.1","1.2.9"],d:["La alternativa en texto se extiende al audio en directo.","The text alternative extends to live audio."]},
+ {t:["Propósito","Purpose"],c:["1.3.5","1.3.6"],d:["De los campos de formulario a componentes, iconos y regiones.","From form fields to components, icons and regions."]},
+ {t:["Contraste del texto","Text contrast"],c:["1.4.3","1.4.6"],d:["El umbral sube de 4.5:1 a 7:1.","The threshold rises from 4.5:1 to 7:1."]},
+ {t:["Imágenes de texto","Images of text"],c:["1.4.5","1.4.9"],d:["Se eliminan las excepciones.","Exceptions are removed."]},
+ {t:["Teclado","Keyboard"],c:["2.1.1","2.1.3"],d:["Ya no se admite la excepción para trazos a mano alzada.","The exception for path-dependent input no longer applies."]},
+ {t:["Límites de tiempo","Time limits"],c:["2.2.1","2.2.3"],d:["De límites ajustables a ningún límite.","From adjustable limits to no limits at all."]},
+ {t:["Destellos","Flashes"],c:["2.3.1","2.3.2"],d:["Sin umbral de área: nada destella más de tres veces por segundo.","No area threshold: nothing flashes more than three times per second."]},
+ {t:["Propósito de los enlaces","Link purpose"],c:["2.4.4","2.4.9"],d:["El texto del enlace debe bastar sin apoyo del contexto.","The link text must suffice without relying on context."]},
+ {t:["Indicador de foco","Focus indicator"],c:["2.4.7","2.4.13"],d:["Se define el tamaño y el contraste mínimos del indicador.","Minimum indicator size and contrast are defined."]},
+ {t:["Foco no oculto","Focus not obscured"],c:["2.4.11","2.4.12"],d:["De parcialmente visible a totalmente visible.","From partly visible to fully visible."]},
+ {t:["Tamaño del objetivo","Target size"],c:["2.5.8","2.5.5"],d:["De 24 a 44 px. El AAA tiene un número menor porque llegó antes, con WCAG 2.1.","From 24 to 44 px. The AAA one has a lower number because it came first, in WCAG 2.1."]},
+ {t:["Idioma","Language"],c:["3.1.1","3.1.2"],d:["De la página completa a cada fragmento en otro idioma.","From the whole page to each passage in another language."]},
+ {t:["Prevención de errores","Error prevention"],c:["3.3.4","3.3.6"],d:["De los envíos legales y financieros a todos los formularios.","From legal and financial submissions to all forms."]},
+ {t:["Autenticación accesible","Accessible authentication"],c:["3.3.8","3.3.9"],d:["Se quitan las excepciones de reconocer objetos o contenido propio.","The object and personal-content recognition exceptions are removed."]}
+];
+const MAP={};DATA.forEach(P=>P.g.forEach(g=>g.c.forEach(c=>MAP[c[0]]=c)));
+const GSLUG={"1.1":"text-alternatives","1.2":"time-based-media","1.3":"adaptable","1.4":"distinguishable","2.1":"keyboard-accessible","2.2":"enough-time","2.3":"seizures-and-physical-reactions","2.4":"navigable","2.5":"input-modalities","3.1":"readable","3.2":"predictable","3.3":"input-assistance","4.1":"compatible"};
+const headSvg='<svg class="head" viewBox="0 0 10 16" aria-hidden="true"><path d="M0 8h9M3 2l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const arrowSvg='<svg class="arrow" viewBox="0 0 56 16" aria-hidden="true"><path d="M2 8h50m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function render(){
+  const S=T[state.lang];t.innerHTML="";
+  t.appendChild(el("caption",{},S.caption));
+  const th=el("thead");const hr=el("tr");S.cols.forEach((c,i)=>{hr.appendChild(el("th",{scope:"col"},c));if(i===2||i===3)hr.appendChild(el("td",{class:"arrow-col","aria-hidden":"true"}))});th.appendChild(hr);t.appendChild(th);
+  const grand={A:0,AA:0,AAA:0,all:0};
+  DATA.forEach((P,pi)=>{
+    const pr=count(P.g.flatMap(g=>g.c));LV.concat("all").forEach(k=>grand[k]+=pr[k]);
+    const open=!state.closed.has(pi),bid="grp"+pi;
+    const head=el("tbody");const tr=el("tr",{class:"group"});const gth=el("th",{colspan:"7",scope:"colgroup"});
+    gth.innerHTML='<button type="button" aria-expanded="'+open+'" aria-controls="'+bid+'"><svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+S.principio+" "+(pi+1)+": "+P.p[L()]+'<span class="meta">'+P.g.length+" "+(P.g.length===1?S.pauta:S.pautas)+" · "+pr.all+" "+S.criterios+"</span></button>";
+    tr.appendChild(gth);head.appendChild(tr);t.appendChild(head);
+    const body=el("tbody",{id:bid});if(!open)body.classList.add("hidden");
+    P.g.forEach(g=>{
+      const r=count(g.c);
+      const rels=LADDERS.filter(x=>x.c[0].startsWith(g.id+"."));
+      const used=new Set(),lanes=[];
+      rels.forEach(x=>{const lane={chain:true,cells:{A:[],AA:[],AAA:[]},desc:x.d[L()]};
+        x.c.forEach(n=>{const c=MAP[n];lane.cells[c[3]].push({c,dup:used.has(n)});used.add(n)});lanes.push(lane)});
+      const rest=g.c.filter(c=>!used.has(c[0]));
+      if(rest.length||!lanes.length){const lane={chain:false,cells:{A:[],AA:[],AAA:[]}};rest.forEach(c=>lane.cells[c[3]].push({c}));lanes.push(lane)}
+      const has={A:false,AA:false,AAA:false};g.c.forEach(c=>has[c[3]]=true);
+      const dashDone={};
+      const seq=[];
+      if(rels.length){seq.push({label:S.relacionadas});lanes.filter(x=>x.chain).forEach(x=>seq.push(x));
+        const rl=lanes.find(x=>!x.chain);if(rl){seq.push({label:S.noRelacionadas});seq.push(rl)}}
+      else lanes.forEach(x=>seq.push(x));
+      seq.forEach((lane,li)=>{
+        const row=el("tr",{class:"pauta"+(li<seq.length-1?" lane-cont":"")+(li>0?" lane-next":"")+(lane.label?" lane-lbl-row":"")});
+        if(li===0){
+          row.appendChild(el("th",{scope:"row",rowspan:String(seq.length)},'<a class="plink" href="'+BASE+GSLUG[g.id]+'.html" target="_blank" rel="noopener" aria-label="'+S.pautaCap+' '+g.id+' '+g.n[L()]+' '+S.nueva+'"><span class="pnum">'+g.id+'</span><span class="pname">'+g.n[L()].replace(/(\S+)$/,'<span class="nw">$1<svg class="ext" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>')+'</span></a>'));
+          const rem=g.c.some(c=>c[5])?' <span class="split">'+S.masElim+'</span>':"";
+          row.appendChild(el("td",{rowspan:String(seq.length)},'<span class="total">'+r.all+'</span>'+rem+bar(r)+'<div class="split">'+r.A+" A · "+r.AA+" AA · "+r.AAA+" AAA</div>"));
+        }
+        if(lane.label){row.appendChild(el("td",{colspan:"5",class:"lane-lbl"},lane.label));body.appendChild(row);return}
+        const occ=LV.map((l,i)=>lane.cells[l].length?i:-1).filter(i=>i>=0);
+        const lo=occ.length?Math.min(...occ):-1,hi=occ.length?Math.max(...occ):-1;
+        LV.forEach((l,i)=>{
+          const td=el("td",{"data-col":l});const items=lane.cells[l];
+          if(items.length){
+            const w=el("div",{class:lane.chain?"lane-cell":"chips"});
+            items.forEach(it=>{const ch=chip(it.c);if(it.dup){ch.classList.add("dup")}w.appendChild(ch)});
+            if(lane.chain&&i<hi){w.insertAdjacentHTML("beforeend",'<span class="lane-line" aria-hidden="true"></span>');td.classList.add("tail")}
+            td.appendChild(w);
+          }else if(lane.chain&&i>lo&&i<hi){
+            td.classList.add("gap-td");td.innerHTML='<div class="lane-cell"><span class="lane-line" aria-hidden="true"></span>'+(has[l]?'':'<span class="sr">'+S.sin+'</span>')+'</div>';
+          }else if(!has[l]&&!dashDone[l]&&!rels.length){
+            dashDone[l]=1;td.appendChild(el("span",{class:"empty","aria-label":S.sin},"–"));
+          }
+          if(lane.chain&&i===hi){td.title=lane.desc}
+          row.appendChild(td);
+          if(i<2){const ac=el("td",{class:"arrow-col"});
+            if(lane.chain&&i>=lo&&i+1<=hi){
+              const nxt=lane.cells[LV[i+1]].length,cur=lane.cells[l].length;
+              if(nxt){ac.innerHTML='<div class="lane-cell with-head"><span class="lane-line" aria-hidden="true"></span>'+headSvg+'<span class="sr">'+S.pasa+'</span></div>'}
+              else{ac.innerHTML='<div class="lane-cell"><span class="lane-line" aria-hidden="true"></span></div>'}
+            }
+            row.appendChild(ac)}
+        });
+        body.appendChild(row);
+      });
+    });
+    const st=el("tr",{class:"subtotal"});st.appendChild(el("th",{scope:"row"},S.total+" "+P.p[L()]));
+    st.appendChild(el("td",{},pr.all+" "+S.criterios));LV.forEach((l,i)=>{st.appendChild(el("td",{"data-col":l},pr[l]+" "+S.nivel(l)));if(i<2)st.appendChild(el("td",{class:"arrow-col","aria-hidden":"true"}))});
+    body.appendChild(st);t.appendChild(body);
+    gth.querySelector("button").addEventListener("click",e=>{const b=e.currentTarget;const o=b.getAttribute("aria-expanded")==="true";b.setAttribute("aria-expanded",String(!o));body.classList.toggle("hidden",o);o?state.closed.add(pi):state.closed.delete(pi)});
+  });
+  const foot=el("tfoot");const ft=el("tr");ft.appendChild(el("th",{scope:"row"},S.totalAll));
+  ft.appendChild(el("td",{},grand.all+" "+S.criterios));LV.forEach((l,i)=>{ft.appendChild(el("td",{"data-col":l},grand[l]+" "+S.nivel(l)));if(i<2)ft.appendChild(el("td",{class:"arrow-col","aria-hidden":"true"}))});
+  foot.appendChild(ft);t.appendChild(foot);
+  document.getElementById("sum-all").textContent=grand.all;LV.forEach(l=>document.getElementById("sum-"+l).textContent=grand[l]);
+  apply();
+}
+const inTarget=l=>state.target==="all"||LV.indexOf(l)<=LV.indexOf(state.target);
+function apply(){
+  const S=T[state.lang];
+  document.getElementById("tw").classList.toggle("names",state.names);
+  const q=norm(state.q.trim());let shown=0,inScope=0;
+  document.querySelectorAll(".sc").forEach(a=>{
+    const match=!q||a.dataset.search.includes(q);
+    a.classList.toggle("hidden",(a.dataset.removed&&!state.removed)||!match);
+    if(!a.classList.contains("hidden")&&!a.dataset.removed){shown++;if(inTarget(a.dataset.lv))inScope++}
+  });
+  document.querySelectorAll("td[data-col]").forEach(td=>td.classList.toggle("dim",!inTarget(td.dataset.col)));
+  document.querySelectorAll("tr.pauta").forEach(tr=>tr.classList.toggle("hidden",!!q&&![...tr.querySelectorAll(".sc")].some(a=>!a.classList.contains("hidden"))));
+  let msg="";if(state.target!=="all")msg+=S.conf(state.target,inScope,shown);if(q)msg+=S.match(shown,state.q.trim());
+}
+function setLang(lg){
+  state.lang=lg;store.set("wcag-lang",lg);const S=T[lg];
+  document.documentElement.lang=lg;document.title=S.title;
+  document.querySelectorAll("[data-i]").forEach(e=>{const v=S[e.dataset.i];if(typeof v==="string")e.innerHTML=v});
+  document.getElementById("summary").setAttribute("aria-label",lg==="en"?"Summary of current criteria":"Resumen de criterios vigentes");
+  document.getElementById("theme-g").setAttribute("aria-label",S.tema);
+  document.querySelector('[data-theme-btn="light"]').textContent=S.claro;
+  document.querySelector('[data-theme-btn="dark"]').textContent=S.oscuro;
+  document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lg)));
+  render();
+}
+const mq=window.matchMedia("(prefers-color-scheme: dark)");
+function setTheme(th,save){
+  if(th){document.documentElement.dataset.theme=th;if(save){state.theme=th;store.set("wcag-theme",th)}}
+  const eff=document.documentElement.dataset.theme||(mq.matches?"dark":"light");
+  document.querySelectorAll("[data-theme-btn]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeBtn===eff)));
+}
+mq.addEventListener&&mq.addEventListener("change",()=>setTheme(null));
+document.querySelectorAll("[data-lang]").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+document.querySelectorAll("[data-theme-btn]").forEach(b=>b.addEventListener("click",()=>setTheme(b.dataset.themeBtn,true)));
+setTheme(state.theme||null,false);
+setLang(state.lang==="en"?"en":"es");
+</script>
+</body>
+</html>
